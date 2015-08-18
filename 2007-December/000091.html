@@ -1,0 +1,1162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r417 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r417%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051135.lB5BZ2a8007400%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000090.html">
+   <LINK REL="Next"  HREF="000092.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r417 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r417%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051135.lB5BZ2a8007400%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r417 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec  5 12:35:02 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000090.html">[gpt-commit] r416 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000092.html">[gpt-commit] r418 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#91">[ date ]</a>
+              <a href="thread.html#91">[ thread ]</a>
+              <a href="subject.html#91">[ subject ]</a>
+              <a href="author.html#91">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-05 12:35:00 +0100 (Wed, 05 Dec 2007)
+New Revision: 417
+
+Modified:
+   trunk/gpt2/gptc/src/Types.cpp
+   trunk/gpt2/gptc/src/Types.hpp
+Log:
+-Usando Symbol/SymbolList em detrimento de StructField e StructFieldList 
+-Incorporado flags para const/ref
+-Adicionado TypeBuilder
+-Adicionado ErrorType
+-Maior elaboracao da interface, compatibilidade de tipos, etc.
+
+Modified: trunk/gpt2/gptc/src/Types.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Types.cpp	2007-12-05 11:34:22 UTC (rev 416)
++++ trunk/gpt2/gptc/src/Types.cpp	2007-12-05 11:35:00 UTC (rev 417)
+@@ -1,26 +1,33 @@
+ #include &quot;Types.hpp&quot;
++#include &quot;TokenLabels.hpp&quot;
+ 
++#include &lt;iostream&gt;
+ 
+-Type::StructField::StructField(const std::string&amp; n, Type* t)
+-      : name(n), type(t) {}
++// Type::StructField::StructField(const std::string&amp; n, Type* t)
++//       : _name(n), _type(t) {
++// }
+ 
+-bool
+-Type::StructField::isLValueFor(const Type::StructField&amp; other) const {
+-  return name == other.name &amp;&amp; type-&gt;isLValueFor(other.type);
+-}
+-
+ // bool
+-// Type::StructField::compatible(const Type::StructField&amp; other) const {
+-//   return name == other.name &amp;&amp; type-&gt;compatible(other.type);
++// Type::StructField::isLValueFor(const Type::StructField&amp; other) const {
++//   return _name == other._name &amp;&amp; _type-&gt;isLValueFor(other._type);
+ // }
+ 
+-bool
+-Type::StructField::operator==(const Type::StructField&amp; other) const {
+-  return name == other.name &amp;&amp; type-&gt;equals(other.type);
+-}
+-
+ // bool
+-// Type::StructFieldList::compatible(const Type::StructFieldList&amp; other) const {
++// Type::StructField::operator==(const Type::StructField&amp; other) const {
++//   return _name == other._name &amp;&amp; _type-&gt;equals(other._type);
++// }
++// 
++// Type* Type::StructField::type() const {
++//   return _type;
++// }
++// 
++// const std::string&amp; Type::StructField::name() const {
++//   return _name;
++// }
++// 
++// 
++// bool
++// Type::StructFieldList::isLValueFor(const Type::StructFieldList&amp; other) const {
+ //   if (size() != other.size()) {
+ //     return false;
+ //   }
+@@ -29,7 +36,7 @@
+ //   for (it = begin(); it != end(); ++it) {
+ //     found = false;
+ //     for (jt = other.begin(); jt != other.end(); ++jt) {
+-//       if ((*it).compatible(*jt)) {
++//       if ((*it).isLValueFor(*jt)) {
+ //         found = true;
+ //       }
+ //     }
+@@ -39,53 +46,90 @@
+ //   }
+ //   return true;
+ // }
++// 
++// bool
++// Type::StructFieldList::operator==(const Type::StructFieldList&amp; other) const {
++//   if (size() != other.size()) {
++//     return false;
++//   }
++//   const_iterator it, jt;
++//   bool found;
++//   for (it = begin(); it != end(); ++it) {
++//     found = false;
++//     for (jt = other.begin(); jt != other.end(); ++jt) {
++//       if ((*it) == (*jt)) {
++//         found = true;
++//       }
++//     }
++//     if (!found) {
++//       return false;
++//     }
++//   }
++//   return true;
++// }
++// 
++// 
++// Type::StructFieldList::const_iterator
++// Type::StructFieldList::find(const std::string&amp; name) const {
++//   const_iterator it;
++//   for (it = begin(); it != end(); ++it) {
++//     if ((*it).name() == name) {
++//       return it;
++//     }
++//   }
++//   return end();
++// }
++// 
++// std::string Type::StructFieldList::toString() const {
++//   std::string ret = &quot;{&quot;;
++//   std::string v = &quot;&quot;;
++//   const_iterator it;
++//   for (it = begin(); it != end(); ++it) {
++//     ret += v + (*it).name() + &quot;:&quot; + (*it).type()-&gt;name();
++//     v = &quot;, &quot;;
++//   }
++//   ret += &quot;}&quot;;
++//   return ret;
++// }
+ 
+-bool
+-Type::StructFieldList::isLValueFor(const Type::StructFieldList&amp; other) const {
+-  if (size() != other.size()) {
+-    return false;
+-  }
+-  const_iterator it, jt;
+-  bool found;
+-  for (it = begin(); it != end(); ++it) {
+-    found = false;
+-    for (jt = other.begin(); jt != other.end(); ++jt) {
+-      if ((*it).isLValueFor(*jt)) {
+-        found = true;
+-      }
+-    }
+-    if (!found) {
+-      return false;
+-    }
+-  }
+-  return true;
++//************* GENERAL *********************************/
++
++void Type::setConst(bool c) {
++  _isConst = c;
+ }
+ 
+-bool
+-Type::StructFieldList::operator==(const Type::StructFieldList&amp; other) const {
+-  if (size() != other.size()) {
+-    return false;
+-  }
+-  const_iterator it, jt;
+-  bool found;
+-  for (it = begin(); it != end(); ++it) {
+-    found = false;
+-    for (jt = other.begin(); jt != other.end(); ++jt) {
+-      if ((*it) == (*jt)) {
+-        found = true;
+-      }
+-    }
+-    if (!found) {
+-      return false;
+-    }
+-  }
+-  return true;
++void Type::setRef(bool c) {
++  _isRef = c;
+ }
+ 
++bool Type::isConst() const {
++  return _isConst;
++}
+ 
++bool Type::isRef()   const {
++  return _isRef;
++}
+ 
+-//************* GENERAL *********************************/
++bool Type::isError() const {
++  if (_typeId == ERROR) {
++    return true;
++  }
+ 
++  if (isMatrix() &amp;&amp; _ofType-&gt;isError()) {
++    return true;
++  }
++  
++  if (isStruct() &amp;&amp; _fields.typeList().hasErrorType()) {
++    return true;
++  }
++
++  if (isSubprogram() &amp;&amp; 
++     (_returnType-&gt;isError() || _paramTypes.hasErrorType())) {
++    return true;
++  }
++  return false;
++}
++
+ bool Type::isPrimitive() const {
+   return _typeId == PRIMITIVE;
+ }
+@@ -102,76 +146,50 @@
+   return _typeId == SUBPROGRAM;
+ }
+ 
+-const std::string Type::name() const {
++const std::string&amp; Type::name() const {
+   return _name;
+ }
+ 
++const std::string&amp; Type::identifier() const {
++  return _identifier;
++}
++
+ bool Type::equals(int id) const {
+   return isPrimitive() &amp;&amp; (_id == id);
+ }
+ 
+ bool Type::equals(Type* ofType, int dimensions) const {
+-  return isMatrix() &amp;&amp; (dimensions == _dimensions) &amp;&amp;
++  return isMatrix() &amp;&amp; (dimensions == (int) _dimensions.size()) &amp;&amp;
+           _ofType-&gt;equals(ofType);
+ }
+ 
+ /************* VIRTUAL *********************************/
+ 
+-// bool Type::compatible(Type* other) {
+-//   switch (_typeId) {
+-//     case PRIMITIVE:
+-//       return primitive_compatible(other);
+-//     case MATRIX:
+-//       return matrix_compatible(other);
+-//     case STRUCT:
+-//       return struct_compatible(other);
+-//     case SUBPROGRAM:
+-//       return subprogram_compatible(other);
+-//     default:
+-//       throw;
+-//   }
+-// }
+-
+-bool Type::equals(const Type* other) const {
++Type* Type::promotion(Type* other) {
+   switch (_typeId) {
+     case PRIMITIVE:
+-      return primitive_equals(other);
++      return primitive_promotion(other);
+     case MATRIX:
+-      return matrix_equals(other);
++      return matrix_promotion(other);
+     case STRUCT:
+-      return struct_equals(other);
++      return struct_promotion(other);
+     case SUBPROGRAM:
+-      return subprogram_equals(other);
+-    default:
+-      throw;
+-  }
+-}
+-
+-Type* Type::numPromotionWith(Type* other) {
+-  switch (_typeId) {
+-    case PRIMITIVE:
+-      return primitive_numPromotionWith(other);
+-    case MATRIX:
+       return NULL;
+-    case STRUCT:
+-      return NULL;
+-    case SUBPROGRAM:
+-      return NULL;
+     default:
+       throw;
+   }
+ }
+ 
+-Type* Type::litPromotionWith(Type* other) {
++bool Type::equals(const Type* other) const {
+   switch (_typeId) {
+     case PRIMITIVE:
+-      return primitive_litPromotionWith(other);
++      return primitive_equals(other);
+     case MATRIX:
+-      return NULL;
++      return matrix_equals(other);
+     case STRUCT:
+-      return NULL;
++      return struct_equals(other);
+     case SUBPROGRAM:
+-      return NULL;
++      return subprogram_equals(other);
+     default:
+       throw;
+   }
+@@ -193,36 +211,39 @@
+   }
+ }
+ 
++
++
++//************* ERROR *********************************/
++
++
++Type::Type(TypeBuilder* builder)
++  : _typeId(ERROR), _builder(builder), _isConst(false), _isRef(false),
++    _name(&quot;erro&quot;), _identifier(_name) {
++}
++
+ //************* PRIMITIVE *********************************/
+ 
+ 
+ 
+-Type::Type(int id, const std::string&amp; name)
+-  : _typeId(PRIMITIVE), _name(name), _id(id) {
++Type::Type(TypeBuilder* builder, int id, const std::string&amp; name)
++  : _typeId(PRIMITIVE), _builder(builder), _isConst(false), _isRef(false),
++    _name(name), _identifier(name), _id(id) {
+ }
+ 
+ int Type::primitiveType() const {
+   return _id;
+ }
+ 
+-// bool Type::primitive_compatible(Type* other) {
+-//   if (other-&gt;isPrimitive()) {
+-//     return equals(other) || numPromotionWith(other);
+-//   } else {
+-//     return false;
+-//   }
+-// }
++Type* Type::intOrReal(Type* other) {
++  if (!isPrimitive() || !other-&gt;isPrimitive()) {
++    return NULL;
++  }
+ 
+-bool Type::primitive_equals(const Type* other) const {
+-  return other-&gt;isPrimitive() &amp;&amp; (other-&gt;_id == _id);
+-}
+-
+-Type* Type::primitive_numPromotionWith(Type* other) {
+   if ((_id == T_INTEIRO)
+        &amp;&amp;
+       (other-&gt;equals(T_INTEIRO) ||
+        other-&gt;equals(T_REAL))) {
+-    return other;
++    return _builder-&gt;primitiveType(other-&gt;primitiveType());
+   } else if ((_id == T_REAL)
+               &amp;&amp;
+              (other-&gt;equals(T_INTEIRO) ||
+@@ -233,7 +254,11 @@
+   return NULL;
+ }
+ 
+-Type* Type::primitive_litPromotionWith(Type* other) {
++Type* Type::caracOrLit(Type* other) {
++  if (!isPrimitive() || !other-&gt;isPrimitive()) {
++    return NULL;
++  }
++
+   if ((_id == T_LITERAL)
+        &amp;&amp;
+       (other-&gt;equals(T_LITERAL) ||
+@@ -243,12 +268,36 @@
+               &amp;&amp;
+              ((_id == T_CARACTERE) ||
+               (_id == T_LITERAL))) {
+-    return other;
++    return _builder-&gt;primitiveType(other-&gt;primitiveType());
+   }
+ 
+   return NULL;
+ }
+ 
++Type* Type::primitive_promotion(Type* other) {
++  if (!other-&gt;isPrimitive()) {
++    return NULL;
++  }
++
++  if (primitive_equals(other)) {
++    return other;
++  }
++
++  if (equals(T_CORINGA)) {
++    return other;
++  }
++
++  if (other-&gt;equals(T_CORINGA)) {
++    return this;
++  }
++
++  return intOrReal(other);
++}
++
++bool Type::primitive_equals(const Type* other) const {
++  return other-&gt;isPrimitive() &amp;&amp; (other-&gt;_id == _id);
++}
++
+ bool Type::primitive_isLValueFor(Type* rvalue) {
+   if (equals(rvalue)) {
+     return true;
+@@ -258,53 +307,92 @@
+       rvalue-&gt;equals(T_INTEIRO)) {
+     return true;
+   }
++
++  if (equals(T_CORINGA) || rvalue-&gt;equals(T_CORINGA)) {
++    return true;
++  }
++
+   return false;
+ }
+ 
+ /************* MATRIX *********************************/
+ 
+-Type::Type(Type* type, int dimensions)
+-  : _typeId(MATRIX), _ofType(type), _dimensions(dimensions) {
+ 
+-  _name = &quot;matriz&quot;;
+-  for (int i = 0; i &lt; _dimensions; i++) {
+-    _name += &quot;[]&quot;;
++Type::Type(TypeBuilder* builder, Type* type, const std::list&lt;int&gt;&amp; dimensions)
++  : _typeId(MATRIX), _builder(builder), _isConst(false), _isRef(false),
++    _ofType(type), _dimensions(dimensions) {
++
++/*
++  if (!_ofType-&gt;isPrimitive() &amp;&amp; _ofType-&gt;isStruct()) {
++    throw; //ofType soh pode ser do tipo primitivo ou estrutura
+   }
+-  _name += &quot; do tipo &quot; + _ofType-&gt;name();
++
++  if (_dimensions &lt;= 0) {
++    throw;
++  }
++*/
++
++  _name       = &quot;matriz&quot;;
++  _identifier = &quot;matriz&quot;;
++
++  for (int i = 0; i &lt; (int)_dimensions.size(); i++) {
++    _name       += &quot;[]&quot;;
++    _identifier += &quot;_d&quot;;
++  }
++  _name       += &quot; do tipo &quot; + _ofType-&gt;name();
++  _identifier += &quot;_tipo_&quot;    + _ofType-&gt;identifier();
+ }
+ 
+-const Type* Type::ofType() const {
++Type* Type::ofType() const {
+   return _ofType;
+ }
+ 
+-int Type::dimensions() const {
++const std::list&lt;int&gt;&amp; Type::dimensions() const {
+   return _dimensions;
+ }
+ 
+-// bool Type::matrix_compatible(Type* other) {
+-//   if (other-&gt;isMatrix()) {
+-//     return _dimensions == other-&gt;_dimensions &amp;&amp;
+-//           _ofType-&gt;compatible(other-&gt;_ofType);
+-//   } else {
+-//     return false;
+-//   }
+-// }
++Type* Type::evalTypeFromSubscript(int dimensions) {
++  if (!isMatrix()) {
++    return NULL;
++  }
+ 
++  if (dimensions == 0) {
++    return this;
++  } else if (dimensions == (int)_dimensions.size()) {
++    return _ofType;
++  } else {
++    return _builder-&gt;matrixType(_ofType, _dimensions.size() - dimensions);
++  }
++}
++
++Type* Type::matrix_promotion(Type* other) {
++  if (!other-&gt;isMatrix()) {
++    return NULL;
++  }
++
++  Type *ofProm = _ofType-&gt;promotion(other-&gt;_ofType);
++  if (!ofProm) {
++    return NULL;
++  } else {
++    return _builder-&gt;matrixType(ofProm, _dimensions);
++  }
++}
++
+ bool Type::matrix_equals(const Type* other) const {
+-  return other-&gt;isMatrix() &amp;&amp; equals(other-&gt;_ofType, other-&gt;_dimensions);
++  return other-&gt;isMatrix() &amp;&amp; 
++         equals(other-&gt;_ofType, other-&gt;_dimensions.size());
+ }
+ 
+ bool Type::matrix_isLValueFor(Type* rvalue) {
+   if (rvalue-&gt;isMatrix() &amp;&amp;
+-      (rvalue-&gt;_dimensions == _dimensions) &amp;&amp;
+-      rvalue-&gt;_ofType-&gt;isLValueFor(_ofType)) {
++      (rvalue-&gt;_dimensions.size() == _dimensions.size()) &amp;&amp;
++      _ofType-&gt;isLValueFor(rvalue-&gt;_ofType)) {
+     return true;
+   }
+ 
+-  if (rvalue-&gt;isPrimitive() &amp;&amp; rvalue-&gt;equals(T_NULO)) {
++  if (rvalue-&gt;isPrimitive() &amp;&amp; rvalue-&gt;equals(T_CORINGA)) {
+     return true;
+   }
+-
+   return false;
+ }
+ 
+@@ -313,27 +401,70 @@
+ /******************** STRUCT *********************************/
+ 
+ 
+-Type::Type(const std::string&amp; name, const StructFieldList&amp; fields,
++Type::Type(TypeBuilder* builder,
++           const std::string&amp; name,
++           const SymbolList&amp; fields,
+            const std::string&amp; unit, int line)
+-  : _typeId(STRUCT), _name(name), _anonymous(false), _fields(fields),
++  : _typeId(STRUCT), _builder(builder), _isConst(false), _isRef(false),
++    _name(name), _identifier(name), _anonymous(false), _fields(fields),
+     _unit(unit), _line(line) {
++
++  _name = _identifier + &quot;:{&quot;;
++  std::string v = &quot;&quot;;
++  for (SymbolList::const_iterator it = fields.begin(); it != fields.end(); ++it) {
++    _name += v + (*it).lexeme() + &quot;:&quot; + (*it).type()-&gt;name();
++    v = &quot;,&quot;;
++  }
++  _name += &quot;}&quot;;
+ }
+ 
+ 
+-Type::Type(const StructFieldList&amp; fields)
+-  : _typeId(STRUCT), _name(&quot;&lt;estrutura an&#244;nima&gt;&quot;), _anonymous(true),
+-    _fields(fields), _unit(&quot;&lt;interno&gt;&quot;), _line(-1) {
++Type::Type(TypeBuilder* builder, const SymbolList&amp; fields)
++  : _typeId(STRUCT), _builder(builder), _isConst(false), _isRef(false),
++    _name(&quot;&lt;an&#244;nimo&gt;&quot;), _anonymous(true), _fields(fields), 
++    _unit(&quot;&lt;interno&gt;&quot;), _line(-1) {
++
++  _name += &quot;:{&quot;;
++  std::string v = &quot;&quot;;
++  for (SymbolList::const_iterator it = fields.begin(); it != fields.end(); ++it) {
++    _name += v + (*it).lexeme() + &quot;:&quot; + (*it).type()-&gt;name();
++    v = &quot;,&quot;;
++  }
++  _name += &quot;}&quot;;
+ }
+ 
+-const Type::StructFieldList&amp; Type::fields() const {
++const SymbolList&amp; Type::fields() const {
+   return _fields;
+ }
+ 
++Type* Type::struct_promotion(Type* other) {
++  if (!other-&gt;isStruct()) {
++    return NULL;
++  }
+ 
+-// bool Type::struct_compatible(Type* other) {
+-//   return other-&gt;isStruct() &amp;&amp; _fields.compatible(other-&gt;_fields);
+-// }
++  SymbolList                 retFieldList;
++  Type                       *promoType;
++  SymbolList::const_iterator otherFieldIt;
++  SymbolList::iterator       it;
+ 
++
++  for (it = _fields.begin(); it != _fields.end(); ++it) {
++    otherFieldIt = other-&gt;fields().findByIdentifier((*it).identifier());
++    if (otherFieldIt == other-&gt;fields().end()) { //structs diferentes
++      return NULL;
++    } else {
++      promoType = (*it).type()-&gt;promotion((*otherFieldIt).type());
++      if (!promoType) {
++        return NULL;
++      } else {
++        retFieldList.push_back(Symbol((*it).lexeme(), promoType));
++      }
++    }
++  }
++
++  return _builder-&gt;structType(retFieldList);
++}
++
+ bool Type::struct_equals(const Type* other) const {
+   if (!other-&gt;isStruct()) {
+     return false;
+@@ -342,7 +473,7 @@
+   if ((_anonymous  &amp;&amp; other-&gt;_anonymous) ||
+       (!_anonymous &amp;&amp; !other-&gt;_anonymous)) {
+     //comparacao estrutural
+-    return _fields == other-&gt;_fields;
++    return _fields.equivalent(other-&gt;_fields);
+   } else {
+     //comparacao nominal
+     return _name == other-&gt;_name;
+@@ -351,46 +482,76 @@
+ 
+ 
+ bool Type::struct_isLValueFor(Type* rtype) {
+-  if (rtype-&gt;isPrimitive()) {
+-    return rtype-&gt;equals(T_NULO);
++  if (rtype-&gt;isPrimitive() &amp;&amp; rtype-&gt;equals(T_CORINGA)) {
++    return true;
+   }
+ 
+   if (!rtype-&gt;isStruct()) {
+     return false;
+   }
+ 
+-  if (_anonymous || rtype-&gt;_anonymous) {
+-    return _fields.isLValueFor(rtype-&gt;_fields);
++  if (!_anonymous &amp;&amp; !rtype-&gt;_anonymous) {
++    return equals(rtype);
+   } else {
+-    //comparacao nominal
+-    return equals(rtype);
++    return fieldsIsLValueFor(rtype-&gt;_fields);
+   }
+ }
+ 
++bool Type::fieldsIsLValueFor(const SymbolList&amp; others) {
++  if (_fields.size() != others.size()) {
++    return false;
++  }
+ 
++  SymbolList::const_iterator it, jt;
++  for (it = _fields.begin(); it != _fields.end(); ++it) {
++    jt = others.findByIdentifier((*it).identifier());
++    if (jt == others.end()) {
++      return false;
++    } else if (!(*it).type()-&gt;isLValueFor((*jt).type())) {
++      return false;
++    }
++  }
+ 
++  return true;
++}
++
+ /******************** SUBPROGRAM *********************************/
+ 
+-Type::Type(const TypeList&amp; paramTypes,
++Type::Type(TypeBuilder* builder,
++           const TypeList&amp; paramTypes,
+            Type* returnType)
+-  : _typeId(SUBPROGRAM), _paramTypes(paramTypes), _returnType(returnType) {
++  : _typeId(SUBPROGRAM), _builder(builder), _isConst(false), _isRef(false),
++    _paramTypes(paramTypes), _returnType(returnType) {
+ 
+-  if (_returnType-&gt;equals(T_NULO)) {
++  if (!_returnType) {
+     _name = &quot;proc(&quot;;
+   } else {
+     _name = &quot;func(&quot;;
+   }
++
+   _name += _paramTypes.toString();
+   _name += &quot;)&quot;;
+-  _name += &quot; : &quot; + _returnType-&gt;name();
++
++  _identifier = _paramTypes.toIdentifier();
++
++  if (_returnType) {
++    _name       += &quot; : &quot; + _returnType-&gt;name();
++  }
+ }
+ 
+ 
+-// bool Type::subprogram_compatible(Type* other) {
+-//   return equals(other);
++const TypeList&amp; Type::paramTypes() const {
++  return _paramTypes;
++}
++
++Type* Type::returnType() const {
++  return _returnType;
++}
++
++// bool Type::paramMatches(const TypeList&amp; types) const {
++//   return _paramTypes.matches(types);
+ // }
+ 
+-
+ bool Type::subprogram_equals(const Type* other) const {
+   return other-&gt;isSubprogram() &amp;&amp;
+          (_paramTypes == other-&gt;_paramTypes) &amp;&amp;
+@@ -410,7 +571,7 @@
+   iterator it;
+ 
+   for (it = begin(); it != end(); ++it) {
+-    if ((*it)-&gt;name() == lexeme) {
++    if ((*it)-&gt;identifier() == lexeme) {
+       return it;
+     }
+   }
+@@ -439,12 +600,149 @@
+   return end();
+ }
+ 
++bool TypeList::equals(const TypeList&amp; other) const {
++  const_iterator it;
++  const_iterator jt;
++
++  if (size() != other.size()) {
++    return false;
++  }
++
++  for (it = begin(), jt = other.begin();
++      (it != end()) &amp;&amp; (jt != other.end()); ++it, ++jt) {
++    if (!(*it)-&gt;equals(*jt)) {
++      return false;
++    }
++  }
++
++  return true;
++}
++
++bool TypeList::isLValueFor(const TypeList&amp; other) const {
++  const_iterator it;
++  const_iterator jt;
++
++  if (size() != other.size()) {
++    return false;
++  }
++
++  for (it = begin(), jt = other.begin();
++      (it != end()) &amp;&amp; (jt != other.end()); ++it, ++jt) {
++    if (!(*it)-&gt;isLValueFor(*jt)) {
++      return false;
++    }
++  }
++
++  return true;
++}
++
++bool TypeList::hasErrorType() const {
++  const_iterator it;
++
++  for (it = begin(); it != end(); ++it) {
++    if ((*it)-&gt;isError()) {
++      return true;
++    }
++  }
++  return false;
++}
++
++
+ std::string TypeList::toString() const {
+   std::string ret = &quot;&quot;;
++  std::string v = &quot;&quot;;
+   const_iterator it;
+   for (it = begin(); it != end(); ++it) {
+-    ret += (*it)-&gt;name() + &quot;,&quot;;
++    ret += v + (*it)-&gt;name();
++    v = &quot;,&quot;;
+   }
+   return ret;
+ }
+ 
++std::string TypeList::toIdentifier() const {
++  std::string ret = &quot;&quot;;
++  const_iterator it;
++  for (it = begin(); it != end(); ++it) {
++    ret += &quot;_&quot; + (*it)-&gt;identifier();
++  }
++  return ret;
++}
++
++/********************************************************************/
++
++Type* TypeBuilder::primitiveType(int id) {
++  Type* ret = new Type(this, id, g_tokenLabels[id]);
++  _types.push_back(ret);
++  return ret;
++}
++
++Type* TypeBuilder::matrixType(Type* ofType, 
++                              const std::list&lt;int&gt;&amp; dimensions) {
++  Type* ret = new Type(this, ofType, dimensions);
++  _types.push_back(ret);
++  return ret;
++}
++
++Type* TypeBuilder::matrixType(Type* ofType, int dimensions) {
++  std::list&lt;int&gt; dims(dimensions);
++  Type* ret = new Type(this, ofType, dims);
++  _types.push_back(ret);
++  return ret;
++}
++
++
++Type* TypeBuilder::structType(const std::string&amp; name,
++                    const SymbolList&amp; fields,
++                    const std::string&amp; unit,
++                    int line) {
++
++  Type* ret = new Type(this, name, fields, unit, line);
++  _types.push_back(ret);
++  return ret;
++}
++
++Type* TypeBuilder::structType(const SymbolList&amp; fields) {
++  Type* ret = new Type(this, fields);
++  _types.push_back(ret);
++  return ret;
++}
++
++/*
++  estrutura Par&#226;metro
++    tipo  : literal;
++    valor : coringa;
++  fim-estrutura
++
++  procedimento p( ... args) 
++
++  -&gt; args : matriz[] do tipo Par&#226;metro
++*/
++Type* TypeBuilder::reticencesType() {
++  SymbolList fields;
++
++  fields.push_back(Symbol(&quot;tipo&quot;, 
++    primitiveType(PortugolTokenTypes::T_LITERAL)));
++
++  fields.push_back(Symbol(&quot;valor&quot;, 
++    primitiveType(PortugolTokenTypes::T_CORINGA)));
++
++  return matrixType(
++    structType(&quot;Par&#226;metro&quot;, fields, &quot;&lt;interno&gt;&quot;,-1), std::list&lt;int&gt;(1));
++}
++
++Type* 
++TypeBuilder::subprogramType(const TypeList&amp; paramTypes, Type* returnType) {
++  Type* ret = new Type(this, paramTypes, returnType);
++  _types.push_back(ret);
++  return ret;
++}
++
++Type* TypeBuilder::errorType() {
++  return new Type(this);
++}
++
++
++TypeList&amp; TypeBuilder::typeList() {
++  return _types;
++}
++
+
+Modified: trunk/gpt2/gptc/src/Types.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Types.hpp	2007-12-05 11:34:22 UTC (rev 416)
++++ trunk/gpt2/gptc/src/Types.hpp	2007-12-05 11:35:00 UTC (rev 417)
+@@ -5,7 +5,9 @@
+ #include &lt;list&gt;
+ 
+ #include &quot;PortugolTokenTypes.hpp&quot;
++#include &quot;Symbol.hpp&quot;
+ 
++class TypeBuilder;
+ class Type;
+ 
+ class TypeList : public std::list&lt;Type*&gt; {
+@@ -17,66 +19,100 @@
+ 
+   iterator find(int id);
+ 
+-//   void push_back(const TypeList&amp;);
+ 
++  bool isLValueFor(const TypeList&amp;) const;
++  bool equals(const TypeList&amp;) const;
++  
++  bool hasErrorType() const;
++
+   std::string toString() const;
++  std::string toIdentifier() const;
+ };
+ 
+ 
++
++
+ class Type : private PortugolTokenTypes {
+ public:
+-  enum { PRIMITIVE, MATRIX, STRUCT, SUBPROGRAM };
++  enum { PRIMITIVE, MATRIX, STRUCT, SUBPROGRAM, ERROR };
+ 
+-  class StructField {
+-  public:
+-    StructField(const std::string&amp; n, Type* t);
+-    bool isLValueFor(const StructField&amp; other) const;
++//   class StructField {
++//   public:
++//     StructField(const std::string&amp; n, Type* t);
++// 
++//     bool isLValueFor(const StructField&amp; other) const;
++// 
++//     bool operator==(const StructField&amp; other) const;
++// 
++//     Type *type() const;
++//     const std::string&amp; name() const;
++//   private:
++//     std::string _name;
++//     Type* _type;
++//   };
++// 
++//   class StructFieldList : public std::list&lt;StructField&gt; {
++//   public:
++// //     bool compatible(const StructFieldList&amp; other) const;
++//     bool isLValueFor(const StructFieldList&amp; other) const;
++//     bool operator==(const StructFieldList&amp; other) const;
++// 
++//     const_iterator find(const std::string&amp;) const;
++//     std::string toString() const;
++//   };
+ 
+-//     bool compatible(const StructField&amp; other) const;
+ 
+-    bool operator==(const StructField&amp; other) const;
++  //Error type
++  Type(TypeBuilder*);
+ 
+-  private:
+-    std::string name;
+-    Type* type;
+-  };
++  //Primitive
++  Type(TypeBuilder*, int id, const std::string&amp; name);
++  int primitiveType() const;
+ 
+-  class StructFieldList : public std::list&lt;StructField&gt; {
+-  public:
+-//     bool compatible(const StructFieldList&amp; other) const;
+-    bool isLValueFor(const StructFieldList&amp; other) const;
+-    bool operator==(const StructFieldList&amp; other) const;
+-  };
++  Type* intOrReal(Type* other);
++  Type* caracOrLit(Type* other);
+ 
++  //Matrix
++  Type(TypeBuilder*, Type* ofType, const std::list&lt;int&gt;&amp; dimensions);
+ 
+-  /* Constructors */
++  Type*                    ofType() const;
++  const std::list&lt;int&gt;&amp;    dimensions() const;
+ 
+-  //Primitive
+-  Type(int id, const std::string&amp; name);
+-  int primitiveType() const;
++  Type*                    evalTypeFromSubscript(int);
+ 
+-  //Matrix
+-  Type(Type* ofType, int dimensions);
+-  const Type*         ofType() const;
+-  int                 dimensions() const;
+-
+   //Struct
+-  Type(const std::string&amp; name, const StructFieldList&amp; fields,
+-             const std::string&amp; unit, int line);
+-  Type(const StructFieldList&amp; fields);
+-  const StructFieldList&amp; fields() const;
++  Type(TypeBuilder*,
++       const std::string&amp; name, 
++       const SymbolList&amp; fields,
++       const std::string&amp; unit, int line);
+ 
++  Type(TypeBuilder*, const SymbolList&amp; fields);
++
++  const SymbolList&amp; fields() const;
++  bool fieldsIsLValueFor(const SymbolList&amp;);
++
+   //Subprogram
+-  Type(const TypeList&amp; paramTypes, Type* returnType);
++  Type(TypeBuilder*, const TypeList&amp; paramTypes, Type* returnType);
+ 
++  const TypeList&amp; paramTypes() const;
++  Type* returnType() const;
++//   bool  paramMatches(const TypeList&amp;) const;
++  
++
+   /* General Methods */
++  void setConst(bool);
++  void setRef(bool);
++  bool isConst() const;
++  bool isRef()   const;
+ 
++  bool isError() const;
+   bool isPrimitive() const;
+   bool isMatrix() const;
+   bool isStruct() const;
+   bool isSubprogram() const;
+ 
+-  const std::string name() const;
++  const std::string&amp; name() const;
++  const std::string&amp; identifier() const;
+ 
+   bool equals(int id) const;
+   bool equals(Type* ofType, int dimensions) const;
+@@ -84,49 +120,49 @@
+ 
+ 
+   //virtual
+-//   bool  compatible(Type* other);
++  Type* promotion(Type*);
+   bool  equals(const Type* other) const;
+-  Type* numPromotionWith(Type* other);
+-  Type* litPromotionWith(Type* other);
+   bool  isLValueFor(Type* rtype);
+ 
+ 
+   //impl primitive
+-//   bool  primitive_compatible(Type* other);
++  Type* primitive_promotion(Type* other);
+   bool  primitive_equals(const Type* other) const;
+-  Type* primitive_numPromotionWith(Type* other);
+-  Type* primitive_litPromotionWith(Type* other);
+   bool  primitive_isLValueFor(Type* rvalue);
+ 
+   //impl matrix
+-//   bool matrix_compatible(Type* other);
++  Type* matrix_promotion(Type* other);
+   bool matrix_equals(const Type* other) const;
+   bool matrix_isLValueFor(Type* rvalue);
+ 
+   //impl struct
+-//   bool struct_compatible(Type* other);
++  Type* struct_promotion(Type* other);
+   bool struct_equals(const Type* other) const;
+   bool struct_isLValueFor(Type* rtype);
+ 
+   //impl subprogram
+-//   bool subprogram_compatible(Type* other);
+   bool subprogram_equals(const Type* other) const;
+ 
+ private:
+-  int         _typeId;
++  int          _typeId;
++  TypeBuilder* _builder;
+ 
+-  std::string _name;
++  bool         _isConst;
++  bool         _isRef;
+ 
++  std::string  _name;
++  std::string  _identifier;
++
+   //Primitive
+   int         _id;
+ 
+   //matrix
+-  Type          *_ofType;
+-  int           _dimensions;
++  Type             *_ofType;
++  std::list&lt;int&gt;   _dimensions;
+ 
+   //struct
+   bool             _anonymous;
+-  StructFieldList  _fields;
++  SymbolList       _fields;
+   std::string      _unit;
+   int              _line;
+ 
+@@ -135,4 +171,29 @@
+   Type*            _returnType;
+ };
+ 
++class TypeBuilder {
++public:
++  Type* primitiveType(int id);
++
++  Type* matrixType(Type* ofType, const std::list&lt;int&gt;&amp; dimensions);
++  Type* matrixType(Type* ofType, int);
++
++  Type* structType(const std::string&amp; name,
++                   const SymbolList&amp; fields,
++                   const std::string&amp; unit,
++                   int line);
++
++  Type* structType(const SymbolList&amp; fields);
++
++  Type* reticencesType();
++
++  Type* subprogramType(const TypeList&amp; paramTypes, Type* returnType);  
++
++  Type* errorType();
++
++  TypeList&amp; typeList();
++private:
++  TypeList  _types;
++};
++
+ #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000090.html">[gpt-commit] r416 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000092.html">[gpt-commit] r418 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#91">[ date ]</a>
+              <a href="thread.html#91">[ thread ]</a>
+              <a href="subject.html#91">[ subject ]</a>
+              <a href="author.html#91">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r514 - in trunk/gpt: . debian packages
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-October/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r514%20-%20in%20trunk/gpt%3A%20.%20debian%20packages&In-Reply-To=%3C200810212228.m9LMSY4M026269%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000186.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r514 - in trunk/gpt: . debian packages</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r514%20-%20in%20trunk/gpt%3A%20.%20debian%20packages&In-Reply-To=%3C200810212228.m9LMSY4M026269%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r514 - in trunk/gpt: . debian packages">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Oct 22 00:28:34 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000186.html">[gpt-commit] r513 - trunk/gpt/lib
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#187">[ date ]</a>
+              <a href="thread.html#187">[ thread ]</a>
+              <a href="subject.html#187">[ subject ]</a>
+              <a href="author.html#187">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: adorilson
+Date: 2008-10-22 00:28:20 +0200 (Wed, 22 Oct 2008)
+New Revision: 514
+
+Added:
+   trunk/gpt/debian/
+   trunk/gpt/debian/changelog
+   trunk/gpt/debian/compat
+   trunk/gpt/debian/control
+   trunk/gpt/debian/copyright
+   trunk/gpt/debian/dirs
+   trunk/gpt/debian/docs
+   trunk/gpt/debian/gpt.install
+   trunk/gpt/debian/libgportugol-dev.install
+   trunk/gpt/debian/libgportugol0.install
+   trunk/gpt/debian/rules
+   trunk/gpt/debian/watch
+Removed:
+   trunk/gpt/packages/deb/
+Log:
+- Adicao dos arquivos necessarios para criacao de pacotes debian
+
+
+Added: trunk/gpt/debian/changelog
+===================================================================
+--- trunk/gpt/debian/changelog	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/changelog	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1,14 @@
++gpt (1.0.2-1) unstable; urgency=high
++
++  * New upstream version
++  * Updated Standards-Version to 3.8.0
++  * Fixed FTBFS (Closes: #486968)
++
++ -- Marcelo Jorge Vieira (metal) &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">metal at alucinados.com</A>&gt;  Sat, 24 Jun 2008 13:54:28 -0300
++
++gpt (1.0.1.svn20080324-1) unstable; urgency=low
++
++  * Initial release (Closes: #470169)
++
++ -- Marcelo Jorge Vieira (metal) &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">metal at alucinados.com</A>&gt;  Thu, 13 Mar 2008 01:27:31 -0300
++
+
+Added: trunk/gpt/debian/compat
+===================================================================
+--- trunk/gpt/debian/compat	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/compat	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1 @@
++6
+
+Added: trunk/gpt/debian/control
+===================================================================
+--- trunk/gpt/debian/control	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/control	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1,35 @@
++Source: gpt
++Section: devel
++Priority: optional
++Maintainer: Marcelo Jorge Vieira (metal) &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">metal at alucinados.com</A>&gt;
++Build-Depends: cdbs, debhelper (&gt;= 7), autotools-dev, antlr, libantlr-dev, libpcre3-dev
++Standards-Version: 3.8.0
++Homepage: <A HREF="http://gpt.berlios.de">http://gpt.berlios.de</A>
++Vcs-Svn: <A HREF="svn://svn.berlios.de/gpt/trunk">svn://svn.berlios.de/gpt/trunk</A>
++Vcs-Browser: <A HREF="https://svn.berlios.de/wsvn/gpt/trunk">https://svn.berlios.de/wsvn/gpt/trunk</A>
++
++Package: gpt
++Architecture: any
++Depends: ${shlibs:Depends}, ${misc:Depends}, nasm
++Description: G-Portugol is a portuguese structured programming language
++ based on the popular, freeform, pseudocode known as portugol.
++ The compiler features native compilation, translation to C code,
++ and interpretation of algorithms.
++ 
++Package: libgportugol-dev
++Section: libdevel
++Architecture: any
++Depends: libgportugol0 (= ${binary:Version}), antlr, libantlr-dev, libpcre3-dev
++Description: Development files for the G-Portugol library
++ G-Portugol is a portuguese structured programming language, based on the
++ popular, freeform, pseudocode known as portugol. The compiler features
++ native compilation, translation to C code, and interpretation of algorithms.
++
++Package: libgportugol0
++Section: libs
++Architecture: any
++Depends: ${shlibs:Depends}
++Description: G-Portugol library
++ G-Portugol is a portuguese structured programming language, based on the
++ popular, freeform, pseudocode known as portugol. The compiler features
++ native compilation, translation to C code, and interpretation of algorithms.
+
+Added: trunk/gpt/debian/copyright
+===================================================================
+--- trunk/gpt/debian/copyright	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/copyright	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1,57 @@
++This package was debianized by Marcelo Jorge Vieira (metal) &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">metal at alucinados.com</A>&gt; on
++Thu, 13 Mar 2008 01:27:31 -0300.
++
++It was downloaded from <A HREF="http://gpt.berlios.de/site/?q=download">http://gpt.berlios.de/site/?q=download</A>
++
++Copyright:
++
++    Copyright (c) 2006-2008, Thiago Silva &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>&gt;
++
++License:
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; version 2 dated June, 1991.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
++
++  On Debian GNU/Linux systems, the complete text of the GNU General
++  Public License can be found in `/usr/share/common-licenses/GPL-2'.
++  
++
++Files: 
++
++  src/modules/parser/UnicodeCharScanner.cpp
++  src/modules/parser/UnicodeCharScanner.hpp
++  src/modules/parser/MismatchedUnicodeCharException.hpp
++  src/modules/parser/MismatchedUnicodeCharException.cpp
++  
++  Copyright:
++
++    We reserve no legal rights to the ANTLR--it is fully in the public
++    domain. An individual or company may do whatever they wish with source
++    code distributed with ANTLR or the code generated by ANTLR, including
++    the incorporation of ANTLR, or its output, into commercial software.
++
++    We encourage users to develop software with ANTLR. However, we do ask
++    that credit is given to us for developing ANTLR. By &quot;credit&quot;, we mean
++    that if you use ANTLR or incorporate any source code into one of your
++    programs (commercial product, research project, or otherwise) that you
++    acknowledge this fact somewhere in the documentation, research report,
++    etc... If you like ANTLR and have developed a nice tool with the output,
++    please mention that you developed it using ANTLR. In addition, we ask
++    that the headers remain intact in our source code. As long as these
++    guidelines are kept, we expect to continue enhancing this system and
++    expect to make other tools available as they are completed.
++
++    Terence Parr, jGuru.com
++
++The Debian packaging is (C) 2008, Marcelo Jorge Vieira (metal) &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">metal at alucinados.com</A>&gt; and
++is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+
+Added: trunk/gpt/debian/dirs
+===================================================================
+--- trunk/gpt/debian/dirs	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/dirs	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1 @@
++usr/bin
+
+Added: trunk/gpt/debian/docs
+===================================================================
+--- trunk/gpt/debian/docs	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/docs	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1,5 @@
++NEWS
++README.en
++README.pt_BR
++HACKING
++THANKS
+
+Added: trunk/gpt/debian/gpt.install
+===================================================================
+--- trunk/gpt/debian/gpt.install	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/gpt.install	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1,4 @@
++debian/tmp/usr/bin/gpt
++debian/tmp/usr/share/man/man1/*
++debian/tmp/usr/share/man/pt_BR/man1/*
++debian/tmp/usr/lib/gpt/base.gpt
+
+Added: trunk/gpt/debian/libgportugol-dev.install
+===================================================================
+--- trunk/gpt/debian/libgportugol-dev.install	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/libgportugol-dev.install	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1,4 @@
++debian/tmp/usr/include/*
++debian/tmp/usr/lib/lib*.la
++debian/tmp/usr/lib/lib*.a
++debian/tmp/usr/lib/lib*.so
+
+Added: trunk/gpt/debian/libgportugol0.install
+===================================================================
+--- trunk/gpt/debian/libgportugol0.install	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/libgportugol0.install	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1 @@
++debian/tmp/usr/lib/lib*.so.*
+
+Added: trunk/gpt/debian/rules
+===================================================================
+--- trunk/gpt/debian/rules	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/rules	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1,7 @@
++#!/usr/bin/make -f
++  
++include /usr/share/cdbs/1/rules/debhelper.mk
++include /usr/share/cdbs/1/class/autotools.mk
++
++DEB_CONFIGURE_EXTRA_FLAGS += --with-antlr=/usr/share/antlr \
++                             --enable-install-devel
+
+
+Property changes on: trunk/gpt/debian/rules
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt/debian/watch
+===================================================================
+--- trunk/gpt/debian/watch	2008-10-21 15:48:09 UTC (rev 513)
++++ trunk/gpt/debian/watch	2008-10-21 22:28:20 UTC (rev 514)
+@@ -0,0 +1,3 @@
++version=3
++<A HREF="https://developer.berlios.de/project/showfiles.php?group_id=5791">https://developer.berlios.de/project/showfiles.php?group_id=5791</A> \
++        <A HREF="http://(?:.*">http://(?:.*</A>)gpt-(\d+(?:\.\d+){1,3}).tar.gz 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000186.html">[gpt-commit] r513 - trunk/gpt/lib
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#187">[ date ]</a>
+              <a href="thread.html#187">[ thread ]</a>
+              <a href="subject.html#187">[ subject ]</a>
+              <a href="author.html#187">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r376 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r376%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711211727.lALHRunr023848%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000049.html">
+   <LINK REL="Next"  HREF="000051.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r376 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r376%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711211727.lALHRunr023848%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r376 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Nov 21 18:27:56 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000049.html">[gpt-commit] r375 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000051.html">[gpt-commit] r377 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#50">[ date ]</a>
+              <a href="thread.html#50">[ thread ]</a>
+              <a href="subject.html#50">[ subject ]</a>
+              <a href="author.html#50">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-21 18:27:56 +0100 (Wed, 21 Nov 2007)
+New Revision: 376
+
+Modified:
+   trunk/gpt2/gptc/src/parser.g
+Log:
+-Usando PortugolAST.
+-Fix na producao 'corpo': permitia 2+ blocos inicio/fim).
+-Producao 'parametro': alteracao da ordem do T_CONSTANTE e T_REF.
+-Reformulacao da AST do lvalue: mais informacoes (T_SUBSCRITO e T_MEMBRO) para facilitar a travessia.
+-Adicao do T_ABRE_PAREN para evitar ambiguidade nas gramaticas de AST.
+
+Modified: trunk/gpt2/gptc/src/parser.g
+===================================================================
+--- trunk/gpt2/gptc/src/parser.g	2007-11-21 17:27:31 UTC (rev 375)
++++ trunk/gpt2/gptc/src/parser.g	2007-11-21 17:27:56 UTC (rev 376)
+@@ -18,8 +18,10 @@
+  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             */
+ 
+ header {
+-#include &lt;antlr/NoViableAltException.hpp&gt;
+-#include &lt;antlr/SemanticException.hpp&gt;
++  #include &lt;antlr/NoViableAltException.hpp&gt;
++  #include &lt;antlr/SemanticException.hpp&gt;
++
++  #include &quot;PortugolAST.hpp&quot;
+   using namespace antlr;
+ }
+ 
+@@ -32,6 +34,7 @@
+   importVocab    = Portugol;
+   genHashLines   = false;
+   buildAST       = true;
++  ASTLabelType   = &quot;RefPortugolAST&quot;;
+   noConstructors = true;
+ }
+ 
+@@ -89,7 +92,7 @@
+     astFactory-&gt;addASTChild(ast, astFactory-&gt;create(token));
+   }
+ 
+-  void addChildNode(antlr::ASTPair&amp; ast, antlr::RefAST child) {
++  void addChildNode(antlr::ASTPair&amp; ast, RefAST child) {
+     astFactory-&gt;addASTChild(ast, child);
+   }
+ 
+@@ -133,8 +136,8 @@
+   ;
+ 
+ corpo
+-  :  declaracao_subrotina corpo
+-  |  bloco_codigo         corpo
++  :  declaracao_subprograma corpo
++  |  bloco_codigo           (declaracao_subprograma)*
+   |  /*vazio*/
+   ;
+ 
+@@ -292,7 +295,7 @@
+ //####################################
+ 
+ 
+-declaracao_subrotina
++declaracao_subprograma
+   : declaracao_funcao
+   | declaracao_procedimento
+   ;
+@@ -325,9 +328,9 @@
+   ;
+ 
+ parametro!
+-  : ((c:T_CONSTANTE)? r:T_REF)? id:T_IDENTIFICADOR T_2_PONTOS t:tipo
++  : (r:T_REF (c:T_CONSTANTE)?)? id:T_IDENTIFICADOR T_2_PONTOS t:tipo
+ 
+-                          {#parametro = #([T_PARAM,&quot;&amp;param&quot;],t,id,c,r);}
++                          {#parametro = #([T_PARAM,&quot;&amp;param&quot;],t,id,r,c);}
+   ;
+ 
+ 
+@@ -373,15 +376,24 @@
+   : T_RETORNE^ (expressao)? T_PONTO_VIRGULA!
+   ;
+ 
+-lvalue
+-  : T_IDENTIFICADOR^ (matriz_indices | T_PONTO! lvalue)
++lvalue!
++  : id:T_IDENTIFICADOR (m:lvalue_indices)? (T_PONTO es:lvalue_membro)?
++    {#lvalue = #(id, m, es);}
+   ;
+ 
+-matriz_indices
++lvalue_membro!
++  : l:lvalue             {#lvalue_membro = #([T_MEMBRO,&quot;&amp;membro&quot;], l);}
++  ;
++
++lvalue_indices
++  : i:indices_matriz     {#lvalue_indices = #([T_SUBSCRITO,&quot;&amp;subscrito&quot;], i);}
++  ;
++
++indices_matriz
+   : ( T_ABRE_CHAVE!
+       expressao
+       T_FECHA_CHAVE!
+-    )*
++    )+
+   ;
+ 
+ en_se
+@@ -521,7 +533,7 @@
+   :  (T_IDENTIFICADOR T_ABRE_PAREN)=&gt; chamada_subrotina
+   |  lvalue
+   |  literal
+-  | T_ABRE_PAREN! expressao T_FECHA_PAREN!
++  | T_ABRE_PAREN^ expressao T_FECHA_PAREN!
+   ;
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000049.html">[gpt-commit] r375 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000051.html">[gpt-commit] r377 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#50">[ date ]</a>
+              <a href="thread.html#50">[ thread ]</a>
+              <a href="subject.html#50">[ subject ]</a>
+              <a href="author.html#50">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

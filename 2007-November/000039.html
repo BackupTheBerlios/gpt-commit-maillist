@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r365 - trunk/gpt2/gptc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r365%20-%20trunk/gpt2/gptc&In-Reply-To=%3C200711141814.lAEIEO4O022572%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000038.html">
+   <LINK REL="Next"  HREF="000040.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r365 - trunk/gpt2/gptc</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r365%20-%20trunk/gpt2/gptc&In-Reply-To=%3C200711141814.lAEIEO4O022572%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r365 - trunk/gpt2/gptc">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Nov 14 19:14:24 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000038.html">[gpt-commit] r364 - in trunk/gpt2/gptc/compiler_test: . tests
+</A></li>
+        <LI>Next message: <A HREF="000040.html">[gpt-commit] r366 - trunk/gpt2/gptc/compiler_test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#39">[ date ]</a>
+              <a href="thread.html#39">[ thread ]</a>
+              <a href="subject.html#39">[ subject ]</a>
+              <a href="author.html#39">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-14 19:14:23 +0100 (Wed, 14 Nov 2007)
+New Revision: 365
+
+Modified:
+   trunk/gpt2/gptc/parser.g
+Log:
+-AST da definicao de constantes corrigida
+-Adicao da sintaxe para parametro variavel nomeado
+
+Modified: trunk/gpt2/gptc/parser.g
+===================================================================
+--- trunk/gpt2/gptc/parser.g	2007-11-14 16:52:24 UTC (rev 364)
++++ trunk/gpt2/gptc/parser.g	2007-11-14 18:14:23 UTC (rev 365)
+@@ -268,8 +268,8 @@
+ declaracao_constante!
+   : id:T_IDENTIFICADOR T_2_PONTOS t:tipo
+     l:lista_inicializacao T_PONTO_VIRGULA
+-
+-               {#declaracao_constante = #([T_CONSTANTE,&quot;&amp;const&quot;], t,id,l);}
++               {#declaracao_constante =
++                    #([T_CONSTANTE,&quot;&amp;const&quot;],t,id,([T_VALOR,&quot;&amp;valor&quot;],l));}
+   ;
+ 
+ 
+@@ -291,6 +291,7 @@
+ //##    Declara&#231;&#227;o de Subrotinas    ##
+ //####################################
+ 
++
+ declaracao_subrotina
+   : declaracao_funcao
+   | declaracao_procedimento
+@@ -315,7 +316,8 @@
+   ;
+ 
+ param_reticencias!
+-  : ret:T_RETICENCIAS     {#param_reticencias = #([T_VARIAVEL,&quot;&amp;param&quot;],ret);}
++  : ret:T_RETICENCIAS id:T_IDENTIFICADOR
++                       {#param_reticencias = #([T_VARIAVEL,&quot;&amp;param&quot;],ret,id);}
+   ;
+ 
+ parametro!
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000038.html">[gpt-commit] r364 - in trunk/gpt2/gptc/compiler_test: . tests
+</A></li>
+	<LI>Next message: <A HREF="000040.html">[gpt-commit] r366 - trunk/gpt2/gptc/compiler_test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#39">[ date ]</a>
+              <a href="thread.html#39">[ thread ]</a>
+              <a href="subject.html#39">[ subject ]</a>
+              <a href="author.html#39">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r479 - trunk/gpt/doc/man
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r479%20-%20trunk/gpt/doc/man&In-Reply-To=%3C200803130344.m2D3io2W031747%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000151.html">
+   <LINK REL="Next"  HREF="000153.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r479 - trunk/gpt/doc/man</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r479%20-%20trunk/gpt/doc/man&In-Reply-To=%3C200803130344.m2D3io2W031747%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r479 - trunk/gpt/doc/man">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Mar 13 04:44:50 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000151.html">[gpt-commit] r478 - trunk/gpt
+</A></li>
+        <LI>Next message: <A HREF="000153.html">[gpt-commit] r480 - trunk/gpt/src/modules/x86
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#152">[ date ]</a>
+              <a href="thread.html#152">[ thread ]</a>
+              <a href="subject.html#152">[ subject ]</a>
+              <a href="author.html#152">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-03-13 04:44:50 +0100 (Thu, 13 Mar 2008)
+New Revision: 479
+
+Added:
+   trunk/gpt/doc/man/gpt.en.1
+Log:
+-Adicionando man em ingles
+
+Added: trunk/gpt/doc/man/gpt.en.1
+===================================================================
+--- trunk/gpt/doc/man/gpt.en.1	2008-03-12 03:20:29 UTC (rev 478)
++++ trunk/gpt/doc/man/gpt.en.1	2008-03-13 03:44:50 UTC (rev 479)
+@@ -0,0 +1,101 @@
++.\&quot; Copyright 2003-2005, Thiago Silva
++.\&quot; All rights reserved.
++.\&quot;
++.\&quot; Redistribution and use in source and binary forms, with or without
++.\&quot; modification, are permitted provided that the following conditions
++.\&quot; are met:
++.\&quot; 1. Redistributions of source code must retain the above copyright
++.\&quot;    notice, this list of conditions and the following disclaimer.
++.\&quot; 2. Redistributions in binary form must reproduce the above copyright
++.\&quot;    notice, this list of conditions and the following disclaimer in the
++.\&quot;    documentation and/or other materials provided with the distribution.
++.\&quot; 3. Neither the name of Julianne F. Haugh nor the names of its contributors
++.\&quot;    may be used to endorse or promote products derived from this software
++.\&quot;    without specific prior written permission.
++.\&quot;
++.\&quot; THIS SOFTWARE IS PROVIDED BY THIAGO SILVA AND CONTRIBUTORS
++.\&quot; ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
++.\&quot; THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++.\&quot; ARE DISCLAIMED.  IN NO EVENT SHALL JULIE HAUGH OR CONTRIBUTORS BE LIABLE
++.\&quot; FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++.\&quot; DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++.\&quot; OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++.\&quot; HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++.\&quot; LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++.\&quot; OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++.\&quot; SUCH DAMAGE.
++.\&quot;
++.\&quot;
++.TH GPT 1
++.SH NOME
++gpt \- compiler, interpreter and translator for the G-Portugol programming language
++
++.SH SINOPSE
++  gpt
++[
++.BR \-vhid
++] [
++.BI \-ots
++output_file
++] file1 file2 ...
++
++.SH DESCRI&#199;&#195;O
++.I gpt
++is a simple compiler for the G-Porutol Language. It is possible to have
++a list of files to be included in the compilation setting the GPT_INCLUDE
++environment variable, wich should have a list of file paths separated with &quot;:&quot;.
++.SH OPTIONS
++.TP
++.BI \-v
++Shows version information and exits.
++.br
++.ns
++.TP
++.BI \-h
++Shows a summary of options and exits.
++.br
++.ns
++.TP
++.TP
++.BI \-i
++Execute
++.Iinterpreting
++the source code.
++.br
++.ns
++.TP
++.BI \-d
++Shows tips in the error report.
++.br
++.ns
++.TP
++.BI \-o &quot; output_file&quot;
++Compile the source code and save the resulting binary with the name
++.I output_file.
++.br
++.ns
++.TP
++.BI \-t &quot; output_file&quot;
++Translates the source code to the C programming language and saves the
++resulting file as
++.I output_file.
++.br
++.ns
++.TP
++.BI \-s &quot; output_file&quot;
++Compiles the source code to assembly source. Saves the resulting code as
++.I output_file.
++.br
++.ns
++.SH SEE ALSO
++.BR nasm (1)
++
++.SH ADDITIONAL INFORMATION
++
++For further information, visit the website:
++.br
++.BI <A HREF="http://gpt.berlios.de">http://gpt.berlios.de</A>
++
++.SH AUTOR
++Thiago Silva &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">thiago.silva at kdemail.net</A>&gt;
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000151.html">[gpt-commit] r478 - trunk/gpt
+</A></li>
+	<LI>Next message: <A HREF="000153.html">[gpt-commit] r480 - trunk/gpt/src/modules/x86
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#152">[ date ]</a>
+              <a href="thread.html#152">[ thread ]</a>
+              <a href="subject.html#152">[ subject ]</a>
+              <a href="author.html#152">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

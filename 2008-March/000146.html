@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r473 - trunk/gpt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r473%20-%20trunk/gpt&In-Reply-To=%3C200803111828.m2BISxtD026225%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000145.html">
+   <LINK REL="Next"  HREF="000147.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r473 - trunk/gpt</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r473%20-%20trunk/gpt&In-Reply-To=%3C200803111828.m2BISxtD026225%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r473 - trunk/gpt">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Mar 11 19:28:59 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000145.html">[gpt-commit] r471 - trunk/gpt
+</A></li>
+        <LI>Next message: <A HREF="000147.html">[gpt-commit] r474 - in trunk/gpt: . lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#146">[ date ]</a>
+              <a href="thread.html#146">[ thread ]</a>
+              <a href="subject.html#146">[ subject ]</a>
+              <a href="author.html#146">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-03-11 19:28:59 +0100 (Tue, 11 Mar 2008)
+New Revision: 473
+
+Removed:
+   trunk/gpt/config.h.in
+Modified:
+   trunk/gpt/Makefile.cvs
+Log:
+-Ok...tudo limpo
+
+Modified: trunk/gpt/Makefile.cvs
+===================================================================
+--- trunk/gpt/Makefile.cvs	2008-03-11 18:25:47 UTC (rev 472)
++++ trunk/gpt/Makefile.cvs	2008-03-11 18:28:59 UTC (rev 473)
+@@ -1,8 +1,4 @@
+ default: all
+ 
+ all:
+-	aclocal
+-	autoheader
+-	automake
+-	autoconf
+-
++	autoreconf -i
+
+Deleted: trunk/gpt/config.h.in
+===================================================================
+--- trunk/gpt/config.h.in	2008-03-11 18:25:47 UTC (rev 472)
++++ trunk/gpt/config.h.in	2008-03-11 18:28:59 UTC (rev 473)
+@@ -1,55 +0,0 @@
+-/* config.h.in.  Generated from configure.in by autoheader.  */
+-
+-/* Define to 1 if you have the &lt;dlfcn.h&gt; header file. */
+-#undef HAVE_DLFCN_H
+-
+-/* Define to 1 if you have the &lt;inttypes.h&gt; header file. */
+-#undef HAVE_INTTYPES_H
+-
+-/* Define to 1 if you have the &lt;memory.h&gt; header file. */
+-#undef HAVE_MEMORY_H
+-
+-/* Define to 1 if you have the &lt;stdint.h&gt; header file. */
+-#undef HAVE_STDINT_H
+-
+-/* Define to 1 if you have the &lt;stdlib.h&gt; header file. */
+-#undef HAVE_STDLIB_H
+-
+-/* Define to 1 if you have the &lt;strings.h&gt; header file. */
+-#undef HAVE_STRINGS_H
+-
+-/* Define to 1 if you have the &lt;string.h&gt; header file. */
+-#undef HAVE_STRING_H
+-
+-/* Define to 1 if you have the &lt;sys/stat.h&gt; header file. */
+-#undef HAVE_SYS_STAT_H
+-
+-/* Define to 1 if you have the &lt;sys/types.h&gt; header file. */
+-#undef HAVE_SYS_TYPES_H
+-
+-/* Define to 1 if you have the &lt;unistd.h&gt; header file. */
+-#undef HAVE_UNISTD_H
+-
+-/* Name of package */
+-#undef PACKAGE
+-
+-/* Define to the address where bug reports for this package should be sent. */
+-#undef PACKAGE_BUGREPORT
+-
+-/* Define to the full name of this package. */
+-#undef PACKAGE_NAME
+-
+-/* Define to the full name and version of this package. */
+-#undef PACKAGE_STRING
+-
+-/* Define to the one symbol short name of this package. */
+-#undef PACKAGE_TARNAME
+-
+-/* Define to the version of this package. */
+-#undef PACKAGE_VERSION
+-
+-/* Define to 1 if you have the ANSI C header files. */
+-#undef STDC_HEADERS
+-
+-/* Version number of package */
+-#undef VERSION
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000145.html">[gpt-commit] r471 - trunk/gpt
+</A></li>
+	<LI>Next message: <A HREF="000147.html">[gpt-commit] r474 - in trunk/gpt: . lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#146">[ date ]</a>
+              <a href="thread.html#146">[ thread ]</a>
+              <a href="subject.html#146">[ subject ]</a>
+              <a href="author.html#146">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

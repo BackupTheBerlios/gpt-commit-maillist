@@ -1,0 +1,397 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r464 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm/test/wikki
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r464%20-%20in%20trunk/gpt2%3A%20bindings/gptbind/src%0A%09bindings/gptbind/test%20common/src%20gptasm/test/wikki&In-Reply-To=%3C200712201921.lBKJLbYP028844%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000137.html">
+   <LINK REL="Next"  HREF="000139.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r464 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm/test/wikki</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r464%20-%20in%20trunk/gpt2%3A%20bindings/gptbind/src%0A%09bindings/gptbind/test%20common/src%20gptasm/test/wikki&In-Reply-To=%3C200712201921.lBKJLbYP028844%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r464 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm/test/wikki">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Dec 20 20:21:37 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000137.html">[gpt-commit] r463 - trunk/gpt2/gptc/src/semantic
+</A></li>
+        <LI>Next message: <A HREF="000139.html">[gpt-commit] r465 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test gptasm/src gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#138">[ date ]</a>
+              <a href="thread.html#138">[ thread ]</a>
+              <a href="subject.html#138">[ subject ]</a>
+              <a href="author.html#138">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-20 20:21:36 +0100 (Thu, 20 Dec 2007)
+New Revision: 464
+
+Added:
+   trunk/gpt2/bindings/gptbind/test/file.sld
+   trunk/gpt2/gptasm/test/wikki/chamada_sistema_5.gasm
+Modified:
+   trunk/gpt2/bindings/gptbind/src/CBindSources.cpp
+   trunk/gpt2/bindings/gptbind/src/CBindSources.hpp
+   trunk/gpt2/bindings/gptbind/src/lexer.g
+   trunk/gpt2/bindings/gptbind/src/parser.g
+   trunk/gpt2/common/src/Tools.cpp
+Log:
+DEVNULL:
+* Melhorias nos bindings
+  - No arquivo sld os pointer indicam o tipo em C
+  - Teste com bind de fopen, fputs e fclose funcional
+* Tipo pointer nao estava funcionando ok no GptASM
+
+
+Modified: trunk/gpt2/bindings/gptbind/src/CBindSources.cpp
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/CBindSources.cpp	2007-12-19 22:21:39 UTC (rev 463)
++++ trunk/gpt2/bindings/gptbind/src/CBindSources.cpp	2007-12-20 19:21:36 UTC (rev 464)
+@@ -4,8 +4,11 @@
+ CBindSources::CBindSources(const std::string &amp;filename)
+       : _filename(filename)
+ {
+-   _mapGptToCppType[&quot;string&quot;] = &quot;const char *&quot;;
+-   _mapGptToCppType[&quot;real&quot;]   = &quot;double&quot;;
++   _mapGptToCppType[&quot;string&quot; ] = &quot;const char *&quot;;
++   _mapGptToCppType[&quot;real&quot;   ] = &quot;double&quot;;
++   _mapGptToCppType[&quot;int&quot;    ] = &quot;int&quot;;
++   _mapGptToCppType[&quot;char&quot;   ] = &quot;char&quot;;
++   _mapGptToCppType[&quot;bool&quot;   ] = &quot;boolean&quot;;
+ }
+ 
+ 
+@@ -41,8 +44,8 @@
+ 
+ void CBindSources::addSubroutineBind(
+       const std::string &amp;name,
+-      const std::string &amp;returnType,
+-      std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; parameters,
++      const std::pair&lt;std::string, std::string&gt; &amp;returnType,
++      std::vector&lt;std::pair&lt;std::string, std::pair&lt;std::string, std::string&gt; &gt; &gt; parameters,
+       const std::string &amp;functionBind,
+       std::vector&lt;std::string&gt; arguments )
+ {
+@@ -53,12 +56,12 @@
+    cppSource.writeln( &quot;{&quot; );
+    cppSource.incTab();
+ 
+-   for(std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt;::iterator param = parameters.begin(); param != parameters.end(); param++) {
++   for(std::vector&lt;std::pair&lt;std::string, std::pair&lt;std::string,std::string&gt; &gt; &gt;::iterator param = parameters.begin(); param != parameters.end(); param++) {
+       cppSource.writeln (sourceToPopParameter (param-&gt;first, param-&gt;second));
+    }
+ 
+-   if (!returnType.empty()) {
+-      cppSource.writeln(_mapGptToCppType[returnType] + &quot; result;&quot;);
++   if (!returnType.first.empty()) {
++      cppSource.writeln(getMapGptToCppType(returnType) + &quot; result;&quot;);
+       cppSource.writeln();
+       cppSource.write( &quot;result=&quot; );
+    }
+@@ -76,7 +79,7 @@
+       }
+    }
+    cppSource.writeln(&quot;);&quot;);
+-   if (!returnType.empty()) {
++   if (!returnType.first.empty()) {
+       cppSource.writeln();
+       cppSource.writeln(sourceToPushResult(&quot;result&quot;, returnType));
+    }
+@@ -85,29 +88,43 @@
+ }
+ 
+ 
+-std::string CBindSources::sourceToPopParameter(const std::string &amp;name, const std::string &amp;type)
++std::string CBindSources::sourceToPopParameter(const std::string &amp;name, const std::pair&lt;std::string,std::string&gt; &amp;type)
+ {
+    std::string result;
+ 
+    std::map&lt;std::string, std::string&gt; mapPop;
+    mapPop[&quot;string&quot;] = &quot;dataStack.popString().c_str()&quot;;
+-   mapPop[&quot;real&quot;]   = &quot;dataStack.popReal()&quot;;
++   mapPop[&quot;real&quot;  ] = &quot;dataStack.popReal()&quot;;
++   mapPop[&quot;int&quot;   ] = &quot;dataStack.popInt()&quot;;
++   mapPop[&quot;char&quot;  ] = &quot;dataStack.popInt()&quot;;
++   mapPop[&quot;bool&quot;  ] = &quot;dataStack.popInt()&quot;;
+ 
+-   result = _mapGptToCppType[type] + &quot; c&quot; + name + &quot;=&quot; + mapPop[type] + &quot;;&quot;;
++   result = getMapGptToCppType(type) + &quot; c&quot; + name + &quot;=&quot;;
+ 
++   if (type.first == &quot;pointer&quot;) {
++      result += &quot;(&quot; + type.second + &quot;)&quot; + mapPop[&quot;int&quot;];
++   } else {
++      result += mapPop[type.first];
++   }
++   result += &quot;;&quot;;
++
+    return result;
+ }
+ 
+ 
+-std::string CBindSources::sourceToPushResult(const std::string &amp;name, const std::string &amp;type)
++std::string CBindSources::sourceToPushResult(const std::string &amp;name, const std::pair&lt;std::string,std::string&gt; &amp;type)
+ {
+    std::string result;
+ 
+    std::map&lt;std::string, std::string&gt; mapPush;
++   mapPush[&quot;string&quot;] = &quot;dataStack.pushString(&quot; + name + &quot;)&quot;;
+    mapPush[&quot;real&quot;  ] = &quot;dataStack.pushReal(&quot; + name + &quot;)&quot;;
+-   mapPush[&quot;string&quot;] = &quot;dataStack.pushString(&quot; + name + &quot;)&quot;;
++   mapPush[&quot;int&quot;   ] = &quot;dataStack.pushInt(&quot; + name + &quot;)&quot;;
++   mapPush[&quot;char&quot;  ] = &quot;dataStack.pushInt(&quot; + name + &quot;)&quot;;
++   mapPush[&quot;bool&quot;  ] = &quot;dataStack.pushBool(&quot; + name + &quot;)&quot;;
++   mapPush[&quot;pointer&quot;] = &quot;dataStack.pushInt((int)&quot; + name + &quot;)&quot;;
+ 
+-   result = mapPush[type] + &quot;;&quot;;
++   result = mapPush[type.first] + &quot;;&quot;;
+ 
+    return result;
+ }
+@@ -161,3 +178,13 @@
+    _headerList.push_back(header);
+ }
+ 
++
++std::string CBindSources::getMapGptToCppType(const std::pair&lt;std::string,std::string&gt; &amp;type)
++{
++   if (type.first == &quot;pointer&quot;) {
++      return type.second;
++   } else {
++      return _mapGptToCppType[type.first];
++   }
++}
++
+
+Modified: trunk/gpt2/bindings/gptbind/src/CBindSources.hpp
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/CBindSources.hpp	2007-12-19 22:21:39 UTC (rev 463)
++++ trunk/gpt2/bindings/gptbind/src/CBindSources.hpp	2007-12-20 19:21:36 UTC (rev 464)
+@@ -15,8 +15,8 @@
+    void writeHeaders();
+    void addSubroutineBind(
+          const std::string &amp;name, 
+-         const std::string &amp;returnType,
+-         std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; parameters,
++         const std::pair&lt;std::string,std::string&gt; &amp;returnType,
++         std::vector&lt;std::pair&lt;std::string, std::pair&lt;std::string, std::string&gt; &gt; &gt; parameters,
+          const std::string &amp;functionBind,
+          std::vector&lt;std::string&gt; arguments
+    );
+@@ -44,8 +44,9 @@
+    std::list&lt;std::string&gt; _linkerLibList;
+    std::list&lt;std::string&gt; _headerList;
+ 
+-   std::string sourceToPopParameter(const std::string &amp;name, const std::string &amp;type);
+-   std::string sourceToPushResult(const std::string &amp;name, const std::string &amp;type);
++   std::string sourceToPopParameter(const std::string &amp;name, const std::pair&lt;std::string,std::string&gt; &amp;type);
++   std::string sourceToPushResult(const std::string &amp;name, const std::pair&lt;std::string,std::string&gt; &amp;type);
++   std::string getMapGptToCppType(const std::pair&lt;std::string,std::string&gt; &amp;type);
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/bindings/gptbind/src/lexer.g
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/lexer.g	2007-12-19 22:21:39 UTC (rev 463)
++++ trunk/gpt2/bindings/gptbind/src/lexer.g	2007-12-20 19:21:36 UTC (rev 464)
+@@ -174,6 +174,7 @@
+   : '}'
+   ;
+ 
++
+ T_ABREP
+ options {
+   paraphrase = &quot;'('&quot;;
+
+Modified: trunk/gpt2/bindings/gptbind/src/parser.g
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/parser.g	2007-12-19 22:21:39 UTC (rev 463)
++++ trunk/gpt2/bindings/gptbind/src/parser.g	2007-12-20 19:21:36 UTC (rev 464)
+@@ -132,14 +132,14 @@
+   procedure_bind
+ //--------------
+ {
+-   std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; parameters;
++   std::vector&lt;std::pair&lt;std::string, std::pair&lt;std::string, std::string&gt; &gt; &gt; parameters;
+    std::vector&lt;std::string&gt; arguments;
+ }
+    : &quot;procedure&quot; tk_procname:T_ID (parameters_declaration[parameters])
+      T_MAPINTO
+      tk_mapname:T_ID (arguments_declaration[arguments])? T_SEMICOLON
+      {
+-        sources-&gt;addSubroutineBind(tk_procname-&gt;getText(), &quot;&quot;, parameters, tk_mapname-&gt;getText(), arguments);
++        sources-&gt;addSubroutineBind(tk_procname-&gt;getText(), std::pair&lt;std::string,std::string&gt;(&quot;&quot;,&quot;&quot;), parameters, tk_mapname-&gt;getText(), arguments);
+      }
+    ;
+ 
+@@ -147,9 +147,9 @@
+   function_bind
+ //-------------
+ {
+-   std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; parameters;
++   std::vector&lt;std::pair&lt;std::string, std::pair&lt;std::string, std::string&gt; &gt; &gt; parameters;
+    std::vector&lt;std::string&gt; arguments;
+-   std::string resultType;
++   std::pair&lt;std::string,std::string&gt; resultType;
+ }
+    : &quot;function&quot; tk_procname:T_ID (parameters_declaration[parameters]) T_COLON resultType=type
+      T_MAPINTO
+@@ -160,18 +160,18 @@
+    ;
+ 
+ ///----------------------
+-   parameters_declaration[std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; &amp;parameters]
++   parameters_declaration[std::vector&lt;std::pair&lt;std::string, std::pair&lt;std::string,std::string&gt; &gt; &gt; &amp;parameters]
+ ///----------------------
+ {
+-   std::string typeValue;
++   std::pair&lt;std::string,std::string&gt; typeValue;
+ }
+    : T_ABREP
+      (
+         typeValue=type tk_id:T_ID
+-        {parameters.push_back(std::pair&lt;std::string, std::string&gt;(tk_id-&gt;getText(), typeValue));} 
++        {parameters.push_back(std::pair&lt;std::string, std::pair&lt;std::string,std::string&gt; &gt;(tk_id-&gt;getText(), typeValue));} 
+         (
+            T_COMMA typeValue=type tk_id2:T_ID
+-           {parameters.push_back(std::pair&lt;std::string, std::string&gt;(tk_id2-&gt;getText(), typeValue));} 
++           {parameters.push_back(std::pair&lt;std::string, std::pair&lt;std::string,std::string&gt; &gt;(tk_id2-&gt;getText(), typeValue));} 
+         )*
+      )?
+      T_FECHAP
+@@ -221,19 +221,23 @@
+   ;
+ 
+ ///----
+-   type returns [std::string result]
++   type returns [std::pair&lt;std::string,std::string&gt; result]
+ ///----
+    :
+-   ( &quot;int&quot;
+-     | &quot;real&quot;
+-     | &quot;char&quot;
+-     | &quot;string&quot;
+-     | &quot;bool&quot;
+-     | &quot;pointer&quot;
+-     | &quot;matrix&quot;
+-     | &quot;data&quot;
++   ( &quot;int&quot; {result.first = getLastTokenText();}
++   | &quot;real&quot; {result.first = getLastTokenText();}
++   | &quot;char&quot; {result.first = getLastTokenText();}
++   | &quot;string&quot; {result.first = getLastTokenText();}
++   | &quot;bool&quot; {result.first = getLastTokenText();}
++   | ( &quot;pointer&quot; T_STRING_VALUE
++      {
++         result.first = &quot;pointer&quot;;
++         result.second = getLastTokenText();
++         result.second = result.second.substr(1, result.second.length()-2);
++      } )
++   | &quot;matrix&quot; {result.first = getLastTokenText();}
++   | &quot;data&quot; {result.first = getLastTokenText();}
+    )
+-   {result = getLastTokenText();}
+    ;
+ 
+ /////----
+
+Added: trunk/gpt2/bindings/gptbind/test/file.sld
+===================================================================
+--- trunk/gpt2/bindings/gptbind/test/file.sld	2007-12-19 22:21:39 UTC (rev 463)
++++ trunk/gpt2/bindings/gptbind/test/file.sld	2007-12-20 19:21:36 UTC (rev 464)
+@@ -0,0 +1,13 @@
++options {
++}
++
++headers {
++   &quot;stdio.h&quot;;
++}
++
++function fopen(string name, string mode) : pointer &quot;FILE*&quot; ::= fopen(name, mode);
++
++function fputs(string text, pointer &quot;FILE*&quot; file) : int ::= fputs(text, file);
++
++function fclose(pointer &quot;FILE*&quot; file) : int ::= fclose(file);
++
+
+Modified: trunk/gpt2/common/src/Tools.cpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.cpp	2007-12-19 22:21:39 UTC (rev 463)
++++ trunk/gpt2/common/src/Tools.cpp	2007-12-20 19:21:36 UTC (rev 464)
+@@ -251,6 +251,7 @@
+    case CSymbol::STRING:
+       return sizeof(char)+sizeof(void*);
+    case CSymbol::MATRIX:
++   case CSymbol::POINTER:
+       return sizeof(void*);
+    }
+    return 0;
+
+Added: trunk/gpt2/gptasm/test/wikki/chamada_sistema_5.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/chamada_sistema_5.gasm	2007-12-19 22:21:39 UTC (rev 463)
++++ trunk/gpt2/gptasm/test/wikki/chamada_sistema_5.gasm	2007-12-20 19:21:36 UTC (rev 464)
+@@ -0,0 +1,26 @@
++program exemplo
++// use io
++
++var f pointer
++//var f int // pointer...
++var result int
++
++proc main
++    pushsv &quot;w+&quot;
++    pushsv &quot;arquivo.txt&quot;
++    lcall file, fopen
++    popiv f
++
++    pushiv f
++    pushsv &quot;Uma linha !!!&quot;
++    lcall file, fputs
++    popiv result
++
++    pushiv f
++    lcall file, fclose
++    popiv result
++
++    exit 0
++endproc
++
++endprogram
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000137.html">[gpt-commit] r463 - trunk/gpt2/gptc/src/semantic
+</A></li>
+	<LI>Next message: <A HREF="000139.html">[gpt-commit] r465 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test gptasm/src gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#138">[ date ]</a>
+              <a href="thread.html#138">[ thread ]</a>
+              <a href="subject.html#138">[ subject ]</a>
+              <a href="author.html#138">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

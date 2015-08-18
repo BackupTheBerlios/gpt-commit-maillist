@@ -1,0 +1,2064 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r420 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r420%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051137.lB5Bb5lS013738%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000093.html">
+   <LINK REL="Next"  HREF="000095.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r420 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r420%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051137.lB5Bb5lS013738%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r420 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec  5 12:37:05 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000093.html">[gpt-commit] r419 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000095.html">[gpt-commit] r421 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#94">[ date ]</a>
+              <a href="thread.html#94">[ thread ]</a>
+              <a href="subject.html#94">[ subject ]</a>
+              <a href="author.html#94">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-05 12:37:03 +0100 (Wed, 05 Dec 2007)
+New Revision: 420
+
+Modified:
+   trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+   trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+   trunk/gpt2/gptc/src/SymbolTableExceptions.cpp
+   trunk/gpt2/gptc/src/SymbolTableExceptions.hpp
+   trunk/gpt2/gptc/src/semantic.g
+Log:
+-Incorporacao da analise semantica concluida
+
+Modified: trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseSemanticWalker.cpp	2007-12-05 11:36:30 UTC (rev 419)
++++ trunk/gpt2/gptc/src/BaseSemanticWalker.cpp	2007-12-05 11:37:03 UTC (rev 420)
+@@ -7,450 +7,715 @@
+ #include &quot;SymbolTableExceptions.hpp&quot;
+ 
+ #include &lt;iostream&gt;
++#include &lt;sstream&gt;
++using std::cerr;
++using std::endl;
+ 
+-BaseSemanticWalker::BaseSemanticWalker(SymbolTable* symtable)
+- : antlr::TreeParser(), _symtable(symtable) {}
+ 
+-void BaseSemanticWalker::useLib(const  std::string&amp; lib) {
+-  //TODO: sanitize lib: &quot;bla\ bla&quot; -&gt; &quot;bla bla&quot;
+-  std::cerr &lt;&lt; &quot;Using lib:&quot; &lt;&lt; lib &lt;&lt; std::endl;
++
++bool InitMatrixList::hasUniformDimensions() const {
++  const_iterator it;
++  int d = -1;
++  for (it = begin(); it != end(); ++it) {
++    if (d == -1) {
++      d = (*it).first;
++    } else if (d != (*it).first) {
++      return false;
++    }
++  }
++  return true;
+ }
+ 
+-void BaseSemanticWalker::declare(const IDList&amp; idlist,
+-                                 Type* type,
+-                                 bool isConst) {
++Type* InitMatrixList::elementsDivergeFrom(Type* from) const {
++  if (from-&gt;isError()) {
++    return NULL;
++  }
+ 
+-  try {
+-    IDList::const_iterator it;
+-    for (it = idlist.begin(); it != idlist.end(); ++it) {
+-      _symtable-&gt;declare(_symtable-&gt;newSymbol(
+-            (*it)-&gt;getText(), type, (*it)-&gt;getLine(), isConst));
++  const_iterator it;
++  for (it = begin(); it != end(); ++it) {
++    if (!(*it).second-&gt;isError() &amp;&amp; !from-&gt;promotion((*it).second)) {
++      return (*it).second;
+     }
+-  } catch (RedeclarationException e) {
+-    cerr &lt;&lt; &quot;catched! Redeclaration: &quot; &lt;&lt; e.symbol().toString() &lt;&lt;&quot;\n&quot;;
+   }
++  return NULL;
+ }
+ 
+-void BaseSemanticWalker::defineStruct(const std::string&amp; name,
+-                                      const SymbolList&amp; fieldList,
+-                                      int line) {
++Type* InitMatrixList::evaluatedElementType(Type* from) const {
++  const_iterator it;
++  Type *ret = from;
++  for (it = begin(); it != end(); ++it) {
++    if (!(*it).second-&gt;isError()) {
++      ret = ret-&gt;promotion((*it).second);
++    }
++  }
++  return ret;
++}
+ 
+-  try {
+-    _symtable-&gt;defineStruct(name, fieldList, line);
+-  } catch (RedefinedTypeException e) {
+-    cerr &lt;&lt; &quot;catched! Redefined type: &quot; &lt;&lt; e.typeName() &lt;&lt; &quot;\n&quot;;
+-  } catch (RedeclarationException e) {
+-    cerr &lt;&lt; &quot;catched! Redeclaration: &quot; &lt;&lt; e.symbol().toString() &lt;&lt; &quot;\n&quot;;
++int InitMatrixList::divergentDimensionFrom(int d) const {
++  const_iterator it;
++  for (it = begin(); it != end(); it++) {
++    if (d == (*it).first) {
++      return d;
++    }
+   }
++  return -1;
+ }
+ 
+-void BaseSemanticWalker::declareProc(const std::string&amp; name,
+-                                     const SymbolList&amp; params,
+-                                     int line,
+-                                     Type* ret) {
++int InitMatrixList::dimensions() const {
++  return back().first;
++}
+ 
+-  //TODO: Levar em consideracao o registro de funcoes polimorficas
+-//   Type* type = _symtable-&gt;getType(params.toTypeList(),
+-//           (ret == 0) ? _symtable-&gt;getType(PortugolTokenTypes::T_NULO) : ret);
++/////////////////////////////////////////////////////////////////////
+ 
+-//   try {
+-//     _symtable-&gt;declare(_symtable-&gt;newSymbol(name, type,line));
+-//     _symtable-&gt;declare(params, name);
+-//   } catch (RedeclarationException e) {
+-//     cerr &lt;&lt; &quot;catched! Redeclaration: &quot; &lt;&lt; e.symbol().toString() &lt;&lt; std::endl;
+-//     delete type;
+-//   }
++
++
++BaseSemanticWalker::BaseSemanticWalker(SymbolTable* symtable)
++ : antlr::TreeParser(),
++  _symtable(symtable),
++  _typeBuilder(symtable-&gt;typeBuilder()) {
+ }
+ 
+-Type* BaseSemanticWalker::getType(const std::string&amp; name) {
+-  try {
+-    return _symtable-&gt;getType(name);
+-  } catch (UndeclaredTypeException e) {
+-    std::cerr &lt;&lt; &quot;catched! Undeclared type: &quot; &lt;&lt; e.typeName() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
+-  }
++void BaseSemanticWalker::useLib(const std::string&amp; lib) {
++  cerr &lt;&lt; &quot;Using &quot; &lt;&lt; lib &lt;&lt; endl;
+ }
+ 
+-Type* BaseSemanticWalker::getType(int id) {
++Type* BaseSemanticWalker::getStructType(RefPortugolAST node) {
+   try {
+-    return _symtable-&gt;getType(id);
++    return _symtable-&gt;getType(node-&gt;getText());
+   } catch (UndeclaredTypeException e) {
+-    std::cerr &lt;&lt; &quot;catched! Undeclared type: &quot; &lt;&lt; id &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(node-&gt;getLine(),
++           std::string(&quot;Undefined type: &quot;) + node-&gt;getText());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+-Type* BaseSemanticWalker::getSymbolType(const std::string&amp; name) {
++Type* BaseSemanticWalker::getSymbolType(RefPortugolAST node) {
+   try {
+-    return _symtable-&gt;getSymbol(name).type();
++    return
++      _symtable-&gt;getSymbol(node-&gt;getText()).type();
+   } catch (UndeclaredSymbolException e) {
+-    std::cerr &lt;&lt; &quot;catched! Undeclared symbol: &quot; &lt;&lt; e.lexeme() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(node-&gt;getLine(),
++           std::string(&quot;Undeclared symbol: &quot;) + node-&gt;getText());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+-Type* BaseSemanticWalker::evalFCall(const std::string&amp; fname,
+-                                   const TypeList&amp; paramTypes) {
+-  //TODO
+-  //-proibicao de consts passados para parametros &quot;ref&quot; sem constness
++Type* BaseSemanticWalker::getSymbolType(RefPortugolAST parent,
++                                        Type* sttype, RefPortugolAST id) {
++  if (sttype-&gt;isError()) {
++    return sttype;
++  }
+ 
+-// - Testar avaliacao de chamada de subprogramas (com e sem reticencias)
+-//   -Avaliacao de qtd e tipos de parametros
++  if (!sttype-&gt;isStruct()) {
++    report(id-&gt;getLine(), parent-&gt;getText() + &quot; n&#227;o &#233; uma estrutura&quot;);
++    return _typeBuilder-&gt;errorType();
++  }
++
++  SymbolList::const_iterator it =
++      sttype-&gt;fields().findFirstByLexeme(id-&gt;getText());
++
++  if (it == sttype-&gt;fields().end()) {
++    report(id-&gt;getLine(),
++        sttype-&gt;name() + &quot; n&#227;o possui membro &quot; + id-&gt;getText());
++    return _typeBuilder-&gt;errorType();
++  }
++
++  return (*it).type();
+ }
+ 
+-void BaseSemanticWalker::evalMatrixSubscript(Type* type) {
+-  //TODO
++
++void BaseSemanticWalker::setCurrentScope(RefPortugolAST id, 
++                                         const SymbolList&amp; params) {
++  _currentScopeSymbol = 
++      _symtable-&gt;getSymbol(id-&gt;getText(), params.typeList());
++
++  _symtable-&gt;setScope(_currentScopeSymbol);
+ }
+ 
+-  //TODO
+-  //-proibicao de consts como lvalues em expressoes
+ 
+-Type* BaseSemanticWalker::evalAttribution(Type* ltype, Type* rtype) {
+-  if (!ltype-&gt;isLValueFor(rtype)) {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; ltype-&gt;name() &lt;&lt; &quot; := &quot; &lt;&lt; rtype-&gt;name() &lt;&lt; endl;
++Type* BaseSemanticWalker::evalMatrixSubscript(RefPortugolAST id, Type* type,
++                                              int dimensions) {
++
++  if (type-&gt;isError()) {
++    return type;
+   }
+-  return rtype;
++
++  if (type-&gt;isMatrix() &amp;&amp; (type-&gt;dimensions().size() &gt;= (unsigned int) dimensions)) {
++    return type-&gt;evalTypeFromSubscript(dimensions);
++  } else if (type-&gt;isMatrix()) {
++    std::stringstream s;
++    s &lt;&lt; id-&gt;getText() &lt;&lt; &quot; tem &quot; &lt;&lt; type-&gt;dimensions().size() &lt;&lt; &quot; dimens&#245;es&quot;;
++    report(id-&gt;getLine(), s.str());
++  } else {
++    report(id-&gt;getLine(), id-&gt;getText() + &quot; n&#227;o &#233; uma matriz&quot;);
++  }
++  return _typeBuilder-&gt;errorType();
+ }
+ 
+-Type* BaseSemanticWalker::evalAttribution(Type* ltype, const InitMatrixList&amp; mtx) {
+-  Type* rtype = evalHomogeneity(mtx);
+-  if (!ltype-&gt;isLValueFor(rtype)) {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; ltype-&gt;name() &lt;&lt; &quot; := &quot; &lt;&lt; rtype-&gt;name() &lt;&lt; endl;
++void BaseSemanticWalker::declare(const IDList&amp; ids, Type* type) {
++  try {
++    IDList::const_iterator it;
++    for (it = ids.begin(); it != ids.end(); ++it) {
++      _symtable-&gt;insertSymbol(
++        Symbol((*it)-&gt;getText(),
++              type,
++              _symtable-&gt;currentScope(),
++              _symtable-&gt;unit(),
++              (*it)-&gt;getLine()));
++    }
++  } catch (RedeclarationException e) {
++    report(ids.back()-&gt;getLine(),
++           std::string(&quot;Redeclaration: &quot;) + e.symbol().toString());
+   }
+-  return ltype;
+ }
+ 
+-Type* BaseSemanticWalker::evalAttribution(Type* ltype, const InitStructList&amp; stc) {
+-  Type* rtype = createAnonymousStructFor(stc);
++void BaseSemanticWalker::declareProc(RefPortugolAST id,
++                                     SymbolList&amp; params) {
+ 
+-  if (!ltype-&gt;isLValueFor(rtype)) {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; ltype-&gt;name() &lt;&lt; &quot; := &quot; &lt;&lt; rtype-&gt;name() &lt;&lt; endl;
++  Type *type = 
++    _typeBuilder-&gt;subprogramType(
++        params.typeList(), 
++        _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_NULO));
++
++  Symbol s(id-&gt;getText(),
++            type,
++            _symtable-&gt;globalScope(),
++            _symtable-&gt;unit(),
++            id-&gt;getLine());
++
++  declareProc(s, params);
++}
++
++void BaseSemanticWalker::declareProc(RefPortugolAST id,
++                                     SymbolList&amp; params,
++                                     Type *rettype) {
++
++  Type *type = _typeBuilder-&gt;subprogramType(params.typeList(), rettype);
++
++  Symbol s(id-&gt;getText(),
++            type,
++            _symtable-&gt;globalScope(),
++            _symtable-&gt;unit(),
++            id-&gt;getLine());
++
++  declareProc(s, params);
++
++}
++
++void BaseSemanticWalker::declareProc(const Symbol&amp; s, 
++                                     SymbolList&amp; params) {
++  try {
++    _symtable-&gt;insertSymbol(s);
++  } catch (RedeclarationException e) {
++    report(e.symbol().line(),
++           std::string(&quot;Redeclaration: &quot;) + e.symbol().toString());
++    _symtable-&gt;setIgnoreScope();
++    return;
++  }  
++
++  _symtable-&gt;setScope(s);
++  params.setScope(s.identifier());
++
++  try {
++    _symtable-&gt;insertSymbols(params);
++  } catch (RedeclarationException e) {
++    report(e.symbol().line(),
++           std::string(&quot;Redeclaration: &quot;) + e.symbol().toString());
++  }  
++}
++
++void BaseSemanticWalker::declareStruct(RefPortugolAST id,
++                                       const SymbolList&amp; fieldList) {
++
++  try {
++    _symtable-&gt;insertType(id-&gt;getText(), fieldList, id-&gt;getLine());
++  } catch (RedefinedTypeException e) {
++    report(id-&gt;getLine(), std::string(&quot;Redefinition: &quot;) + e.typeName());
++  } catch (RedeclarationException e) {
++    report(id-&gt;getLine(), std::string(&quot;Redeclaration: &quot;) + e.symbol().toString());
+   }
+-  return ltype;
+ }
+ 
+-Type* BaseSemanticWalker::createAnonymousStructFor(const InitStructList&amp; stc) {
+-  SymbolList slist;
++// void BaseSemanticWalker::defineStruct(RefPortugolAST id,
++//                                       const SymbolList&amp; fieldList) {
++// 
++//   try {
++//     _symtable-&gt;insertType(id-&gt;getText(), fieldList, id-&gt;getLine());
++//   } catch (RedefinedTypeException e) {
++//     report(id-&gt;getLine(), std::string(&quot;Redefinition: &quot;) + e.typeName());
++//   } catch (RedeclarationException e) {
++//     report(id-&gt;getLine(), std::string(&quot;Redeclaration: &quot;) + e.symbol().toString());
++//   }
++// }
++
++Type* BaseSemanticWalker::evalInitStruct(const InitStructList&amp; stc) {
++  SymbolList flist;
+   InitStructList::const_iterator it;
+   for (it = stc.begin(); it != stc.end(); ++it) {
+-    slist.push_back(_symtable-&gt;newSymbol(it-&gt;first, it-&gt;second));
++    flist.push_back(Symbol(it-&gt;first-&gt;getText(), 
++                    it-&gt;second, 
++                    _symtable-&gt;globalScope(), 
++                    _symtable-&gt;unit(),
++                    it-&gt;first-&gt;getLine()));
+   }
++  return _typeBuilder-&gt;structType(flist);
++}
+ 
+-  return _symtable-&gt;createAnonymousStruct(slist);
++Type* BaseSemanticWalker::evalInitMatrix(int line,const InitMatrixList&amp; mtx) {
++  if (!mtx.hasUniformDimensions()) {
++    std::stringstream s;
++    s &lt;&lt; &quot;Matriz tem valores em dimens&#245;es diferentes&quot;;
++
++    report(line, s.str());
++    return _typeBuilder-&gt;errorType();
++  }
++
++
++  Type *ptype = mtx.front().second;
++  Type *dtype;
++  if (dtype = mtx.elementsDivergeFrom(ptype)) {
++    report(line, std::string(&quot;Matriz heterogenea: &quot;)
++                 + ptype-&gt;name()
++                 + &quot; e &quot;
++                 + dtype-&gt;name());
++    return _typeBuilder-&gt;errorType();
++  }
++
++  Type *ret = _typeBuilder-&gt;matrixType(
++        mtx.evaluatedElementType(ptype), mtx.dimensions());
++
++  return ret;
+ }
+ 
+-Type* BaseSemanticWalker::evalHomogeneity(const InitMatrixList&amp; mtx) {
+-  InitMatrixList::const_iterator it;
+ 
+-  Type *rtype = 0;
+-  Type *tmptype = 0;
+-  int dim = 0;
+ 
+-  for (it = mtx.begin(); it != mtx.end(); ++it) {
+-    if (dim == 0) {
+-      dim = it-&gt;first;
+-    } else if (dim != it-&gt;first) {
+-      std::cerr &lt;&lt; &quot;ilegal: Numero variavel de dimensoes na matriz!\n&quot;;
+-    }
++void BaseSemanticWalker::evalAttribution(int line,
++                                         Type* ltype, Type* rtype) {
++  if (ltype-&gt;isError() || rtype-&gt;isError()) {
++    return;
++  }
+ 
+-    if (rtype == 0) {
+-      rtype = it-&gt;second;
+-    } else if (!rtype-&gt;equals(it-&gt;second)) {
+-      std::cerr &lt;&lt; &quot;ilegal: Matriz heterogenea\n&quot;;
+-    }
++  if (!ltype-&gt;isLValueFor(rtype)) {
++    report(line, string(&quot;ilegal: &quot;) + ltype-&gt;name() + &quot; := &quot; + rtype-&gt;name());
+   }
++}
+ 
+-  return _symtable-&gt;getType(rtype, dim);
++
++Type* BaseSemanticWalker::evalCall(RefPortugolAST id,
++                                   const TypeList&amp; paramTypes) {
++  //TODO
++  //-proibicao de consts passados para parametros &quot;ref&quot; sem constness
++
++// - Testar avaliacao de chamada de subprogramas (com e sem reticencias)
++//   -Avaliacao de qtd e tipos de parametros
++
++  if (paramTypes.hasErrorType()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
++  try {
++    return 
++      _symtable-&gt;getSymbol(id-&gt;getText(), paramTypes).type()-&gt;returnType();
++  } catch (UndeclaredSymbolException e) {
++    report(id-&gt;getLine(), std::string(&quot;Undeclared '&quot;) + id-&gt;getText());
++    return _typeBuilder-&gt;errorType();
++  } catch (UnmatchedException e) {
++    report(id-&gt;getLine(),
++           std::string(&quot;No matching call for '&quot;) + id-&gt;getText() 
++           + &quot;(&quot; + paramTypes.toString() + &quot;)'&quot;);
++    return _typeBuilder-&gt;errorType();
++  }
+ }
+ 
++void BaseSemanticWalker::evalRetorne(int line,Type* type) {
++  if (_symtable-&gt;isInGlobalScope()) {
++    report(line, &quot;N&#227;o h&#225; retorno em escopo global&quot;);
++  } else if(!_currentScopeSymbol.type()-&gt;returnType()-&gt;isLValueFor(type)) {
++    report(line, &quot;Tipo de retorno (&quot; 
++           + type-&gt;name() + &quot;) incompat&#237;vel com tipo da fun&#231;&#227;o (&quot; 
++           + _currentScopeSymbol.type()-&gt;returnType()-&gt;name() +&quot;)&quot;);
++  }
++}
++
++
++void BaseSemanticWalker::evalCondicional(int line, Type* type) {
++  if (!type-&gt;equals(PortugolTokenTypes::T_LOGICO)) {
++    report(line, 
++      std::string(&quot;Enunciado exige express&#227;o l&#243;gica. Tipo &quot;) 
++      + type-&gt;name() + &quot; encontrado.&quot;);
++  }
++}
++
++/************************ EXPR ********************************************/
++
+ Type*
+-BaseSemanticWalker::evalExpr_OU(Type* left, Type* right) {
+-  return _symtable-&gt;getType(PortugolTokenTypes::T_LOGICO);
++BaseSemanticWalker::evalExpr_OU(int,Type* left, Type* right) {
++  //TODO: refatorar os copy/pastes dos metodos evalExpr
++
++  return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+ }
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_E(Type* left, Type* right) {
+-  return _symtable-&gt;getType(PortugolTokenTypes::T_LOGICO);
++BaseSemanticWalker::evalExpr_E(int,Type* left, Type* right) {
++  return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_OU(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_BIT_OU(int line,Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) &amp;&amp;
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_INTEIRO);
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; | &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; | &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_OUX(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_BIT_OUX(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) &amp;&amp;
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_INTEIRO);
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; ^ &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; ^ &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_E(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_BIT_E(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) &amp;&amp;
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_INTEIRO);
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; &amp; &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &amp; &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_IGUAL(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_IGUAL(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (left-&gt;equals(right)) {
+-    _symtable-&gt;getType(PortugolTokenTypes::T_LOGICO);
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; = &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; = &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_DIFERENTE(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_DIFERENTE(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (left-&gt;equals(right)) {
+-    _symtable-&gt;getType(PortugolTokenTypes::T_LOGICO);
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; &lt;&gt; &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt;&gt; &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MAIOR(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MAIOR(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if ((left-&gt;isPrimitive() &amp;&amp; right-&gt;isPrimitive()) &amp;&amp;
+-      (left-&gt;equals(right) || left-&gt;numPromotionWith(right))) {
+-    _symtable-&gt;getType(PortugolTokenTypes::T_LOGICO);
++      (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; &gt; &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &gt; &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MENOR(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MENOR(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if ((left-&gt;isPrimitive() &amp;&amp; right-&gt;isPrimitive()) &amp;&amp;
+-      (left-&gt;equals(right) || left-&gt;numPromotionWith(right))) {
+-    _symtable-&gt;getType(PortugolTokenTypes::T_LOGICO);
++      (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; &lt; &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt; &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MAIOR_EQ(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MAIOR_EQ(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if ((left-&gt;isPrimitive() &amp;&amp; right-&gt;isPrimitive()) &amp;&amp;
+-      (left-&gt;equals(right) || left-&gt;numPromotionWith(right))) {
+-    _symtable-&gt;getType(PortugolTokenTypes::T_LOGICO);
++      (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; &gt;= &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &gt;= &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MENOR_EQ(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MENOR_EQ(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if ((left-&gt;isPrimitive() &amp;&amp; right-&gt;isPrimitive()) &amp;&amp;
+-      (left-&gt;equals(right) || left-&gt;numPromotionWith(right))) {
+-    _symtable-&gt;getType(PortugolTokenTypes::T_LOGICO);
++      (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; &lt;= &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt;= &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_SHIFT_LEFT(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_BIT_SHIFT_LEFT(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) &amp;&amp;
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_INTEIRO);
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; &lt;&lt; &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt;&lt; &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_SHIFT_RIGHT(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_BIT_SHIFT_RIGHT(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) &amp;&amp;
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_INTEIRO);
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; &gt;&gt; &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &gt;&gt; &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MAIS(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MAIS(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; + &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; + &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ 
+   Type* ret;
+-  if (ret = left-&gt;numPromotionWith(right)) {
++  if (ret = left-&gt;intOrReal(right)) {
+     return ret;
+-  } else if (ret = left-&gt;litPromotionWith(right)) {
++  } else if (ret = left-&gt;caracOrLit(right)) {
+     return ret;
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; + &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; + &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MENOS(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MENOS(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; + &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; - &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ 
+   Type* ret;
+-  if (ret = left-&gt;numPromotionWith(right)) {
++  if (ret = left-&gt;intOrReal(right)) {
+     return ret;
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; - &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; - &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_DIV(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_DIV(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; + &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; / &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ 
+   Type* ret;
+-  if (ret = left-&gt;numPromotionWith(right)) {
++  if (ret = left-&gt;intOrReal(right)) {
+     return ret;
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; / &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; / &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MULTIP(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MULTIP(int line, Type* left, Type* right) {
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; + &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; * &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ 
+   Type* ret;
+-  if (ret = left-&gt;numPromotionWith(right)) {
++  if (ret = left-&gt;intOrReal(right)) {
+     return ret;
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; * &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; * &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MOD(Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MOD(int line, Type* left, Type* right) {
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) &amp;&amp;
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_INTEIRO);
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; left-&gt;name() &lt;&lt; &quot; % &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; % &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_UN_NEGATIVO(Type* left) {
++BaseSemanticWalker::evalExpr_UN_NEGATIVO(int line, Type* left) {
++  if (left-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) ||
+       left-&gt;equals(PortugolTokenTypes::T_REAL)) {
+-    return left;
++    return _typeBuilder-&gt;primitiveType(left-&gt;primitiveType());
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; &quot; - &quot; &lt;&lt; left-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + &quot; - &quot; + left-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_UN_POSITIVO(Type* left) {
++BaseSemanticWalker::evalExpr_UN_POSITIVO(int line, Type* left) {
++  if (left-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) ||
+       left-&gt;equals(PortugolTokenTypes::T_REAL)) {
+-    return left;
++    return _typeBuilder-&gt;primitiveType(left-&gt;primitiveType());
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; &quot; + &quot; &lt;&lt; left-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + &quot; + &quot; + left-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_NAO(Type* left) {
+-  return _symtable-&gt;getType(PortugolTokenTypes::T_LOGICO);
++BaseSemanticWalker::evalExpr_NAO(int, Type* left) {
++  return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_NAO(Type* left) {
++BaseSemanticWalker::evalExpr_BIT_NAO(int line, Type* left) {
++  if (left-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_INTEIRO);
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    std::cerr &lt;&lt; &quot;ilegal: &quot;
+-              &lt;&lt; &quot; ~ &quot; &lt;&lt; left-&gt;name() &lt;&lt; std::endl;
+-    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++    report(line, 
++      std::string(&quot;ilegal: &quot;) + &quot; ~ &quot; + left-&gt;name());
++    return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
++
++/********************************************************************/
++
++
++
++
++void BaseSemanticWalker::report(int line, const std::string&amp; s) {
++  cerr &lt;&lt; &quot;linha &quot; &lt;&lt; line &lt;&lt; &quot; - &quot; &lt;&lt; s &lt;&lt; endl;
++}
+
+Modified: trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseSemanticWalker.hpp	2007-12-05 11:36:30 UTC (rev 419)
++++ trunk/gpt2/gptc/src/BaseSemanticWalker.hpp	2007-12-05 11:37:03 UTC (rev 420)
+@@ -26,17 +26,28 @@
+ #include &lt;string&gt;
+ 
+ #include &quot;PortugolAST.hpp&quot;
++#include &quot;Symbol.hpp&quot;
+ 
+ class SymbolTable;
+-class SymbolList;
+ class Type;
+ class TypeList;
++class TypeBuilder;
+ 
+-typedef std::list&lt;RefPortugolAST&gt; IDList;
++typedef std::list&lt;RefPortugolAST&gt;                IDList;
+ 
+-typedef std::list&lt;std::pair&lt;std::string,Type*&gt; &gt; InitStructList;
+-typedef std::list&lt;std::pair&lt;int,Type*&gt; &gt;         InitMatrixList;
++//list&lt;pair&lt;field, type&gt;&gt;
++typedef std::list&lt;std::pair&lt;RefPortugolAST,Type*&gt; &gt; InitStructList;
+ 
++//list&lt;pair&lt;dimsize,type&gt;&gt;
++class InitMatrixList : public std::list&lt;std::pair&lt;int,Type*&gt; &gt; {
++public:
++  bool              hasUniformDimensions() const;
++  Type*             elementsDivergeFrom(Type*) const;
++  Type*             evaluatedElementType(Type* from) const;
++  int               divergentDimensionFrom(int) const;
++  int               dimensions() const;
++};
++
+ class BaseSemanticWalker : public antlr::TreeParser {
+ 
+ public:
+@@ -45,55 +56,65 @@
+ protected:
+   void useLib(const std::string&amp;);
+ 
+-  void declare(const IDList&amp;, Type*, bool);
++  Type* getStructType(RefPortugolAST);
+ 
+-  void defineStruct(const std::string&amp;, const SymbolList&amp;, int);
++  Type* getSymbolType(RefPortugolAST);
+ 
+-  void declareProc(const std::string&amp;, const SymbolList&amp;, int, Type* = 0);
++  Type* getSymbolType(RefPortugolAST,Type*, RefPortugolAST);
+ 
+-  Type* getType(const std::string&amp;);
+-  Type* getType(int);
++  void setCurrentScope(RefPortugolAST id, const SymbolList&amp; params);
+ 
+-  Type* createAnonymousStructFor();
++  void declare(const IDList&amp;, Type*);
+ 
+-  Type* getSymbolType(const std::string&amp;);
++  void declareProc(RefPortugolAST, SymbolList&amp;);
++  void declareProc(RefPortugolAST, SymbolList&amp;, Type*);
++  void declareProc(const Symbol&amp;,  SymbolList&amp;);
+ 
+-  Type* evalFCall(const std::string&amp;, const TypeList&amp;);
++//   void defineStruct(RefPortugolAST, const SymbolList&amp;);
++  void declareStruct(RefPortugolAST, const SymbolList&amp; );
+ 
+-  void evalMatrixSubscript(Type*);
+ 
+-  Type* evalAttribution(Type*, Type*);
+-  Type* evalAttribution(Type*, const InitMatrixList&amp;);
+-  Type* evalAttribution(Type*, const InitStructList&amp;);
++  Type* evalInitStruct(const InitStructList&amp; stc);
++  Type* evalInitMatrix(int, const InitMatrixList&amp; mtx);
+ 
+-  Type* createAnonymousStructFor(const InitStructList&amp;);
++  Type* evalMatrixSubscript(RefPortugolAST, Type*, int);
+ 
+-  Type* evalHomogeneity(const InitMatrixList&amp; mtx);
++  void evalAttribution(int,Type*, Type*);
+ 
+-  Type* evalExpr_OU(Type* left, Type* right);
+-  Type* evalExpr_E(Type* left, Type* right);
+-  Type* evalExpr_BIT_OU(Type* left, Type* right);
+-  Type* evalExpr_BIT_OUX(Type* left, Type* right);
+-  Type* evalExpr_BIT_E(Type* left, Type* right);
+-  Type* evalExpr_IGUAL(Type* left, Type* right);
+-  Type* evalExpr_DIFERENTE(Type* left, Type* right);
+-  Type* evalExpr_MAIOR(Type* left, Type* right);
+-  Type* evalExpr_MENOR(Type* left, Type* right);
+-  Type* evalExpr_MAIOR_EQ(Type* left, Type* right);
+-  Type* evalExpr_MENOR_EQ(Type* left, Type* right);
+-  Type* evalExpr_BIT_SHIFT_LEFT(Type* left, Type* right);
+-  Type* evalExpr_BIT_SHIFT_RIGHT(Type* left, Type* right);
+-  Type* evalExpr_MAIS(Type* left, Type* right);
+-  Type* evalExpr_MENOS(Type* left, Type* right);
+-  Type* evalExpr_DIV(Type* left, Type* right);
+-  Type* evalExpr_MULTIP(Type* left, Type* right);
+-  Type* evalExpr_MOD(Type* left, Type* right);
+-  Type* evalExpr_UN_NEGATIVO(Type*);
+-  Type* evalExpr_UN_POSITIVO(Type*);
+-  Type* evalExpr_NAO(Type*);
+-  Type* evalExpr_BIT_NAO(Type*);
++  Type* evalCall(RefPortugolAST id, const TypeList&amp; paramTypes);
+ 
++  void evalRetorne(int,Type*);
++
++  void evalCondicional(int, Type*);
++
++  Type* evalExpr_OU(int,Type* left, Type* right);
++  Type* evalExpr_E(int,Type* left, Type* right);
++  Type* evalExpr_BIT_OU(int,Type* left, Type* right);
++  Type* evalExpr_BIT_OUX(int,Type* left, Type* right);
++  Type* evalExpr_BIT_E(int,Type* left, Type* right);
++  Type* evalExpr_IGUAL(int,Type* left, Type* right);
++  Type* evalExpr_DIFERENTE(int,Type* left, Type* right);
++  Type* evalExpr_MAIOR(int,Type* left, Type* right);
++  Type* evalExpr_MENOR(int,Type* left, Type* right);
++  Type* evalExpr_MAIOR_EQ(int,Type* left, Type* right);
++  Type* evalExpr_MENOR_EQ(int,Type* left, Type* right);
++  Type* evalExpr_BIT_SHIFT_LEFT(int,Type* left, Type* right);
++  Type* evalExpr_BIT_SHIFT_RIGHT(int,Type* left, Type* right);
++  Type* evalExpr_MAIS(int,Type* left, Type* right);
++  Type* evalExpr_MENOS(int,Type* left, Type* right);
++  Type* evalExpr_DIV(int,Type* left, Type* right);
++  Type* evalExpr_MULTIP(int,Type* left, Type* right);
++  Type* evalExpr_MOD(int,Type* left, Type* right);
++  Type* evalExpr_UN_NEGATIVO(int,Type*);
++  Type* evalExpr_UN_POSITIVO(int,Type*);
++  Type* evalExpr_NAO(int,Type*);
++  Type* evalExpr_BIT_NAO(int,Type*);
++
++  void report(int, const std::string&amp;);
++
+   SymbolTable* _symtable;
++  TypeBuilder* _typeBuilder;
++  Symbol       _currentScopeSymbol;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptc/src/SymbolTableExceptions.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/SymbolTableExceptions.cpp	2007-12-05 11:36:30 UTC (rev 419)
++++ trunk/gpt2/gptc/src/SymbolTableExceptions.cpp	2007-12-05 11:37:03 UTC (rev 420)
+@@ -49,3 +49,15 @@
+ const Symbol&amp; RedeclarationException::symbol() const {
+   return _symbol;
+ }
++
++//--------------------------------------------------------
++
++
++UnmatchedException::UnmatchedException(const std::string&amp; l)
++  : _lexeme(l) {
++
++}
++
++const std::string&amp; UnmatchedException::lexeme() {
++  return _lexeme;
++}
+
+Modified: trunk/gpt2/gptc/src/SymbolTableExceptions.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/SymbolTableExceptions.hpp	2007-12-05 11:36:30 UTC (rev 419)
++++ trunk/gpt2/gptc/src/SymbolTableExceptions.hpp	2007-12-05 11:37:03 UTC (rev 420)
+@@ -2,6 +2,7 @@
+ #define SYMBOLTABLEEXCEPTIONS_HPP
+ 
+ #include &quot;Symbol.hpp&quot;
++#include &quot;Types.hpp&quot;
+ 
+ #include &lt;string&gt;
+ 
+@@ -39,11 +40,20 @@
+ 
+ class RedeclarationException {
+ public:
+-  RedeclarationException(const Symbol&amp; s);
++  RedeclarationException(const Symbol&amp;);
+ 
+   const Symbol&amp; symbol() const;
+ private:
+   Symbol _symbol;
+ };
+ 
++class UnmatchedException {
++public:
++  UnmatchedException(const std::string&amp;);
++
++  const std::string&amp; lexeme();
++private:
++  std::string _lexeme;
++};
++
+ #endif
+
+Modified: trunk/gpt2/gptc/src/semantic.g
+===================================================================
+--- trunk/gpt2/gptc/src/semantic.g	2007-12-05 11:36:30 UTC (rev 419)
++++ trunk/gpt2/gptc/src/semantic.g	2007-12-05 11:37:03 UTC (rev 420)
+@@ -25,7 +25,6 @@
+   #include &quot;SymbolTable.hpp&quot;
+ }
+ 
+-
+ options {
+   language=&quot;Cpp&quot;;
+ }
+@@ -36,7 +35,6 @@
+   noConstructors = true;
+   genHashLines   = false;
+   ASTLabelType   = &quot;RefPortugolAST&quot;;
+-//   defaultErrorHandler=false;
+ }
+ 
+ {
+@@ -55,14 +53,15 @@
+ 
+         (importacao)*
+ 
+-        declaracoes_globais
++        (declaracoes)?
++
+                                       //recuperando declaracoes globais e
+                                       //de subprogramas para a symtable
+                                       {inicio = _t; /*backup da posicao*/}
+-        definicoes_subprogramas
++        (declaracoes_subprogramas)?
+ 
+         EOF
+-                                      //analise semantica do codigo
++                                      //analise semantica dos blocos
+                                       {_t = inicio; /*rollback*/}
+         corpo
+         EOF
+@@ -70,109 +69,188 @@
+   ;
+ 
+ importacao
+-  : #(T_USE lib:T_TEXTO_LITERAL)                  {useLib(lib-&gt;getText());}
++  : #(T_USE lib:T_TEXTO_LITERAL)      {useLib(lib-&gt;getText());}
+   ;
+ 
+-declaracoes_globais
+-  : declaracao_variavel  (declaracoes_globais)?
+-  | declaracao_constante (declaracoes_globais)?
+-  | definicao_estrutura  (declaracoes_globais)?
+-  ;
+ 
+-definicoes_subprogramas
+-  : definicao_subprograma (definicoes_subprogramas)?
+-  | T_INICIO (definicoes_subprogramas)?
++/*********************** DECLARACOES *******************************/
++
++declaracoes
++  : declaracao_variavel    (declaracoes)?
++  | declaracao_constante   (declaracoes)?
++  | declaracao_estrutura   (declaracoes)?
+   ;
+ 
+ declaracao_variavel
+                                 {
+                                   IDList ids;
+                                   Type *type;
++                                  Type *rtype;
+                                 }
+ 
+-  : #(T_VARIAVEL type=tipo ids=identificadores (valor_inicialiacao[type])?)
++  : #(T_VARIAVEL
++        type=tipo
++        ids=identificadores     {declare(ids, type);}
+ 
+-                                {declare(ids, type, false);}
+-  ;
++        (
++          rtype=valor_inicialiacao
+ 
+-identificadores returns [IDList list]
+-  : (
+-      id:T_IDENTIFICADOR      {list.push_back(id);}
+-    )*
++                                {evalAttribution(
++                                    ids.back()-&gt;getLine(), type, rtype);}
++        )?
++    )
+   ;
+ 
+ declaracao_constante
+                                 {
+                                   IDList ids;
+                                   Type *type;
++                                  Type *rtype;                                  
+                                 }
+ 
+-  : #(T_CONSTANTE type=tipo ids=identificadores valor_inicialiacao[type])
++  : #(T_CONSTANTE
++        type=tipo
++        ids=identificadores
++        rtype=valor_inicialiacao)
+ 
+-                                {declare(ids, type, true);}
++                                {
++                                  type-&gt;setConst(true);
++                                  declare(ids, type);
++                                  evalAttribution(
++                                      ids.back()-&gt;getLine(), type, rtype);
++                                }
+   ;
+ 
+-definicao_estrutura
+-                                {SymbolList symbols;}
++identificadores returns [IDList list]
++  : (
++      id:T_IDENTIFICADOR        {list.push_back(id);}
++    )*
++  ;
+ 
+-  : #(T_ESTRUTURA id:T_IDENTIFICADOR symbols=campos_estrutura)
++tipo returns [Type *type]
++  : id:T_IDENTIFICADOR          {type = getStructType(id);}
++  | type=tipo_primitivo
++  | type=tipo_matriz
++  ;
+ 
+-                                {defineStruct(id-&gt;getText(),
+-                                    symbols, id-&gt;getLine());}
++tipo_primitivo returns [Type *type]
++
++                      {RefPortugolAST prim = _t;}
++  : (
++        T_INTEIRO
++      | T_REAL
++      | T_CARACTERE
++      | T_LITERAL
++      | T_LOGICO
++      | T_CORINGA
++    )
++                      {type = _typeBuilder-&gt;primitiveType(prim-&gt;getType());}
+   ;
+ 
+-campos_estrutura returns [SymbolList symbols]
++tipo_matriz returns [Type *type]
+ 
++                        {
++                          std::list&lt;int&gt; dims;
++                          Type* ofType;
++                        }
++
++  : #(T_MATRIZ ofType=tipo dims=dimensoes)
++
++                  {type =_typeBuilder-&gt;matrixType(ofType,dims);}
++
++  ;
++
++dimensoes returns [std::list&lt;int&gt; dims]
++
++                        {int dsize;}
++  : (
++      dsize=dimensao
++                        {dims.push_back(dsize);}
++    )*
++  ;
++
++dimensao returns [int size]
++  : i:T_INTEIRO_LITERAL     {size = atoi(i-&gt;getText().c_str());}
++  | n:T_NULO                {size = 0;}
++  ;
++
++
++
++
++declaracao_estrutura
++                                {SymbolList fields;}
++
++  : #(T_ESTRUTURA id:T_IDENTIFICADOR fields=campos_estrutura)
++
++                                {declareStruct(id, fields);}
++  ;
++
++campos_estrutura returns [SymbolList fields]
++
+                                 {
+                                   IDList ids;
+                                   Type *type;
++                                  Type *rtype;                                  
+                                 }
+ 
+   : (
+-      #(T_VARIAVEL type=tipo ids=identificadores (valor_inicialiacao[type])?)
++      #(T_VARIAVEL type=tipo ids=identificadores
++            (
++              rtype=valor_inicialiacao
+ 
++                                {evalAttribution(
++                                  ids.back()-&gt;getLine(), type, rtype);}
++
++            )?
++    )
++
+                                 {
+                                   for (IDList::iterator it = ids.begin();
+                                          it != ids.end(); ++it) {
+-                                    symbols.push_back(
+-                                      _symtable-&gt;newSymbol(
+-                                          (*it)-&gt;getText(), type,
+-                                               (*it)-&gt;getLine()));
++                                    fields.push_back(
++                                      Symbol((*it)-&gt;getText(),
++                                                    type,
++                                                    _symtable-&gt;currentScope(),
++                                                    _symtable-&gt;unit(),
++                                                    (*it)-&gt;getLine()));
+                                   }
+                                 }
+     )+
+   ;
+ 
+-valor_inicialiacao[Type* ltype]
+ 
++/********************** INICIALIZACAO *************************/
++
++
++valor_inicialiacao returns [Type *rtype]
++
+                           {
+-                            Type* rtype;
+                             _analisingInitializationList = true;
+                           }
+ 
+-  : #(v:T_VALOR rtype=valor[ltype])
++  : #(v:T_VALOR rtype=valor)
+ 
+                           {
+-                            v-&gt;setEvalType(rtype);
+                             _analisingInitializationList = false;
+                           }
+   ;
+ 
+-valor[Type *ltype] returns [Type* rtype]
++valor returns [Type *rtype]
+                           {
+                             InitMatrixList         mtx;
+                             InitStructList         stc;
+                           }
++  : rtype=expressao
+ 
+-  : rtype=expressao       {rtype = evalAttribution(ltype, rtype);}
++  | #(m:T_VAL_MATRIZ
++        (valor_matriz[1,mtx])+)
+ 
+-  | #(T_VAL_MATRIZ  (valor_matriz[1,mtx])+)
++                          {rtype = evalInitMatrix(m-&gt;getLine(), mtx);}
+ 
+-                          {rtype = evalAttribution(ltype, mtx);}
++  | #(T_VAL_ESTRUTURA
++      (id:T_IDENTIFICADOR valor_estrutura[id,stc])+)
+ 
+-  | #(T_VAL_ESTRUTURA (id:T_IDENTIFICADOR valor_estrutura[id-&gt;getText(),stc])+)
+-
+-                          {rtype = evalAttribution(ltype, stc);}
++                          {rtype = evalInitStruct(stc);}
+   ;
+ 
+ valor_matriz [int dimension, InitMatrixList&amp; mtx]
+@@ -184,71 +262,61 @@
+ 
+   : type=expressao     {mtx.push_back(std::pair&lt;int,Type*&gt;(dimension, type));}
+ 
+-  | #(T_VAL_MATRIZ (valor_matriz[dimension+1, mtx])+)
++  | #(T_VAL_MATRIZ
++      (valor_matriz[dimension+1, mtx])+)
+ 
+-  | #(T_VAL_ESTRUTURA (id:T_IDENTIFICADOR valor_estrutura[id-&gt;getText(), stc])+)
++  | #(T_VAL_ESTRUTURA
++      (id:T_IDENTIFICADOR valor_estrutura[id, stc])+)
+ 
+                        {mtx.push_back(std::pair&lt;int,Type*&gt;(dimension,
+-                            createAnonymousStructFor(stc)));}
++                            evalInitStruct(stc)));}
+   ;
+ 
+-valor_estrutura [const std::string&amp; field, InitStructList&amp; stc]
++valor_estrutura [RefPortugolAST field, InitStructList&amp; stc]
+                               {
+                                 Type *type;
+                                 InitMatrixList mtx;
++                                InitStructList stc_;
+                               }
+   : type=expressao
+                               {
+                                 stc.push_back(
+-                                  std::pair&lt;std::string,Type*&gt;(
++                                  std::pair&lt;RefPortugolAST,Type*&gt;(
+                                     field, type));
+                               }
+ 
+-  | #(T_VAL_MATRIZ (valor_matriz[1, mtx])+)
++  | #(m:T_VAL_MATRIZ
++      (valor_matriz[1, mtx])+)
++
+                               {
+-                                type = evalHomogeneity(mtx);
++                                type = evalInitMatrix(m-&gt;getLine(), mtx);
+                                 stc.push_back(
+-                                  std::pair&lt;std::string,Type*&gt;(
+-                                    field,type));
++                                  std::pair&lt;RefPortugolAST,Type*&gt;(
++                                    field, type));
+                               }
+ 
+-  | #(T_VAL_ESTRUTURA (id:T_IDENTIFICADOR valor_estrutura[id-&gt;getText(),stc])+)
+-  ;
++  | #(T_VAL_ESTRUTURA
++      (id:T_IDENTIFICADOR valor_estrutura[id,stc_])+)
+ 
+-
+-tipo returns [Type *type]
+-  : id:T_IDENTIFICADOR       {type = getType(id-&gt;getText());}
+-  | type=tipo_primitivo
+-  | type=tipo_matriz
++                              {
++                                type = evalInitStruct(stc_);
++                                stc.push_back(
++                                  std::pair&lt;RefPortugolAST,Type*&gt;(
++                                    field, type));
++                              }
+   ;
+ 
+-tipo_primitivo returns [Type *type]
+-  : i:T_INTEIRO             {type = getType(i-&gt;getText());}
+-  | r:T_REAL                {type = getType(r-&gt;getText());}
+-  | ca:T_CARACTERE          {type = getType(ca-&gt;getText());}
+-  | li:T_LITERAL            {type = getType(li-&gt;getText());}
+-  | lo:T_LOGICO             {type = getType(lo-&gt;getText());}
+-  | co:T_CORINGA            {type = getType(co-&gt;getText());}
+-  ;
+ 
+-tipo_matriz returns [Type *type]
+ 
+-                            {
+-                              int d = 0;
+-                              Type * ofType;
+-                            }
+ 
+-  : #(T_MATRIZ ofType=tipo (dimensao {d++;})*)
++/********************* DECLARACAO SUBPROGRAMAS ****************************/
+ 
+-                            {type = _symtable-&gt;getType(ofType,d);}
++declaracoes_subprogramas
++  : declaracao_subprograma (declaracoes_subprogramas)?
++  | T_INICIO               (declaracoes_subprogramas)?//pula o bloco principal
+   ;
+ 
+-dimensao
+-  : T_INTEIRO_LITERAL
+-  | T_NULO
+-  ;
+-
+-definicao_subprograma
++declaracao_subprograma
+   : declaracao_funcao
+   | declaracao_procedimento
+   ;
+@@ -258,13 +326,10 @@
+ 
+   : #(T_PROCEDIMENTO
+         id:T_IDENTIFICADOR
+-        params=lista_parametros[id-&gt;getText()]
++        params=lista_parametros
+ 
+                                       {
+-                                        declareProc(id-&gt;getText(),
+-                                                   params, id-&gt;getLine());
+-
+-                                        _symtable-&gt;setScope(id-&gt;getText());
++                                        declareProc(id, params);
+                                       }
+ 
+       (declaracao_variavel | declaracao_constante)*)
+@@ -275,17 +340,14 @@
+ declaracao_funcao
+                                       {
+                                         SymbolList params;
+-                                        Type * rettype;
++                                        Type *type;
+                                       }
+   : #(T_FUNCAO
+         id:T_IDENTIFICADOR
+-        params=lista_parametros[id-&gt;getText()]
+-        rettype=tipo_retorno
++        params=lista_parametros
++        type=tipo_retorno
+                                       {
+-                                        declareProc(id-&gt;getText(),
+-                                            params, id-&gt;getLine(), rettype);
+-
+-                                        _symtable-&gt;setScope(id-&gt;getText());
++                                        declareProc(id, params, type);
+                                       }
+ 
+       (declaracao_variavel | declaracao_constante)*)
+@@ -293,76 +355,54 @@
+                                       {_symtable-&gt;setGlobalScope();}
+   ;
+ 
+-tipo_retorno returns [Type * ret]
+-  : #(T_TIPO_RETORNO ret=tipo)
++tipo_retorno returns [Type* type]
++  : #(T_TIPO_RETORNO type=tipo)
+   ;
+ 
+-lista_parametros[std::string scope] returns [SymbolList list]
++lista_parametros returns [SymbolList list]
+ 
+-                                  {Type *type;}
+-  : (
+-      #(T_PARAM type=tipo id:T_IDENTIFICADOR (r:T_REF)? (c:T_CONSTANTE)?)
++                                 {Symbol symbol;}
+ 
+-                                  {
+-                                    list.push_back(
+-                                        _symtable-&gt;newSymbol(
+-                                          id-&gt;getText(), type,
+-                                          scope,
+-                                          id-&gt;getLine(),
+-                                          c != antlr::nullAST,
+-                                          r != antlr::nullAST));
+-
+-                                      c = antlr::nullAST;
+-                                      r = antlr::nullAST;
+-                                  }
+-    )*
++  : (#(T_PARAM symbol=parametro) {list.push_back(symbol);})*
+   ;
+ 
++parametro returns [Symbol symbol]
+ 
+-corpo
+-  :  corpo_subprograma      (corpo)?
+-  |  bloco_codigo           (corpo_subprograma)*
+-  ;
++                                  {Type* type;}
+ 
++  : type=tipo id:T_IDENTIFICADOR (r:T_REF)? (c:T_CONSTANTE)?
+ 
+-corpo_subprograma
+-  : #(T_FUNCAO   f:T_IDENTIFICADOR     {_symtable-&gt;setScope(f-&gt;getText());}
+-                 (~(T_INICIO))*
+-                 bloco_codigo          {_symtable-&gt;setGlobalScope();}
+-    )
+-  | #(T_PROCEDIMENTO p:T_IDENTIFICADOR {_symtable-&gt;setScope(p-&gt;getText());}
+-                 (~(T_INICIO))*
+-                 bloco_codigo)         {_symtable-&gt;setGlobalScope();}
+-  ;
++                                  {
++                                    if (c != antlr::nullAST) {
++                                      type-&gt;setConst(true);
++                                    }
+ 
++                                    if (r != antlr::nullAST) {
++                                      type-&gt;setRef(true);
++                                    }
+ 
++                                    symbol = 
++                                        Symbol(id-&gt;getText(),
++                                          type,
++                                          _symtable-&gt;unit(),
++                                          id-&gt;getLine());
++                                  }
+ 
+-bloco_codigo
+-  : #(T_INICIO (enunciado)*)
+-  ;
++  | T_RETICENCIAS idret:T_IDENTIFICADOR
+ 
+-enunciado
+-  : en_atribuicao
+-//   | en_retorne
+-//   | en_se
+-//   | en_enquanto
+-//   | en_repita
+-//   | en_para
+-//   | en_caso
+-//   | en_asm
+-//
+-//   | T_SAIR
+-//   | chamada_subrotina T_PONTO_VIRGULA!
++                                  {
++                                    symbol = Symbol(idret-&gt;getText(),
++                                              _typeBuilder-&gt;reticencesType(),
++                                              _symtable-&gt;unit(),
++                                              idret-&gt;getLine());
++                                  }
+   ;
+ 
+-en_atribuicao
+-                        {Type *ltype, *rtype;}
+ 
+-  : #(T_ATRIBUICAO ltype=lvalue rtype=expressao)
++/* ************************* EXPRESSOES *************************/
+ 
+-                        {evalAttribution(ltype, rtype);}
+-  ;
+ 
++
+ expressao returns [Type *type]
+                                       {
+                                         Type *l, *r;
+@@ -371,109 +411,151 @@
+   : (
+ 
+       #(T_OU              l=expressao r=expressao)
+-                                      {type = evalExpr_OU(l,r);}
++                                      {type = evalExpr_OU(op-&gt;getLine(), l,r);}
+ 
+     | #(T_E               l=expressao r=expressao)
+-                                      {type = evalExpr_E(l,r);}
++                                      {type = evalExpr_E(op-&gt;getLine(), l,r);}
+ 
+     | #(T_BIT_OU          l=expressao r=expressao)
+-                                      {type = evalExpr_BIT_OU(l,r);}
++                                      {type = evalExpr_BIT_OU(op-&gt;getLine(), l,r);}
+ 
+     | #(T_BIT_OUX         l=expressao r=expressao)
+-                                      {type = evalExpr_BIT_OUX(l,r);}
++                                      {type = evalExpr_BIT_OUX(op-&gt;getLine(), l,r);}
+ 
+     | #(T_BIT_E           l=expressao r=expressao)
+-                                      {type = evalExpr_BIT_E(l,r);}
++                                      {type = evalExpr_BIT_E(op-&gt;getLine(), l,r);}
+ 
+     | #(T_IGUAL           l=expressao r=expressao)
+-                                      {type = evalExpr_IGUAL(l,r);}
++                                      {type = evalExpr_IGUAL(op-&gt;getLine(), l,r);}
+ 
+     | #(T_DIFERENTE       l=expressao r=expressao)
+-                                      {type = evalExpr_DIFERENTE(l,r);}
++                                      {type = evalExpr_DIFERENTE(op-&gt;getLine(), l,r);}
+ 
+     | #(T_MAIOR           l=expressao r=expressao)
+-                                      {type = evalExpr_MAIOR(l,r);}
++                                      {type = evalExpr_MAIOR(op-&gt;getLine(), l,r);}
+ 
+     | #(T_MENOR           l=expressao r=expressao)
+-                                      {type = evalExpr_MENOR(l,r);}
++                                      {type = evalExpr_MENOR(op-&gt;getLine(), l,r);}
+ 
+     | #(T_MAIOR_EQ        l=expressao r=expressao)
+-                                      {type = evalExpr_MAIOR_EQ(l,r);}
++                                      {type = evalExpr_MAIOR_EQ(op-&gt;getLine(), l,r);}
+ 
+     | #(T_MENOR_EQ        l=expressao r=expressao)
+-                                      {type = evalExpr_MENOR_EQ(l,r);}
++                                      {type = evalExpr_MENOR_EQ(op-&gt;getLine(), l,r);}
+ 
+     | #(T_BIT_SHIFT_LEFT  l=expressao r=expressao)
+-                                      {type = evalExpr_BIT_SHIFT_LEFT(l,r);}
++                                      {type = evalExpr_BIT_SHIFT_LEFT(op-&gt;getLine(), l,r);}
+ 
+     | #(T_BIT_SHIFT_RIGHT l=expressao r=expressao)
+-                                      {type = evalExpr_BIT_SHIFT_RIGHT(l,r);}
++                                      {type = evalExpr_BIT_SHIFT_RIGHT(op-&gt;getLine(), l,r);}
+ 
+     | #(T_MAIS            l=expressao r=expressao)
+-                                      {type = evalExpr_MAIS(l,r);}
++                                      {type = evalExpr_MAIS(op-&gt;getLine(), l,r);}
+ 
+     | #(T_MENOS           l=expressao r=expressao)
+-                                      {type = evalExpr_MENOS(l,r);}
++                                      {type = evalExpr_MENOS(op-&gt;getLine(), l,r);}
+ 
+     | #(T_DIV             l=expressao r=expressao)
+-                                      {type = evalExpr_DIV(l,r);}
++                                      {type = evalExpr_DIV(op-&gt;getLine(), l,r);}
+ 
+     | #(T_MULTIP          l=expressao r=expressao)
+-                                      {type = evalExpr_MULTIP(l,r);}
++                                      {type = evalExpr_MULTIP(op-&gt;getLine(), l,r);}
+ 
+     | #(T_MOD             l=expressao r=expressao)
+-                                      {type = evalExpr_MOD(l,r);}
++                                      {type = evalExpr_MOD(op-&gt;getLine(), l,r);}
+ 
+     | #(T_UN_NEGATIVO     l=elemento)
+-                                      {type = evalExpr_UN_NEGATIVO(l);}
++                                      {type = evalExpr_UN_NEGATIVO(op-&gt;getLine(),l);}
+ 
+     | #(T_UN_POSITIVO     l=elemento)
+-                                      {type = evalExpr_UN_POSITIVO(l);}
++                                      {type = evalExpr_UN_POSITIVO(op-&gt;getLine(),l);}
+ 
+     | #(T_NAO             l=elemento)
+-                                      {type = evalExpr_NAO(l);}
++                                      {type = evalExpr_NAO(op-&gt;getLine(),l);}
+ 
+     | #(T_BIT_NAO         l=elemento)
+-                                      {type = evalExpr_BIT_NAO(l);}
++                                      {type = evalExpr_BIT_NAO(op-&gt;getLine(),l);}
+ 
+-    | type=elemento
+-  )
++    )
++                       {op-&gt;setEvalType(type);}
+ 
+-    {op-&gt;setEvalType(type);}
++  | type=elemento
+   ;
+ 
+ 
+ elemento returns [Type *type]
+   : type=literal
++  | type=lvalue
+   | type=chamada_subrotina
+-  | type=lvalue
+   | #(T_ABRE_PAREN type=expressao)
+   ;
+ 
++literal returns [Type *type]
++  : T_TEXTO_LITERAL         {type = _typeBuilder-&gt;primitiveType(T_LITERAL);}
++  | T_INTEIRO_LITERAL       {type = _typeBuilder-&gt;primitiveType(T_INTEIRO);}
++  | T_REAL_LITERAL          {type = _typeBuilder-&gt;primitiveType(T_REAL);}
++  | T_CARACTERE_LITERAL     {type = _typeBuilder-&gt;primitiveType(T_CARACTERE);}
++  | T_VERDADEIRO            {type = _typeBuilder-&gt;primitiveType(T_LOGICO);}
++  | T_FALSO                 {type = _typeBuilder-&gt;primitiveType(T_LOGICO);}
++  ;
++
++
+ lvalue returns [Type *type]
+ 
+-  : #(id:T_IDENTIFICADOR
++                            {int dimensions;}
+ 
+-      (   lvalue_indices         {type = getSymbolType(id-&gt;getText());}
+-        | type=lvalue_membro
+-        | /*vazio*/              {type = getSymbolType(id-&gt;getText());}
+-      )
++  : #(id:T_IDENTIFICADOR    {type = getSymbolType(id);}
++
++      (
++        dimensions=lvalue_indices
++
++                           {type = evalMatrixSubscript(id,
++                                                       type, dimensions);}
++      )?
++
++      (type=lvalue_membro[id,type])?
+     )
+   ;
+ 
+-lvalue_membro returns [Type *type]
+-  : #(T_MEMBRO type=lvalue)
++
++lvalue_membro [RefPortugolAST parent, Type *sttype] returns [Type *type]
++
++  : #(T_MEMBRO type=lvalue_struct[parent,sttype])
+   ;
+ 
+-lvalue_indices
+-                                {Type *type;}
++lvalue_struct[RefPortugolAST parent, Type *sttype] returns [Type *type]
++
++                             {int dimensions;}
++
++  : #(id:T_IDENTIFICADOR     {type = getSymbolType(parent,sttype,id);}
++
++      (
++        dimensions=lvalue_indices
++
++                             {type = evalMatrixSubscript(id,
++                                                         type, dimensions);}
++      )?
++
++      (type=lvalue_membro[id,type])?
++    )
++  ;
++
++lvalue_indices returns [int dimensions]
++
++                                {
++                                  Type *type;
++                                  dimensions = 0;
++                                }
+   : #(T_SUBSCRITO
+       (
+-        type=expressao          {evalMatrixSubscript(type);}
++        type=expressao          {dimensions++;}
+       )+
+     )
+   ;
+ 
++
++
++
+ chamada_subrotina returns [Type *type]
+ 
+                                   {
+@@ -484,15 +566,15 @@
+ 
+                                   {
+                                     if (!_analisingInitializationList) {
+-                                      type = evalFCall(id-&gt;getText(), params);
++                                      type = evalCall(id, params);
+                                     } else {
+-                                      type = getType(T_NULO);
+-                                      std:: cerr &lt;&lt; &quot;illegal fcall in initlist\n&quot;;
++                                      type = _typeBuilder-&gt;errorType();
++                                      report(id-&gt;getLine(),
++                                        &quot;ilegal: fcall em lista de inicializa&#231;&#227;o&quot;);
+                                     }
+                                   }
+   ;
+ 
+-
+ lista_argumentos returns [TypeList list]
+ 
+                                    {Type *type;}
+@@ -501,12 +583,124 @@
+     )*
+   ;
+ 
+-literal returns [Type *type]
+-  : T_TEXTO_LITERAL      {type = getType(T_LITERAL);}
+-  | T_INTEIRO_LITERAL    {type = getType(T_INTEIRO);}
+-  | T_REAL_LITERAL       {type = getType(T_REAL);}
+-  | T_CARACTERE_LITERAL  {type = getType(T_CARACTERE);}
+-  | T_VERDADEIRO         {type = getType(T_LOGICO);}
+-  | T_FALSO              {type = getType(T_CARACTERE);}
+-  | T_NULO               {type = getType(T_NULO);}
++
++
++
++/************************** CORPO *************************/
++
++corpo
++  :  corpo_subprograma      (corpo)?
++  |  bloco_codigo           (corpo_subprograma)*
+   ;
++
++
++corpo_subprograma
++                      {SymbolList params;}
++
++  : #(T_FUNCAO   f:T_IDENTIFICADOR
++                 params=lista_parametros {setCurrentScope(f, params);}
++                 T_TIPO_RETORNO
++                 bloco_codigo            {_symtable-&gt;setGlobalScope();}
++    )
++
++  | #(T_PROCEDIMENTO p:T_IDENTIFICADOR
++                 params=lista_parametros {setCurrentScope(p, params);}
++                 bloco_codigo)           {_symtable-&gt;setGlobalScope();}
++  ;
++
++
++
++bloco_codigo
++  : #(T_INICIO lista_enunciados)
++  ;
++
++lista_enunciados
++  : (enunciado)*
++  ;
++
++enunciado
++                    {Type *devnull;}
++  : en_atribuicao
++  | en_retorne
++  | en_se
++  | en_enquanto
++  | en_repita
++  | en_para
++  | en_caso
++  | T_SAIR                                
++  | devnull=chamada_subrotina
++  ;
++
++en_atribuicao
++                        {Type *ltype, *rtype;}
++
++  : #(at:T_ATRIBUICAO ltype=lvalue rtype=expressao)
++
++                        {evalAttribution(at-&gt;getLine(), ltype, rtype);}
++  ;
++
++en_retorne
++                        {Type *type;}
++
++  : #(ret:T_RETORNE type=expressao) 
++
++                        {evalRetorne(ret-&gt;getLine(), type);}
++  ;
++
++en_se
++                        {Type *type;}
++
++  : #(se:T_SE 
++
++      type=expressao    {evalCondicional(se-&gt;getLine(),type);}
++      lista_enunciados 
++      (T_SENAO lista_enunciados)?
++    )
++  ;
++
++en_enquanto
++                        {Type *type;}
++  : #(enq:T_ENQUANTO 
++      type=expressao    {evalCondicional(enq-&gt;getLine(), type);}
++      lista_enunciados
++    )
++  ;
++
++en_repita
++                              {Type *type;}
++  : #(T_REPITA      
++      lista_enunciados
++      a:T_ATE type=expressao    {evalCondicional(a-&gt;getLine(), type);}
++    )
++  ;
++
++en_para
++                              {Type *ltype, *from, *to;}
++
++  : #(p:T_PARA ltype=lvalue 
++        from=expressao        {evalAttribution(p-&gt;getLine(), ltype, from);}
++        to=expressao          {evalAttribution(p-&gt;getLine(), ltype, to);}
++        T_PASSO
++        lista_enunciados)
++  ;
++
++  //TODO: checar por op&#231;&#245;es repetidas nos testes
++
++en_caso
++                              {Type *type;}
++
++  : #(c:T_CASO type=expressao (teste_caso[c-&gt;getLine(), type])+ (caso_senao)?)
++  ;
++
++teste_caso[int line, Type* ltype]
++                             {Type *rtype;}
++
++  : #(T_FACA 
++      rtype=literal            {evalExpr_IGUAL(line, ltype, rtype);}
++      lista_enunciados
++    )
++  ;
++
++caso_senao
++  : #(T_SENAO lista_enunciados)
++  ;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000093.html">[gpt-commit] r419 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000095.html">[gpt-commit] r421 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#94">[ date ]</a>
+              <a href="thread.html#94">[ thread ]</a>
+              <a href="subject.html#94">[ subject ]</a>
+              <a href="author.html#94">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,271 @@
+From gpt-commit-noreply at mail.berlios.de  Mon May 24 17:49:58 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Mon, 24 May 2010 17:49:58 +0200
+Subject: [gpt-commit] r539 - trunk/gpt/src/modules/x86
+Message-ID: <201005241549.o4OFnwCp003650@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2010-05-24 17:49:58 +0200 (Mon, 24 May 2010)
+New Revision: 539
+
+Modified:
+   trunk/gpt/src/modules/x86/asm_lib.h
+Log:
+Fix: atof gerando floats entre 0 e 1 incorretamente
+
+Modified: trunk/gpt/src/modules/x86/asm_lib.h
+===================================================================
+--- trunk/gpt/src/modules/x86/asm_lib.h	2009-07-11 23:12:35 UTC (rev 538)
++++ trunk/gpt/src/modules/x86/asm_lib.h	2010-05-24 15:49:58 UTC (rev 539)
+@@ -396,6 +396,8 @@
+ "    %undef len\n"
+ "    %undef negt\n"
+ "\n"
++
++
+ "atof:\n"
+ "    %define string ebp+8\n"
+ "    \n"
+@@ -407,12 +409,14 @@
+ "    %define integral ebp-24\n"
+ "    %define decimal  ebp-28\n"
+ "    %define float    ebp-32\n"
++"    %define sign     ebp-36\n"
+ "\n"
+-"    begin 32\n"
++"    begin 36\n"
+ "\n"
+ "    mov dword [dot], -1\n"
+ "    mov dword [float], 0\n"
+-"    \n"
++"    mov dword [sign], 0\n"
++"        \n"
+ "    addarg dword [string]\n"
+ "    call strlen\n"
+ "    clargs 1\n"
+@@ -446,8 +450,8 @@
+ "      cmp bl, '+'\n"
+ "      je .footer\n"
+ "      cmp bl, '-'\n"
+-"      je .footer\n"
+-" \n"
++"      je .neg_footer\n"
++"\n"
+ "      addarg ebx\n"
+ "      call is_num\n"
+ "      clargs 1\n"
+@@ -461,7 +465,10 @@
+ "      .dot_found:\n"
+ "        mov eax, dword [i]\n"
+ "        mov dword [dot], eax\n"
+-"\n"
++"        jmp .footer\n"
++"        \n"
++"      .neg_footer:\n"
++"        mov dword [sign], 1        \n"
+ "      .footer:\n"
+ "        inc dword [i]\n"
+ "        jmp .while\n"
+@@ -501,8 +508,8 @@
+ "    fstp dword [decimal]\n"
+ "    fld dword [float]\n"
+ "\n"
+-"    cmp dword [integral], 0\n"
+-"    jg .pos\n"
++"    cmp dword [sign], 0 \n"
++"    je .pos\n"
+ "      fsub dword [decimal]\n"
+ "      jmp .endif2\n"
+ "    .pos:\n"
+@@ -523,7 +530,10 @@
+ "    %undef integral\n"
+ "    %undef decimal\n"
+ "    %undef float\n"
++"    %undef sign\n"
+ "\n"
++
++
+ "itoa:    \n"
+ "    %define buffer ebp+12\n"
+ "    %define num ebp+8\n"
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Mon May 24 20:29:22 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Mon, 24 May 2010 20:29:22 +0200
+Subject: [gpt-commit] r540 - trunk/gpt
+Message-ID: <201005241829.o4OITMZV021304@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2010-05-24 20:29:22 +0200 (Mon, 24 May 2010)
+New Revision: 540
+
+Modified:
+   trunk/gpt/ChangeLog
+   trunk/gpt/NEWS
+   trunk/gpt/THANKS
+Log:
+congelando versao 1.1
+
+Modified: trunk/gpt/ChangeLog
+===================================================================
+--- trunk/gpt/ChangeLog	2010-05-24 15:49:58 UTC (rev 539)
++++ trunk/gpt/ChangeLog	2010-05-24 18:29:22 UTC (rev 540)
+@@ -1,3 +1,32 @@
++2009-07-11
++
++	* /trunk/gpt/src/modules/c_translator/pt2c.g:
++	* /trunk/gpt/src/modules/interpreter/interpreter.g:
++	* /trunk/gpt/test/tester.gpt:
++
++	- Implemetacao da estrutura repita nos modulos tradutor para
++	C e interpretador
++
++	* /trunk/gpt/src/modules/parser/semantic.g:
++	* /trunk/gpt/src/modules/parser/BasePortugolParser.hpp:
++	* /trunk/gpt/src/modules/parser/parser.g:
++	* /trunk/gpt/src/modules/x86/x86.g:
++	* /trunk/gpt/test/tester.gpt:
++	* /trunk/gpt/src/modules/parser/BasePortugolParser.cpp:
++	* /trunk/gpt/src/modules/parser/lexer.g:
++
++	- Implemetacao da estrutura repita no modulo x86
++
++2009-07-06
++
++	* /trunk/gpt/HACKING:
++	* /trunk/gpt/src/modules/x86/X86.cpp:
++	* /trunk/gpt/test/run_test.sh:
++	* /trunk/gpt/doc/manual/manual.tex:
++
++	- Corre??o de bug referente a impressao de literal com
++	aspas simples (') no modo compilado
++
+ 2009-05-29
+ 
+ 	* /trunk/gpt/src/modules/interpreter/InterpreterEval.hpp:
+
+Modified: trunk/gpt/NEWS
+===================================================================
+--- trunk/gpt/NEWS	2010-05-24 15:49:58 UTC (rev 539)
++++ trunk/gpt/NEWS	2010-05-24 18:29:22 UTC (rev 540)
+@@ -1,8 +1,12 @@
+ Sum?rio de mudan?as
+ -------------------
+ 
+-10 de junho de 2009 * gpt 1.1
+-  
++24 de Mar?o de 2010 * gpt 1.1
++
++  * Implemeta??o da estrutura repita nos modulos tradutor para
++  * Adicionado suporte a retorne no bloco principal
++  * Corre??o do bug #83 (ver mantis)
++  * Corre??o de bug na impress?o de valores l?gicos
+   * O bloco principal agora tem suporte para instru??o "retorne"
+   * Corre??o de bugs relacionados a impress?o de valores nulos 
+ 
+
+Modified: trunk/gpt/THANKS
+===================================================================
+--- trunk/gpt/THANKS	2010-05-24 15:49:58 UTC (rev 539)
++++ trunk/gpt/THANKS	2010-05-24 18:29:22 UTC (rev 540)
+@@ -2,3 +2,4 @@
+ Alex Garz?o <alexgarzao [a] gmail com>
+ Everson Santos Araujo <everson [a] por com br>
+ Marcelo Jorge Vieira (metal) <metal [a] alucinados com>
++Lincoln Souza <lincoln [a] comum org>
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Mon May 24 20:35:08 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Mon, 24 May 2010 20:35:08 +0200
+Subject: [gpt-commit] r541 - trunk/gpt
+Message-ID: <201005241835.o4OIZ8NB021763@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2010-05-24 20:35:08 +0200 (Mon, 24 May 2010)
+New Revision: 541
+
+Modified:
+   trunk/gpt/ChangeLog
+   trunk/gpt/NEWS
+Log:
+Corrigindo NEWS e ChangeLog
+
+Modified: trunk/gpt/ChangeLog
+===================================================================
+--- trunk/gpt/ChangeLog	2010-05-24 18:29:22 UTC (rev 540)
++++ trunk/gpt/ChangeLog	2010-05-24 18:35:08 UTC (rev 541)
+@@ -1,3 +1,15 @@
++2010-05-24
++
++	* /trunk/gpt/ChangeLog:
++	* /trunk/gpt/THANKS:
++	* /trunk/gpt/NEWS:
++
++	-congelando versao 1.1
++
++	* /trunk/gpt/src/modules/x86/asm_lib.h:
++
++	-Fix: atof gerando floats entre 0 e 1 incorretamente
++
+ 2009-07-11
+ 
+ 	* /trunk/gpt/src/modules/c_translator/pt2c.g:
+
+Modified: trunk/gpt/NEWS
+===================================================================
+--- trunk/gpt/NEWS	2010-05-24 18:29:22 UTC (rev 540)
++++ trunk/gpt/NEWS	2010-05-24 18:35:08 UTC (rev 541)
+@@ -3,12 +3,13 @@
+ 
+ 24 de Mar?o de 2010 * gpt 1.1
+ 
+-  * Implemeta??o da estrutura repita nos modulos tradutor para
++  * Implemeta??o da estrutura repita
+   * Adicionado suporte a retorne no bloco principal
+   * Corre??o do bug #83 (ver mantis)
+   * Corre??o de bug na impress?o de valores l?gicos
+   * O bloco principal agora tem suporte para instru??o "retorne"
+-  * Corre??o de bugs relacionados a impress?o de valores nulos 
++  * Corre??o de bugs relacionados a impress?o de valores nulos e literais
++  * Corre??o de bugs relacionados a representa??o de n?meros reais
+ 
+ 11 de Dezembro de 2008 * gpt 1.0.2a
+ 
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Fri May 28 17:09:58 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Fri, 28 May 2010 17:09:58 +0200
+Subject: [gpt-commit] r542 - trunk/gpt
+Message-ID: <201005281509.o4SF9wFZ018955@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2010-05-28 17:09:56 +0200 (Fri, 28 May 2010)
+New Revision: 542
+
+Modified:
+   trunk/gpt/HACKING
+Log:
+Typo fix
+
+Modified: trunk/gpt/HACKING
+===================================================================
+--- trunk/gpt/HACKING	2010-05-24 18:35:08 UTC (rev 541)
++++ trunk/gpt/HACKING	2010-05-28 15:09:56 UTC (rev 542)
+@@ -166,7 +166,7 @@
+   e bugfixes.
+ 
+   Al?m do mais, BUGFIX pode ser seguido de um n?mero (ie #1234), que representa
+-  o n?mero do bug em um sistema de gerencia de bugs, que no nossa caso ? o Mantis.
++  o n?mero do bug em um sistema de gerencia de bugs, que no nosso caso ? o Mantis.
+ 
+ o Unit Testing
+ 
+
+
+

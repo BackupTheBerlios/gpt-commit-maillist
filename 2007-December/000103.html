@@ -1,0 +1,1073 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r429 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r429%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712132058.lBDKwW2C028158%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000102.html">
+   <LINK REL="Next"  HREF="000104.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r429 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r429%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712132058.lBDKwW2C028158%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r429 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Dec 13 21:58:32 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000102.html">[gpt-commit] r428 - in trunk/gpt2/gptc: . test test/tests
+</A></li>
+        <LI>Next message: <A HREF="000104.html">[gpt-commit] r430 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#103">[ date ]</a>
+              <a href="thread.html#103">[ thread ]</a>
+              <a href="subject.html#103">[ subject ]</a>
+              <a href="author.html#103">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-13 21:58:27 +0100 (Thu, 13 Dec 2007)
+New Revision: 429
+
+Modified:
+   trunk/gpt2/common/src/Common.hpp
+   trunk/gpt2/gptasm/src/CGenBytecode.cpp
+   trunk/gpt2/gptasm/src/lexer.g
+   trunk/gpt2/gptasm/src/parser.g
+   trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm
+   trunk/gpt2/gptasm/test/wikki/enderecamento_3.gasm
+   trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm
+   trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_4_1.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm
+   trunk/gpt2/gptvm/src/CDataStack.cpp
+   trunk/gpt2/gptvm/src/CDataStack.hpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_condicionais_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/expressoes_matematicas_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_4.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_5.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+Log:
+DEVNULL:
+* Novos opcodes: iret, sret, rret, dret e mret
+* GptASM nao reconhece mais incsp e decsp, mas esses opcodes continuam
+  existindo na VM
+* Retirado os opcodes pushir, pushrr, pushsr, pushdr e pushmr
+* Os opcodes de retorno de procedimento (ret) agora indicam o tamanho
+  do RA
+
+
+Modified: trunk/gpt2/common/src/Common.hpp
+===================================================================
+--- trunk/gpt2/common/src/Common.hpp	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/common/src/Common.hpp	2007-12-13 20:58:27 UTC (rev 429)
+@@ -111,48 +111,53 @@
+    OP_DECSP_4     = 83,
+    OP_DECSP_8     = 84,
+    OP_PCALL       = 85,
+-   OP_RET         = 86,
+-   OP_LCALL       = 87,
+-   OP_SALLOC      = 88,
+-   OP_SFREE       = 89,
+-   OP_SSETC       = 90,
+-   OP_SGETC       = 91,
+-   OP_M1ALLOC     = 92,
+-   OP_M2ALLOC     = 93,
+-   OP_MFREE       = 94,
+-   OP_M1SET       = 95,
+-   OP_M1GET       = 96,
+-   OP_M2SET       = 97,
+-   OP_M2GET       = 98,
+-   OP_MCOPY       = 99,
+-   OP_MGETSIZE1   = 100,
+-   OP_MGETSIZE2   = 101,
+-   OP_PUSHIT      = 102,
+-   OP_PUSHST      = 103,
+-   OP_PUSHRT      = 104,
+-   OP_PUSHCT      = 105,
+-   OP_PUSHBT      = 106,
+-   OP_PUSHDT      = 107,
+-   OP_PUSHMT      = 108,
+-   OP_POPIV       = 109,
+-   OP_POPRV       = 110,
+-   OP_POPSV       = 111,
+-   OP_POPDV       = 112,
+-   OP_POPMV       = 113,
+-   OP_PUSH_0      = 114,
+-   OP_PUSH_1      = 115,
+-   OP_PUSH_2      = 116,
+-   OP_PUSH_3      = 117,
+-   OP_PUSH_4      = 118,
+-   OP_PUSH_5      = 119,
+-   OP_EXIT_0      = 120,
+-   OP_EXIT_1      = 121,
+-   OP_PUSHIR      = 122,
+-   OP_PUSHSR      = 123,
+-   OP_PUSHRR      = 124,
+-   OP_PUSHDR      = 125,
+-   OP_PUSHMR      = 126,
+-   OPCODE_NUMBER  = 127
++   OP_IRET        = 86,
++   OP_RRET        = 87,
++   OP_SRET        = 88,
++   OP_DRET        = 89,
++   OP_MRET        = 90,
++   OP_LCALL       = 91,
++   OP_SALLOC      = 92,
++   OP_SFREE       = 93,
++   OP_SSETC       = 94,
++   OP_SGETC       = 95,
++   OP_M1ALLOC     = 96,
++   OP_M2ALLOC     = 97,
++   OP_MFREE       = 98,
++   OP_M1SET       = 99,
++   OP_M1GET       = 100,
++   OP_M2SET       = 101,
++   OP_M2GET       = 102,
++   OP_MCOPY       = 103,
++   OP_MGETSIZE1   = 104,
++   OP_MGETSIZE2   = 105,
++   OP_PUSHIT      = 106,
++   OP_PUSHST      = 107,
++   OP_PUSHRT      = 108,
++   OP_PUSHCT      = 109,
++   OP_PUSHBT      = 110,
++   OP_PUSHDT      = 111,
++   OP_PUSHMT      = 112,
++   OP_POPIV       = 113,
++   OP_POPRV       = 114,
++   OP_POPSV       = 115,
++   OP_POPDV       = 116,
++   OP_POPMV       = 117,
++   OP_PUSH_0      = 118,
++   OP_PUSH_1      = 119,
++   OP_PUSH_2      = 120,
++   OP_PUSH_3      = 121,
++   OP_PUSH_4      = 122,
++   OP_PUSH_5      = 123,
++   OP_EXIT_0      = 124,
++   OP_EXIT_1      = 125,
++//   OP_PUSHIR      = 126,
++//   OP_PUSHSR      = 127,
++//   OP_PUSHRR      = 128,
++//   OP_PUSHDR      = 129,
++//   OP_PUSHMR      = 130,
++   OP_RET         = 131,
++   OPCODE_NUMBER  = 132
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-12-13 20:58:27 UTC (rev 429)
+@@ -88,8 +88,8 @@
+    _opcodes[ &quot;popsv&quot;       ] = OP_POPSV;
+    _opcodes[ &quot;popdv&quot;       ] = OP_POPDV;
+    _opcodes[ &quot;popmv&quot;       ] = OP_POPMV;
+-   _opcodes[ &quot;incsp&quot;       ] = OP_INCSP;
+-   _opcodes[ &quot;decsp&quot;       ] = OP_DECSP;
++//   _opcodes[ &quot;incsp&quot;       ] = OP_INCSP;
++//   _opcodes[ &quot;decsp&quot;       ] = OP_DECSP;
+    _opcodes[ &quot;push_0&quot;      ] = OP_PUSH_0;
+    _opcodes[ &quot;push_1&quot;      ] = OP_PUSH_1;
+    _opcodes[ &quot;push_2&quot;      ] = OP_PUSH_2;
+@@ -101,11 +101,11 @@
+    _opcodes[ &quot;pushrv&quot;      ] = OP_PUSHRV;
+    _opcodes[ &quot;pushdv&quot;      ] = OP_PUSHDV;
+    _opcodes[ &quot;pushmv&quot;      ] = OP_PUSHMV;
+-   _opcodes[ &quot;pushir&quot;      ] = OP_PUSHIR;
+-   _opcodes[ &quot;pushsr&quot;      ] = OP_PUSHSR;
+-   _opcodes[ &quot;pushrr&quot;      ] = OP_PUSHRR;
+-   _opcodes[ &quot;pushdr&quot;      ] = OP_PUSHDR;
+-   _opcodes[ &quot;pushmr&quot;      ] = OP_PUSHMR;
++//   _opcodes[ &quot;pushir&quot;      ] = OP_PUSHIR;
++//   _opcodes[ &quot;pushsr&quot;      ] = OP_PUSHSR;
++//   _opcodes[ &quot;pushrr&quot;      ] = OP_PUSHRR;
++//   _opcodes[ &quot;pushdr&quot;      ] = OP_PUSHDR;
++//   _opcodes[ &quot;pushmr&quot;      ] = OP_PUSHMR;
+    _opcodes[ &quot;pushit&quot;      ] = OP_PUSHIT;
+    _opcodes[ &quot;pushst&quot;      ] = OP_PUSHST;
+    _opcodes[ &quot;pushrt&quot;      ] = OP_PUSHRT;
+@@ -113,12 +113,17 @@
+    _opcodes[ &quot;pushbt&quot;      ] = OP_PUSHBT;
+    _opcodes[ &quot;pushdt&quot;      ] = OP_PUSHDT;
+    _opcodes[ &quot;pushmt&quot;      ] = OP_PUSHMT;
+-   _opcodes[ &quot;incsp_4&quot;     ] = OP_INCSP_4;
+-   _opcodes[ &quot;incsp_8&quot;     ] = OP_INCSP_8;
+-   _opcodes[ &quot;decsp_4&quot;     ] = OP_DECSP_4;
+-   _opcodes[ &quot;decsp_8&quot;     ] = OP_DECSP_8;
++//   _opcodes[ &quot;incsp_4&quot;     ] = OP_INCSP_4;
++//   _opcodes[ &quot;incsp_8&quot;     ] = OP_INCSP_8;
++//   _opcodes[ &quot;decsp_4&quot;     ] = OP_DECSP_4;
++//   _opcodes[ &quot;decsp_8&quot;     ] = OP_DECSP_8;
+    _opcodes[ &quot;pcall&quot;       ] = OP_PCALL;
+    _opcodes[ &quot;ret&quot;         ] = OP_RET;
++   _opcodes[ &quot;iret&quot;        ] = OP_IRET;
++   _opcodes[ &quot;rret&quot;        ] = OP_RRET;
++   _opcodes[ &quot;sret&quot;        ] = OP_SRET;
++   _opcodes[ &quot;dret&quot;        ] = OP_DRET;
++   _opcodes[ &quot;mret&quot;        ] = OP_MRET;
+    _opcodes[ &quot;lcall&quot;       ] = OP_LCALL;
+    _opcodes[ &quot;salloc&quot;      ] = OP_SALLOC;
+    _opcodes[ &quot;sfree&quot;       ] = OP_SFREE;
+
+Modified: trunk/gpt2/gptasm/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptasm/src/lexer.g	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/src/lexer.g	2007-12-13 20:58:27 UTC (rev 429)
+@@ -116,8 +116,8 @@
+    T_KW_POPRV=&quot;poprv&quot;;
+    T_KW_POPDV=&quot;popdv&quot;;
+    T_KW_POPMV=&quot;popmv&quot;;
+-   T_KW_INCSP=&quot;incsp&quot;;
+-   T_KW_DECSP=&quot;decsp&quot;;
++//   T_KW_INCSP=&quot;incsp&quot;;
++//   T_KW_DECSP=&quot;decsp&quot;;
+    T_KW_PUSH_0=&quot;push_0&quot;;
+    T_KW_PUSH_1=&quot;push_1&quot;;
+    T_KW_PUSH_2=&quot;push_2&quot;;
+@@ -136,18 +136,23 @@
+    T_KW_PUSHBT=&quot;pushbt&quot;;
+    T_KW_PUSHDT=&quot;pushdt&quot;;
+    T_KW_PUSHMT=&quot;pushmt&quot;;
+-   T_KW_PUSHIR=&quot;pushir&quot;;
+-   T_KW_PUSHRR=&quot;pushrr&quot;;
+-   T_KW_PUSHSR=&quot;pushsr&quot;;
+-   T_KW_PUSHDR=&quot;pushdr&quot;;
+-   T_KW_PUSHMR=&quot;pushmr&quot;;
+-   T_KW_INCSP_4=&quot;incsp_4&quot;;
+-   T_KW_INCSP_8=&quot;incsp_8&quot;;
+-   T_KW_DECSP_4=&quot;decsp_4&quot;;
+-   T_KW_DECSP_8=&quot;decsp_8&quot;;
++//   T_KW_PUSHIR=&quot;pushir&quot;;
++//   T_KW_PUSHRR=&quot;pushrr&quot;;
++//   T_KW_PUSHSR=&quot;pushsr&quot;;
++//   T_KW_PUSHDR=&quot;pushdr&quot;;
++//   T_KW_PUSHMR=&quot;pushmr&quot;;
++//   T_KW_INCSP_4=&quot;incsp_4&quot;;
++//   T_KW_INCSP_8=&quot;incsp_8&quot;;
++//   T_KW_DECSP_4=&quot;decsp_4&quot;;
++//   T_KW_DECSP_8=&quot;decsp_8&quot;;
+    T_KW_PCALL=&quot;pcall&quot;;
+    T_KW_LCALL=&quot;lcall&quot;;
+    T_KW_RET=&quot;ret&quot;;
++   T_KW_IRET=&quot;iret&quot;;
++   T_KW_RRET=&quot;rret&quot;;
++   T_KW_SRET=&quot;sret&quot;;
++   T_KW_DRET=&quot;dret&quot;;
++   T_KW_MRET=&quot;mret&quot;;
+    T_KW_SALLOC=&quot;salloc&quot;;
+    T_KW_SFREE=&quot;sfree&quot;;
+    T_KW_SSETC=&quot;ssetc&quot;;
+
+Modified: trunk/gpt2/gptasm/src/parser.g
+===================================================================
+--- trunk/gpt2/gptasm/src/parser.g	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/src/parser.g	2007-12-13 20:58:27 UTC (rev 429)
+@@ -262,13 +262,13 @@
+       identifier
+       T_COMMA
+       intvalue
+-   |  (&quot;incsp&quot;|&quot;decsp&quot;)
+-      {bytecode.addOpcode(getLastTokenText());}
+-      intvalue
++//   |  (&quot;incsp&quot;|&quot;decsp&quot;)
++//      {bytecode.addOpcode(getLastTokenText());}
++//      intvalue
+    |  (&quot;push_0&quot;|&quot;push_1&quot;|&quot;push_2&quot;|&quot;push_3&quot;|&quot;push_4&quot;|&quot;push_5&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+-   |  (&quot;incsp_4&quot;|&quot;incsp_8&quot;|&quot;decsp_4&quot;|&quot;decsp_8&quot;)
+-      {bytecode.addOpcode(getLastTokenText());}
++//   |  (&quot;incsp_4&quot;|&quot;incsp_8&quot;|&quot;decsp_4&quot;|&quot;decsp_8&quot;)
++//      {bytecode.addOpcode(getLastTokenText());}
+    |  &quot;pcall&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+       T_ID
+@@ -279,6 +279,12 @@
+       { bytecode.addAddress(getLastTokenText(),CSymbol::CONST, CSymbol::STRING); }
+    |  &quot;ret&quot;
+       {bytecode.addOpcode(getLastTokenText());}
++      intvalue
++   |  (&quot;iret&quot;|&quot;rret&quot;|&quot;sret&quot;|&quot;dret&quot;|&quot;mret&quot;)
++      {bytecode.addOpcode(getLastTokenText());}
++      intvalue
++      T_COMMA
++      identifier
+    ;
+ 
+ //----------------------
+
+Modified: trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -38,8 +38,9 @@
+     push_2
+     lcall imprima
+ 
+-    decsp 12
+-    ret
++//    descp 12
++
++    ret 12
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/enderecamento_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/enderecamento_3.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/enderecamento_3.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -39,8 +39,9 @@
+     push_2
+     lcall imprima
+ 
+-    decsp 20
+-    ret
++//    descp 20
++
++    ret 20
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -3,7 +3,6 @@
+ proc main
+     var t1 int
+     // imprima( &quot;A soma &#233;: &quot;, soma( 2, 7 ) );
+-    pushir // resultado da fun&#231;&#227;o
+     pushiv 7 // empilha 7
+     pushiv 2 // empilha 2
+     pcall soma
+@@ -19,14 +18,14 @@
+ endproc
+ 
+ proc soma
+-    param __result int
+     param x int
+     param y int
++    var __result int
+ 
+     isum __result, x, y
+ 
+-    decsp_8 // tamanho dos parametros + variaveis locais - retorno da funcao
+-    ret
++//    decsp 12 // tamanho dos parametros + variaveis locais - retorno da funcao
++    iret 12, __result
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -15,7 +15,6 @@
+     popiv x
+ 
+     // imprima( &quot;Fatorial de &quot;, x, &quot; &#233; &quot;, fatorial( x ) );
+-    pushir // retorno da fun&#231;&#227;o
+     pushiv x
+     pcall fatorial
+     pushit
+@@ -32,8 +31,8 @@
+ endproc
+ 
+ proc fatorial
+-    param __result int
+     param z int
++    var __result int
+ 	
+     var t1 int
+     var t2 int
+@@ -43,26 +42,25 @@
+     ifnot t1, senao
+         // retorne 1;
+         iset __result, 1
+-        decsp 12
+-        ret
++//        decsp 16
++        iret 16, __result
+         jmp proximo
+     // sen&#227;o
+     senao:
+         // retorne z * fatorial( z - 1 );
+         isub t1, z, 1
+-        pushir // retorno da fun&#231;&#227;o
+         pushiv t1
+         pcall fatorial
+         popiv t1
+         imul t2, z, t1
+         iset __result, t2
+-        decsp 12
+-        ret
++//        decsp 16
++        iret 16, __result
+     // fim-se
+     proximo:
+ 
+-    decsp 12
+-    ret
++//    decsp 16
++    iret 16, __result
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -62,7 +62,8 @@
+     jmp teste2
+     proximo2:
+ 
+-    ret
++//    decsp_8
++    ret 8
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -5,7 +5,6 @@
+ var t1 int
+ 
+ proc main
+-    pushmr
+     pcall insere_dados
+     popmv m
+ 
+@@ -19,8 +18,8 @@
+ endproc
+ 
+ proc insere_dados
+-    param d1 matrix
+ //    var t1 int
++    var d1 matrix
+ 
+     // aloca espa&#231;o para a matriz d1
+     // d1 armazena dados de 4 bytes e tem 10 elementos iniciais
+@@ -42,7 +41,7 @@
+     proximo:
+ 
+ //    decsp_4
+-    ret
++    mret 4, d1
+ endproc
+ 
+ proc mostra_dados
+@@ -73,8 +72,8 @@
+     jmp teste2
+     proximo2:
+ 
+-    decsp_4
+-    ret
++//    decsp_4
++    ret 4
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_4_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_4_1.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_4_1.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -78,6 +78,8 @@
+     // desaloca espa&#231;o da matriz m
+     mfree m
+ 
++//    decsp_4
++
+     exit_0
+ endproc
+ 
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -27,8 +27,9 @@
+     push_2
+     lcall imprima
+ 
+-    decsp 12
+-    ret	
++//    decsp 12
++
++    ret	 12
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -28,8 +28,8 @@
+     isum t1, v1, v2
+     isetv r:0, t1
+ 
+-    decsp 16
+-    ret	
++//    decsp 16
++    ret	16
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -21,8 +21,8 @@
+    pushiv 1
+    lcall imprima
+ 
+-   decsp 4
+-   ret
++//   decsp 4
++   ret 4
+ endproc
+    
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -6,7 +6,6 @@
+ //    var v string
+ 
+ //    salloc v
+-    pushsr
+     pcall ajusta
+     popsv v
+ 
+@@ -21,11 +20,12 @@
+ endproc
+ 
+ proc ajusta
+-    param __result string
++    var __result string
+ 
+     salloc __result
+     sset __result, &quot;Hello !!!&quot;
+-    ret
++//    decsp 5
++    sret 5, __result
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm	2007-12-13 20:58:27 UTC (rev 429)
+@@ -4,7 +4,6 @@
+     var v string
+ 
+ //    salloc v
+-    pushsr
+     pcall ajusta
+     popsv v
+ 
+@@ -19,11 +18,12 @@
+ endproc
+ 
+ proc ajusta
+-    param __result string
++    var __result string
+ 
+     salloc __result
+     sset __result, &quot;Hello !!!&quot;
+-    ret
++//    decsp 4
++    sret 5,__result
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-13 20:58:27 UTC (rev 429)
+@@ -231,10 +231,18 @@
+ 
+ void CDataStack::setSP(const int &amp;value)
+ {
++   CBinString::resize(value);
+    _SP = value;
+ }
+ 
+ 
++void CDataStack::decSP(const int &amp;value)
++{
++   CBinString::popBytes(value);
++   _SP -= value;
++}
++
++
+ int CDataStack::getBS() const
+ {
+    return _BS;
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-13 20:58:27 UTC (rev 429)
+@@ -26,6 +26,7 @@
+    void discardBytes(const int &amp;number);
+    void setBS(const int &amp;value);
+    void setSP(const int &amp;value);
++   void decSP(const int &amp;value);
+    int getBS() const;
+    int getSP() const;
+    void readString(std::string &amp;value);
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-13 20:58:27 UTC (rev 429)
+@@ -7,6 +7,8 @@
+ 
+ // TODO: Armazenar todas as strings em memoria com o tamanho na frente ???
+ 
++#pragma pack(1)
++
+ struct SStringType {
+    char _type;
+    union UStringTypeValue {
+@@ -68,6 +70,7 @@
+    { }
+ };
+ 
++#pragma pack()
+ 
+ CRunBytecode::CRunBytecode()
+    : _returnCode(0)
+@@ -204,11 +207,11 @@
+    _opcodePointer[OP_PUSHDV     ] = &amp;CRunBytecode::pushdvOpcode;
+    _opcodePointer[OP_PUSHMV     ] = &amp;CRunBytecode::pushmvOpcode;
+ 
+-   _opcodePointer[OP_PUSHSR     ] = &amp;CRunBytecode::pushsrOpcode;
+-   _opcodePointer[OP_PUSHIR     ] = &amp;CRunBytecode::pushirOpcode;
+-   _opcodePointer[OP_PUSHRR     ] = &amp;CRunBytecode::pushrrOpcode;
+-   _opcodePointer[OP_PUSHDR     ] = &amp;CRunBytecode::pushdrOpcode;
+-   _opcodePointer[OP_PUSHMR     ] = &amp;CRunBytecode::pushmrOpcode;
++//   _opcodePointer[OP_PUSHSR     ] = &amp;CRunBytecode::pushsrOpcode;
++//   _opcodePointer[OP_PUSHIR     ] = &amp;CRunBytecode::pushirOpcode;
++//   _opcodePointer[OP_PUSHRR     ] = &amp;CRunBytecode::pushrrOpcode;
++//   _opcodePointer[OP_PUSHDR     ] = &amp;CRunBytecode::pushdrOpcode;
++//   _opcodePointer[OP_PUSHMR     ] = &amp;CRunBytecode::pushmrOpcode;
+ 
+    _opcodePointer[OP_PUSHST     ] = &amp;CRunBytecode::pushstOpcode;
+    _opcodePointer[OP_PUSHIT     ] = &amp;CRunBytecode::pushitOpcode;
+@@ -224,6 +227,11 @@
+    _opcodePointer[OP_DECSP_8    ] = &amp;CRunBytecode::decsp_8Opcode;
+ 
+    _opcodePointer[OP_RET        ] = &amp;CRunBytecode::retOpcode;
++   _opcodePointer[OP_IRET       ] = &amp;CRunBytecode::iretOpcode;
++   _opcodePointer[OP_RRET       ] = &amp;CRunBytecode::rretOpcode;
++   _opcodePointer[OP_SRET       ] = &amp;CRunBytecode::sretOpcode;
++   _opcodePointer[OP_DRET       ] = &amp;CRunBytecode::dretOpcode;
++   _opcodePointer[OP_MRET       ] = &amp;CRunBytecode::mretOpcode;
+    _opcodePointer[OP_SALLOC     ] = &amp;CRunBytecode::sallocOpcode;
+    _opcodePointer[OP_SFREE      ] = &amp;CRunBytecode::sfreeOpcode;
+    _opcodePointer[OP_SSETC      ] = &amp;CRunBytecode::ssetcOpcode;
+@@ -260,7 +268,7 @@
+ 
+ void CRunBytecode::step()
+ {
+-    char opcode;
++    unsigned char opcode;
+     opcode = _code.fetchByte();
+ 
+    if (opcode &gt;= OPCODE_NUMBER) {
+@@ -365,7 +373,19 @@
+    std::cout &lt;&lt; std::endl;
+ }
+ 
++void CRunBytecode::popRA()
++{
++   _code.setIP(_executionStack.top());
++   _executionStack.pop();
+ 
++//   _dataStack.setSP(_executionStack.top());
++//   _executionStack.pop();
++
++   _dataStack.setBS(_executionStack.top());
++   _executionStack.pop();
++}
++
++
+ /////////////
+ // opcodes //
+ /////////////
+@@ -1244,10 +1264,6 @@
+    type._type                = CSymbol::VAR;
+    type._value._addressValue = (int)value;
+ 
+-//   std::cout &lt;&lt; &quot;sizeof(type)=&quot; &lt;&lt; sizeof(type) &lt;&lt; std::endl;
+-//   _dataStack.pushBytes(&amp;type, sizeof(type));
+-//   TODO: problemas de alinhamento nas estruturas... nao consegui desativar com pragmas...
+-
+    _dataStack.pushByte(CSymbol::VAR);
+    _dataStack.pushInt((int)value);
+ }
+@@ -1322,46 +1338,46 @@
+ }
+ 
+ 
+-void CRunBytecode::pushsrOpcode()
+-{
+-   trace (&quot;pushsr opcode&quot;);
++//void CRunBytecode::pushsrOpcode()
++//{
++//   trace (&quot;pushsr opcode&quot;);
++//
++//   SStringType type;
++//
++//   _dataStack.pushBytes((char*)&amp;type, sizeof(type));
++//}
+ 
+-   SStringType type;
+ 
+-   _dataStack.pushBytes((char*)&amp;type, sizeof(type));
+-}
++//void CRunBytecode::pushirOpcode()
++//{
++//   trace (&quot;pushir opcode&quot;);
++//
++//   _dataStack.pushInt(0);
++//}
+ 
++//void CRunBytecode::pushrrOpcode()
++//{
++//   trace (&quot;pushrr opcode&quot;);
++//
++//   _dataStack.pushReal(0);
++//}
+ 
+-void CRunBytecode::pushirOpcode()
+-{
+-   trace (&quot;pushir opcode&quot;);
++//void CRunBytecode::pushdrOpcode()
++//{
++//   trace (&quot;pushdr opcode&quot;);
++//
++//   int size = _dataStack.getInt(_code.fetchInt());
++//
++//   _dataStack.pushBytes(size);
++//}
+ 
+-   _dataStack.pushInt(0);
+-}
++//void CRunBytecode::pushmrOpcode()
++//{
++//   trace (&quot;pushmr opcode&quot;);
++//
++//   _dataStack.pushBytes(getTypeSize(CSymbol::MATRIX));
++//}
+ 
+-void CRunBytecode::pushrrOpcode()
+-{
+-   trace (&quot;pushrr opcode&quot;);
+-
+-   _dataStack.pushReal(0);
+-}
+-
+-void CRunBytecode::pushdrOpcode()
+-{
+-   trace (&quot;pushdr opcode&quot;);
+-
+-   int size = _dataStack.getInt(_code.fetchInt());
+-
+-   _dataStack.pushBytes(size);
+-}
+-
+-void CRunBytecode::pushmrOpcode()
+-{
+-   trace (&quot;pushmr opcode&quot;);
+-
+-   _dataStack.pushBytes(getTypeSize(CSymbol::MATRIX));
+-}
+-
+ //void CRunBytecode::pushmrOpcode()
+ //{
+ //   trace (&quot;pushmr opcode&quot;);
+@@ -1452,17 +1468,86 @@
+    _dataStack.popInt();
+ }
+ 
++
+ void CRunBytecode::retOpcode()
+ {
+    trace (&quot;ret opcode&quot;);
+ 
+-   _code.setIP(_executionStack.top());
+-   _executionStack.pop();
++   int raSize  = _dataStack.getInt(_code.fetchInt());
+ 
+-   _dataStack.setBS(_executionStack.top());
+-   _executionStack.pop();
++   _dataStack.decSP(raSize);
++
++   popRA();
+ }
+ 
++void CRunBytecode::iretOpcode()
++{
++   trace (&quot;iret opcode&quot;);
++
++   int raSize  = _dataStack.getInt(_code.fetchInt());
++   int result = _dataStack.getInt(_code.fetchInt());
++
++   _dataStack.decSP(raSize);
++
++   popRA();
++
++   // Empilha o resultado
++   _dataStack.pushInt(result);
++}
++
++void CRunBytecode::rretOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::sretOpcode()
++{
++   trace (&quot;sret opcode&quot;);
++
++   int raSize  = _dataStack.getInt(_code.fetchInt());
++   int address = _code.fetchInt();
++
++   std::string *value = new std::string(); // TODO: quando eh desalocado ?
++   *value = _dataStack.getString(address);
++
++   SStringType type;
++   type._type                = CSymbol::VAR;
++   type._value._addressValue = (int)value;
++
++   _dataStack.decSP(raSize);
++
++   popRA();
++
++   _dataStack.pushBytes((char*)&amp;type, sizeof(type));
++
++//   _dataStack.pushByte(CSymbol::VAR);
++//   _dataStack.pushInt((int)value);
++}
++
++void CRunBytecode::dretOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::mretOpcode()
++{
++   trace (&quot;mret opcode&quot;);
++
++   int raSize  = _dataStack.getInt(_code.fetchInt());
++   SMatrix1TypeHeader *matrix = (SMatrix1TypeHeader*) _dataStack.getInt(_code.fetchInt());
++
++   int size = sizeof(SMatrix1TypeHeader) + matrix-&gt;_elements[0]*matrix-&gt;_elementSize;
++   char *newMatrix = new char[size]; // TODO: memory leak
++   memcpy(newMatrix, matrix, size);
++
++
++   _dataStack.decSP(raSize);
++
++   popRA();
++
++   _dataStack.pushInt((int)newMatrix);
++}
++
+ void CRunBytecode::sallocOpcode()
+ {
+    trace (&quot;salloc opcode&quot;);
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-08 09:31:34 UTC (rev 428)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-13 20:58:27 UTC (rev 429)
+@@ -38,6 +38,7 @@
+    double getRealData(const int &amp;address);
+    void setStringData(const int &amp;address, const std::string &amp;value);
+    std::string getStringData(const int &amp;address);
++   void popRA();
+    // opcodes
+    void invalidOpcode(const std::string &amp;opcode=&quot;&quot;);
+    void nopOpcode();
+@@ -138,11 +139,11 @@
+    void pushdvOpcode();
+    void pushmvOpcode();
+ 
+-   void pushsrOpcode();
+-   void pushirOpcode();
+-   void pushrrOpcode();
+-   void pushdrOpcode();
+-   void pushmrOpcode();
++//   void pushsrOpcode();
++//   void pushirOpcode();
++//   void pushrrOpcode();
++//   void pushdrOpcode();
++//   void pushmrOpcode();
+ 
+    void pushstOpcode();
+    void pushitOpcode();
+@@ -158,6 +159,11 @@
+    void decsp_8Opcode();
+ 
+    void retOpcode();
++   void iretOpcode();
++   void rretOpcode();
++   void sretOpcode();
++   void dretOpcode();
++   void mretOpcode();
+    void sallocOpcode();
+    void sfreeOpcode();
+    void ssetcOpcode();
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_condicionais_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/expressoes_matematicas_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_4.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_5.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000102.html">[gpt-commit] r428 - in trunk/gpt2/gptc: . test test/tests
+</A></li>
+	<LI>Next message: <A HREF="000104.html">[gpt-commit] r430 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#103">[ date ]</a>
+              <a href="thread.html#103">[ thread ]</a>
+              <a href="subject.html#103">[ subject ]</a>
+              <a href="author.html#103">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

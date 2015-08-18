@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r450 - trunk/gpt2/gptasm/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r450%20-%20trunk/gpt2/gptasm/src&In-Reply-To=%3C200712191615.lBJGFXmk022125%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000122.html">
+   <LINK REL="Next"  HREF="000125.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r450 - trunk/gpt2/gptasm/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r450%20-%20trunk/gpt2/gptasm/src&In-Reply-To=%3C200712191615.lBJGFXmk022125%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r450 - trunk/gpt2/gptasm/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 17:15:33 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000122.html">[gpt-commit] r449 - in trunk/gpt2: gptasm gptasm/src gptc gptc/src	gptvm gptvm/src
+</A></li>
+        <LI>Next message: <A HREF="000125.html">[gpt-commit] r451 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm gptasm/test/wikki gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#124">[ date ]</a>
+              <a href="thread.html#124">[ thread ]</a>
+              <a href="subject.html#124">[ subject ]</a>
+              <a href="author.html#124">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 17:15:32 +0100 (Wed, 19 Dec 2007)
+New Revision: 450
+
+Modified:
+   trunk/gpt2/gptasm/src/lexer.g
+Log:
+-Faltou inicializar a tabela de keywords
+
+Modified: trunk/gpt2/gptasm/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptasm/src/lexer.g	2007-12-19 15:08:42 UTC (rev 449)
++++ trunk/gpt2/gptasm/src/lexer.g	2007-12-19 16:15:32 UTC (rev 450)
+@@ -185,6 +185,7 @@
+ public:  
+    GptAssemblyLexer(std::istream&amp; in)
+     : UnicodeCharScanner(new UnicodeCharBuffer(in), true) {
++      initLiterals();
+    }
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000122.html">[gpt-commit] r449 - in trunk/gpt2: gptasm gptasm/src gptc gptc/src	gptvm gptvm/src
+</A></li>
+	<LI>Next message: <A HREF="000125.html">[gpt-commit] r451 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm gptasm/test/wikki gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#124">[ date ]</a>
+              <a href="thread.html#124">[ thread ]</a>
+              <a href="subject.html#124">[ subject ]</a>
+              <a href="author.html#124">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

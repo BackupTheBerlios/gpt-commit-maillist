@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r536 - in trunk/gpt: . doc/manual src/modules/x86 test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r536%20-%20in%20trunk/gpt%3A%20.%20doc/manual%20src/modules/x86%20test&In-Reply-To=%3C200907062338.n66Nc2eg017190%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000210.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r536 - in trunk/gpt: . doc/manual src/modules/x86 test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r536%20-%20in%20trunk/gpt%3A%20.%20doc/manual%20src/modules/x86%20test&In-Reply-To=%3C200907062338.n66Nc2eg017190%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r536 - in trunk/gpt: . doc/manual src/modules/x86 test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Jul  7 01:38:02 CEST 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000210.html">[gpt-commit] r537 - in trunk/gpt: src/modules/parser	src/modules/x86 test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#209">[ date ]</a>
+              <a href="thread.html#209">[ thread ]</a>
+              <a href="subject.html#209">[ subject ]</a>
+              <a href="author.html#209">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: adorilson
+Date: 2009-07-07 01:37:42 +0200 (Tue, 07 Jul 2009)
+New Revision: 536
+
+Added:
+   trunk/gpt/test/run_test.sh
+Modified:
+   trunk/gpt/HACKING
+   trunk/gpt/doc/manual/manual.tex
+   trunk/gpt/src/modules/x86/X86.cpp
+Log:
+- Corre?\195?\167?\195?\163o de bug referente a impressao de literal com aspas simples (') no modo compilado
+
+
+Modified: trunk/gpt/HACKING
+===================================================================
+--- trunk/gpt/HACKING	2009-06-10 05:08:14 UTC (rev 535)
++++ trunk/gpt/HACKING	2009-07-06 23:37:42 UTC (rev 536)
+@@ -199,44 +199,43 @@
+ Distribuindo
+ =============
+ 
+-  Para a distribu&#195;&#167;&#195;&#163;o do GPT pode-se seguir os seguinte passos:
++Para a distribu&#195;&#167;&#195;&#163;o de uma nova vers&#195;&#163;o do GPT pode-se seguir os seguinte passos:
+   
+-  o Atualizar documenta&#195;&#167;&#195;&#163;o (ver se&#195;&#167;&#195;&#163;o Documentando)
++o Atualizar documenta&#195;&#167;&#195;&#163;o (ver se&#195;&#167;&#195;&#163;o Documentando)
+   
+-  o Checar se todos os arquivos novos/modificados est&#195;&#163;o no reposit&#195;&#179;rio
+-    $ svn status 
++o Checar se todos os arquivos novos/modificados est&#195;&#163;o no reposit&#195;&#179;rio
++  $ svn status 
+   
+-  o Testar o vers&#195;&#163;o do SVN em outros ambientes
++o Testar o vers&#195;&#163;o do SVN em outros ambientes
+   
+-  o Mudar a vers&#195;&#163;o no arquivo configure.ac
+-    Atualizar os paramentros das fun&#195;&#167;&#195;&#181;es AC_INIT e AM_INIT_AUTOMAKE com a nova vers&#195;&#163;o do gpt
+-    Ap&#195;&#179;s isso executar os comandos, para que a mudan&#195;&#167;a reflita nos arquivos gerados automaticamente:
+-    $ autoconf &amp;&amp; automake
++o Mudar a vers&#195;&#163;o no arquivo configure.ac
++  Atualizar os paramentros das fun&#195;&#167;&#195;&#181;es AC_INIT e AM_INIT_AUTOMAKE com a nova vers&#195;&#163;o do gpt
++  Ap&#195;&#179;s isso executar os comandos, para que a mudan&#195;&#167;a reflita nos arquivos gerados automaticamente:
++  $ autoconf &amp;&amp; automake
+     
+-  o Atualizar NEWS
+-    O arquivo NEWS dever&#195;&#161; ser atualizado manualmente seguindo o padr&#195;&#163;o utilizado.
++o Atualizar NEWS
++  O arquivo NEWS dever&#195;&#161; ser atualizado manualmente seguindo o padr&#195;&#163;o utilizado.
+     
+-  o Atualizar ChangeLog
+-    Para gerar o ChangeLog ser&#195;&#161; necess&#195;&#161;rio a instala&#195;&#167;&#195;&#163;o do pacote:
+-    - php-cli
++o Atualizar ChangeLog
++  Para gerar o ChangeLog ser&#195;&#161; necess&#195;&#161;rio a instala&#195;&#167;&#195;&#163;o do pacote:
++  - php-cli
+   
+-    Executar o comando
+-    $ php stuff/svn2cl.php &gt; ChangeLog
++  Executar o comando
++  $ php stuff/svn2cl.php &gt; ChangeLog
+   
+-  o Commit e tag
+-    Ap&#195;&#179;s essas atualiza&#195;&#167;&#195;&#181;es, dever&#195;&#161; ser feito um commit sem coment&#195;&#161;rios e tagear a vers&#195;&#163;o no SVN. 
+-    $ svn commit
+-    $ svn copy <A HREF="svn://svn.berlios.de/gpt/trunk/gpt">svn://svn.berlios.de/gpt/trunk/gpt</A> \
+-           <A HREF="svn://svn.berlios.de/gpt/tags/gpt-1.1">svn://svn.berlios.de/gpt/tags/gpt-1.1</A> \
++o Commit e tag
++  Ap&#195;&#179;s essas atualiza&#195;&#167;&#195;&#181;es, dever&#195;&#161; ser feito um commit sem coment&#195;&#161;rios e tagear a vers&#195;&#163;o no SVN. 
++  $ svn commit
++  $ svn copy <A HREF="https://username@svn.berlios.de/svnroot/repos/gpt/trunk/gpt">https://username@svn.berlios.de/svnroot/repos/gpt/trunk/gpt</A> \
++            <A HREF="https://username@svn.berlios.de/svnroot/repos/gpt/tags/gpt-1.1\">https://username@svn.berlios.de/svnroot/repos/gpt/tags/gpt-1.1\</A>
+       -m &quot;Release 1.1&quot;
+ 
+-  o Criar pacotes
+-    - tar.gz
+-      $ make distclean; mkdir build; cd build; ../configure &amp;&amp; make &amp;&amp; make distcheck
++o Criar pacotes
++  - tar.gz
++    $ make distclean; mkdir build; cd build; ../configure &amp;&amp; make &amp;&amp; make distcheck
+     
+-    
+-    - debian
++  - debian
+ 
+-  o Fazer o upload dos arquivos
++o Fazer o upload dos arquivos
+   
+-  o Atualizar o site e publicar as novidades
++o Atualizar o site e publicar as novidades
+
+Modified: trunk/gpt/doc/manual/manual.tex
+===================================================================
+--- trunk/gpt/doc/manual/manual.tex	2009-06-10 05:08:14 UTC (rev 535)
++++ trunk/gpt/doc/manual/manual.tex	2009-07-06 23:37:42 UTC (rev 536)
+@@ -366,8 +366,13 @@
+ \end{verbatim}
+ 
+ Outro detalhe &#233; a pontua&#231;&#227;o. Da mesma forma que em C, o '';'' &#233; utilizado como
+-finalizador de enunciados.
++finalizador de enunciados. Se for necess&#225;rio utilizar uma aspa dupla em um literal, 
++deve-se utilizar o escape:
+ 
++\begin{verbatim}
++  imprima(&quot;Isso &#233; literal com aspas duplas ($\backslash$&quot;) &quot;); 
++\end{verbatim}
++
+ \section{Vari&#225;veis}
+ 
+ A declara&#231;&#227;o de vari&#225;veis deve ser feita dentro de um bloco espec&#237;fico, que deve aparecer logo ap&#243;s a 
+
+Modified: trunk/gpt/src/modules/x86/X86.cpp
+===================================================================
+--- trunk/gpt/src/modules/x86/X86.cpp	2009-06-10 05:08:14 UTC (rev 535)
++++ trunk/gpt/src/modules/x86/X86.cpp	2009-07-06 23:37:42 UTC (rev 536)
+@@ -305,7 +305,11 @@
+           ret += str[i];
+       }
+     } else {
+-      ret += str[i];
++      if(str[i] == '\'') {
++        ret += &quot;',39,'&quot;;
++      } else {
++        ret += str[i];
++      }
+     }
+   }
+   return ret;
+
+Added: trunk/gpt/test/run_test.sh
+===================================================================
+--- trunk/gpt/test/run_test.sh	2009-06-10 05:08:14 UTC (rev 535)
++++ trunk/gpt/test/run_test.sh	2009-07-06 23:37:42 UTC (rev 536)
+@@ -0,0 +1,27 @@
++#! /bin/bash
++
++echo &quot;
++Testando a compila&#195;&#167;&#195;&#163;o direta&quot;
++../src/gpt -o tester tester.gpt
++./tester
++echo &quot;echo \$?=$?&quot;
++
++echo &quot;
++Testando a interpreta&#195;&#167;&#195;&#163;o&quot;
++../src/gpt -i tester.gpt
++echo &quot;echo \$?=$?&quot;
++
++echo &quot;
++Testando a tradu&#195;&#167;&#195;&#163;o para linguagem C&quot;
++../src/gpt -t tester.c tester.gpt
++gcc -o tester.c.exe tester.c
++./tester.c.exe
++echo &quot;echo \$?=$?&quot;
++
++echo &quot;
++Testando a tradu&#195;&#167;&#195;&#163;o para linguagem Assembly&quot;
++../src/gpt -s tester.asm tester.gpt
++nasm -O1 -fbin -o tester.asm.exe tester.asm
++chmod +x tester.asm.exe
++./tester.asm.exe
++echo &quot;echo \$?=$?&quot;
+
+
+Property changes on: trunk/gpt/test/run_test.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000210.html">[gpt-commit] r537 - in trunk/gpt: src/modules/parser	src/modules/x86 test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#209">[ date ]</a>
+              <a href="thread.html#209">[ thread ]</a>
+              <a href="subject.html#209">[ subject ]</a>
+              <a href="author.html#209">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

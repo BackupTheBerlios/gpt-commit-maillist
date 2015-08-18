@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r512 - trunk/gpt/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r512%20-%20trunk/gpt/src&In-Reply-To=%3C200807120206.m6C26Svh015935%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r512 - trunk/gpt/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r512%20-%20trunk/gpt/src&In-Reply-To=%3C200807120206.m6C26Svh015935%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r512 - trunk/gpt/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Sat Jul 12 04:06:28 CEST 2008</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-07-12 04:06:27 +0200 (Sat, 12 Jul 2008)
+New Revision: 512
+
+Modified:
+   trunk/gpt/src/GPT.cpp
+Log:
+FIX: nasm 'short jump out of range'
+
+Modified: trunk/gpt/src/GPT.cpp
+===================================================================
+--- trunk/gpt/src/GPT.cpp	2008-06-24 16:07:29 UTC (rev 511)
++++ trunk/gpt/src/GPT.cpp	2008-07-12 02:06:27 UTC (rev 512)
+@@ -199,7 +199,7 @@
+     fo.close();
+ 
+     stringstream cmd;
+-    cmd &lt;&lt; &quot;nasm -fbin -o \&quot;&quot; &lt;&lt; ofname &lt;&lt; &quot;\&quot; &quot; &lt;&lt; ftmpname;
++    cmd &lt;&lt; &quot;nasm -O1 -fbin -o \&quot;&quot; &lt;&lt; ofname &lt;&lt; &quot;\&quot; &quot; &lt;&lt; ftmpname;
+ 
+     if(system(cmd.str().c_str()) == -1) {
+       s &lt;&lt; PACKAGE &lt;&lt; &quot;: n&#227;o foi poss&#237;vel invocar o nasm.&quot; &lt;&lt; endl;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

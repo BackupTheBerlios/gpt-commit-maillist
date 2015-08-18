@@ -1,0 +1,2491 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r432 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r432%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712141634.lBEGY0cI023582%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000105.html">
+   <LINK REL="Next"  HREF="000107.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r432 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r432%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712141634.lBEGY0cI023582%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r432 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Dec 14 17:34:00 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000105.html">[gpt-commit] r431 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000107.html">[gpt-commit] r433 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#106">[ date ]</a>
+              <a href="thread.html#106">[ thread ]</a>
+              <a href="subject.html#106">[ subject ]</a>
+              <a href="author.html#106">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-14 17:33:58 +0100 (Fri, 14 Dec 2007)
+New Revision: 432
+
+Added:
+   trunk/gpt2/gptc/src/Arguments.cpp
+   trunk/gpt2/gptc/src/Arguments.hpp
+   trunk/gpt2/gptc/src/AsmProgram.cpp
+   trunk/gpt2/gptc/src/AsmProgram.hpp
+   trunk/gpt2/gptc/src/BaseGptAsmWalker.cpp
+   trunk/gpt2/gptc/src/BaseGptAsmWalker.hpp
+   trunk/gpt2/gptc/src/Context.cpp
+   trunk/gpt2/gptc/src/Context.hpp
+   trunk/gpt2/gptc/src/GptAsmExpression.hpp
+   trunk/gpt2/gptc/src/Makefile.in
+   trunk/gpt2/gptc/src/Options.hpp
+   trunk/gpt2/gptc/src/Subroutine.cpp
+   trunk/gpt2/gptc/src/Subroutine.hpp
+   trunk/gpt2/gptc/src/TextFile.cpp
+   trunk/gpt2/gptc/src/TextFile.hpp
+   trunk/gpt2/gptc/src/Tools.cpp
+   trunk/gpt2/gptc/src/Tools.hpp
+   trunk/gpt2/gptc/src/gptasm.g
+Modified:
+   trunk/gpt2/gptc/src/Makefile.am
+   trunk/gpt2/gptc/src/main.cpp
+   trunk/gpt2/gptc/src/semantic.g
+Log:
+-Adicionando classes para a geracao de gptasembly
+
+Added: trunk/gpt2/gptc/src/Arguments.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Arguments.cpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Arguments.cpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,32 @@
++#include &quot;Arguments.hpp&quot;
++
++#include &quot;Tools.hpp&quot;
++
++
++Arguments::Arguments( )
++{
++}
++
++void Arguments::init( Subroutine* subroutine, const string &amp;subroutineName )
++{
++	clear();
++	_subroutine     = subroutine;
++	_subroutineName = subroutineName;
++}
++
++void Arguments::emitMnsInSubroutineCall( )
++{
++	iterator argument;
++
++	bool varArgs = _subroutineName == &quot;imprima&quot;;
++
++	// se for &quot;imprima&quot; empilha o nro de argumentos e o tipo de cada um
++	// por enquanto imprima eh um caso especial, mas nas proximas versoes isso seria corrigido...
++	for( argument = end() - 1; argument &gt;= begin(); argument-- ) {
++		_subroutine-&gt;emitPUSHMn( *argument, varArgs );
++
++	}
++	if (varArgs) {
++		_subroutine-&gt;emitMn( &quot;push&quot;, itoa( size( ) ) );
++	}
++}
+
+Added: trunk/gpt2/gptc/src/Arguments.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Arguments.hpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Arguments.hpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,24 @@
++#ifndef ARGUMENTS_H
++#define ARGUMENTS_H
++
++#include &lt;vector&gt;
++using namespace std;
++
++#include &quot;Subroutine.hpp&quot;
++
++class Arguments : public vector&lt;string&gt; // usar list :-)
++{
++public:
++	Arguments( );
++	void init( Subroutine* subroutine, const string &amp;subroutineName );
++	void emitMnsInSubroutineCall( );
++	void setSubroutineName( const string &amp;_name ) {
++		_subroutineName = _name;
++	}
++private:
++	string _subroutineName;
++	Subroutine *_subroutine;
++};
++
++#endif
++
+
+Added: trunk/gpt2/gptc/src/AsmProgram.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/AsmProgram.cpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/AsmProgram.cpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,84 @@
++#include &quot;AsmProgram.hpp&quot;
++
++#include &quot;Tools.hpp&quot;
++
++
++AsmProgram::AsmProgram(Options *options)
++	: _options(options), _context(NULL)
++{
++}
++
++void AsmProgram::init()
++{
++	_asmPrg.writeln(&quot;// Programa &quot; + _options-&gt;filename + &quot;.gasm gerado a partir de &quot; + _options-&gt;filename + &quot;.gpt&quot;);
++	_asmPrg.writeln(&quot;program &quot; + _options-&gt;filename);
++	_asmPrg.writeln();
++}
++
++void AsmProgram::finish()
++{
++	_asmPrg.writeln(&quot;end-program&quot;);
++}
++
++AsmProgram::~AsmProgram()
++{
++}
++
++Subroutine *AsmProgram::initSubroutine(string name)
++{
++	Subroutine *action = new Subroutine(_options, /*_file,*/ name);
++	action-&gt;init();
++
++	return action;
++}
++
++
++void AsmProgram::finishSubroutine(Subroutine *action)
++{
++	action-&gt;finish();
++	_asmPrg.write(action-&gt;getCode());
++	delete action;
++}
++
++
++/*CContext *AsmProgram::addContext()
++{
++	CContext* context = new CContext();
++	_contexts.push(context);
++	_context = context;
++
++	return context;
++}
++
++
++CContext *AsmProgram::remContext()
++{
++	delete _contexts.top();
++	_contexts.pop();
++	if (_contexts.size() &gt; 0) {
++		_context = _contexts.top();
++		return _contexts.top();
++	} else {
++		_context = NULL;
++		return NULL;
++	}
++}
++
++
++CContext *AsmProgram::getContext()
++{
++	return _context;
++}
++*/
++
++void AsmProgram::emitVarDefinition(const string &amp;name, const string &amp;type)
++{
++	_asmPrg.writeln(&quot;var &quot; + name + &quot; &quot; + type);
++}
++
++
++string AsmProgram::getAsm() const
++{
++	return _asmPrg.getText();
++}
++
+
+Added: trunk/gpt2/gptc/src/AsmProgram.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/AsmProgram.hpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/AsmProgram.hpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,33 @@
++#ifndef ASM_PROGRAM_H
++#define ASM_PROGRAM_H
++
++#include &quot;Context.hpp&quot;
++#include &quot;Options.hpp&quot;
++
++#include &lt;string&gt;
++#include &lt;stack&gt;
++using namespace std;
++
++class AsmProgram
++{
++public:
++	AsmProgram(Options *options);
++	~AsmProgram();
++	void init();
++	void finish();
++	Subroutine *initSubroutine(string name);
++	void finishSubroutine(Subroutine *subroutine);
++	Context *addContext();
++	Context *remContext();
++	Context *getContext();
++	void emitVarDefinition(const string &amp;name, const string&amp; type);
++	string getAsm() const;
++private:
++	Options *_options;
++	Context *_context;
++	stack&lt;Context*&gt; _contexts;
++	TextFile _asmPrg;
++};
++
++#endif
++
+
+Added: trunk/gpt2/gptc/src/BaseGptAsmWalker.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseGptAsmWalker.cpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/BaseGptAsmWalker.cpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,75 @@
++#include &quot;BaseGptAsmWalker.hpp&quot;
++
++#include &quot;SymbolTable.hpp&quot;
++#include &quot;Symbol.hpp&quot;
++#include &quot;AsmProgram.hpp&quot;
++#include &quot;Types.hpp&quot;
++
++BaseGptAsmWalker::BaseGptAsmWalker(SymbolTable* symtable,
++                                   const std::string&amp; filepath)
++  : antlr::TreeParser(), _symtable(symtable), _filepath(filepath) {
++
++  _symtable-&gt;setGlobalScope();
++
++  _options.filename = _filepath;
++  //options.sourcefile = filename + &quot;.gpt&quot;;
++  //options.destfile   = filename + &quot;.gasm&quot;;
++  _asmPrg = new AsmProgram(&amp;_options);
++}
++
++
++void BaseGptAsmWalker::finishParser() {
++  delete _asmPrg;
++  _asmPrg = NULL;
++}
++
++void BaseGptAsmWalker::declareProgramVars(const std::list&lt;string&gt;&amp; ids) {
++  for (std::list&lt;string&gt;::const_iterator it = ids.begin(); it != ids.end(); ++it) {
++    _asmPrg-&gt;emitVarDefinition(
++      *it, _symtable-&gt;getSymbol(*it).type()-&gt;asmName());
++  }
++}
++
++void BaseGptAsmWalker::declareSubroutineVars(const std::list&lt;string&gt;&amp; ids) {
++  for (std::list&lt;string&gt;::const_iterator it = ids.begin(); it != ids.end(); ++it) {
++    _subroutine-&gt;emitVarDefinition(
++      *it, _symtable-&gt;getSymbol(*it).type()-&gt;asmName());
++  }  
++}
++
++void BaseGptAsmWalker::declareParameter(const string&amp; lexeme) {
++  _subroutine-&gt;emitParDefinition(
++    lexeme, _symtable-&gt;getSymbol(lexeme).type()-&gt;asmName());
++}
++
++int BaseGptAsmWalker::getSymbolType(const string&amp; lexeme) {
++  return _symtable-&gt;getSymbol(lexeme).type()-&gt;primitiveType();
++}
++
++std::string BaseGptAsmWalker::expandOffset(const std::string&amp;, const std::list&lt;std::string&gt;&amp;) {
++}
++
++void BaseGptAsmWalker::expr_MAIS(GptAsmExpression&amp;, const GptAsmExpression&amp;, const GptAsmExpression&amp;) {
++}
++
++
++
++
++
++
++//      string getAsmProgram( ) const
++//      {
++//         return asmPrg-&gt;getAsm( );
++//      }
++
++// void BaseGptAsmWalker::declareGlobals(const IDList&amp; ids) {
++//   for (IDList::const_iterator it = ids.begin(); it != ids.end(); ++it) {
++//     _globalarea &lt;&lt; &quot;var &quot; &lt;&lt; (*it) &lt;&lt; &quot; &quot; &lt;&lt; getAsmType(*it) &lt;&lt; std::endl;
++//   }
++// }
++// 
++// std::string BaseGptAsmWalker::getAsmType(const std::string&amp; id) {
++//   return _symtable-&gt;getSymbol(
++//       id, _symtable-&gt;currentScope()).type()-&gt;asmName();
++// }
++
+
+Added: trunk/gpt2/gptc/src/BaseGptAsmWalker.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseGptAsmWalker.hpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/BaseGptAsmWalker.hpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,43 @@
++#ifndef BASEGPTASMWALKER_HPP
++#define BASEGPTASMWALKER_HPP
++
++#include &lt;antlr/TreeParser.hpp&gt;
++#include &lt;string&gt;
++#include &lt;list&gt;
++
++#include &quot;Options.hpp&quot;
++#include &quot;AsmProgram.hpp&quot;
++
++class SymbolTable;
++class AsmProgram;
++class Subroutine;
++class GptAsmExpression;
++
++class BaseGptAsmWalker : public antlr::TreeParser {
++public:
++  BaseGptAsmWalker(SymbolTable*, const std::string&amp;);
++protected:
++  void finishParser();
++  void declareProgramVars(const std::list&lt;std::string&gt;&amp;);
++  void declareSubroutineVars(const std::list&lt;std::string&gt;&amp;);
++  void declareParameter(const string&amp;);
++  int getSymbolType(const string&amp;);
++
++  std::string expandOffset(const std::string&amp;, const std::list&lt;std::string&gt;&amp;);
++  void expr_MAIS(GptAsmExpression&amp;, const GptAsmExpression&amp;, const GptAsmExpression&amp;);
++
++//   void declareGlobals(const IDList&amp;);
++//   void addPrologue(code);
++//   void initStructMembers(const string&amp;, const IDList&amp;, code);
++
++//   std::string getAsmType(const std::string&amp;);
++
++  SymbolTable                 *_symtable;
++  std::string                  _filepath;
++
++  Options         _options;
++  AsmProgram      *_asmPrg;
++  Subroutine      *_subroutine;
++};
++
++#endif
+
+Added: trunk/gpt2/gptc/src/Context.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Context.cpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Context.cpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,35 @@
++#include &quot;Context.hpp&quot;
++
++Context::Context( ) : _arity(0), lastStoredVar(NULL)//, lastInvocationType(IT_QU)
++{
++}
++
++
++Context::~Context( )
++{
++}
++
++
++void Context::addArg( const char *name, const int &amp;type, const string &amp;indexVar )
++{
++	//arguments.push_back( new CArgument( name, type, indexVar ) );
++}
++
++
++void Context::initArity( const int &amp;value )
++{
++	_arity = value;
++}
++
++
++void Context::addArity( )
++{
++	_arity++;
++}
++
++
++int Context::getArity( )
++{
++	return _arity;
++}
++
+
+Added: trunk/gpt2/gptc/src/Context.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Context.hpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Context.hpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,32 @@
++#ifndef CONTEXT_H
++#define CONTEXT_H
++
++#include &lt;string&gt;
++using namespace std;
++
++#include &quot;Arguments.hpp&quot;
++
++class Context
++{
++private:
++	int _arity;
++public:
++	Context( );
++	~Context( );
++	void addArg( const char *name, const int &amp;type = 0, const string &amp;indexVar = &quot;&quot; );
++	void initArity( const int &amp;value = 0 );
++	void addArity( );
++	int getArity( );
++
++	char *lastStoredVar;
++	string label1;
++	string label2;
++	string tempVar1;
++	string tempVar2;
++//	CArguments arguments;
++//	int lastInvocationType;
++//	int blackboardType;
++};
++
++#endif
++
+
+Added: trunk/gpt2/gptc/src/GptAsmExpression.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/GptAsmExpression.hpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/GptAsmExpression.hpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,110 @@
++#ifndef GPTASMEXPRESSION_HPP
++#define GPTASMEXPRESSION_HPP
++
++#include &quot;PortugolTokenTypes.hpp&quot;
++#include &quot;Types.hpp&quot;
++
++#include &lt;sstream&gt;
++#include &lt;string&gt;
++
++class GptAsmExpression {
++public:
++
++  void set(Type* type,
++           int mm,
++           GptAsmExpression* op1,
++           GptAsmExpression* op2) {
++
++    _mm   = mm;
++    _op1  = op1;
++    _op2  = op2;
++    _type = type;
++  }
++
++  void set(const std::string&amp; value, Type* type) {
++    _value = value;
++    _type = type;
++  }
++
++
++  void expand(const std::string lvalue, /*const GptAsmSubprogram&amp; ctx*/ int ctx) {
++    //TODO: check for type promotion
++
++    if (isAtom()) {
++      return;
++    }
++
++    std::stringstream code;
++
++    if (_op1-&gt;isAtom() &amp;&amp; _op2-&gt;isAtom()) {
++      std::string cp1 = expandCast(lvalue, _op1-&gt;value(), _op1-&gt;type(), ctx);
++      std::string cp2 = expandCast(lvalue, _op2-&gt;value(), _op2-&gt;type(), ctx);
++//       ctx.emit(_mm, lvalue, cp1, cp2);
++
++    } else if (_op1-&gt;isAtom()) {
++      std::string t2/* = ctx.declareTmp(_op2-&gt;type())*/;
++
++      _op2-&gt;expand(t2, ctx);
++
++      std::string cp1 = expandCast(lvalue, _op1-&gt;value(), _op1-&gt;type(), ctx);
++      std::string cp2 = expandCast(lvalue, t2, _op2-&gt;type(), ctx);
++
++//       ctx.emit(_mm, lvalue, cp1, cp2);
++
++    } else if (_op2-&gt;isAtom()) {
++      std::string t1/* = ctx.declareTmp(_op1-&gt;type())*/;
++
++      _op1-&gt;expand(t1, ctx);
++
++      std::string cp1 = expandCast(lvalue, t1, _op1-&gt;type(), ctx);
++      std::string cp2 = expandCast(lvalue, _op2-&gt;value(), _op2-&gt;type(), ctx);
++
++//       ctx.emit(_mm, lvalue, cp1, cp2);
++
++    } else {
++
++      std::string t1/* = ctx.declareTmp(_op1-&gt;type())*/;
++      std::string t2/* = ctx.declareTmp(_op2-&gt;type())*/;
++
++      _op1-&gt;expand(t1, ctx);
++      _op2-&gt;expand(t2, ctx);
++
++      std::string cp1 = expandCast(lvalue, t1, _op1-&gt;type(), ctx);
++      std::string cp2 = expandCast(lvalue, t2, _op2-&gt;type(), ctx);
++
++//       ctx.emit(_mm, lvalue, cp1, cp2);
++    }
++  }
++
++  bool isAtom() {
++    return _value.length() &gt; 0;
++  }
++
++  const std::string&amp; value() { return _value; }
++  Type*              type()  { return _type; }
++private:
++
++  std::string expandCast(const std::string &amp;lvalue,
++                         const std::string&amp; opval,
++                         Type *optype,
++                         /*const GptAsmSubprogram&amp; */ int ctx) {
++    if (optype-&gt;equals(PortugolTokenTypes::T_CORINGA)) {
++      return opval;
++    }
++
++    if (_type-&gt;equals(optype)) {
++      return opval;
++    } else {
++//       ctx.emit(opcodeCast(optype, _type), lvalue, opval);
++      return lvalue;
++    }
++  }
++
++  Type              *_type;
++  int               _mm;
++  std::string       _value;
++  GptAsmExpression  *_op1;
++  GptAsmExpression  *_op2;
++};
++
++#endif
+
+Modified: trunk/gpt2/gptc/src/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/src/Makefile.am	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Makefile.am	2007-12-14 16:33:58 UTC (rev 432)
+@@ -9,7 +9,7 @@
+ gptc_LDADD = libgptc.la $(ANTLR_LIB)
+ 
+ 
+-EXTRA_DIST = lexer.g parser.g semantic.g code.g
++EXTRA_DIST = lexer.g parser.g semantic.g gptasm.g
+ 
+ 
+ BUILT_SOURCES = PortugolLexer.hpp \
+@@ -18,14 +18,16 @@
+                 PortugolParser.cpp \
+                 SemanticWalker.hpp \
+                 SemanticWalker.cpp \
+-								CodeWalker.hpp \
+-								CodeWalker.cpp \
++								GptAsmWalker.hpp \
++								GptAsmWalker.cpp \
+                 TokenNames.hpp \
+                 TokenLabels.hpp
+ 
+ 
+ libgptc_la_SOURCES =  BaseSemanticWalker.hpp \
+ 											BaseSemanticWalker.cpp \
++											BaseGptAsmWalker.hpp \
++											BaseGptAsmWalker.cpp \
+ 											CompilerError.hpp \
+ 											CompilerError.cpp \
+ 											MismatchedUnicodeCharException.hpp \
+@@ -42,6 +44,15 @@
+ 											Types.cpp \
+ 											UnicodeCharBuffer.hpp \
+ 											UnicodeCharScanner.hpp \
++											GptAsmExpression.hpp \
++											Arguments.hpp \
++											Arguments.cpp \
++											AsmProgram.hpp AsmProgram.cpp \
++										  Context.hpp Context.cpp \
++										  Options.hpp \
++											Subroutine.hpp Subroutine.cpp \
++											TextFile.hpp TextFile.cpp \
++										  Tools.hpp Tools.cpp \
+ 											$(BUILT_SOURCES)
+ 
+ 
+@@ -57,8 +68,10 @@
+              SemanticWalker.cpp \
+              SemanticWalkerTokenTypes.hpp \
+              SemanticWalkerTokenTypes.txt \
+-             CodeWalkerTokenTypes.hpp \
+-             CodeWalkerTokenTypes.txt \
++             GptAsmWalkerTokenTypes.hpp \
++             GptAsmWalker.cpp \
++						 GptAsmWalker.hpp  \
++             GptAsmWalkerTokenTypes.txt \
+              TokenNames.hpp \
+              TokenLabels.hpp
+ 
+@@ -71,8 +84,8 @@
+ SemanticWalker.hpp SemanticWalker.cpp: $(srcdir)/semantic.g Makefile
+ 	$(ANTLR_BIN) $(srcdir)/semantic.g
+ 
+-CodeWalker.hpp CodeWalker.cpp: $(srcdir)/code.g Makefile
+-	$(ANTLR_BIN) $(srcdir)/code.g
++GptAsmWalker.hpp GptAsmWalker.cpp: $(srcdir)/gptasm.g Makefile
++	$(ANTLR_BIN) $(srcdir)/gptasm.g
+ 
+ TokenNames.hpp: Makefile
+ 	@echo &quot;#ifndef TOKENNAMES_H&quot; &gt; $@
+
+Added: trunk/gpt2/gptc/src/Makefile.in
+===================================================================
+--- trunk/gpt2/gptc/src/Makefile.in	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Makefile.in	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,611 @@
++# Makefile.in generated by automake 1.9.6 from Makefile.am.
++# @configure_input@
++
++# Copyright (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
++# 2003, 2004, 2005  Free Software Foundation, Inc.
++# This Makefile.in is free software; the Free Software Foundation
++# gives unlimited permission to copy and/or distribute it,
++# with or without modifications, as long as this notice is preserved.
++
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
++# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
++# PARTICULAR PURPOSE.
++
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at SET_MAKE</A>@
++
++
++srcdir = @srcdir@
++top_srcdir = @top_srcdir@
++VPATH = @srcdir@
++pkgdatadir = $(datadir)/@PACKAGE@
++pkglibdir = $(libdir)/@PACKAGE@
++pkgincludedir = $(includedir)/@PACKAGE@
++top_builddir = ..
++am__cd = CDPATH=&quot;$${ZSH_VERSION+.}$(PATH_SEPARATOR)&quot; &amp;&amp; cd
++INSTALL = @INSTALL@
++install_sh_DATA = $(install_sh) -c -m 644
++install_sh_PROGRAM = $(install_sh) -c
++install_sh_SCRIPT = $(install_sh) -c
++INSTALL_HEADER = $(INSTALL_DATA)
++transform = $(program_transform_name)
++NORMAL_INSTALL = :
++PRE_INSTALL = :
++POST_INSTALL = :
++NORMAL_UNINSTALL = :
++PRE_UNINSTALL = :
++POST_UNINSTALL = :
++build_triplet = @build@
++host_triplet = @host@
++bin_PROGRAMS = gptc$(EXEEXT)
++subdir = src
++DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
++ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
++am__aclocal_m4_deps = $(top_srcdir)/configure.ac
++am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
++	$(ACLOCAL_M4)
++mkinstalldirs = $(install_sh) -d
++CONFIG_HEADER = $(top_builddir)/config.h
++CONFIG_CLEAN_FILES =
++LTLIBRARIES = $(noinst_LTLIBRARIES)
++libgptc_la_LIBADD =
++am__objects_1 = PortugolLexer.lo PortugolParser.lo SemanticWalker.lo \
++	GptAsmWalker.lo
++am_libgptc_la_OBJECTS = BaseSemanticWalker.lo BaseGptAsmWalker.lo \
++	CompilerError.lo MismatchedUnicodeCharException.lo \
++	PortugolAST.lo Symbol.lo SymbolTable.lo \
++	SymbolTableExceptions.lo Types.lo Arguments.lo AsmProgram.lo \
++	Context.lo Subroutine.lo TextFile.lo Tools.lo $(am__objects_1)
++libgptc_la_OBJECTS = $(am_libgptc_la_OBJECTS)
++am__installdirs = &quot;$(DESTDIR)$(bindir)&quot;
++binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
++PROGRAMS = $(bin_PROGRAMS)
++am_gptc_OBJECTS = main.$(OBJEXT)
++gptc_OBJECTS = $(am_gptc_OBJECTS)
++am__DEPENDENCIES_1 =
++gptc_DEPENDENCIES = libgptc.la $(am__DEPENDENCIES_1)
++DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
++depcomp = $(SHELL) $(top_srcdir)/depcomp
++am__depfiles_maybe = depfiles
++CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
++	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
++LTCXXCOMPILE = $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) \
++	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
++	$(AM_CXXFLAGS) $(CXXFLAGS)
++CXXLD = $(CXX)
++CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
++	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
++COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
++	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
++LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
++	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
++	$(AM_CFLAGS) $(CFLAGS)
++CCLD = $(CC)
++LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
++	$(AM_LDFLAGS) $(LDFLAGS) -o $@
++SOURCES = $(libgptc_la_SOURCES) $(gptc_SOURCES)
++DIST_SOURCES = $(libgptc_la_SOURCES) $(gptc_SOURCES)
++ETAGS = etags
++CTAGS = ctags
++DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
++ACLOCAL = @ACLOCAL@
++AMDEP_FALSE = @AMDEP_FALSE@
++AMDEP_TRUE = @AMDEP_TRUE@
++AMTAR = @AMTAR@
++ANTLR_BIN = @ANTLR_BIN@
++ANTLR_CFG = @ANTLR_CFG@
++ANTLR_INC = @ANTLR_INC@
++ANTLR_LIB = @ANTLR_LIB@
++AR = @AR@
++AUTOCONF = @AUTOCONF@
++AUTOHEADER = @AUTOHEADER@
++AUTOMAKE = @AUTOMAKE@
++AWK = @AWK@
++CC = @CC@
++CCDEPMODE = @CCDEPMODE@
++CFLAGS = @CFLAGS@
++CPP = @CPP@
++CPPFLAGS = @CPPFLAGS@
++CXX = @CXX@
++CXXCPP = @CXXCPP@
++CXXDEPMODE = @CXXDEPMODE@
++CXXFLAGS = @CXXFLAGS@
++CYGPATH_W = @CYGPATH_W@
++DEFS = @DEFS@
++DEPDIR = @DEPDIR@
++ECHO = @ECHO@
++ECHO_C = @ECHO_C@
++ECHO_N = @ECHO_N@
++ECHO_T = @ECHO_T@
++EGREP = @EGREP@
++EXEEXT = @EXEEXT@
++F77 = @F77@
++FFLAGS = @FFLAGS@
++GREP = @GREP@
++INSTALL_DATA = @INSTALL_DATA@
++INSTALL_PROGRAM = @INSTALL_PROGRAM@
++INSTALL_SCRIPT = @INSTALL_SCRIPT@
++INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
++LDFLAGS = @LDFLAGS@
++LIBOBJS = @LIBOBJS@
++LIBS = @LIBS@
++LIBTOOL = @LIBTOOL@
++LN_S = @LN_S@
++LTLIBOBJS = @LTLIBOBJS@
++MAKEINFO = @MAKEINFO@
++OBJEXT = @OBJEXT@
++PACKAGE = @PACKAGE@
++PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
++PACKAGE_NAME = @PACKAGE_NAME@
++PACKAGE_STRING = @PACKAGE_STRING@
++PACKAGE_TARNAME = @PACKAGE_TARNAME@
++PACKAGE_VERSION = @PACKAGE_VERSION@
++PATH_SEPARATOR = @PATH_SEPARATOR@
++RANLIB = @RANLIB@
++SET_MAKE = @SET_MAKE@
++SHELL = @SHELL@
++STRIP = @STRIP@
++VERSION = @VERSION@
++ac_ct_CC = @ac_ct_CC@
++ac_ct_CXX = @ac_ct_CXX@
++ac_ct_F77 = @ac_ct_F77@
++am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
++am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
++am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
++am__fastdepCXX_TRUE = @am__fastdepCXX_TRUE@
++am__include = @am__include@
++am__leading_dot = @am__leading_dot@
++am__quote = @am__quote@
++am__tar = @am__tar@
++am__untar = @am__untar@
++bindir = @bindir@
++build = @build@
++build_alias = @build_alias@
++build_cpu = @build_cpu@
++build_os = @build_os@
++build_vendor = @build_vendor@
++datadir = @datadir@
++datarootdir = @datarootdir@
++docdir = @docdir@
++dvidir = @dvidir@
++exec_prefix = @exec_prefix@
++host = @host@
++host_alias = @host_alias@
++host_cpu = @host_cpu@
++host_os = @host_os@
++host_vendor = @host_vendor@
++htmldir = @htmldir@
++includedir = @includedir@
++infodir = @infodir@
++install_sh = @install_sh@
++libdir = @libdir@
++libexecdir = @libexecdir@
++localedir = @localedir@
++localstatedir = @localstatedir@
++mandir = @mandir@
++mkdir_p = @mkdir_p@
++oldincludedir = @oldincludedir@
++pdfdir = @pdfdir@
++prefix = @prefix@
++program_transform_name = @program_transform_name@
++psdir = @psdir@
++sbindir = @sbindir@
++sharedstatedir = @sharedstatedir@
++sysconfdir = @sysconfdir@
++target_alias = @target_alias@
++INCLUDES = -I$(top_srcdir)/. -I$(top_srcdir)/src
++noinst_LTLIBRARIES = libgptc.la
++gptc_SOURCES = main.cpp
++gptc_LDADD = libgptc.la $(ANTLR_LIB)
++EXTRA_DIST = lexer.g parser.g semantic.g gptasm.g
++BUILT_SOURCES = PortugolLexer.hpp \
++                PortugolLexer.cpp \
++                PortugolParser.hpp \
++                PortugolParser.cpp \
++                SemanticWalker.hpp \
++                SemanticWalker.cpp \
++								GptAsmWalker.hpp \
++								GptAsmWalker.cpp \
++                TokenNames.hpp \
++                TokenLabels.hpp
++
++libgptc_la_SOURCES = BaseSemanticWalker.hpp \
++											BaseSemanticWalker.cpp \
++											BaseGptAsmWalker.hpp \
++											BaseGptAsmWalker.cpp \
++											CompilerError.hpp \
++											CompilerError.cpp \
++											MismatchedUnicodeCharException.hpp \
++											MismatchedUnicodeCharException.cpp \
++											PortugolAST.hpp \
++											PortugolAST.cpp \
++											Symbol.hpp \
++											Symbol.cpp \
++											SymbolTable.hpp \
++											SymbolTable.cpp \
++											SymbolTableExceptions.hpp \
++											SymbolTableExceptions.cpp \
++											Types.hpp \
++											Types.cpp \
++											UnicodeCharBuffer.hpp \
++											UnicodeCharScanner.hpp \
++											GptAsmExpression.hpp \
++											Arguments.hpp \
++											Arguments.cpp \
++											AsmProgram.hpp AsmProgram.cpp \
++										  Context.hpp Context.cpp \
++										  Options.hpp \
++											Subroutine.hpp Subroutine.cpp \
++											TextFile.hpp TextFile.cpp \
++										  Tools.hpp Tools.cpp \
++											$(BUILT_SOURCES)
++
++CLEANFILES = PortugolLexer.cpp \
++             PortugolLexer.hpp \
++             PortugolTokenTypes.hpp \
++             PortugolTokenTypes.txt \
++             PortugolParser.cpp \
++						 PortugolParser.hpp  \
++             PortugolParserTokenTypes.hpp \
++             PortugolParserTokenTypes.txt \
++             SemanticWalker.hpp \
++             SemanticWalker.cpp \
++             SemanticWalkerTokenTypes.hpp \
++             SemanticWalkerTokenTypes.txt \
++             GptAsmWalkerTokenTypes.hpp \
++             GptAsmWalker.cpp \
++						 GptAsmWalker.hpp  \
++             GptAsmWalkerTokenTypes.txt \
++             TokenNames.hpp \
++             TokenLabels.hpp
++
++all: $(BUILT_SOURCES)
++	$(MAKE) $(AM_MAKEFLAGS) all-am
++
++.SUFFIXES:
++.SUFFIXES: .cpp .lo .o .obj
++$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
++	@for dep in $?; do \
++	  case '$(am__configure_deps)' in \
++	    *$$dep*) \
++	      cd $(top_builddir) &amp;&amp; $(MAKE) $(AM_MAKEFLAGS) am--refresh \
++		&amp;&amp; exit 0; \
++	      exit 1;; \
++	  esac; \
++	done; \
++	echo ' cd $(top_srcdir) &amp;&amp; $(AUTOMAKE) --gnu  src/Makefile'; \
++	cd $(top_srcdir) &amp;&amp; \
++	  $(AUTOMAKE) --gnu  src/Makefile
++.PRECIOUS: Makefile
++Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
++	@case '$?' in \
++	  *config.status*) \
++	    cd $(top_builddir) &amp;&amp; $(MAKE) $(AM_MAKEFLAGS) am--refresh;; \
++	  *) \
++	    echo ' cd $(top_builddir) &amp;&amp; $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)'; \
++	    cd $(top_builddir) &amp;&amp; $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe);; \
++	esac;
++
++$(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
++	cd $(top_builddir) &amp;&amp; $(MAKE) $(AM_MAKEFLAGS) am--refresh
++
++$(top_srcdir)/configure:  $(am__configure_deps)
++	cd $(top_builddir) &amp;&amp; $(MAKE) $(AM_MAKEFLAGS) am--refresh
++$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
++	cd $(top_builddir) &amp;&amp; $(MAKE) $(AM_MAKEFLAGS) am--refresh
++
++clean-noinstLTLIBRARIES:
++	-test -z &quot;$(noinst_LTLIBRARIES)&quot; || rm -f $(noinst_LTLIBRARIES)
++	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
++	  dir=&quot;`echo $$p | sed -e 's|/[^/]*$$||'`&quot;; \
++	  test &quot;$$dir&quot; != &quot;$$p&quot; || dir=.; \
++	  echo &quot;rm -f \&quot;$${dir}/so_locations\&quot;&quot;; \
++	  rm -f &quot;$${dir}/so_locations&quot;; \
++	done
++libgptc.la: $(libgptc_la_OBJECTS) $(libgptc_la_DEPENDENCIES) 
++	$(CXXLINK)  $(libgptc_la_LDFLAGS) $(libgptc_la_OBJECTS) $(libgptc_la_LIBADD) $(LIBS)
++install-binPROGRAMS: $(bin_PROGRAMS)
++	@$(NORMAL_INSTALL)
++	test -z &quot;$(bindir)&quot; || $(mkdir_p) &quot;$(DESTDIR)$(bindir)&quot;
++	@list='$(bin_PROGRAMS)'; for p in $$list; do \
++	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
++	  if test -f $$p \
++	     || test -f $$p1 \
++	  ; then \
++	    f=`echo &quot;$$p1&quot; | sed 's,^.*/,,;$(transform);s/$$/$(EXEEXT)/'`; \
++	   echo &quot; $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(binPROGRAMS_INSTALL) '$$p' '$(DESTDIR)$(bindir)/$$f'&quot;; \
++	   $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(binPROGRAMS_INSTALL) &quot;$$p&quot; &quot;$(DESTDIR)$(bindir)/$$f&quot; || exit 1; \
++	  else :; fi; \
++	done
++
++uninstall-binPROGRAMS:
++	@$(NORMAL_UNINSTALL)
++	@list='$(bin_PROGRAMS)'; for p in $$list; do \
++	  f=`echo &quot;$$p&quot; | sed 's,^.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/'`; \
++	  echo &quot; rm -f '$(DESTDIR)$(bindir)/$$f'&quot;; \
++	  rm -f &quot;$(DESTDIR)$(bindir)/$$f&quot;; \
++	done
++
++clean-binPROGRAMS:
++	@list='$(bin_PROGRAMS)'; for p in $$list; do \
++	  f=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
++	  echo &quot; rm -f $$p $$f&quot;; \
++	  rm -f $$p $$f ; \
++	done
++gptc$(EXEEXT): $(gptc_OBJECTS) $(gptc_DEPENDENCIES) 
++	@rm -f gptc$(EXEEXT)
++	$(CXXLINK) $(gptc_LDFLAGS) $(gptc_OBJECTS) $(gptc_LDADD) $(LIBS)
++
++mostlyclean-compile:
++	-rm -f *.$(OBJEXT)
++
++distclean-compile:
++	-rm -f *.tab.c
++
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">Arguments.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">AsmProgram.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">BaseGptAsmWalker.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">BaseSemanticWalker.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">CompilerError.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">Context.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">GptAsmWalker.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">MismatchedUnicodeCharException.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">PortugolAST.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">PortugolLexer.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">PortugolParser.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">SemanticWalker.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">Subroutine.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">Symbol.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">SymbolTable.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">SymbolTableExceptions.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">TextFile.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">Tools.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">Types.Plo at am__quote</A>@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__include@ @<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">am__quote at .</A>/$(DEPDIR)/<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">main.Po at am__quote</A>@
++
++.cpp.o:
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at am__fastdepCXX_TRUE</A>@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF &quot;$(DEPDIR)/$*.Tpo&quot; -c -o $@ $&lt;; \
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at am__fastdepCXX_TRUE</A>@	then mv -f &quot;$(DEPDIR)/$*.Tpo&quot; &quot;$(DEPDIR)/$*.Po&quot;; else rm -f &quot;$(DEPDIR)/$*.Tpo&quot;; exit 1; fi
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__fastdepCXX_FALSE@	source='$&lt;' object='$@' libtool=no @AMDEPBACKSLASH@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at am__fastdepCXX_FALSE</A>@	$(CXXCOMPILE) -c -o $@ $&lt;
++
++.cpp.obj:
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at am__fastdepCXX_TRUE</A>@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF &quot;$(DEPDIR)/$*.Tpo&quot; -c -o $@ `$(CYGPATH_W) '$&lt;'`; \
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at am__fastdepCXX_TRUE</A>@	then mv -f &quot;$(DEPDIR)/$*.Tpo&quot; &quot;$(DEPDIR)/$*.Po&quot;; else rm -f &quot;$(DEPDIR)/$*.Tpo&quot;; exit 1; fi
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__fastdepCXX_FALSE@	source='$&lt;' object='$@' libtool=no @AMDEPBACKSLASH@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at am__fastdepCXX_FALSE</A>@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$&lt;'`
++
++.cpp.lo:
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at am__fastdepCXX_TRUE</A>@	if $(LTCXXCOMPILE) -MT $@ -MD -MP -MF &quot;$(DEPDIR)/$*.Tpo&quot; -c -o $@ $&lt;; \
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at am__fastdepCXX_TRUE</A>@	then mv -f &quot;$(DEPDIR)/$*.Tpo&quot; &quot;$(DEPDIR)/$*.Plo&quot;; else rm -f &quot;$(DEPDIR)/$*.Tpo&quot;; exit 1; fi
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__fastdepCXX_FALSE@	source='$&lt;' object='$@' libtool=yes @AMDEPBACKSLASH@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at AMDEP_TRUE</A>@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">+ at am__fastdepCXX_FALSE</A>@	$(LTCXXCOMPILE) -c -o $@ $&lt;
++
++mostlyclean-libtool:
++	-rm -f *.lo
++
++clean-libtool:
++	-rm -rf .libs _libs
++
++distclean-libtool:
++	-rm -f libtool
++uninstall-info-am:
++
++ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
++	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
++	unique=`for i in $$list; do \
++	    if test -f &quot;$$i&quot;; then echo $$i; else echo $(srcdir)/$$i; fi; \
++	  done | \
++	  $(AWK) '    { files[$$0] = 1; } \
++	       END { for (i in files) print i; }'`; \
++	mkid -fID $$unique
++tags: TAGS
++
++TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
++		$(TAGS_FILES) $(LISP)
++	tags=; \
++	here=`pwd`; \
++	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
++	unique=`for i in $$list; do \
++	    if test -f &quot;$$i&quot;; then echo $$i; else echo $(srcdir)/$$i; fi; \
++	  done | \
++	  $(AWK) '    { files[$$0] = 1; } \
++	       END { for (i in files) print i; }'`; \
++	if test -z &quot;$(ETAGS_ARGS)$$tags$$unique&quot;; then :; else \
++	  test -n &quot;$$unique&quot; || unique=$$empty_fix; \
++	  $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
++	    $$tags $$unique; \
++	fi
++ctags: CTAGS
++CTAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
++		$(TAGS_FILES) $(LISP)
++	tags=; \
++	here=`pwd`; \
++	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
++	unique=`for i in $$list; do \
++	    if test -f &quot;$$i&quot;; then echo $$i; else echo $(srcdir)/$$i; fi; \
++	  done | \
++	  $(AWK) '    { files[$$0] = 1; } \
++	       END { for (i in files) print i; }'`; \
++	test -z &quot;$(CTAGS_ARGS)$$tags$$unique&quot; \
++	  || $(CTAGS) $(CTAGSFLAGS) $(AM_CTAGSFLAGS) $(CTAGS_ARGS) \
++	     $$tags $$unique
++
++GTAGS:
++	here=`$(am__cd) $(top_builddir) &amp;&amp; pwd` \
++	  &amp;&amp; cd $(top_srcdir) \
++	  &amp;&amp; gtags -i $(GTAGS_ARGS) $$here
++
++distclean-tags:
++	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
++
++distdir: $(DISTFILES)
++	@srcdirstrip=`echo &quot;$(srcdir)&quot; | sed 's|.|.|g'`; \
++	topsrcdirstrip=`echo &quot;$(top_srcdir)&quot; | sed 's|.|.|g'`; \
++	list='$(DISTFILES)'; for file in $$list; do \
++	  case $$file in \
++	    $(srcdir)/*) file=`echo &quot;$$file&quot; | sed &quot;s|^$$srcdirstrip/||&quot;`;; \
++	    $(top_srcdir)/*) file=`echo &quot;$$file&quot; | sed &quot;s|^$$topsrcdirstrip/|$(top_builddir)/|&quot;`;; \
++	  esac; \
++	  if test -f $$file || test -d $$file; then d=.; else d=$(srcdir); fi; \
++	  dir=`echo &quot;$$file&quot; | sed -e 's,/[^/]*$$,,'`; \
++	  if test &quot;$$dir&quot; != &quot;$$file&quot; &amp;&amp; test &quot;$$dir&quot; != &quot;.&quot;; then \
++	    dir=&quot;/$$dir&quot;; \
++	    $(mkdir_p) &quot;$(distdir)$$dir&quot;; \
++	  else \
++	    dir=''; \
++	  fi; \
++	  if test -d $$d/$$file; then \
++	    if test -d $(srcdir)/$$file &amp;&amp; test $$d != $(srcdir); then \
++	      cp -pR $(srcdir)/$$file $(distdir)$$dir || exit 1; \
++	    fi; \
++	    cp -pR $$d/$$file $(distdir)$$dir || exit 1; \
++	  else \
++	    test -f $(distdir)/$$file \
++	    || cp -p $$d/$$file $(distdir)/$$file \
++	    || exit 1; \
++	  fi; \
++	done
++check-am: all-am
++check: $(BUILT_SOURCES)
++	$(MAKE) $(AM_MAKEFLAGS) check-am
++all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
++installdirs:
++	for dir in &quot;$(DESTDIR)$(bindir)&quot;; do \
++	  test -z &quot;$$dir&quot; || $(mkdir_p) &quot;$$dir&quot;; \
++	done
++install: $(BUILT_SOURCES)
++	$(MAKE) $(AM_MAKEFLAGS) install-am
++install-exec: install-exec-am
++install-data: install-data-am
++uninstall: uninstall-am
++
++install-am: all-am
++	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++
++installcheck: installcheck-am
++install-strip:
++	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM=&quot;$(INSTALL_STRIP_PROGRAM)&quot; \
++	  install_sh_PROGRAM=&quot;$(INSTALL_STRIP_PROGRAM)&quot; INSTALL_STRIP_FLAG=-s \
++	  `test -z '$(STRIP)' || \
++	    echo &quot;INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'&quot;` install
++mostlyclean-generic:
++
++clean-generic:
++	-test -z &quot;$(CLEANFILES)&quot; || rm -f $(CLEANFILES)
++
++distclean-generic:
++	-test -z &quot;$(CONFIG_CLEAN_FILES)&quot; || rm -f $(CONFIG_CLEAN_FILES)
++
++maintainer-clean-generic:
++	@echo &quot;This command is intended for maintainers to use&quot;
++	@echo &quot;it deletes files that may require special tools to rebuild.&quot;
++	-test -z &quot;$(BUILT_SOURCES)&quot; || rm -f $(BUILT_SOURCES)
++clean: clean-am
++
++clean-am: clean-binPROGRAMS clean-generic clean-libtool \
++	clean-noinstLTLIBRARIES mostlyclean-am
++
++distclean: distclean-am
++	-rm -rf ./$(DEPDIR)
++	-rm -f Makefile
++distclean-am: clean-am distclean-compile distclean-generic \
++	distclean-libtool distclean-tags
++
++dvi: dvi-am
++
++dvi-am:
++
++html: html-am
++
++info: info-am
++
++info-am:
++
++install-data-am:
++
++install-exec-am: install-binPROGRAMS
++
++install-info: install-info-am
++
++install-man:
++
++installcheck-am:
++
++maintainer-clean: maintainer-clean-am
++	-rm -rf ./$(DEPDIR)
++	-rm -f Makefile
++maintainer-clean-am: distclean-am maintainer-clean-generic
++
++mostlyclean: mostlyclean-am
++
++mostlyclean-am: mostlyclean-compile mostlyclean-generic \
++	mostlyclean-libtool
++
++pdf: pdf-am
++
++pdf-am:
++
++ps: ps-am
++
++ps-am:
++
++uninstall-am: uninstall-binPROGRAMS uninstall-info-am
++
++.PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
++	clean-generic clean-libtool clean-noinstLTLIBRARIES ctags \
++	distclean distclean-compile distclean-generic \
++	distclean-libtool distclean-tags distdir dvi dvi-am html \
++	html-am info info-am install install-am install-binPROGRAMS \
++	install-data install-data-am install-exec install-exec-am \
++	install-info install-info-am install-man install-strip \
++	installcheck installcheck-am installdirs maintainer-clean \
++	maintainer-clean-generic mostlyclean mostlyclean-compile \
++	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
++	tags uninstall uninstall-am uninstall-binPROGRAMS \
++	uninstall-info-am
++
++
++PortugolLexer.cpp PortugolLexer.hpp: $(srcdir)/lexer.g Makefile
++	$(ANTLR_BIN) $(srcdir)/lexer.g
++
++PortugolParser.hpp PortugolParser.cpp: $(srcdir)/parser.g Makefile
++	$(ANTLR_BIN) $(srcdir)/parser.g
++
++SemanticWalker.hpp SemanticWalker.cpp: $(srcdir)/semantic.g Makefile
++	$(ANTLR_BIN) $(srcdir)/semantic.g
++
++GptAsmWalker.hpp GptAsmWalker.cpp: $(srcdir)/gptasm.g Makefile
++	$(ANTLR_BIN) $(srcdir)/gptasm.g
++
++TokenNames.hpp: Makefile
++	@echo &quot;#ifndef TOKENNAMES_H&quot; &gt; $@
++	@echo &quot;#define TOKENNAMES_H&quot;  &gt;&gt; $@
++	@echo &quot;static char* g_tokenNames[] = &quot; &gt;&gt; $@
++	@echo '{&quot;&quot;, &quot;EOF&quot;, &quot;&quot;, &quot;&quot;,'   &gt;&gt; $@
++	grep = PortugolTokenTypes.txt &gt;&gt; $@
++	sed -i -e 's/\([A-Z][^=( ]*\)[=(].*/&quot;\1&quot;,/' $@
++	sed -i -e '$$s/,/};/' $@
++	@echo -n &quot;static int g_tokenNamesSize = &quot; &gt;&gt; $@
++	@echo `grep -o , TokenNames.hpp | wc -l` + 1 | bc &gt;&gt; $@
++	@echo &quot;;&quot; &gt;&gt; $@
++	@echo &quot;#endif&quot; &gt;&gt; $@
++
++TokenLabels.hpp: Makefile
++	@echo &quot;#ifndef TOKENLABELS_H&quot; &gt; $@
++	@echo &quot;#define TOKENLABELS_H&quot;  &gt;&gt; $@
++	@echo &quot;static char* g_tokenLabels[] = &quot; &gt;&gt; $@
++	@echo '{&quot;&quot;, &quot;EOF&quot;, &quot;&quot;, &quot;&quot;,'   &gt;&gt; $@
++	grep '&quot;' PortugolTokenTypes.txt &gt;&gt; $@
++	sed -i -e 's/^T.*\(&quot;[^&quot;]*&quot;\).*/\1,/' $@
++	sed -i -e '$$s/,/};/' $@
++	@echo &quot;static int g_tokenLabelsSize = &quot; &gt;&gt; $@
++	@echo  `grep -o , TokenLabels.hpp | wc -l` + 1 | bc &gt;&gt; $@
++	@echo &quot;;&quot; &gt;&gt; $@
++	@echo &quot;#endif&quot; &gt;&gt; $@
++# Tell versions [3.59,3.63) of GNU make to not export all variables.
++# Otherwise a system limit (for SysV at least) may be exceeded.
++.NOEXPORT:
+
+Added: trunk/gpt2/gptc/src/Options.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Options.hpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Options.hpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,21 @@
++#ifndef OPTIONS
++#define OPTIONS
++
++#include &lt;string&gt;
++using namespace std;
++
++class Options {
++public:
++	Options( ) {
++		sentences = false;
++		sourceLine = NULL;
++	}
++	string filename;
++//	string sourcefile;
++//	string destfile;
++	bool sentences;
++	int *sourceLine;
++};
++
++#endif
++
+
+Added: trunk/gpt2/gptc/src/Subroutine.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Subroutine.cpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Subroutine.cpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,171 @@
++#include &quot;Subroutine.hpp&quot;
++
++#include &lt;iostream&gt;
++using namespace std;
++
++#include &quot;Tools.hpp&quot;
++
++#include &quot;PortugolParserTokenTypes.hpp&quot;
++
++
++Subroutine::Subroutine(Options *options, /*CGptAssemblyFile *file,*/ const string &amp;name)
++	: _options(options), _name(name), _lastSourceLine(0)
++{
++	if (_options-&gt;sentences) {
++		//_sourceInfo = new SourceInfo();
++		//_sourceInfo-&gt;setFileName(_options-&gt;sourcefile);
++	}
++	_body.incTab();
++}
++
++
++Subroutine::~Subroutine()
++{
++	//if (_sourceInfo) {
++	//	delete _sourceInfo;
++	//}
++}
++
++
++void Subroutine::init()
++{
++	_header.writeln(string(&quot;// Procedure &quot;) + _name);
++	_header.writeln(&quot;proc &quot; + _name);
++	_header.incTab();
++//	_body.incTab();
++}
++
++
++void Subroutine::finish()
++{
++	if (_name == &quot;main&quot;) {
++		_body.writeln(&quot;exit_0&quot;);
++	}
++//	_body-&gt;decTab();
++	_footer.writeln(&quot;end-proc&quot;);
++
++	_footer.writeln(&quot;// Fim da procedure&quot;);
++	_footer.writeln();
++}
++
++
++void Subroutine::emitPUSHMn(const string &amp;symbol, const bool &amp;pushType)
++{
++//    SymbolType symbolType = _symbolTable-&gt;getSymbol(getName(), symbol, true).getType();
++// 
++//    _body.writeln(string(&quot;push &quot;)   + symbol);
++// 
++//    if (pushType) {
++//       _body.writeln(string(&quot;push_&quot;) + symbolType.toAsmType());
++//    }
++}
++
++
++void Subroutine::emitMn(const string &amp;mn, const string &amp;op1, const string &amp;op2, const string &amp;op3)
++{
++	_body.write(mn);
++	if (op1.empty()) {
++		_body.writeln();
++		return;
++	}
++
++	_body.write(&quot; &quot; + op1);
++	if (op2.empty()) {
++		_body.writeln();
++		return;
++	}
++
++	_body.write(&quot;, &quot; + op2);
++	if (op3.empty()) {
++		_body.writeln();
++		return;
++	}
++
++	_body.writeln(&quot;, &quot; + op3);
++}
++
++void Subroutine::emitMnWithPrefix(const string &amp;mn, const string &amp;var, const string &amp;op1, const string &amp;op2)
++{
++	emitMn(getMnWithPrefix(mn, var), var, op1, op2);
++}
++
++
++void Subroutine::emitLabel(const string &amp;label)
++{
++	_body.writeln(label + string(&quot;:&quot;));
++}
++
++
++void Subroutine::emitAsmCode(const string &amp;code)
++{
++	_body.writeln();
++	_body.writeln(&quot;// asm-begin&quot;);
++	_body.writeln(code);
++	_body.writeln(&quot;// asm-end&quot;);
++	_body.writeln();
++}
++
++
++/*
++void Subroutine::write(string value)
++{
++//	if (_sourceInfo &amp;&amp; *_options-&gt;sourceLine &gt; _lastSourceLine) {
++//		string line = _sourceInfo-&gt;getLine(*_options-&gt;sourceLine);
++//		line = alltrim(wo_ctrl_chrs(line, ' '));
++//		_file-&gt;write(
++//				string(&quot;// LINE &quot;) + string(itoa(*_options-&gt;sourceLine)) + string(&quot; --&gt; &quot;) + line
++//				);
++//		_lastSourceLine = *_options-&gt;sourceLine;
++//	}
++
++	_body.write(value);
++}
++
++void Subroutine::writeln(string value)
++{
++//	if (_sourceInfo &amp;&amp; *_options-&gt;sourceLine &gt; _lastSourceLine) {
++//		string line = _sourceInfo-&gt;getLine(*_options-&gt;sourceLine);
++//		line = alltrim(wo_ctrl_chrs(line, ' '));
++//		_file-&gt;writeln(
++//				string(&quot;// LINE &quot;) + string(itoa(*_options-&gt;sourceLine)) + string(&quot; --&gt; &quot;) + line
++//				);
++//		_lastSourceLine = *_options-&gt;sourceLine;
++//	}
++
++	_body.writeln(value);
++}
++*/
++
++void Subroutine::emitVarDefinition(const string &amp;name, const string &amp;type)
++{
++	_header.writeln(&quot;var &quot; + name + &quot; &quot; + type);
++}
++
++
++void Subroutine::emitParDefinition(const string &amp;name, const string &amp;type)
++{
++	_header.writeln(&quot;par &quot; + name + &quot; &quot; + type);
++}
++
++
++string Subroutine::getCode() const
++{
++	return _header.getText() + _body.getText() + _footer.getText();
++}
++
++
++string Subroutine::getMnWithPrefix(const string &amp;mn, const string &amp;var) // TODO: serviria para simbolos tb ???
++{
++// 	int primitiveType = _symbolTable-&gt;getSymbol (getName(), var, true).getType().getPrimitiveType();
++
++// 	switch(primitiveType) {
++// 		case PortugolParserTokenTypes::T_KW_INTEIRO:    return &quot;i&quot; + mn;
++// 		case PortugolParserTokenTypes::T_KW_REAL:       return &quot;r&quot; + mn;
++// 		case PortugolParserTokenTypes::T_KW_CARACTERE:  return &quot;i&quot; + mn;
++// 		case PortugolParserTokenTypes::T_KW_LITERAL:    return &quot;s&quot; + mn;
++// 		case PortugolParserTokenTypes::T_KW_LOGICO:     return &quot;i&quot; + mn;
++// 		case PortugolParserTokenTypes::T_KW_MATRIZ:     return &quot;m&quot; + mn;
++// 		default:                                        return &quot;undefined_&quot; + mn;
++// 	}
++}
++
+
+Added: trunk/gpt2/gptc/src/Subroutine.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Subroutine.hpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Subroutine.hpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,54 @@
++#ifndef SUBROUTINE_H
++#define SUBROUTINE_H
++
++#include &lt;string&gt;
++#include &lt;vector&gt;
++
++#include &quot;Options.hpp&quot;
++
++#include &lt;antlr/LLkParser.hpp&gt;
++#include &quot;PortugolParserTokenTypes.hpp&quot;
++
++#include &quot;TextFile.hpp&quot;
++
++using namespace std;
++
++
++class Subroutine
++{
++public:
++	Subroutine(Options *options, const string &amp;name);
++	~Subroutine();
++	void init();
++	void finish();
++	void emitPUSHMn(const string &amp;symbol, const bool &amp;pushType = false);
++	void emitMn(const string &amp;mn, const string &amp;op1 = &quot;&quot;, const string &amp;op2 = &quot;&quot;, const string &amp;op3 = &quot;&quot;);
++	void emitMnWithPrefix(const string &amp;mn, const string &amp;var, const string &amp;op1 = &quot;&quot;, const string &amp;op2 = &quot;&quot;);
++
++	void emitLabel(const string &amp;label);
++
++	void emitAsmCode(const string &amp;code);
++
++//	void write(string value);
++//	void writeln(string value = &quot;&quot;);
++
++	const string&amp; getName() const
++	{
++		return _name;
++	}
++	void emitVarDefinition(const string &amp;name, const string &amp;type);
++	void emitParDefinition(const string &amp;name, const string &amp;type);
++	string getCode() const;
++private:
++	string getMnWithPrefix(const string &amp;mn, const string &amp;var);
++	Options *_options;
++	vector&lt;string&gt; _params;
++	int _lastSourceLine;
++	string _name;
++	TextFile _header;
++	TextFile _body;
++	TextFile _footer;
++};
++
++#endif
++
+
+Added: trunk/gpt2/gptc/src/TextFile.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/TextFile.cpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/TextFile.cpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,71 @@
++#include &quot;TextFile.hpp&quot;
++
++
++TextFile::TextFile( const string &amp;chrTab )
++	: _chrTab( chrTab ), _emitTab( true )
++{
++}
++
++
++TextFile::~TextFile( )
++{
++}
++
++
++void TextFile::writeln( const string &amp;message )
++{
++	if ( _emitTab ) {
++		_txt &lt;&lt; _tabs;
++	}
++	_txt &lt;&lt; message &lt;&lt; endl;
++	_emitTab = true;
++}
++
++
++void TextFile::writeln( )
++{
++	_txt &lt;&lt; endl;
++	_emitTab = true;
++}
++
++
++void TextFile::write( const string &amp;message )
++{
++	if ( _emitTab ) {
++		_txt &lt;&lt; _tabs;
++	}
++	_txt &lt;&lt; message;
++	_emitTab = false;
++}
++
++
++void TextFile::incTab( )
++{
++    _tabs += _chrTab;
++}
++
++
++void TextFile::decTab( )
++{
++    _tabs.erase( _tabs.length( ) - _chrTab.length( ), _chrTab.length( ) );
++}
++
++
++string TextFile::getText( ) const
++{
++	return _txt.str( );
++}
++
++
++bool TextFile::writeToFile( const string &amp;filename )
++{
++	ofstream *_file;
++	_file = new ofstream( filename.c_str( ) );
++	if (_file) {
++		(*_file) &lt;&lt; _txt;
++		delete _file;
++		return true;
++	}
++	return false;
++}
++
+
+Added: trunk/gpt2/gptc/src/TextFile.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/TextFile.hpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/TextFile.hpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,30 @@
++#ifndef GPT_TEXT_FILE_H
++#define GPT_TEXT_FILE_H
++
++#include &lt;string&gt;
++#include &lt;fstream&gt;
++#include &lt;sstream&gt;
++
++using namespace std;
++
++class TextFile
++{
++public:
++	TextFile( const string &amp;chrTab = &quot;\t&quot; );
++	~TextFile( );
++	void writeln( const string &amp;message );
++	void writeln( );
++	void write( const string &amp;message );
++	void incTab( );
++	void decTab( );
++	string getText( ) const;
++	bool writeToFile( const string &amp;filename );
++private:
++	string _chrTab;
++	string _tabs;
++	bool _emitTab;
++	stringstream _txt;
++};
++
++#endif
++
+
+Added: trunk/gpt2/gptc/src/Tools.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Tools.cpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Tools.cpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,299 @@
++/*
++ * $Id: Tools.cpp,v 1.1.1.1 2005/08/15 15:19:52 asgarzao Exp $
++ * MyLibrary version 0.1.0
++ * Copyright (C) 2002 Alex Sandro Garz&#65533; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">alexgarzao at bol.com.br</A>&gt;
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ */
++
++#include &quot;PortugolParserTokenTypes.hpp&quot;
++
++#include &quot;Tools.hpp&quot;
++
++
++int hexToInt(const char* _value) {
++    int result = 0;
++    char *position;
++    char conversionTable[] = &quot;0123456789ABCDEF&quot;;
++
++    while (*_value) {
++        position = strchr(conversionTable, *_value);
++        if (position == NULL)
++            return 0;
++
++        result &lt;&lt;= 4;
++        result = result | (position - conversionTable);
++        _value++;
++    }
++
++    return result;
++}
++
++string pad(string _text, unsigned int _size) {
++    if (_size &gt; _text.length())
++        _text.append(_size - _text.length(), ' ');
++
++    return _text;
++}
++
++string lpad(string _text, unsigned int _size) {
++    if (_size &gt; _text.length())
++        _text = string(_size - _text.length(), ' ') + _text;
++
++    return _text;
++}
++
++string intToHex(unsigned int _value, int _size) {
++    string codHex = &quot;0123456789ABCDEF&quot;;
++    string result;
++    int nible;
++
++    while (_value &gt; 0) {
++        nible = _value &amp; 0xF;
++        _value &gt;&gt;= 4;
++        result = codHex[nible] + result;
++    }
++
++    if ( _size == -1 )
++        _size = 1;
++
++    return strZero(result, _size);
++    // if (_size == -1)
++    //     return( result );
++    // else
++    //     return( strZero( result, _size ) );
++    //
++}
++
++string strZero(string _value, unsigned int _size) {
++    while (_value.length() &lt; _size) {
++        _value = '0' + _value;
++    }
++
++    return _value;
++}
++
++string strZero(int _value, unsigned int _size) {
++    string result = itoa(_value);
++
++    while (result.length() &lt; _size) {
++        result = '0' + result;
++    }
++
++    return result;
++}
++
++string dataToHex(char _code[], unsigned int _length) {
++    string result;
++    unsigned int count;
++
++    for (count = 0; count &lt; _length; count++)
++        result += intToHex(_code[count], 2);
++
++    return result;
++}
++
++string dataToHex(char _code[], unsigned int _start, unsigned int _length) {
++    string result;
++    unsigned int count;
++
++    for (count = _start; count - _start &lt; _length; count++)
++        result += intToHex(_code[count], 2);
++
++    return result;
++}
++
++int binToInt(const char* _binValue) {
++    int intValue = 0;
++    int length = strlen(_binValue) - 1;
++    int countBit;
++
++    for (countBit = length; countBit &gt;= 0; countBit--) {
++        if (_binValue[countBit] == '1')
++            intValue += int(pow(2.0, length - countBit));
++    }
++
++    return intValue;
++}
++
++string itoa(int _number) {
++    stringstream s;
++
++    s &lt;&lt; _number;
++    return s.str();
++}
++
++string ftos(double _value) {
++    stringstream s;
++
++    s &lt;&lt;  setiosflags(ios::fixed) &lt;&lt; _value;
++    
++    return s.str();
++}
++
++string itobool(int _number) {
++    if (_number == 0)
++        return &quot;false&quot;;
++    else
++        return &quot;true&quot;;
++}
++
++string strtoupper(string str) {
++    unsigned int count;
++
++    for (count = 0; count &lt; str.size(); count++)
++        str[count] = toupper(str[count]);
++
++    return str;
++}
++
++string strToUpperWithEscapeControls(string str) {
++    unsigned int count;
++
++    for (count = 0; count &lt; str.size(); count++) {
++        if (str[count] == '\\')
++            count += 2;
++        else
++            str[count] = toupper(str[count]);
++    }
++
++    return str;
++}
++
++string alltrim(string str) {
++    // crap version...  :-)
++    // precisamos usar `find', `rfind'! --felipek
++    while (str[0] == ' ')
++        str.erase(0, 1);
++
++    while (str[str.length() - 1] == ' ')
++        str.erase(str.length() - 1, 1);
++
++    return str;
++}
++
++string wo_ctrl_chrs(string str, char chr_to_put) {
++    unsigned int chr_number;
++
++    for (chr_number = 0; chr_number &lt; str.size(); chr_number++) {
++        if (str[chr_number] &lt; 32)
++            str[chr_number] = chr_to_put;
++    }
++
++    return str;
++}
++
++/* CRAP!  --felipek
++string&amp; getStringWithTab(string _data, string _tab) {
++	cout &lt;&lt; &quot;begin getStringWithTab&quot; &lt;&lt; endl;
++	cout &lt;&lt; &quot;tab=\&quot;&quot; &lt;&lt; _tab &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl;
++	cout &lt;&lt; &quot;begin datae&quot; &lt;&lt; endl;
++	cout &lt;&lt; _data &lt;&lt; endl;
++	cout &lt;&lt; &quot;end datae&quot; &lt;&lt; endl;
++	int pos = -1;
++ 
++	// test too another new line sequences
++	while( ( pos = _data.find( &quot;\n&quot;, pos + 1 ) ) != -1 ) {
++		_data.insert( pos + 1, _tab );
++	}
++ 
++	cout &lt;&lt; &quot;begin datas&quot; &lt;&lt; endl;
++	cout &lt;&lt; _data &lt;&lt; endl;
++	cout &lt;&lt; &quot;end datas&quot; &lt;&lt; endl;
++	return( _data );
++}
++*/
++
++bool streamtoken(istringstream&amp; stream, string&amp; key, string&amp; val) {
++     /* FIXME: leak, --felipek */
++     char buffer[8192];
++     unsigned int delim;
++     string entry;
++//     bool ret;
++
++     /* FIXME: ret type, -- felipek */
++     stream.getline(buffer, 8192 - 1);
++     entry = string(buffer);
++     delim = entry.find(' ', 0);
++
++     if (delim != entry.npos) {
++         key = entry.substr(0, delim);
++         val = entry.substr(delim + 1);
++     }
++
++     return !stream.eof();
++}
++
++
++const string typeToText(const int &amp;type)
++{
++//    if (type == PortugolParserTokenTypes::T_INT_LIT) {
++//       return &quot;int&quot;;
++//    } else if (type == PortugolParserTokenTypes::T_CARAC_LIT) {
++//       return &quot;char&quot;;
++//    } else if (type == PortugolParserTokenTypes::T_STRING_LIT) {
++//       return &quot;string&quot;;
++//    } else if (type == PortugolParserTokenTypes::T_REAL_LIT) {
++//       return &quot;real&quot;;
++//    } else if (type == PortugolParserTokenTypes::T_IDENTIFICADOR) {
++//       return &quot;id&quot;;
++//    }
++// 
++//    return &quot;ERRO !!!&quot;;
++}
++
++const string typeInAsm( const int &amp;type )
++{
++//    if (type == PortugolParserTokenTypes::T_KW_INTEIRO) {
++//       return &quot;int&quot;;
++//    } else if (type == PortugolParserTokenTypes::T_KW_LITERAL) {
++//       return &quot;string&quot;;
++//    } else if (type == PortugolParserTokenTypes::T_KW_CARACTERE) {
++//       return &quot;char&quot;;
++//    } else if (type == PortugolParserTokenTypes::T_KW_LOGICO) {
++//       return &quot;bool&quot;;
++//    } else if (type == PortugolParserTokenTypes::T_KW_REAL) {
++//       return &quot;real&quot;;
++//    } else if (type == PortugolParserTokenTypes::T_KW_CORINGA) {
++//       return &quot;pointer ???&quot;;
++//    } else if (type == PortugolParserTokenTypes::T_KW_MATRIZ) {
++//       return &quot;matrix&quot;;
++//    }
++
++   return &quot;ERRO !!!&quot;;
++}
++
++
++const int typeToLiteral( const int &amp;type )
++{
++//    switch (type) {
++//       case PortugolParserTokenTypes::T_KW_INTEIRO:
++//          return PortugolParserTokenTypes::T_INT_LIT;
++//       case PortugolParserTokenTypes::T_KW_LITERAL:
++//          return PortugolParserTokenTypes::T_STRING_LIT;
++//       case PortugolParserTokenTypes::T_KW_CARACTERE:
++//          return PortugolParserTokenTypes::T_CARAC_LIT;
++//       case PortugolParserTokenTypes::T_KW_LOGICO:
++//          return PortugolParserTokenTypes::T_INT_LIT;
++// //      case PortugolParserTokenTypes::T_KW_CORINGA:
++// //         return &quot;pointer ???&quot;;
++// //      case PortugolParserTokenTypes::T_KW_MATRIZ:
++// //          return PortugolParserTokenTypes::T_MATRIZ;
++//       default:
++//           return 0;
++//           // trow exception ???
++//    }
++}
++
+
+
+Property changes on: trunk/gpt2/gptc/src/Tools.cpp
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/gptc/src/Tools.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Tools.hpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/Tools.hpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,39 @@
++#ifndef GPT_TOOLS_H
++#define GPT_TOOLS_H
++
++#include &lt;iomanip&gt;
++
++#include &lt;iostream&gt;
++#include &lt;string&gt;
++#include &lt;cstdlib&gt;
++#include &lt;cstring&gt;
++#include &lt;cmath&gt;
++#include &lt;cstdio&gt;
++#include &lt;sstream&gt;
++using namespace std;
++
++
++int hexToInt(const char *);
++string pad(string, unsigned int);
++string lpad(string, unsigned int);
++string intToHex(unsigned int, int = -1);
++string strZero(string, unsigned int);
++string strZero(int, unsigned int);
++string dataToHex(char *, unsigned int);
++string dataToHex( char *, unsigned int, unsigned int);
++int binToInt(const char *);
++int octToInt(const char *);
++string itoa(int);
++string itobool(int);
++string ftos(double);
++string strtoupper(string);
++string strToUpperWithEscapeControls(string);
++string alltrim(string);
++string wo_ctrl_chrs(string str, char = ' ');
++bool streamtoken(istringstream&amp;, string&amp;, string&amp;);
++// string&amp; getStringWithTab(string, string);
++const string typeToText(const int &amp;type);
++const string typeInAsm( const int &amp;type );
++const int typeToLiteral( const int &amp;type );
++
++#endif
+
+
+Property changes on: trunk/gpt2/gptc/src/Tools.hpp
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/gptc/src/gptasm.g
+===================================================================
+--- trunk/gpt2/gptc/src/gptasm.g	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/gptasm.g	2007-12-14 16:33:58 UTC (rev 432)
+@@ -0,0 +1,270 @@
++/*
++ *   Copyright (C) 2003-2006 by Thiago Silva                               *
++ *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>                                               *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU General Public License     *
++ *   along with this program; if not, write to the                         *
++ *   Free Software Foundation, Inc.,                                       *
++ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             */
++
++
++header {
++  #include &quot;BaseGptAsmWalker.hpp&quot;
++  #include &quot;PortugolAST.hpp&quot;
++  #include &quot;GptAsmExpression.hpp&quot;
++}
++
++options {
++  language=&quot;Cpp&quot;;
++}
++
++class GptAsmWalker extends TreeParser(&quot;BaseGptAsmWalker&quot;);
++options {
++  importVocab    = Portugol;
++  noConstructors = true;
++  genHashLines   = false;
++  ASTLabelType   = &quot;RefPortugolAST&quot;;
++}
++
++{
++public:
++  GptAsmWalker::GptAsmWalker(SymbolTable* symtable,
++                             const std::string&amp; filepath)
++	 : BaseGptAsmWalker(symtable, filepath) {}
++}
++
++
++programa
++  : #(T_ALGORITMO                {_asmPrg-&gt;init();}
++
++        (importacao)*
++
++        (declaracoes)?
++
++//         (corpo)?
++
++        EOF
++     )
++  ;
++
++importacao
++  : #(T_USE T_TEXTO_LITERAL)
++  ;
++
++declaracoes
++  : declaracao_variavel[false]    (declaracoes)?
++  | declaracao_constante[false]   (declaracoes)?
++  | declaracao_estrutura          (declaracoes)?
++  ;
++
++declaracao_variavel[bool isLocal]
++
++                                          {std::list&lt;std::string&gt; ids;}
++
++  : #(T_VARIAVEL tipo ids=identificadores
++                                          {
++                                            if (isLocal) {
++                                              declareProgramVars(ids);
++                                            } else {
++                                              declareSubroutineVars(ids);
++                                            }
++                                          }
++//       (
++//         code=valor_inicialiacao            {addPrologue(code);}
++//       )?
++    )
++  ;
++
++declaracao_constante[bool isLocal]
++                                          {std::list&lt;std::string&gt; ids;}
++
++  : #(T_CONSTANTE tipo ids=identificadores /*code=valor_inicialiacao*/)
++
++                                          {
++                                            if (isLocal) {
++                                              declareProgramVars(ids);
++                                            } else {
++                                              declareSubroutineVars(ids);
++                                            }
++                                          }
++  ;
++
++identificadores returns [std::list&lt;std::string&gt; ids]
++  : (id:T_IDENTIFICADOR {ids.push_back(id-&gt;getText());})+
++  ;
++
++tipo
++  : T_IDENTIFICADOR
++  | T_MATRIZ
++  | T_INTEIRO
++  | T_REAL
++  | T_CARACTERE
++  | T_LITERAL
++  | T_LOGICO
++  | T_CORINGA
++  ;
++
++declaracao_estrutura
++  : #(T_ESTRUTURA T_IDENTIFICADOR (campo_estrutura)+)
++  ;
++
++campo_estrutura
++                      {std::list&lt;std::string&gt; ids;}
++
++  : #(T_VARIAVEL tipo ids=identificadores
++//       (
++//         valor_inicialiacao
++//       )?
++    )
++  ;
++
++
++
++
++/////////////////////////////////////////////////////////////
++
++
++
++
++/************************** EXPRESSOES *************************/
++
++
++expressao [const std::string&amp; lvalue]
++
++                                      {GptAsmExpression ret;}
++  : #(T_EXPRESSAO ret=expr)
++                                      {ret.expand(lvalue,1/*_subroutine*/);}
++  ;
++
++expr returns [GptAsmExpression ret]
++
++                        {GptAsmExpression l, r;}
++
++//   : #(T_OU              l=expr r=expr) {expr_OU(ret, l, r);}
++//   | #(T_E               l=expr r=expr) {expr_E(ret, l, r);}
++//   | #(T_BIT_OU          l=expr r=expr) {expr_BIT_OU(ret, l, r);}
++//   | #(T_BIT_OUX         l=expr r=expr) {expr_BIT_XOU(ret, l, r);}
++//   | #(T_BIT_E           l=expr r=expr) {expr_BIT_E(ret, l, r);}
++//   | #(T_IGUAL           l=expr r=expr) {expr_IGUAL(ret, l, r);}
++//   | #(T_DIFERENTE       l=expr r=expr) {expr_DIFERENTE(ret, l, r);}
++//   | #(T_MAIOR           l=expr r=expr) {expr_MAIOR(ret, l, r);}
++//   | #(T_MENOR           l=expr r=expr) {expr_MENOR(ret, l, r);}
++//   | #(T_MAIOR_EQ        l=expr r=expr) {expr_MAIOR_EQ(ret, l, r);}
++//   | #(T_MENOR_EQ        l=expr r=expr) {expr_MENOR_EQ(ret, l, r);}
++//   | #(T_BIT_SHIFT_LEFT  l=expr r=expr) {expr_BIT_SHIFT_LEFT(ret, l, r);}
++//   | #(T_BIT_SHIFT_RIGHT l=expr r=expr) {expr_BIT_SHIFT_RIGHT(ret, l, r);}
++  : #(T_MAIS            l=expr r=expr) {expr_MAIS(ret, l, r);}
++//   | #(T_MENOS           l=expr r=expr) {expr_MENOS(ret, l, r);}
++//   | #(T_DIV             l=expr r=expr) {expr_DIV(ret, l, r);}
++//   | #(T_MULTIP          l=expr r=expr) {expr_MULTIP(ret, l, r);}
++//   | #(T_MOD             l=expr r=expr) {expr_MOD(ret, l, r);}
++//   | #(T_UN_NEGATIVO     l=elemento)  {expr_UN_NEGATIVO(ret,l);}
++//   | #(T_UN_POSITIVO     l=elemento)  {expr_UN_POSITIVO(ret,l);}
++//   | #(T_NAO             l=elemento)  {expr_UN_NAO(ret,l);}
++//   | #(T_BIT_NAO         l=elemento)  {expr_BIT_NAO(ret,l);}
++  | ret=elemento
++  ;
++
++
++elemento returns [GptAsmExpression ret]
++                      {std::string r;}
++  : ret=literal
++  | r=lvalue
++//   | ret=chamada_subrotina
++  | expressao[r]
++  ;
++
++literal returns [GptAsmExpression ret]
++
++  : l:T_TEXTO_LITERAL          {/*ret.set(l-&gt;getText());*/}
++  | i:T_INTEIRO_LITERAL        {/*ret.set(i-&gt;getText());*/}
++  | r:T_REAL_LITERAL           {/*ret.set(r-&gt;getText());*/}
++  | c:T_CARACTERE_LITERAL      {/*ret.set(c-&gt;getText());*/}
++  | v:T_VERDADEIRO             {/*ret.set(v-&gt;getText());*/}
++  | f:T_FALSO                  {/*ret.set(f-&gt;getText());*/}
++  ;
++
++
++lvalue returns [std::string lv]
++
++                                      {std::string offset;}
++
++  : #(id:T_IDENTIFICADOR              {lv = id-&gt;getText();}
++      (offset=lvalue_indices[lv]      {lv += &quot;:&quot; + offset;})?
++//       (lvalue_membro)?
++    )
++                
++  ;
++
++
++lvalue_indices[const std::string id] returns [std::string ret]
++                                {
++                                  std::list&lt;std::string&gt; dimensions;
++                                  std:string tmp;
++                                }
++  : #(T_SUBSCRITO
++        (
++                                {/*tmp = _subroutine-&gt;newTmp();*/}
++          expressao[tmp]
++                                {dimensions.push_back(tmp);}
++        )+
++    )
++                                {ret = expandOffset(id, dimensions);}
++  ;
++
++
++// lvalue_membro
++//   : #(T_MEMBRO lvalue)
++//   ;
++
++
++
++
++
++
++
++
++// corpo
++//   :  corpo_subprograma      (corpo)?
++//   |  bloco_codigo           (corpo_subprograma)*
++//   ;
++// 
++// 
++// bloco_codigo
++//   : #(T_INICIO lista_enunciados)
++//   ;
++// 
++// lista_enunciados
++//   : (enunciado)*
++//   ;
++// 
++// enunciado
++//   : en_atribuicao
++// /*  | en_retorne
++//   | en_se
++//   | en_enquanto
++//   | en_repita
++//   | en_para
++//   | en_caso
++//   | T_SAIR
++//   | chamada_subrotina*/
++//   ;
++// 
++// en_atribuicao
++//                       {std::string lv;}
++//   : #(T_ATRIBUICAO
++//         lv=lvalue      //x / x:offset
++//         expressao[lv]
++//       )
++//   ;
++
+
+Modified: trunk/gpt2/gptc/src/main.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/main.cpp	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/main.cpp	2007-12-14 16:33:58 UTC (rev 432)
+@@ -4,10 +4,11 @@
+ #include &lt;antlr/TokenBuffer.hpp&gt;
+ #include &lt;antlr/CommonAST.hpp&gt;
+ 
++#include &quot;PortugolTokenTypes.hpp&quot;
+ #include &quot;PortugolLexer.hpp&quot;
+ #include &quot;PortugolParser.hpp&quot;
+ #include &quot;SemanticWalker.hpp&quot;
+-#include &quot;PortugolTokenTypes.hpp&quot;
++#include &quot;GptAsmWalker.hpp&quot;
+ #include &quot;SymbolTable.hpp&quot;
+ 
+ #include &quot;TokenNames.hpp&quot;
+@@ -79,8 +80,26 @@
+   std::cerr &lt;&lt; ast-&gt;toStringList() &lt;&lt; std::endl &lt;&lt; std::endl;
+ }
+ 
++void all(char* fname) {
++  RefPortugolAST ast;
++
++  ast = dump_tree(fname, true);
++
++  SymbolTable* symtable = new SymbolTable(fname);
++
++  SemanticWalker semantic(symtable, fname);
++  semantic.programa(ast);
++
++  GptAsmWalker code(symtable, fname);
++  code.programa(ast);
++}
++
+ int main(int argc, char** argv) {
+ 
++  if (argc == 2) {
++    all(argv[1]);
++  }
++
+   if (argc &lt; 3) {
+     std::cerr &lt;&lt; &quot;./test [lps] &lt;file.gpt&gt;&quot; &lt;&lt; std::endl;
+     return 0;
+
+Modified: trunk/gpt2/gptc/src/semantic.g
+===================================================================
+--- trunk/gpt2/gptc/src/semantic.g	2007-12-14 16:32:31 UTC (rev 431)
++++ trunk/gpt2/gptc/src/semantic.g	2007-12-14 16:33:58 UTC (rev 432)
+@@ -39,9 +39,9 @@
+ 
+ {
+ public:
+-  SemanticWalker::SemanticWalker(SymbolTable* symtable, 
++  SemanticWalker::SemanticWalker(SymbolTable* symtable,
+                                  const std::string&amp; filepath)
+-	 : BaseSemanticWalker(symtable, filepath), 
++	 : BaseSemanticWalker(symtable, filepath),
+     _analisingInitializationList(false) { }
+ 
+ private:
+@@ -106,7 +106,7 @@
+                                 {
+                                   IDList ids;
+                                   Type *type;
+-                                  Type *rtype;                                  
++                                  Type *rtype;
+                                 }
+ 
+   : #(T_CONSTANTE
+@@ -124,7 +124,7 @@
+ identificadores returns [IDList list]
+   : (
+       id:T_IDENTIFICADOR        {list.push_back(id);}
+-    )*
++    )+
+   ;
+ 
+ tipo returns [Type *type]
+@@ -166,7 +166,7 @@
+   : (
+       dsize=dimensao
+                         {dims.push_back(dsize);}
+-    )*
++    )+
+   ;
+ 
+ dimensao returns [int size]
+@@ -190,7 +190,7 @@
+                                 {
+                                   IDList ids;
+                                   Type *type;
+-                                  Type *rtype;                                  
++                                  Type *rtype;
+                                 }
+ 
+   : (
+@@ -381,7 +381,7 @@
+                                       type-&gt;setRef(true);
+                                     }
+ 
+-                                    symbol = 
++                                    symbol =
+                                         Symbol(id-&gt;getText(),
+                                           type,
+                                           _symtable-&gt;unit(),
+@@ -655,7 +655,7 @@
+   | en_repita
+   | en_para
+   | en_caso
+-  | T_SAIR                                
++  | T_SAIR //TODO: deve estar dentro de uma itera&#231;&#227;o
+   | devnull=chamada_subrotina
+   ;
+ 
+@@ -670,7 +670,7 @@
+ en_retorne
+                         {Type *type;}
+ 
+-  : #(ret:T_RETORNE type=expressao_) 
++  : #(ret:T_RETORNE type=expressao_)
+ 
+                         {evalRetorne(ret, type);}
+   ;
+@@ -678,17 +678,17 @@
+ en_se
+                         {ExpressionReturn ex;}
+ 
+-  : #(se:T_SE 
++  : #(se:T_SE
+ 
+       ex=expressao    {evalCondicional(ex);}
+-      lista_enunciados 
++      lista_enunciados
+       (T_SENAO lista_enunciados)?
+     )
+   ;
+ 
+ en_enquanto
+                         {ExpressionReturn ex;}
+-  : #(enq:T_ENQUANTO 
++  : #(enq:T_ENQUANTO
+       ex=expressao      {evalCondicional(ex);}
+       lista_enunciados
+     )
+@@ -696,7 +696,7 @@
+ 
+ en_repita
+                               {ExpressionReturn ex;}
+-  : #(T_REPITA      
++  : #(T_REPITA
+       lista_enunciados
+       T_ATE ex=expressao      {evalCondicional(ex);}
+     )
+@@ -705,7 +705,7 @@
+ en_para
+                               {ExpressionReturn lv, from, to;}
+ 
+-  : #(p:T_PARA lv=lvalue 
++  : #(p:T_PARA lv=lvalue
+         from=expressao        {evalAttribution(lv, from);}
+         to=expressao          {evalAttribution(lv, to);}
+         (T_PASSO)?
+@@ -724,7 +724,7 @@
+ 
+                                {Type *rtype;}
+ 
+-  : #(T_FACA 
++  : #(T_FACA
+       rtype=lit:literal            {evalExpr_IGUAL(lit, ltype, rtype);}
+       lista_enunciados
+     )
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000105.html">[gpt-commit] r431 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000107.html">[gpt-commit] r433 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#106">[ date ]</a>
+              <a href="thread.html#106">[ thread ]</a>
+              <a href="subject.html#106">[ subject ]</a>
+              <a href="author.html#106">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

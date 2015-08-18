@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r383 - in trunk/gpt2: common/src gptvm/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r383%20-%20in%20trunk/gpt2%3A%20common/src%20gptvm/src&In-Reply-To=%3C200711221723.lAMHN9Zn025542%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000056.html">
+   <LINK REL="Next"  HREF="000058.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r383 - in trunk/gpt2: common/src gptvm/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r383%20-%20in%20trunk/gpt2%3A%20common/src%20gptvm/src&In-Reply-To=%3C200711221723.lAMHN9Zn025542%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r383 - in trunk/gpt2: common/src gptvm/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Nov 22 18:23:09 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000056.html">[gpt-commit] r382 - in trunk/gpt2: common/src gptasm/src gptvm/src
+</A></li>
+        <LI>Next message: <A HREF="000058.html">[gpt-commit] r384 - in trunk/gpt2: common/src gptasm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#57">[ date ]</a>
+              <a href="thread.html#57">[ thread ]</a>
+              <a href="subject.html#57">[ subject ]</a>
+              <a href="author.html#57">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-22 18:23:09 +0100 (Thu, 22 Nov 2007)
+New Revision: 383
+
+Modified:
+   trunk/gpt2/common/src/CBinString.cpp
+   trunk/gpt2/common/src/CBinString.hpp
+   trunk/gpt2/common/src/CData.cpp
+   trunk/gpt2/common/src/CData.hpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/src/Makefile
+Log:
+DEVNULL
+* Classe CData eh necessaria no GptASM apenas
+
+
+Modified: trunk/gpt2/common/src/CBinString.cpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.cpp	2007-11-22 16:01:21 UTC (rev 382)
++++ trunk/gpt2/common/src/CBinString.cpp	2007-11-22 17:23:09 UTC (rev 383)
+@@ -172,3 +172,17 @@
+    return value == data;
+ }
+ 
++
++std::string CBinString::getCString(const int &amp;address)
++{
++   int pos = 0;
++
++   pos = find('\0', address);
++
++   if (pos == -1) {
++      abort();
++   }
++
++   return substr(address, pos - address);
++}
++
+
+Modified: trunk/gpt2/common/src/CBinString.hpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.hpp	2007-11-22 16:01:21 UTC (rev 382)
++++ trunk/gpt2/common/src/CBinString.hpp	2007-11-22 17:23:09 UTC (rev 383)
+@@ -23,6 +23,7 @@
+    bool removeIfEqual(const int &amp;value);
+    bool removeIfEqual(const char &amp;value);
+    bool removeIfEqual(const std::string &amp;value);
++   std::string getCString(const int &amp;address);
+    std::string::find;
+ };
+ 
+
+Modified: trunk/gpt2/common/src/CData.cpp
+===================================================================
+--- trunk/gpt2/common/src/CData.cpp	2007-11-22 16:01:21 UTC (rev 382)
++++ trunk/gpt2/common/src/CData.cpp	2007-11-22 17:23:09 UTC (rev 383)
+@@ -52,16 +52,4 @@
+ }
+ 
+ 
+-std::string CData::getString(const int &amp;address)
+-{
+-   int pos = 0;
+ 
+-   pos = find('\0', address);
+-
+-   if (pos == -1) {
+-      abort();
+-   }
+-
+-   return substr(address, pos - address);
+-}
+-
+
+Modified: trunk/gpt2/common/src/CData.hpp
+===================================================================
+--- trunk/gpt2/common/src/CData.hpp	2007-11-22 16:01:21 UTC (rev 382)
++++ trunk/gpt2/common/src/CData.hpp	2007-11-22 17:23:09 UTC (rev 383)
+@@ -15,8 +15,6 @@
+    CSymbol* add(CSymbol *symbol);
+    CSymbol* addVariable (const std::string &amp;name, const int &amp;type, const int &amp;address);
+    CSymbol* addConstant (const std::string &amp;name, const int &amp;type, const int &amp;address);
+-   bool readFromBinary(CBinString &amp;bin);
+-   std::string getString(const int &amp;address);
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-22 16:01:21 UTC (rev 382)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-22 17:23:09 UTC (rev 383)
+@@ -213,7 +213,7 @@
+       int value;
+       switch (type) {
+          case CSymbol::STRING:
+-            std::cout &lt;&lt; _data.getString(address);
++            std::cout &lt;&lt; _data.getCString(address);
+             break;
+          case CSymbol::INT:
+             std::cout &lt;&lt; _data.getInt(address);
+@@ -288,9 +288,9 @@
+ 
+    int address = _code.fetchInt();
+ 
+-   std::string temp = _data.getString(address);
++//   std::string temp = _data.getCString(address);
+ 
+-   if (_data.getString(address) == &quot;imprima&quot;) {
++   if (_data.getCString(address) == &quot;imprima&quot;) {
+       procImprima();
+    }
+ }
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-22 16:01:21 UTC (rev 382)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-22 17:23:09 UTC (rev 383)
+@@ -7,7 +7,8 @@
+ 
+ #include &quot;CHeader.hpp&quot;
+ #include &quot;CSymbolTable.hpp&quot;
+-#include &quot;CData.hpp&quot;
++//#include &quot;CData.hpp&quot;
++#include &quot;CBinString.hpp&quot;
+ #include &quot;CBytecode.hpp&quot;
+ #include &quot;Common.hpp&quot;
+ #include &quot;CDataStack.hpp&quot;
+@@ -157,7 +158,8 @@
+ 
+    CHeader       _header;
+    CSymbolTable  _symbolTable;
+-   CData         _data;
++   CBinString    _data;
++//   CData         _data;
+    CBytecode     _code;
+    OpcodePointer _opcodePointer[ OPCODE_NUMBER ];
+    bool          _stop;
+
+Modified: trunk/gpt2/gptvm/src/Makefile
+===================================================================
+--- trunk/gpt2/gptvm/src/Makefile	2007-11-22 16:01:21 UTC (rev 382)
++++ trunk/gpt2/gptvm/src/Makefile	2007-11-22 17:23:09 UTC (rev 383)
+@@ -8,7 +8,7 @@
+ 
+ objects = main.o CGptVm.o CRunBytecode.o CDataStack.o CBytecode.o \
+           $(COMMON_DIR)CSymbol.o $(COMMON_DIR)CSymbolTable.o \
+-          $(COMMON_DIR)CHeader.o $(COMMON_DIR)CData.o       \
++          $(COMMON_DIR)CHeader.o \
+           $(COMMON_DIR)CBinString.o $(COMMON_DIR)CSymbolList.o 
+           
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000056.html">[gpt-commit] r382 - in trunk/gpt2: common/src gptasm/src gptvm/src
+</A></li>
+	<LI>Next message: <A HREF="000058.html">[gpt-commit] r384 - in trunk/gpt2: common/src gptasm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#57">[ date ]</a>
+              <a href="thread.html#57">[ thread ]</a>
+              <a href="subject.html#57">[ subject ]</a>
+              <a href="author.html#57">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

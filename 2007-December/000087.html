@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r413 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r413%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051131.lB5BV5cq032340%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000086.html">
+   <LINK REL="Next"  HREF="000088.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r413 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r413%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051131.lB5BV5cq032340%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r413 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec  5 12:31:05 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000086.html">[gpt-commit] r412 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000088.html">[gpt-commit] r414 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#87">[ date ]</a>
+              <a href="thread.html#87">[ thread ]</a>
+              <a href="subject.html#87">[ subject ]</a>
+              <a href="author.html#87">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-05 12:31:03 +0100 (Wed, 05 Dec 2007)
+New Revision: 413
+
+Modified:
+   trunk/gpt2/gptc/src/Makefile.am
+Log:
+-Criando TokenLabels.hpp
+
+Modified: trunk/gpt2/gptc/src/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/src/Makefile.am	2007-12-04 19:03:24 UTC (rev 412)
++++ trunk/gpt2/gptc/src/Makefile.am	2007-12-05 11:31:03 UTC (rev 413)
+@@ -12,7 +12,8 @@
+                 PortugolParser.cpp \
+                 SemanticWalker.hpp \
+                 SemanticWalker.cpp \
+-                TokenNames.hpp
++                TokenNames.hpp \
++                TokenLabels.hpp
+ 
+ 
+ gptc_SOURCES = BaseSemanticWalker.hpp \
+@@ -49,7 +50,8 @@
+              SemanticWalker.cpp \
+              SemanticWalkerTokenTypes.hpp \
+              SemanticWalkerTokenTypes.txt \
+-             TokenNames.hpp
++             TokenNames.hpp \
++             TokenLabels.hpp
+ 
+ PortugolLexer.cpp PortugolLexer.hpp: $(srcdir)/lexer.g Makefile
+ 	$(ANTLR_BIN) $(srcdir)/lexer.g
+@@ -72,3 +74,14 @@
+ 	sed -i -e 's/\([A-Z][^=( ]*\)[=(].*/&quot;\1&quot;,/' $@
+ 	sed -i -e '$$s/,/};/' $@
+ 	@echo &quot;#endif&quot; &gt;&gt; $@
++
++TokenLabels.hpp: Makefile
++	@echo &quot;#ifndef TOKENLABELS_H&quot; &gt; $@
++	@echo &quot;#define TOKENLABELS_H&quot;  &gt;&gt; $@
++	@echo &quot;static char* g_tokenLabels[] = &quot; &gt;&gt; $@
++	@echo '{&quot;&quot;, &quot;EOF&quot;, &quot;&quot;, &quot;&quot;,'   &gt;&gt; $@
++	grep '&quot;' PortugolTokenTypes.txt &gt;&gt; $@
++	sed -i -e 's/^T.*\(&quot;[^&quot;]*&quot;\).*/\1,/' $@
++	sed -i -e '$$s/,/};/' $@
++	@echo &quot;#endif&quot; &gt;&gt; $@
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000086.html">[gpt-commit] r412 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000088.html">[gpt-commit] r414 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#87">[ date ]</a>
+              <a href="thread.html#87">[ thread ]</a>
+              <a href="subject.html#87">[ subject ]</a>
+              <a href="author.html#87">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r404 - trunk/gpt2/common/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r404%20-%20trunk/gpt2/common/src&In-Reply-To=%3C200711301604.lAUG4bew030509%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000077.html">
+   <LINK REL="Next"  HREF="000079.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r404 - trunk/gpt2/common/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r404%20-%20trunk/gpt2/common/src&In-Reply-To=%3C200711301604.lAUG4bew030509%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r404 - trunk/gpt2/common/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Nov 30 17:04:37 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000077.html">[gpt-commit] r403 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000079.html">[gpt-commit] r405 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#78">[ date ]</a>
+              <a href="thread.html#78">[ thread ]</a>
+              <a href="subject.html#78">[ subject ]</a>
+              <a href="author.html#78">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-30 17:04:36 +0100 (Fri, 30 Nov 2007)
+New Revision: 404
+
+Modified:
+   trunk/gpt2/common/src/CBinString.cpp
+   trunk/gpt2/common/src/CBinString.hpp
+Log:
+DEVNULL:
+* Algumas otimizacoes na classe que le e grava dados binarios
+
+
+Modified: trunk/gpt2/common/src/CBinString.cpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.cpp	2007-11-30 15:09:05 UTC (rev 403)
++++ trunk/gpt2/common/src/CBinString.cpp	2007-11-30 16:04:36 UTC (rev 404)
+@@ -5,20 +5,15 @@
+ 
+ void CBinString::writeInt(const int &amp;value)
+ {
+-   char *byte = (char*)&value;
+-
+-   for( size_t i = 0; i &lt; sizeof(int); i++) {
+-      push_back(*byte);
+-      byte++;
+-   }
+-//   std::cout &lt;&lt; &quot;writeInt:&quot; &lt;&lt; value &lt;&lt; std::endl;
++   resize(size()+sizeof(int));
++   int *result = ((int*)(data()+size()))-1;
++   *result = value;
+ }
+ 
+ 
+ void CBinString::writeByte(const char &amp;value)
+ {
+-   (*this) += value;
+-//   std::cout &lt;&lt; &quot;writeByte:&quot; &lt;&lt; value &lt;&lt; &quot;(&quot; &lt;&lt; (int)value &lt;&lt; &quot;)&quot; &lt;&lt; std::endl;
++   push_back(value);
+ }
+ 
+ 
+@@ -37,29 +32,22 @@
+ 
+ void CBinString::writeBool(const bool &amp;value)
+ {
+-   char byte = (char)value;
+-
+-   (*this) += byte;
+-//   std::cout &lt;&lt; &quot;writeBool:&quot; &lt;&lt; value &lt;&lt; std::endl;
++   push_back(value);
+ }
+ 
+ 
+ void CBinString::writeReal(const double &amp;value)
+ {
+-   char *byte = (char*)&value;
+-
+-   for( size_t i = 0; i &lt; sizeof(double); i++) {
+-      push_back(*byte);
+-      byte++;
+-   }
++   resize(size()+sizeof(double));
++   double *result = ((double*)(data()+size()))-1;
++   *result = value;
+ }
+ 
+ 
+-
+ void CBinString::readInt(int &amp;value)
+ {
+    int result = *((int*)data());
+-   erase(0,sizeof(int));
++   erase(0, sizeof(int));
+    value = result;
+ //   std::cout &lt;&lt; &quot;readInt:&quot; &lt;&lt; value &lt;&lt; std::endl;
+ }
+@@ -76,7 +64,7 @@
+ void CBinString::readReal(double &amp;value)
+ {
+    double result = *((double*)data());
+-   erase(0,sizeof(double));
++   erase(0, sizeof(double));
+    value = result;
+ }
+ 
+@@ -271,3 +259,14 @@
+    return substr(address, pos - address);
+ }
+ 
++
++void CBinString::writeData(const void *value, const size_t &amp;size)
++{
++   const char *byte = (const char*)value;
++
++   for( size_t i = 0; i &lt; size; i++) {
++      push_back(*byte);
++      byte++;
++   }
++}
++
+
+Modified: trunk/gpt2/common/src/CBinString.hpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.hpp	2007-11-30 15:09:05 UTC (rev 403)
++++ trunk/gpt2/common/src/CBinString.hpp	2007-11-30 16:04:36 UTC (rev 404)
+@@ -41,6 +41,8 @@
+    bool removeIfEqual(const std::string &amp;value);
+    std::string getCString(const int &amp;address);
+    std::string::find;
++private:
++   void writeData(const void *value, const size_t &amp;size);
+ };
+ 
+ #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000077.html">[gpt-commit] r403 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000079.html">[gpt-commit] r405 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#78">[ date ]</a>
+              <a href="thread.html#78">[ thread ]</a>
+              <a href="subject.html#78">[ subject ]</a>
+              <a href="author.html#78">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

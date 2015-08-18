@@ -1,0 +1,413 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r537 - in trunk/gpt: src/modules/parser	src/modules/x86 test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r537%20-%20in%20trunk/gpt%3A%20src/modules/parser%0A%09src/modules/x86%20test&In-Reply-To=%3C200907110144.n6B1iuxg017489%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000209.html">
+   <LINK REL="Next"  HREF="000211.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r537 - in trunk/gpt: src/modules/parser	src/modules/x86 test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r537%20-%20in%20trunk/gpt%3A%20src/modules/parser%0A%09src/modules/x86%20test&In-Reply-To=%3C200907110144.n6B1iuxg017489%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r537 - in trunk/gpt: src/modules/parser	src/modules/x86 test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Sat Jul 11 03:44:56 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000209.html">[gpt-commit] r536 - in trunk/gpt: . doc/manual src/modules/x86 test
+</A></li>
+        <LI>Next message: <A HREF="000211.html">[gpt-commit] r538 - in trunk/gpt: src/modules/c_translator	src/modules/interpreter test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#210">[ date ]</a>
+              <a href="thread.html#210">[ thread ]</a>
+              <a href="subject.html#210">[ subject ]</a>
+              <a href="author.html#210">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: adorilson
+Date: 2009-07-11 03:32:56 +0200 (Sat, 11 Jul 2009)
+New Revision: 537
+
+Modified:
+   trunk/gpt/src/modules/parser/BasePortugolParser.cpp
+   trunk/gpt/src/modules/parser/BasePortugolParser.hpp
+   trunk/gpt/src/modules/parser/lexer.g
+   trunk/gpt/src/modules/parser/parser.g
+   trunk/gpt/src/modules/parser/semantic.g
+   trunk/gpt/src/modules/x86/x86.g
+   trunk/gpt/test/tester.gpt
+Log:
+- Implemetacao da estrutura repita no modulo x86
+
+
+Modified: trunk/gpt/src/modules/parser/BasePortugolParser.cpp
+===================================================================
+--- trunk/gpt/src/modules/parser/BasePortugolParser.cpp	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/parser/BasePortugolParser.cpp	2009-07-11 01:32:56 UTC (rev 537)
+@@ -38,6 +38,7 @@
+ string BasePortugolParser::expecting_stm_or_fimse = &quot;\&quot;fim-se\&quot; ou comando v&#225;lido&quot;;
+ string BasePortugolParser::expecting_stm_or_fimenq = &quot;\&quot;fim-enquanto\&quot; ou comando v&#225;lido&quot;;
+ string BasePortugolParser::expecting_stm_or_fimpara = &quot;\&quot;fim-para\&quot; ou comando v&#225;lido&quot;;
++string BasePortugolParser::expecting_stm_or_ate=&quot;\&quot;at&#233;\&quot; ou comando v&#225;lido&quot;;
+ string BasePortugolParser::expecting_eof_or_function = &quot;fim de arquivo (EOF) ou \&quot;fun&#231;&#227;o\&quot;&quot;;
+ string BasePortugolParser::expecting_function_name = &quot;nome da fun&#231;&#227;o&quot;;
+ string BasePortugolParser::expecting_param_or_fparen = &quot;vari&#225;vel ou \&quot;)\&quot;&quot;;
+
+Modified: trunk/gpt/src/modules/parser/BasePortugolParser.hpp
+===================================================================
+--- trunk/gpt/src/modules/parser/BasePortugolParser.hpp	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/parser/BasePortugolParser.hpp	2009-07-11 01:32:56 UTC (rev 537)
+@@ -64,6 +64,7 @@
+   static string expecting_stm_or_fimse;
+   static string expecting_stm_or_fimenq;
+   static string expecting_stm_or_fimpara;
++  static string expecting_stm_or_ate;
+   static string expecting_eof_or_function;
+   static string expecting_function_name;
+   static string expecting_param_or_fparen;
+@@ -112,6 +113,7 @@
+            || (tk == PortugolParserTokenTypes::T_KW_ATE)
+            || (tk == PortugolParserTokenTypes::T_KW_PASSO)
+            || (tk == PortugolParserTokenTypes::T_KW_FIM_PARA)
++           || (tk == PortugolParserTokenTypes::T_KW_REPITA)
+            || (tk == PortugolParserTokenTypes::T_KW_FUNCAO)
+            || (tk == PortugolParserTokenTypes::T_KW_RETORNE)
+ //            || (tk == PortugolParserTokenTypes::T_KW_CONJUNTO)
+
+Modified: trunk/gpt/src/modules/parser/lexer.g
+===================================================================
+--- trunk/gpt/src/modules/parser/lexer.g	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/parser/lexer.g	2009-07-11 01:32:56 UTC (rev 537)
+@@ -81,6 +81,7 @@
+   T_KW_DE=&quot;de&quot;;
+   T_KW_ATE=&quot;at&#233;&quot;;
+   T_KW_FIM_PARA=&quot;fim-para&quot;;
++  T_KW_REPITA=&quot;repita&quot;;
+   T_KW_MATRIZ=&quot;matriz&quot;;
+   T_KW_INTEIROS=&quot;inteiros&quot;;
+   T_KW_REAIS=&quot;reais&quot;;
+
+Modified: trunk/gpt/src/modules/parser/parser.g
+===================================================================
+--- trunk/gpt/src/modules/parser/parser.g	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/parser/parser.g	2009-07-11 01:32:56 UTC (rev 537)
+@@ -342,6 +342,7 @@
+       | stm_ret {tk=lastToken;} T_SEMICOL!
+       | stm_se
+       | stm_enquanto
++      | stm_repita {tk=lastToken;} T_SEMICOL!
+       | stm_para
+     )*
+   ;
+@@ -362,6 +363,7 @@
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+@@ -380,7 +382,7 @@
+   exception
+   catch[antlr::NoViableAltException e] {
+     reportParserError(lastToken-&gt;getLine(), expecting_expression, &quot;&quot;, lastToken-&gt;getText());
+-  
++
+     //tudo o que vem depois de stm_list
+     BitSet b;
+     b.add(T_IDENTIFICADOR);
+@@ -389,9 +391,11 @@
+     b.add(T_KW_ENQUANTO);
+     b.add(T_KW_PARA);
+     b.add(T_KW_SENAO);
++    b.add(T_KW_REPITA);
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+@@ -491,10 +495,12 @@
+     b.add(T_KW_SE);
+     b.add(T_KW_ENQUANTO);
+     b.add(T_KW_PARA);
++    b.add(T_KW_REPITA);
+     b.add(T_KW_SENAO);
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+@@ -512,10 +518,12 @@
+     b.add(T_KW_SE);
+     b.add(T_KW_ENQUANTO);
+     b.add(T_KW_PARA);
++    b.add(T_KW_REPITA);
+     b.add(T_KW_SENAO);
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+@@ -549,10 +557,12 @@
+     b.add(T_KW_SE);
+     b.add(T_KW_ENQUANTO);
+     b.add(T_KW_PARA);
++    b.add(T_KW_REPITA);
+     b.add(T_KW_SENAO);
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+@@ -560,6 +570,49 @@
+   //nota: stm_enquanto nao lanca noViable
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++
++stm_repita
++{RefToken tk;}
++  : rep:T_KW_REPITA^ stm_list {tk=lastToken;} ate:T_KW_ATE! expr {tk=lastToken;}
++  ;
++
++  exception
++  catch[antlr::MismatchedTokenException e] {
++    if(e.expecting != T_KW_ATE) {
++      if(e.getLine() == tk-&gt;getLine()) {
++        reportParserError(e.getLine(), getTokenNames()[e.expecting], getTokenDescription(e.token));
++      } else {
++        reportParserError(tk-&gt;getLine(), getTokenNames()[e.expecting], &quot;&quot;, tk-&gt;getText());
++      }
++    } else {
++      if(e.getLine() == tk-&gt;getLine()) {
++        reportParserError(e.getLine(), expecting_stm_or_ate, getTokenDescription(e.token));
++      } else {
++        reportParserError(tk-&gt;getLine(), expecting_stm_or_ate, &quot;&quot;, tk-&gt;getText());
++      }  
++    }
++
++    //tudo o que vem depois de stm_list
++    BitSet b;
++    b.add(T_IDENTIFICADOR);
++    b.add(T_KW_RETORNE);
++    b.add(T_KW_SE);
++    b.add(T_KW_ENQUANTO);
++    b.add(T_KW_PARA);
++    b.add(T_KW_REPITA);
++    b.add(T_KW_SENAO);
++    b.add(T_KW_FIM_SE);
++    b.add(T_KW_FIM_ENQUANTO);
++    b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
++    b.add(T_KW_FIM);
++    consumeUntil(b);
++  }
++
++  //nota: stm_repita nao lanca noViable
++
++
++//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ stm_para 
+ {RefToken tk;}
+   : T_KW_PARA^ 
+@@ -596,10 +649,12 @@
+     b.add(T_KW_SE);
+     b.add(T_KW_ENQUANTO);
+     b.add(T_KW_PARA);
++    b.add(T_KW_REPITA);
+     b.add(T_KW_SENAO);
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+
+Modified: trunk/gpt/src/modules/parser/semantic.g
+===================================================================
+--- trunk/gpt/src/modules/parser/semantic.g	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/parser/semantic.g	2009-07-11 01:32:56 UTC (rev 537)
+@@ -183,6 +183,7 @@
+   | stm_ret
+   | stm_se
+   | stm_enquanto
++  | stm_repita
+   | stm_para
+   ;
+ 
+@@ -246,6 +247,13 @@
+   : #(e:T_KW_ENQUANTO etype=expr {evaluator.evaluateBooleanExpr(etype, e-&gt;getLine());} (stm)* )
+   ;
+ 
++stm_repita
++{
++  ExpressionValue etype;
++}
++  : #(r:T_KW_REPITA (stm)* etype=expr {evaluator.evaluateBooleanExpr(etype, r-&gt;getLine());} )
++  ;
++
+ stm_para
+ {
+   ExpressionValue lv, de, ate;
+@@ -377,4 +385,4 @@
+ exception
+ catch[antlr::NoViableAltException&amp;e] {
+   //
+-}
+\ No newline at end of file
++}
+
+Modified: trunk/gpt/src/modules/x86/x86.g
+===================================================================
+--- trunk/gpt/src/modules/x86/x86.g	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/x86/x86.g	2009-07-11 01:32:56 UTC (rev 537)
+@@ -165,6 +165,7 @@
+   | stm_ret
+   | stm_se
+   | stm_enquanto
++  | stm_repita
+   | stm_para
+   ;
+ 
+@@ -457,6 +458,35 @@
+     )
+   ;
+ 
++stm_repita
++{
++  stringstream s;
++  string lbrep = x86.createLabel(true, &quot;repita&quot;);;
++  string lbfim = x86.createLabel(true, &quot;ate&quot;);;
++
++  s &lt;&lt; lbrep &lt;&lt; &quot;:&quot;;
++  x86.writeTEXT(s.str());
++  s.str(&quot;&quot;);
++
++  x86.writeTEXT(&quot;; repita&quot;);
++}
++  : #(T_KW_REPITA 
++       (stm)*
++      {
++       x86.writeTEXT(&quot;; until expressao&quot;);
++      }
++       expr[TIPO_LOGICO]
++      {
++        x86.writeTEXT(&quot;; until resultado&quot;);
++        x86.writeTEXT(&quot;pop eax&quot;);
++        x86.writeTEXT(&quot;cmp eax, 0&quot;);
++        s &lt;&lt; &quot;je near &quot; &lt;&lt; lbrep;
++        x86.writeTEXT(s.str());
++      }
++    )
++  ;
++
++
+ stm_para
+ {
+   stringstream s;
+
+Modified: trunk/gpt/test/tester.gpt
+===================================================================
+--- trunk/gpt/test/tester.gpt	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/test/tester.gpt	2009-07-11 01:32:56 UTC (rev 537)
+@@ -21,8 +21,8 @@
+   testar_matriz_literais();  
+   testar_enquanto();
+   testar_para();
++  testar_repita();
+ 
+-
+   testar_funcoes();
+ 
+ //overflow de inteiros, caracteres logicos e reais
+@@ -66,7 +66,7 @@
+     imprima(&quot;testar_inicializacao: local &lt;&gt; 0&quot;);
+   fim-se
+ 
+-  para local de 0 at&#233; 1 fa&#231;a  
++  para local de 0  1 fa&#231;a  
+     se mat[local] &lt;&gt; 0 ent&#227;o
+       imprima(&quot;testar_inicializacao: mat[&quot;,local,&quot;] &lt;&gt; 0&quot;);
+     fim-se
+@@ -457,8 +457,37 @@
+   fim-se
+ fim
+ 
++fun&#231;&#227;o testar_repita()
++  local : literal;
++  z : inteiro;
++in&#237;cio
+ 
++  repita
++    z := z + 1;
++  at&#233; z=10;
+ 
++  se z &lt;&gt; 10 ent&#227;o
++    imprima(&quot;testar_repita: z &lt;&gt; 10&quot;);
++  fim-se
++
++  repita
++    z := z - 1;
++  at&#233; z&lt;5;
++
++  se z &gt;= 5 ent&#227;o
++    imprima(&quot;testar_repita: z &gt;= 5&quot;);
++  fim-se
++
++  repita
++  at&#233; n&#227;o local;
++
++ se local ent&#227;o
++    imprima(&quot;testar_repita: local &lt;&gt; (nulo)&quot;);
++  fim-se
++
++fim
++
++
+ fun&#231;&#227;o testar_funcoes()
+   lit : literal;
+   mm  : matriz[2] de inteiros;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000209.html">[gpt-commit] r536 - in trunk/gpt: . doc/manual src/modules/x86 test
+</A></li>
+	<LI>Next message: <A HREF="000211.html">[gpt-commit] r538 - in trunk/gpt: src/modules/c_translator	src/modules/interpreter test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#210">[ date ]</a>
+              <a href="thread.html#210">[ thread ]</a>
+              <a href="subject.html#210">[ subject ]</a>
+              <a href="author.html#210">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

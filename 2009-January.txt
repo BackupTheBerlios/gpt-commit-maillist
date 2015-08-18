@@ -1,0 +1,82 @@
+From gpt-commit-noreply at mail.berlios.de  Tue Jan 13 15:01:38 2009
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Tue, 13 Jan 2009 15:01:38 +0100
+Subject: [gpt-commit] r517 - in trunk/gpt: . src/modules/parser
+Message-ID: <200901131401.n0DE1cLF025150@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2009-01-13 15:01:37 +0100 (Tue, 13 Jan 2009)
+New Revision: 517
+
+Modified:
+   trunk/gpt/configure.ac
+   trunk/gpt/src/modules/parser/UnicodeCharBuffer.hpp
+Log:
+-fixing compilation issues with GCC 4.4
+-fixed building on debian with pccts installed
+
+
+
+Modified: trunk/gpt/configure.ac
+===================================================================
+--- trunk/gpt/configure.ac	2008-12-11 19:32:15 UTC (rev 516)
++++ trunk/gpt/configure.ac	2009-01-13 14:01:37 UTC (rev 517)
+@@ -70,7 +70,7 @@
+ dnl Checks for ANTLR
+ dnl------------------------------
+ 
+-AC_PATH_PROG(ANTLR_BIN, antlr)
++AC_PATH_PROG(ANTLR_BIN, runantlr)
+ 
+ if test "x${ANTLR}" = "x"; then
+   AC_PATH_PROG(ANTLR_BIN, runantlr)
+
+Modified: trunk/gpt/src/modules/parser/UnicodeCharBuffer.hpp
+===================================================================
+--- trunk/gpt/src/modules/parser/UnicodeCharBuffer.hpp	2008-12-11 19:32:15 UTC (rev 516)
++++ trunk/gpt/src/modules/parser/UnicodeCharBuffer.hpp	2009-01-13 14:01:37 UTC (rev 517)
+@@ -3,6 +3,8 @@
+ 
+ #include <istream>
+ #include <cassert>
++#include <cstdio>
++
+ #include <antlr/config.hpp>
+ #include <antlr/InputBuffer.hpp>
+ #include <antlr/CharStreamIOException.hpp>
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Tue Jan 13 15:09:04 2009
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Tue, 13 Jan 2009 15:09:04 +0100
+Subject: [gpt-commit] r518 - trunk/gpt
+Message-ID: <200901131409.n0DE94gL026208@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2009-01-13 15:09:04 +0100 (Tue, 13 Jan 2009)
+New Revision: 518
+
+Modified:
+   trunk/gpt/configure.ac
+Log:
+nomsg
+
+Modified: trunk/gpt/configure.ac
+===================================================================
+--- trunk/gpt/configure.ac	2009-01-13 14:01:37 UTC (rev 517)
++++ trunk/gpt/configure.ac	2009-01-13 14:09:04 UTC (rev 518)
+@@ -4,8 +4,8 @@
+ 
+ AC_PREREQ(2.60)
+ 
+-AC_INIT(gpt, 1.0.3)
+-AM_INIT_AUTOMAKE(gpt, 1.0.3)
++AC_INIT(gpt, 1.0.4)
++AM_INIT_AUTOMAKE(gpt, 1.0.4)
+ AC_CONFIG_HEADER([config.h])
+ AC_LANG(C++)
+ AC_PROG_CXX
+
+
+

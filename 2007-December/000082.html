@@ -1,0 +1,472 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r408 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r408%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712041137.lB4BbpwY015338%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000081.html">
+   <LINK REL="Next"  HREF="000083.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r408 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r408%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712041137.lB4BbpwY015338%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r408 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Dec  4 12:37:51 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000081.html">[gpt-commit] r407 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000083.html">[gpt-commit] r409 - in trunk/gpt2: gptasm/test/wikki gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#82">[ date ]</a>
+              <a href="thread.html#82">[ thread ]</a>
+              <a href="subject.html#82">[ subject ]</a>
+              <a href="author.html#82">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-04 12:37:49 +0100 (Tue, 04 Dec 2007)
+New Revision: 408
+
+Modified:
+   trunk/gpt2/common/src/CSymbol.hpp
+   trunk/gpt2/common/src/Common.hpp
+   trunk/gpt2/common/src/Tools.cpp
+   trunk/gpt2/gptasm/src/CGenBytecode.cpp
+   trunk/gpt2/gptasm/src/lexer.g
+   trunk/gpt2/gptasm/src/parser.g
+   trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm
+   trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+Log:
+DEVNULL:
+* Troca de prefixos/sufixos de opcodes
+  - B indica BOOL
+  - D indica DATA
+* Estruturas sao definidas com o tipo data
+
+
+Modified: trunk/gpt2/common/src/CSymbol.hpp
+===================================================================
+--- trunk/gpt2/common/src/CSymbol.hpp	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/common/src/CSymbol.hpp	2007-12-04 11:37:49 UTC (rev 408)
+@@ -24,11 +24,11 @@
+       STRING  = 'S',
+       INT     = 'I',
+       CHAR    = 'C',
+-      LOGICAL = 'L',
++      BOOL    = 'B',
+       REAL    = 'R',
++      DATA    = 'D',
+       MATRIX  = 'M',
+-      POINTER = 'P',
+-      BYTE    = 'B'
++      POINTER = 'P'
+    };
+    CSymbol ();
+    CSymbol (const int &amp;scope, const std::string &amp;name, const char &amp;type, int size,
+
+Modified: trunk/gpt2/common/src/Common.hpp
+===================================================================
+--- trunk/gpt2/common/src/Common.hpp	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/common/src/Common.hpp	2007-12-04 11:37:49 UTC (rev 408)
+@@ -104,7 +104,7 @@
+    OP_PUSHIV      = 76,
+    OP_PUSHSV      = 77,
+    OP_PUSHRV      = 78,
+-   OP_PUSHBV      = 79,
++   OP_PUSHDV      = 79,
+    OP_PUSHMV      = 80,
+    OP_INCSP_4     = 81,
+    OP_INCSP_8     = 82,
+@@ -131,13 +131,13 @@
+    OP_PUSHST      = 103,
+    OP_PUSHRT      = 104,
+    OP_PUSHCT      = 105,
+-   OP_PUSHLT      = 106,
+-   OP_PUSHBT      = 107,
++   OP_PUSHBT      = 106,
++   OP_PUSHDT      = 107,
+    OP_PUSHMT      = 108,
+    OP_POPIV       = 109,
+    OP_POPRV       = 110,
+    OP_POPSV       = 111,
+-   OP_POPBV       = 112,
++   OP_POPDV       = 112,
+    OP_POPMV       = 113,
+    OP_PUSH_0      = 114,
+    OP_PUSH_1      = 115,
+
+Modified: trunk/gpt2/common/src/Tools.cpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.cpp	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/common/src/Tools.cpp	2007-12-04 11:37:49 UTC (rev 408)
+@@ -239,12 +239,12 @@
+ }
+ */
+ 
+-int getTypeSize(const int &amp;type)
++int getTypeSize(const int &amp;type) // TODO: para o tipo DATA essa funcao deveria receber o size tambem...
+ {
+    switch(type) {
+    case CSymbol::INT:
+    case CSymbol::CHAR:
+-   case CSymbol::LOGICAL:
++   case CSymbol::BOOL:
+       return sizeof(int);
+    case CSymbol::REAL:
+       return sizeof(double);
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-12-04 11:37:49 UTC (rev 408)
+@@ -86,7 +86,7 @@
+    _opcodes[ &quot;popiv&quot;       ] = OP_POPIV;
+    _opcodes[ &quot;poprv&quot;       ] = OP_POPRV;
+    _opcodes[ &quot;popsv&quot;       ] = OP_POPSV;
+-   _opcodes[ &quot;popbv&quot;       ] = OP_POPBV;
++   _opcodes[ &quot;popdv&quot;       ] = OP_POPDV;
+    _opcodes[ &quot;popmv&quot;       ] = OP_POPMV;
+    _opcodes[ &quot;incsp&quot;       ] = OP_INCSP;
+    _opcodes[ &quot;decsp&quot;       ] = OP_DECSP;
+@@ -99,14 +99,14 @@
+    _opcodes[ &quot;pushiv&quot;      ] = OP_PUSHIV;
+    _opcodes[ &quot;pushsv&quot;      ] = OP_PUSHSV;
+    _opcodes[ &quot;pushrv&quot;      ] = OP_PUSHRV;
+-   _opcodes[ &quot;pushbv&quot;      ] = OP_PUSHBV;
++   _opcodes[ &quot;pushdv&quot;      ] = OP_PUSHDV;
+    _opcodes[ &quot;pushmv&quot;      ] = OP_PUSHMV;
+    _opcodes[ &quot;pushit&quot;      ] = OP_PUSHIT;
+    _opcodes[ &quot;pushst&quot;      ] = OP_PUSHST;
+    _opcodes[ &quot;pushrt&quot;      ] = OP_PUSHRT;
+    _opcodes[ &quot;pushct&quot;      ] = OP_PUSHCT;
+-   _opcodes[ &quot;pushlt&quot;      ] = OP_PUSHLT;
+    _opcodes[ &quot;pushbt&quot;      ] = OP_PUSHBT;
++   _opcodes[ &quot;pushdt&quot;      ] = OP_PUSHDT;
+    _opcodes[ &quot;pushmt&quot;      ] = OP_PUSHMT;
+    _opcodes[ &quot;incsp_4&quot;     ] = OP_INCSP_4;
+    _opcodes[ &quot;incsp_8&quot;     ] = OP_INCSP_8;
+
+Modified: trunk/gpt2/gptasm/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptasm/src/lexer.g	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/gptasm/src/lexer.g	2007-12-04 11:37:49 UTC (rev 408)
+@@ -35,7 +35,7 @@
+    T_KW_BOOL=&quot;bool&quot;;
+    T_KW_POINTER=&quot;pointer&quot;;
+    T_KW_MATRIX=&quot;matrix&quot;;
+-   T_KW_BYTE=&quot;byte&quot;;
++   T_KW_DATA=&quot;data&quot;;
+    T_KW_PROC=&quot;proc&quot;;
+    T_KW_ENDPROC=&quot;endproc&quot;;
+    T_KW_PARAM=&quot;param&quot;;
+@@ -114,7 +114,7 @@
+    T_KW_POPIV=&quot;popiv&quot;;
+    T_KW_POPSV=&quot;popsv&quot;;
+    T_KW_POPRV=&quot;poprv&quot;;
+-   T_KW_POPBV=&quot;popbv&quot;;
++   T_KW_POPDV=&quot;popdv&quot;;
+    T_KW_POPMV=&quot;popmv&quot;;
+    T_KW_INCSP=&quot;incsp&quot;;
+    T_KW_DECSP=&quot;decsp&quot;;
+@@ -127,14 +127,14 @@
+    T_KW_PUSHIV=&quot;pushiv&quot;;
+    T_KW_PUSHSV=&quot;pushsv&quot;;
+    T_KW_PUSHRV=&quot;pushrv&quot;;
+-   T_KW_PUSHBV=&quot;pushbv&quot;;
++   T_KW_PUSHDV=&quot;pushdv&quot;;
+    T_KW_PUSHMV=&quot;pushmv&quot;;
+    T_KW_PUSHIT=&quot;pushit&quot;;
+    T_KW_PUSHST=&quot;pushst&quot;;
+    T_KW_PUSHRT=&quot;pushrt&quot;;
+    T_KW_PUSHCT=&quot;pushct&quot;;
+-   T_KW_PUSHLT=&quot;pushlt&quot;;
+    T_KW_PUSHBT=&quot;pushbt&quot;;
++   T_KW_PUSHDT=&quot;pushdt&quot;;
+    T_KW_PUSHMT=&quot;pushmt&quot;;
+    T_KW_INCSP_4=&quot;incsp_4&quot;;
+    T_KW_INCSP_8=&quot;incsp_8&quot;;
+
+Modified: trunk/gpt2/gptasm/src/parser.g
+===================================================================
+--- trunk/gpt2/gptasm/src/parser.g	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/gptasm/src/parser.g	2007-12-04 11:37:49 UTC (rev 408)
+@@ -89,10 +89,10 @@
+   | &quot;real&quot;    {ret=CSymbol::REAL;   }
+   | &quot;char&quot;    {ret=CSymbol::CHAR;   }
+   | &quot;string&quot;  {ret=CSymbol::STRING; }
+-  | &quot;bool&quot;    {ret=CSymbol::LOGICAL;   }
++  | &quot;bool&quot;    {ret=CSymbol::BOOL;   }
+   | &quot;pointer&quot; {ret=CSymbol::POINTER;}
+   | &quot;matrix&quot;  {ret=CSymbol::MATRIX; }
+-  | &quot;byte&quot;    T_ABREC T_INT_VALUE {byteSize = atoi(getLastTokenText().c_str());} T_FECHAC {ret=CSymbol::BYTE; }
++  | &quot;data&quot;    T_ABREC T_INT_VALUE {byteSize = atoi(getLastTokenText().c_str());} T_FECHAC {ret=CSymbol::DATA; }
+   ;
+ 
+ //#################################
+@@ -244,19 +244,19 @@
+    :  (&quot;pushiv&quot;|&quot;pushsv&quot;|&quot;pushrv&quot;|&quot;pushmv&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+       element
+-   |  &quot;pushbv&quot;
++   |  &quot;pushdv&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+       element
+       T_COMMA
+       T_INT_VALUE
+       { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
+       // TODO: muitos opcodes poderiam ter o valor inteiro diretamente ao inves de um enderecamento...
+-   |  (&quot;pushit&quot;|&quot;pushst&quot;|&quot;pushrt&quot;|&quot;pushct&quot;|&quot;pushlt&quot;|&quot;pushbt&quot;|&quot;pushmt&quot;)
++   |  (&quot;pushit&quot;|&quot;pushst&quot;|&quot;pushrt&quot;|&quot;pushct&quot;|&quot;pushbt&quot;|&quot;pushdt&quot;|&quot;pushmt&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+    |  (&quot;popiv&quot;|&quot;popsv&quot;|&quot;poprv&quot;|&quot;popmv&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+       identifier
+-   |  &quot;popbv&quot;
++   |  &quot;popdv&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+       identifier
+       T_COMMA
+
+Modified: trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm	2007-12-04 11:37:49 UTC (rev 408)
+@@ -1,6 +1,6 @@
+ program exemplo
+ 
+-var c byte[8] // sizeof c
++var c data[8] // sizeof c
+ 
+ proc main
+     var t1 int
+
+Modified: trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm	2007-12-04 11:37:49 UTC (rev 408)
+@@ -1,6 +1,6 @@
+ program exemplo
+ 
+-var c byte[8] // sizeof c
++var c data[8] // sizeof c
+ 
+ proc main
+     // c.x := 10;
+@@ -9,14 +9,14 @@
+     // c.y := 20;
+     isetv c:4, 20 // *(c + 4 ) := 20
+ 
+-    pushbv c, 8
++    pushdv c, 8
+     pcall exibe
+ 
+     exit_0
+ endproc
+ 
+ proc exibe
+-    param est byte[8]
++    param est data[8]
+ 
+     var t1 int
+ 
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm	2007-12-04 11:37:49 UTC (rev 408)
+@@ -8,17 +8,17 @@
+     iset v, v
+ 
+     pushiv true
+-    pushlt
++    pushbt
+     pushiv 1
+     lcall imprima
+ 
+     pushiv false
+-    pushlt
++    pushbt
+     pushiv 1
+     lcall imprima
+ 
+     pushiv v
+-    pushlt
++    pushbt
+     pushiv 1
+     lcall imprima
+ 
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-04 11:37:49 UTC (rev 408)
+@@ -128,7 +128,7 @@
+    _opcodePointer[OP_POPSV      ] = &amp;CRunBytecode::popsvOpcode;
+    _opcodePointer[OP_POPIV      ] = &amp;CRunBytecode::popivOpcode;
+    _opcodePointer[OP_POPRV      ] = &amp;CRunBytecode::poprvOpcode;
+-   _opcodePointer[OP_POPBV      ] = &amp;CRunBytecode::popbvOpcode;
++   _opcodePointer[OP_POPDV      ] = &amp;CRunBytecode::popdvOpcode;
+    _opcodePointer[OP_POPMV      ] = &amp;CRunBytecode::popmvOpcode;
+    _opcodePointer[OP_INCSP      ] = &amp;CRunBytecode::incspOpcode;
+    _opcodePointer[OP_DECSP      ] = &amp;CRunBytecode::decspOpcode;
+@@ -141,15 +141,15 @@
+    _opcodePointer[OP_PUSHSV     ] = &amp;CRunBytecode::pushsvOpcode;
+    _opcodePointer[OP_PUSHIV     ] = &amp;CRunBytecode::pushivOpcode;
+    _opcodePointer[OP_PUSHRV     ] = &amp;CRunBytecode::pushrvOpcode;
+-   _opcodePointer[OP_PUSHBV     ] = &amp;CRunBytecode::pushbvOpcode;
++   _opcodePointer[OP_PUSHDV     ] = &amp;CRunBytecode::pushdvOpcode;
+    _opcodePointer[OP_PUSHMV     ] = &amp;CRunBytecode::pushmvOpcode;
+ 
+    _opcodePointer[OP_PUSHST     ] = &amp;CRunBytecode::pushstOpcode;
+    _opcodePointer[OP_PUSHIT     ] = &amp;CRunBytecode::pushitOpcode;
+    _opcodePointer[OP_PUSHRT     ] = &amp;CRunBytecode::pushrtOpcode;
+    _opcodePointer[OP_PUSHCT     ] = &amp;CRunBytecode::pushctOpcode;
+-   _opcodePointer[OP_PUSHLT     ] = &amp;CRunBytecode::pushltOpcode;
+    _opcodePointer[OP_PUSHBT     ] = &amp;CRunBytecode::pushbtOpcode;
++   _opcodePointer[OP_PUSHDT     ] = &amp;CRunBytecode::pushdtOpcode;
+    _opcodePointer[OP_PUSHMT     ] = &amp;CRunBytecode::pushmtOpcode;
+ 
+    _opcodePointer[OP_INCSP_4     ] = &amp;CRunBytecode::incsp_4Opcode;
+@@ -238,7 +238,7 @@
+             address += sizeof(int);
+             std::cout &lt;&lt; &quot;char [&quot; &lt;&lt; (int)_dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT) &lt;&lt; &quot;]&quot;;
+             break;
+-         case CSymbol::LOGICAL:
++         case CSymbol::BOOL:
+             address += sizeof(int);
+             boolValue = _dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT);
+             if (boolValue == 0) {
+@@ -251,6 +251,7 @@
+             address += sizeof(double);
+             std::cout &lt;&lt; _dataStack.getReal(address|SET_LOCAL_BIT|SET_NEG_BIT);
+             break;
++         case CSymbol::DATA:
+          case CSymbol::MATRIX:
+          default:
+             std::cout &lt;&lt; &quot;Tipo ainda nao suportado !!!&quot; &lt;&lt; std::endl;
+@@ -1019,9 +1020,9 @@
+    _dataStack.setReal(address, _dataStack.popReal());
+ }
+ 
+-void CRunBytecode::popbvOpcode()
++void CRunBytecode::popdvOpcode()
+ {
+-   trace (&quot;popbv opcode&quot;);
++   trace (&quot;popdv opcode&quot;);
+ 
+    int varAddress  = _code.fetchInt();
+    int sizeAddress = _code.fetchInt();
+@@ -1164,9 +1165,9 @@
+    _dataStack.pushReal(_dataStack.getReal(address));
+ }
+ 
+-void CRunBytecode::pushbvOpcode()
++void CRunBytecode::pushdvOpcode()
+ {
+-   trace (&quot;pushbv opcode&quot;);
++   trace (&quot;pushdv opcode&quot;);
+ 
+    int varAddress  = _code.fetchInt();
+    int sizeAddress = _code.fetchInt();
+@@ -1207,18 +1208,18 @@
+    _dataStack.pushInt(CSymbol::CHAR);
+ }
+ 
+-void CRunBytecode::pushltOpcode()
++void CRunBytecode::pushbtOpcode()
+ {
+-   trace (&quot;pushlt opcode&quot;);
++   trace (&quot;pushbt opcode&quot;);
+ 
+-   _dataStack.pushInt(CSymbol::LOGICAL);
++   _dataStack.pushInt(CSymbol::BOOL);
+ }
+ 
+-void CRunBytecode::pushbtOpcode()
++void CRunBytecode::pushdtOpcode()
+ {
+-   trace (&quot;pushbt opcode&quot;);
++   trace (&quot;pushdt opcode&quot;);
+ 
+-   _dataStack.pushInt(CSymbol::BYTE);
++   _dataStack.pushInt(CSymbol::DATA);
+ }
+ 
+ void CRunBytecode::pushmtOpcode()
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-03 21:50:36 UTC (rev 407)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-04 11:37:49 UTC (rev 408)
+@@ -122,7 +122,7 @@
+    void popsvOpcode();
+    void popivOpcode();
+    void poprvOpcode();
+-   void popbvOpcode();
++   void popdvOpcode();
+    void popmvOpcode();
+    void incspOpcode();
+    void decspOpcode();
+@@ -135,15 +135,15 @@
+    void pushsvOpcode();
+    void pushivOpcode();
+    void pushrvOpcode();
+-   void pushbvOpcode();
++   void pushdvOpcode();
+    void pushmvOpcode();
+ 
+    void pushstOpcode();
+    void pushitOpcode();
+    void pushrtOpcode();
+    void pushctOpcode();
+-   void pushltOpcode();
+    void pushbtOpcode();
++   void pushdtOpcode();
+    void pushmtOpcode();
+ 
+    void incsp_4Opcode();
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000081.html">[gpt-commit] r407 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000083.html">[gpt-commit] r409 - in trunk/gpt2: gptasm/test/wikki gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#82">[ date ]</a>
+              <a href="thread.html#82">[ thread ]</a>
+              <a href="subject.html#82">[ subject ]</a>
+              <a href="author.html#82">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

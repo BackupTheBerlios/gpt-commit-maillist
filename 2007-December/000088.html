@@ -1,0 +1,411 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r414 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r414%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051132.lB5BW1td001459%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000087.html">
+   <LINK REL="Next"  HREF="000089.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r414 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r414%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051132.lB5BW1td001459%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r414 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec  5 12:32:01 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000087.html">[gpt-commit] r413 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000089.html">[gpt-commit] r415 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#88">[ date ]</a>
+              <a href="thread.html#88">[ thread ]</a>
+              <a href="subject.html#88">[ subject ]</a>
+              <a href="author.html#88">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-05 12:31:59 +0100 (Wed, 05 Dec 2007)
+New Revision: 414
+
+Modified:
+   trunk/gpt2/gptc/src/Symbol.cpp
+   trunk/gpt2/gptc/src/Symbol.hpp
+Log:
+-Flags const/ref movidos para classe Type
+-Adicionado atributo identifier, para identificar unicamente subprogramas
+-Diversos incrementos
+
+Modified: trunk/gpt2/gptc/src/Symbol.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Symbol.cpp	2007-12-05 11:31:03 UTC (rev 413)
++++ trunk/gpt2/gptc/src/Symbol.cpp	2007-12-05 11:31:59 UTC (rev 414)
+@@ -1,16 +1,48 @@
+ #include &quot;Symbol.hpp&quot;
++#include &quot;Types.hpp&quot;
+ 
++#include &lt;sstream&gt;
++
+ Symbol::Symbol()
+   : _type(0) {
+ }
+ 
+-Symbol::Symbol(const std::string&amp; lexeme, Type* type, int line,
+-         const std::string&amp; unit, const std::string&amp; scope,
+-         bool isConst, bool isRef)
+-    : _lexeme(lexeme), _type(type), _isConst(isConst), _isRef(isRef),
+-      _unit(unit), _scope(scope), _line(line) {
++Symbol::Symbol(const std::string&amp; lexeme,
++               Type* type,
++               const std::string&amp; scope,
++               const std::string&amp; unit,
++               int line)
++  :   _lexeme(lexeme),
++      _type(type),
++      _scope(scope),
++      _unit(unit),
++      _line(line) {
++
++  _identifier = buildIdentifier(lexeme, _type);
++
+ }
+ 
++Symbol::Symbol(const std::string&amp; lexeme,
++               Type* type,
++               const std::string&amp; unit,
++               int line)
++  :   _lexeme(lexeme),
++      _type(type),
++      _unit(unit),
++      _line(line) {
++
++  _identifier = buildIdentifier(lexeme, _type);
++}
++
++
++
++Symbol::Symbol(const std::string&amp; lexeme, Type* type) 
++  : _lexeme(lexeme), _type(type), _scope(&quot;?&quot;), _unit(&quot;?&quot;), _line(-1) {
++
++  _identifier = buildIdentifier(lexeme, _type);
++}
++
++
+ const std::string&amp; Symbol::lexeme() const {
+   return _lexeme;
+ }
+@@ -19,52 +51,89 @@
+   return _type;
+ }
+ 
+-bool Symbol::isConst() const {
+-  return _isConst;
++void Symbol::setScope(const std::string&amp; scope) {
++  _scope = scope;
+ }
+ 
+-bool Symbol::isRef() const {
+-  return _isRef;
++const std::string&amp; Symbol::scope() const {
++  return _scope;
+ }
+ 
++const std::string&amp; Symbol::unit() const {
++  return _unit;
++}
++
++int Symbol::line() const {
++  return _line;
++}
++
+ std::string Symbol::toString() const {
+-  std::string ret = _unit + &quot;(&quot; + _scope + &quot;) - &quot; + lexeme() + &quot; : &quot;;
+-  if (_type) {
+-    ret += _type-&gt;name();
++  std::stringstream ret;
++  ret &lt;&lt; _unit &lt;&lt; &quot;:&quot; &lt;&lt; _line
++      &lt;&lt; &quot; (&quot; &lt;&lt; _scope &lt;&lt; &quot;) -&gt; &quot; &lt;&lt; lexeme();
++
++  ret &lt;&lt; &quot; : &quot; &lt;&lt; _type-&gt;name();
++
++  ret &lt;&lt; &quot; -- attributes: {&quot;;
++  if (_type-&gt;isConst()) {
++    ret &lt;&lt; &quot;c&quot;;
+   }
+-  ret += &quot; - &quot;;
+-  if (_isConst) {
+-    ret += &quot;c&quot;;
++
++  if (_type-&gt;isRef()) {
++    ret &lt;&lt; &quot;r&quot;;
+   }
+-  if (_isRef) {
+-    ret += &quot;r&quot;;
++  ret &lt;&lt; &quot;}&quot;;
++
++  return ret.str();
++}
++
++std::string 
++Symbol::buildIdentifier(const std::string&amp; name, Type* type) {
++  if (!type-&gt;isSubprogram()) {
++    return name;
++  } else {
++    return buildIdentifier(name, type-&gt;paramTypes());
+   }
+-  return ret;
+ }
+ 
++std::string 
++Symbol::buildIdentifier(const std::string&amp; name, const TypeList&amp; list) {
++  return name + &quot;_&quot; + list.toIdentifier();
++}
+ 
++std::string Symbol::identifier() const {
++  return _identifier;
++}
++
++
++bool Symbol::equivalent(const Symbol&amp; other) const {
++  return _lexeme == other._lexeme &amp;&amp;
++         _type-&gt;equals(other._type);
++}
++
+ //-------------------------------------------------------
+ 
+ 
+ SymbolList::const_iterator SymbolList::duplicated() const {
+   for (const_iterator it = begin(); it != end(); ++it) {
+-    if (count((*it).lexeme()) &gt; 1) {
++    if (count((*it).identifier()) &gt; 1) {
+       return it;
+     }
+   }
+   return end();
+ }
+ 
+-Type::StructFieldList SymbolList::toStructFieldList() const {
+-  Type::StructFieldList fields;
+-
++int SymbolList::count(const std::string&amp; identifier) const {
++  int c = 0;
+   for (const_iterator it = begin(); it != end(); ++it) {
+-    fields.push_back(Type::StructField((*it).lexeme(), (*it).type()));
++    if ((*it).lexeme() == identifier) {
++      c++;
++    }
+   }
+-  return fields;
++  return c;
+ }
+ 
+-TypeList SymbolList::toTypeList() const {
++TypeList SymbolList::typeList() const {
+   TypeList list;
+ 
+   for (const_iterator it = begin(); it != end(); ++it) {
+@@ -73,18 +142,21 @@
+   return list;
+ }
+ 
+-int SymbolList::count(const std::string&amp; lexeme) const {
+-  int ret = 0;
+-  for (const_iterator it = begin(); it != end(); ++it) {
++SymbolList
++SymbolList::findAllByLexeme(const std::string&amp; lexeme) const {
++  SymbolList ret;
++  SymbolList::const_iterator it;
++  for (it = begin(); it != end(); ++it) {
+     if ((*it).lexeme() == lexeme) {
+-      ret++;
++      ret.push_back(*it);
+     }
+   }
+   return ret;
+ }
+ 
+-SymbolList::iterator SymbolList::find(const std::string&amp; lexeme) {
+-  for (iterator it = begin(); it != end(); ++it) {
++SymbolList::const_iterator 
++SymbolList::findFirstByLexeme(const std::string&amp; lexeme) const {
++  for (const_iterator it = begin(); it != end(); ++it) {
+     if ((*it).lexeme() == lexeme) {
+       return it;
+     }
+@@ -92,6 +164,22 @@
+   return end();
+ }
+ 
++SymbolList::const_iterator 
++SymbolList::findByIdentifier(const std::string&amp; identifier) const {
++  for (const_iterator it = begin(); it != end(); ++it) {
++    if ((*it).identifier() == identifier) {
++      return it;
++    }
++  }
++  return end();
++}
++
++void SymbolList::setScope(const std::string&amp; scope) {
++  for (iterator it = begin(); it != end(); ++it) {
++    (*it).setScope(scope);
++  }
++}
++
+ std::string SymbolList::toString() const {
+   std::string ret = &quot;&quot;;
+   for (const_iterator it = begin(); it != end(); ++it) {
+@@ -99,3 +187,16 @@
+   }
+   return ret;
+ }
++
++bool SymbolList::equivalent(const SymbolList&amp; other) const {
++  const_iterator it, jt;
++  for (it = begin(), jt = other.begin(); 
++       it != end() &amp;&amp; jt != other.end(); 
++       ++it, ++jt) {
++    if (!(*it).equivalent(*jt)) {
++      return false;
++    }
++  }
++
++  return true;
++}
+
+Modified: trunk/gpt2/gptc/src/Symbol.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Symbol.hpp	2007-12-05 11:31:03 UTC (rev 413)
++++ trunk/gpt2/gptc/src/Symbol.hpp	2007-12-05 11:31:59 UTC (rev 414)
+@@ -1,53 +1,78 @@
+ #ifndef SYMBOL_HPP
+ #define SYMBOL_HPP
+ 
+-#include &quot;Types.hpp&quot;
+-
+ #include &lt;string&gt;
++#include &lt;list&gt;
+ 
++class Type;
++class TypeList;
++
+ class Symbol {
+ public:
++  static std::string buildIdentifier(const std::string&amp;, Type*);
++  static std::string buildIdentifier(const std::string&amp;, const TypeList&amp;);
++
+   Symbol();
+ 
+-  Symbol(const std::string&amp; lexeme, Type* type, int line,
+-         const std::string&amp; unit, const std::string&amp; scope,
+-         bool isConst = false, bool isRef = false);
++  Symbol(const std::string&amp; lexeme,
++         Type* type,
++         const std::string&amp; scope,
++         const std::string&amp; unit,
++         int line);
+ 
++  Symbol(const std::string&amp; lexeme,
++         Type* type,
++         const std::string&amp; unit,
++         int line);
++
++  Symbol(const std::string&amp; lexeme,
++         Type* type);
++
+   const std::string&amp; lexeme() const;
+ 
+   Type* type() const;
+ 
+-  bool isConst() const;
++  void setScope(const std::string&amp;);
++  const std::string&amp; scope() const;
+ 
+-  bool isRef() const;
++  const std::string&amp; unit() const;
+ 
++  int line() const;
++
+   std::string toString() const;
+ 
++  std::string identifier() const;
++
++  bool equivalent(const Symbol&amp;) const;
+ private:
+   std::string      _lexeme;
++  std::string      _identifier;
+   Type*            _type;
+-  bool             _isConst;
+-  bool             _isRef;
+-
+-  std::string _unit;
+-  std::string _scope;
+-  int         _line;
++  std::string      _scope;
++  std::string      _unit;
++  int              _line;
+ };
+ 
+ 
+ class SymbolList : public std::list&lt;Symbol&gt; {
+ public:
++
+   const_iterator duplicated() const;
+ 
+-  Type::StructFieldList toStructFieldList() const;
++  TypeList typeList() const;
+ 
+-  TypeList toTypeList() const;
++  SymbolList     findAllByLexeme(const std::string&amp;) const;
++  const_iterator findFirstByLexeme(const std::string&amp;) const;
++  const_iterator findByIdentifier(const std::string&amp;) const;
++  
+ 
+-  int count(const std::string&amp; lexeme) const;
++  int count(const std::string&amp;) const;
+ 
+-  iterator find(const std::string&amp; lexeme);
++  void setScope(const std::string&amp;);
+ 
+   std::string toString() const;
++
++  bool equivalent(const SymbolList&amp;) const;
+ };
+ 
+ #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000087.html">[gpt-commit] r413 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000089.html">[gpt-commit] r415 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#88">[ date ]</a>
+              <a href="thread.html#88">[ thread ]</a>
+              <a href="subject.html#88">[ subject ]</a>
+              <a href="author.html#88">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

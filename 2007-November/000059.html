@@ -1,0 +1,549 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r385 - in trunk/gpt2: gptasm/test/wikki gptvm/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r385%20-%20in%20trunk/gpt2%3A%20gptasm/test/wikki%20gptvm/src&In-Reply-To=%3C200711221906.lAMJ60uj016871%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000058.html">
+   <LINK REL="Next"  HREF="000060.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r385 - in trunk/gpt2: gptasm/test/wikki gptvm/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r385%20-%20in%20trunk/gpt2%3A%20gptasm/test/wikki%20gptvm/src&In-Reply-To=%3C200711221906.lAMJ60uj016871%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r385 - in trunk/gpt2: gptasm/test/wikki gptvm/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Nov 22 20:06:01 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000058.html">[gpt-commit] r384 - in trunk/gpt2: common/src gptasm/src
+</A></li>
+        <LI>Next message: <A HREF="000060.html">[gpt-commit] r386 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#59">[ date ]</a>
+              <a href="thread.html#59">[ thread ]</a>
+              <a href="subject.html#59">[ subject ]</a>
+              <a href="author.html#59">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-22 20:06:00 +0100 (Thu, 22 Nov 2007)
+New Revision: 385
+
+Modified:
+   trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm
+   trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm
+   trunk/gpt2/gptvm/src/CGptVm.cpp
+   trunk/gpt2/gptvm/src/CGptVm.hpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/src/main.cpp
+Log:
+DEVNULL
+* Implementado mais alguns opcodes que atuam sobre dados inteiros
+* Mnemonicos condicionais e de salto funcionando
+
+
+Modified: trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm	2007-11-22 17:26:11 UTC (rev 384)
++++ trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm	2007-11-22 19:06:00 UTC (rev 385)
+@@ -27,11 +27,11 @@
+     push_sp
+     push x
+     push_int
+-    push_1
++    push 1
+     pcall imprima
+     pop_sp
+ 
+-    exit_0
++    exit 0
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm	2007-11-22 17:26:11 UTC (rev 384)
++++ trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm	2007-11-22 19:06:00 UTC (rev 385)
+@@ -12,11 +12,11 @@
+     push_int
+     push &quot;2+5*3=&quot;
+     push_string
+-    push_2
++    push 2
+     pcall imprima
+     pop_sp
+ 
+-    exit_0
++    exit 0
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm	2007-11-22 17:26:11 UTC (rev 384)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm	2007-11-22 19:06:00 UTC (rev 385)
+@@ -8,7 +8,7 @@
+     pcall soma
+     pop_sp
+ 	
+-    exit_0
++    exit 0
+ endproc
+ 
+ proc soma
+@@ -20,7 +20,7 @@
+     push_sp
+     push &quot;A soma &#233;: &quot;
+     push_string
+-    push_1
++    push 1
+     pcall imprima
+     pop_sp
+ 
+@@ -28,7 +28,7 @@
+     isum t1, x, y
+     push t1
+     push_int
+-    push_1
++    push 1
+     pcall imprima
+     pop_sp
+ 
+
+Modified: trunk/gpt2/gptvm/src/CGptVm.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CGptVm.cpp	2007-11-22 17:26:11 UTC (rev 384)
++++ trunk/gpt2/gptvm/src/CGptVm.cpp	2007-11-22 19:06:00 UTC (rev 385)
+@@ -4,17 +4,19 @@
+ #include &quot;CRunBytecode.hpp&quot;
+ 
+ 
+-CGptVm::CGptVm( COptions *options ) : _options( options )
++CGptVm::CGptVm(COptions *options) : _options(options)
+ {
+ }
+ 
+ 
+-bool CGptVm::run( )
++int CGptVm::run()
+ {
+    ifstream in(_options-&gt;sourcefile.c_str(),ios::in | ios::binary);
+ 
+    CRunBytecode bytecode;
+ 
+-   return bytecode.readFromFile(in) &amp;&amp; bytecode.run();
++   bytecode.readFromFile(in);
++
++   return bytecode.run();
+ }
+ 
+
+Modified: trunk/gpt2/gptvm/src/CGptVm.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CGptVm.hpp	2007-11-22 17:26:11 UTC (rev 384)
++++ trunk/gpt2/gptvm/src/CGptVm.hpp	2007-11-22 19:06:00 UTC (rev 385)
+@@ -9,7 +9,7 @@
+ {
+ public:
+    CGptVm( COptions *options );
+-   bool run( );
++   int run( );
+ private:
+    COptions *_options;
+ };
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-22 17:26:11 UTC (rev 384)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-22 19:06:00 UTC (rev 385)
+@@ -5,6 +5,7 @@
+ 
+ 
+ CRunBytecode::CRunBytecode()
++   : _returnCode(0)
+ {
+ }
+ 
+@@ -161,7 +162,7 @@
+ }
+ 
+ 
+-bool CRunBytecode::run()
++int CRunBytecode::run()
+ {
+ //   std::cout &lt;&lt; &quot;Code lido: [&quot; &lt;&lt; _code.getBinary() &lt;&lt; &quot;]&quot; &lt;&lt; &quot; size=&quot; &lt;&lt; _code.getBinary().size() &lt;&lt; std::endl;
+ 
+@@ -173,7 +174,7 @@
+       step();
+    }
+ 
+-   return true;
++   return _returnCode;
+ }
+ 
+ 
+@@ -239,7 +240,9 @@
+    std::cout &lt;&lt; std::endl;
+ }
+ 
+-// opcodes
++/////////////
++// opcodes //
++/////////////
+ 
+ void CRunBytecode::invalidOpcode(const std::string &amp;opcode)
+ {
+@@ -248,22 +251,22 @@
+ 
+ void CRunBytecode::nopOpcode()
+ {
+-//   trace (&quot;nop opcode&quot;);
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;nop opcode&quot;);
+ 
+-    //nothing to do
++   // nothing to do
+ }
+ 
+ void CRunBytecode::pushSpOpcode()
+ {
+    trace (&quot;push_sp opcode&quot;);
+-   // TODO
++   _executionStack.push(0); // TODO
+ }
+ 
+ void CRunBytecode::popSpOpcode()
+ {
+    trace (&quot;pop_sp opcode&quot;);
+-   // TODO
++   _executionStack.top(); // TODO
++   _executionStack.pop();
+ }
+ 
+ void CRunBytecode::pushOpcode()
+@@ -300,7 +303,7 @@
+ {
+    trace (&quot;exit opcode&quot;);
+ 
+-   int returnCode = _code.fetchInt();
++   _returnCode = _code.fetchInt();
+ 
+    _stop = true;
+ }
+@@ -308,14 +311,16 @@
+ 
+ void CRunBytecode::hltOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;hlt opcode&quot;);
++
++   exit(0);
+ }
+ 
+ void CRunBytecode::isumOpcode()
+ {
+    trace (&quot;isum opcode&quot;);
+ 
+-   int varAddress = _code.fetchInt();
++   int varAddress  = _code.fetchInt();
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+@@ -334,7 +339,13 @@
+ 
+ void CRunBytecode::isubOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;isub opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) - _data.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::ssubOpcode()
+@@ -351,7 +362,7 @@
+ {
+    trace (&quot;imul opcode&quot;);
+ 
+-   int varAddress = _code.fetchInt();
++   int varAddress  = _code.fetchInt();
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+@@ -365,7 +376,13 @@
+ 
+ void CRunBytecode::idivOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;idiv opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) / _data.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::rdivOpcode()
+@@ -375,7 +392,13 @@
+ 
+ void CRunBytecode::imodOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;imod opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) % _data.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::rmodOpcode()
+@@ -385,7 +408,13 @@
+ 
+ void CRunBytecode::igeOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;ige opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) &gt;= _data.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::sgeOpcode()
+@@ -402,7 +431,7 @@
+ {
+    trace (&quot;ile opcode&quot;);
+ 
+-   int varAddress = _code.fetchInt();
++   int varAddress  = _code.fetchInt();
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+@@ -421,7 +450,13 @@
+ 
+ void CRunBytecode::ineOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;ine opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) != _data.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::sneOpcode()
+@@ -436,7 +471,13 @@
+ 
+ void CRunBytecode::igtOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;igt opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) &gt; _data.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::sgtOpcode()
+@@ -451,7 +492,13 @@
+ 
+ void CRunBytecode::iltOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;ilt opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) &lt; _data.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::sltOpcode()
+@@ -466,7 +513,13 @@
+ 
+ void CRunBytecode::ieqOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;ieq opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) == _data.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::seqOpcode()
+@@ -481,12 +534,24 @@
+ 
+ void CRunBytecode::orOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;or opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) || _data.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::andOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;and opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) &amp;&amp; _data.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::xorOpcode()
+@@ -516,12 +581,17 @@
+    int varAddress = _code.fetchInt();
+    int valAddress = _code.fetchInt();
+ 
+-   _data.setInt(varAddress, _data.getInt(varAddress)+_data.getInt(valAddress));
++   _data.setInt(varAddress, _data.getInt(varAddress) + _data.getInt(valAddress));
+ }
+ 
+ void CRunBytecode::idecOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;idec opcode&quot;);
++
++   int varAddress = _code.fetchInt();
++   int valAddress = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(varAddress) - _data.getInt(valAddress));
+ }
+ 
+ void CRunBytecode::i2cOpcode()
+@@ -695,7 +765,14 @@
+ 
+ void CRunBytecode::ifOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;if opcode&quot;);
++
++   int varAddress = _code.fetchInt();
++   int labelAddress = _code.fetchInt();
++
++   if (_data.getInt(varAddress)) {
++      _code.setIP(labelAddress);
++   }
+ }
+ 
+ void CRunBytecode::ifnotOpcode()
+@@ -846,4 +923,3 @@
+    invalidOpcode(__FUNCTION__);
+ }
+ 
+-
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-22 17:26:11 UTC (rev 384)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-22 19:06:00 UTC (rev 385)
+@@ -4,6 +4,7 @@
+ #include &lt;string&gt;
+ #include &lt;vector&gt;
+ #include &lt;fstream&gt;
++#include &lt;stack&gt;
+ 
+ #include &quot;CHeader.hpp&quot;
+ #include &quot;CSymbolTable.hpp&quot;
+@@ -24,7 +25,7 @@
+    CRunBytecode();
+    ~CRunBytecode();
+    bool readFromFile(std::ifstream &amp;in);
+-   bool run();
++   int run();
+ private:
+    void trace(const std::string &amp;message);
+    void error(const std::string &amp;message);
+@@ -163,7 +164,9 @@
+    CBytecode     _code;
+    OpcodePointer _opcodePointer[ OPCODE_NUMBER ];
+    bool          _stop;
++   int           _returnCode;
+    CDataStack    _dataStack;
++   std::stack&lt;int&gt; _executionStack;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptvm/src/main.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/main.cpp	2007-11-22 17:26:11 UTC (rev 384)
++++ trunk/gpt2/gptvm/src/main.cpp	2007-11-22 19:06:00 UTC (rev 385)
+@@ -42,14 +42,7 @@
+ 
+    CGptVm gptvm( &amp;options );
+ 
+-   if (gptvm.run()) {
+-//      cout &lt;&lt; &quot;Program &quot; &lt;&lt; options.sourcefile &lt;&lt; &quot; ok !!!&quot; &lt;&lt; endl &lt;&lt; endl;
+-   } else {
+-//      cout &lt;&lt; &quot;Program &quot; &lt;&lt; options.sourcefile &lt;&lt; &quot; has errors...&quot; &lt;&lt; endl &lt;&lt; endl;
+-      exit( EXIT_FAILURE );
+-   }
+-
+-   return EXIT_SUCCESS;
++   return gptvm.run();
+ }
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000058.html">[gpt-commit] r384 - in trunk/gpt2: common/src gptasm/src
+</A></li>
+	<LI>Next message: <A HREF="000060.html">[gpt-commit] r386 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#59">[ date ]</a>
+              <a href="thread.html#59">[ thread ]</a>
+              <a href="subject.html#59">[ subject ]</a>
+              <a href="author.html#59">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

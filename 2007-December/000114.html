@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r440 - trunk/gpt2/gptc/test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r440%20-%20trunk/gpt2/gptc/test&In-Reply-To=%3C200712190054.lBJ0sauG021679%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000113.html">
+   <LINK REL="Next"  HREF="000115.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r440 - trunk/gpt2/gptc/test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r440%20-%20trunk/gpt2/gptc/test&In-Reply-To=%3C200712190054.lBJ0sauG021679%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r440 - trunk/gpt2/gptc/test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 01:54:36 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000113.html">[gpt-commit] r439 - trunk/gpt2/gptc/test/tests
+</A></li>
+        <LI>Next message: <A HREF="000115.html">[gpt-commit] r441 - in trunk/gpt2/gptc: . src src/common	src/gptasm_target src/parser src/semantic src/symboltable test tmp
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#114">[ date ]</a>
+              <a href="thread.html#114">[ thread ]</a>
+              <a href="subject.html#114">[ subject ]</a>
+              <a href="author.html#114">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 01:54:36 +0100 (Wed, 19 Dec 2007)
+New Revision: 440
+
+Added:
+   trunk/gpt2/gptc/test/Makefile.am
+Log:
+nomsg
+
+Added: trunk/gpt2/gptc/test/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/test/Makefile.am	2007-12-19 00:54:18 UTC (rev 439)
++++ trunk/gpt2/gptc/test/Makefile.am	2007-12-19 00:54:36 UTC (rev 440)
+@@ -0,0 +1,44 @@
++INCLUDES = -I$(top_srcdir)/. -I$(top_srcdir)/test -I$(top_srcdir)/src -I../src
++
++bin_PROGRAMS = tester
++tester_LDADD = $(top_builddir)/src/libgptc.la $(ANTLR_LIB)
++
++EXTRA_DIST = compiler_test.g
++
++
++BUILT_SOURCES = LangTestLexer.hpp \
++                LangTestLexer.cpp \
++                LangTestParser.hpp \
++                LangTestParser.cpp \
++                testTokenNames.hpp
++
++
++tester_SOURCES = tester.cpp \
++                 TestAST.hpp \
++                 TestAST.cpp \
++                 $(BUILT_SOURCES)
++
++
++CLEANFILES = LangTestLexer.cpp \
++             LangTestLexer.hpp \
++             LangTestTokenTypes.hpp \
++             LangTestTokenTypes.txt \
++             LangTestParser.cpp \
++						 LangTestParser.hpp  \
++             LangTestParserTokenTypes.hpp \
++             LangTestParserTokenTypes.txt \
++             tokenNames.hpp
++
++
++LangTestLexer.cpp LangTestLexer.hpp LangTestParser.hpp LangTestParser.cpp: \
++     Makefile $(srcdir)/compiler_test.g
++	$(ANTLR_BIN) $(srcdir)/compiler_test.g
++
++testTokenNames.hpp: Makefile
++	echo &quot;std::map&lt;int, std::string &gt; testTokenNames;&quot;  &gt; $@
++	grep = LangTestLexerTokenTypes.txt &gt;&gt; $@
++	sed -i -e 's/([^=]*)//' $@
++	sed -i -e 's/&quot;[^&quot;]*&quot;//' $@
++	sed -i -e 's/==/=/' $@
++	sed -i -e 's/()//' $@
++	sed -i -e 's/\([^=]*\)=\(.*\)/testTokenNames[\2]=&quot;\1&quot;;/' $@
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000113.html">[gpt-commit] r439 - trunk/gpt2/gptc/test/tests
+</A></li>
+	<LI>Next message: <A HREF="000115.html">[gpt-commit] r441 - in trunk/gpt2/gptc: . src src/common	src/gptasm_target src/parser src/semantic src/symboltable test tmp
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#114">[ date ]</a>
+              <a href="thread.html#114">[ thread ]</a>
+              <a href="subject.html#114">[ subject ]</a>
+              <a href="author.html#114">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

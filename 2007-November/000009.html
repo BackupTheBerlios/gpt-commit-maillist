@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r334 - trunk/gpt2/src/modules/parser
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r334%20-%20trunk/gpt2/src/modules/parser&In-Reply-To=%3C200711011342.lA1Dgwp0010563%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000008.html">
+   <LINK REL="Next"  HREF="000010.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r334 - trunk/gpt2/src/modules/parser</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r334%20-%20trunk/gpt2/src/modules/parser&In-Reply-To=%3C200711011342.lA1Dgwp0010563%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r334 - trunk/gpt2/src/modules/parser">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Nov  1 14:42:58 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000008.html">[gpt-commit] r333 - in trunk/gpt2: src/modules/parser test/wikki
+</A></li>
+        <LI>Next message: <A HREF="000010.html">[gpt-commit] r335 - in trunk/gpt2: . src src/modules	src/modules/parser test test/wikki test/wikki/checked
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-01 14:42:58 +0100 (Thu, 01 Nov 2007)
+New Revision: 334
+
+Removed:
+   trunk/gpt2/src/modules/parser/CTemporaryVar.cpp
+   trunk/gpt2/src/modules/parser/CTemporaryVar.hpp
+Log:
+DEVNULL:
+- Removendo arquivos nao utilizados
+
+
+Deleted: trunk/gpt2/src/modules/parser/CTemporaryVar.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTemporaryVar.cpp	2007-11-01 13:24:25 UTC (rev 333)
++++ trunk/gpt2/src/modules/parser/CTemporaryVar.cpp	2007-11-01 13:42:58 UTC (rev 334)
+@@ -1,46 +0,0 @@
+-#include &lt;Tools.hpp&gt;
+-#include &quot;CTemporarySymbol.hpp&quot;
+-
+-CTemporarySymbol::CTemporarySymbol( )
+-{
+-}
+-
+-CTemporarySymbol::CTemporarySymbol( const string &amp;baseName, const int &amp;initialValue)
+-	: _baseName(baseName), _count(initialValue)
+-{
+-}
+-
+-CTemporarySymbol::~CTemporarySymbol( )
+-{
+-}
+-
+-void CTemporarySymbol::setBaseName( string baseName )
+-{
+-	_baseName = baseName;
+-}
+-
+-void CTemporarySymbol::setInitialValue( int initialValue )
+-{
+-	_count = initialValue;
+-}
+-
+-string CTemporarySymbol::getNewSymbol( )
+-{
+-	return( _baseName + itoa( _count++ ) );
+-}
+-
+-void CTemporarySymbol::removeLastSymbol( )
+-{
+-	_count--;
+-}
+-
+-unsigned int CTemporarySymbol::getMaxSymbolsUsed( )
+-{
+-	return( _count );
+-}
+-
+-string CTemporarySymbol::getLastSymbol( )
+-{
+-	return( _baseName + itoa( _count - 1 ) );
+-}
+-
+
+Deleted: trunk/gpt2/src/modules/parser/CTemporaryVar.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTemporaryVar.hpp	2007-11-01 13:24:25 UTC (rev 333)
++++ trunk/gpt2/src/modules/parser/CTemporaryVar.hpp	2007-11-01 13:42:58 UTC (rev 334)
+@@ -1,25 +0,0 @@
+-#ifndef GPT_CTEMPORARY_SYMBOL_H
+-#define GPT_CTEMPORARY_SYMBOL_H
+-
+-#include &lt;string&gt;
+-
+-using namespace std;
+-
+-class CTemporarySymbol
+-{
+-public:
+-	CTemporarySymbol( );
+-	CTemporarySymbol( const string &amp;baseName, const int &amp;initialValue = 0 );
+-	~CTemporarySymbol( );
+-	void setBaseName( string baseName );
+-	void setInitialValue( int initialValue );
+-	string getNewSymbol( );
+-	void removeLastSymbol( );
+-	unsigned int getMaxSymbolsUsed( );
+-	string getLastSymbol( );
+-private:
+-	string _baseName;
+-	int _count;
+-};
+-
+-#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000008.html">[gpt-commit] r333 - in trunk/gpt2: src/modules/parser test/wikki
+</A></li>
+	<LI>Next message: <A HREF="000010.html">[gpt-commit] r335 - in trunk/gpt2: . src src/modules	src/modules/parser test test/wikki test/wikki/checked
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

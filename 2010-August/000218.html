@@ -1,0 +1,446 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r545 - trunk/gpt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2010-August/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r545%20-%20trunk/gpt&In-Reply-To=%3C20100820220418.0C9DB480F0F%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000217.html">
+   <LINK REL="Next"  HREF="000219.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r545 - trunk/gpt</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r545%20-%20trunk/gpt&In-Reply-To=%3C20100820220418.0C9DB480F0F%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r545 - trunk/gpt">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Sat Aug 21 00:04:17 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000217.html">[gpt-commit] r544 - trunk/gpt
+</A></li>
+        <LI>Next message: <A HREF="000219.html">[gpt-commit] r546 - trunk/gpt/doc/manual
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#218">[ date ]</a>
+              <a href="thread.html#218">[ thread ]</a>
+              <a href="subject.html#218">[ subject ]</a>
+              <a href="author.html#218">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2010-08-21 00:04:17 +0200 (Sat, 21 Aug 2010)
+New Revision: 545
+
+Modified:
+   trunk/gpt/HACKING
+Log:
+-Adicionado documentacao para MS Windows e algumas limpezas
+
+Modified: trunk/gpt/HACKING
+===================================================================
+--- trunk/gpt/HACKING	2010-08-20 22:03:30 UTC (rev 544)
++++ trunk/gpt/HACKING	2010-08-20 22:04:17 UTC (rev 545)
+@@ -1,9 +1,9 @@
+ Desenvolvendo
+ =============
+ 
+-o Instalando depend&#234;ncias
++o Instalando depend&#234;ncias em GNU/Linux
+ 
+-  Para desenvolver o GPT &#233; necess&#225;rio instalar os seguintes programas:
++  Para desenvolver o GPT &#233; necess&#225;rio instalar os seguintes softwares:
+ 
+   - g++ 
+   - make
+@@ -14,17 +14,83 @@
+   - pcre e pcrecpp
+   - nasm
+ 
+-  Para satisfazer estas depend&#234;ncias no (K)Ubuntu ou Debian, pode-se executar
+-  o seguinte comando:
++  Para satisfazer estas depend&#234;ncias no (K)Ubuntu ou Debian, pode-se executar o
++  seguinte comando:
+ 
+   # aptitude install g++ make automake1.9 autoconf libtool antlr libantlr-dev \
+   &gt; libpcrecpp0 libpcre3-dev nasm
+ 
+ 
++o Instalando depend&#234;ncias em MS Windows
++
++  Utilizamos os softwares MingW/MSYS para o desenvolvimento do projeto neste
++  sistema operacional. Eis um passo-a-passo para ter o ambiente de
++  desenvolvimento operacional:
++
++  1) Instale um SDK do Java
++
++  2) Instale o MingW:
++   
++     ex:
++       -Baixe o installer &quot;mingw-get&quot;:
++        <A HREF="http://sourceforge.net/downloads/mingw/Automated%20MinGW%20Installer/mingw-get/mingw-get-0.1-mingw32-alpha-2-bin.tar.gz">http://sourceforge.net/downloads/mingw/Automated%20MinGW%20Installer/mingw-get/mingw-get-0.1-mingw32-alpha-2-bin.tar.gz</A>
++
++       -descompacte em c:\mingw (ou no driver escolhido)
++       -No prompt de comando execute:
++
++           &gt; cd c:\mingw
++           &gt; path=c:\mingw\bin;%path%
++	   &gt; mingw-get.exe install mingwrt w32api binutils gcc g++ mingw32-make
++
++        Isso dever&#225; instalar os pacotes necess&#225;rios do MingW
++
++  3) Installe o MSYS
++
++     ex: 
++       -Baixe e instale:
++       <A HREF="http://downloads.sourceforge.net/mingw/MSYS-1.0.11.exe">http://downloads.sourceforge.net/mingw/MSYS-1.0.11.exe</A>
++
++  4) Instale o ANTLR v2.x a partir do fonte
++
++     ex: 
++       -Baixe o pacote antlr-2.7.7.tar.gz em c:\msys\1.0\home\&lt;usuario&gt;:
++         <A HREF="http://www.antlr2.org/download/antlr-2.7.7.tar.gz">http://www.antlr2.org/download/antlr-2.7.7.tar.gz</A>
++
++       -Execute o shell do MSYS
++       -Descompacte, compile e instale o antlr:
++       
++          $ tar xvfz antlr-2.7.7.tar.gz
++          $ cd antlr-2.7.7; ./configure &amp;&amp; make &amp;&amp; make install
++
++       - Crie um link simb&#243;lico para o antlr:
++
++          $ ln -s /usr/local/bin/antlr /usr/local/bin/runantlr
++
++  5) Instale a biblioteca PCRE
++
++     ex: 
++       - Baixe o pacote pcre-8.10.tar.gz em c:\msys\1.0\home\&lt;usuario&gt;:
++
++        <A HREF="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.10.tar.gz">ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.10.tar.gz</A>
++
++       -Execute o shell do MSYS
++       -Descompacte, compile e instale o pcre:
++       
++          $ tar xvfz pcre-8.10.tar.gz
++          $ cd pcre-8.10; ./configure &amp;&amp; make &amp;&amp; make install
++
++
++  Agora, com os compiladores e bibliotecas presentes e o MSYS como shell, o
++  c&#243;digo fonte do GPT pode ser compilado.   
++
++  6) Instale o NASM (<A HREF="http://www.nasm.us">http://www.nasm.us</A>) para usar o GPT como compilador.
++
++
+ o Baixando a &#250;ltima vers&#227;o do GPT
+ 
+-  Para obter as &#250;ltimas vers&#245;es do c&#243;digo fonte do GPT, &#233; necess&#225;rio
+-  fazer um checkout no reposit&#243;rio, utilizando o subversion. Para instala-lo, use o seguinte comando:
++ Para obter as &#250;ltimas vers&#245;es do c&#243;digo fonte do GPT, &#233; necess&#225;rio fazer um
++ checkout no reposit&#243;rio, utilizando o subversion. Para instal&#225;-lo, use o
++ seguinte comando (debian/(K)Ubuntu):
+ 
+   # aptitude install subversion 
+ 
+@@ -36,7 +102,8 @@
+ 
+   ex (checkout autenticado):
+ 
+-    $ svn checkout svn+<A HREF="ssh://username@svn.berlios.de/svnroot/repos/gpt/trunk/gpt">ssh://username@svn.berlios.de/svnroot/repos/gpt/trunk/gpt</A>
++    $ svn checkout \
++    svn+<A HREF="ssh://username@svn.berlios.de/svnroot/repos/gpt/trunk/gpt">ssh://username@svn.berlios.de/svnroot/repos/gpt/trunk/gpt</A>
+ 
+   Maiores informa&#231;&#245;es na p&#225;gina do projeto no BerliOS:
+ 
+@@ -45,36 +112,36 @@
+ 
+ o Iniciando o desenvolvimento
+ 
+-  Se voc&#234; estiver utilizando o c&#243;digo fonte do reposit&#243;rio, &#233; necess&#225;rio
+-  fazer o setup do sistema de constru&#231;&#227;o com o seguinte comando:
++  Se voc&#234; estiver utilizando o c&#243;digo fonte do reposit&#243;rio, &#233; necess&#225;rio fazer o
++  setup do sistema de constru&#231;&#227;o com o seguinte comando:
+ 
+   $ make -f Makefile.cvs
+ 
+   Isto criar&#225; os Makefile.in's nescess&#225;rios e o shell script &quot;configure&quot;
+-  utilizado para criar os Makefile's utilizados pelo programa &quot;make&quot;
+-  para automatizar a compila&#231;&#227;o do projeto.
++  utilizado para criar os Makefile's utilizados pelo programa &quot;make&quot; para
++  automatizar a compila&#231;&#227;o do projeto.
+ 
+-  Se estiver utilizando o c&#243;digo fonte de uma vers&#227;o espec&#237;fica
+-  (obtida por meio de um pacote tar.gz, por exemplo), o script &quot;configure&quot;
+-  j&#225; estar&#225; dispon&#237;vel.
++  Se estiver utilizando o c&#243;digo fonte de uma vers&#227;o espec&#237;fica (obtida por meio
++  de um pacote tar.gz, por exemplo), o script &quot;configure&quot; j&#225; estar&#225; dispon&#237;vel.
+ 
+ 
+-  NOTA: se estiver obtendo erros nos arquivos Makefile.am ao executar
++  NOTA: se estiver obtendo erros nos arquivos Makefile.am ao executar 
+   make -f Makefile.cvs, verifique a vers&#227;o do automake sendo utilizada:
+ 
+     $ automake --version
+ 
+   Se o comando acima informar uma vers&#227;o inferior &#224; 1.9, desinstale esta vers&#227;o,
+-  execute manualmente o automake1.9 ou fa&#231;a as devidas configura&#231;&#245;es para que
+-  a vers&#227;o correta seja utilizada.
++  execute manualmente o automake1.9 ou fa&#231;a as devidas configura&#231;&#245;es para que a
++  vers&#227;o correta seja utilizada.
+ 
+ 
+ o Configurando e construindo
+ 
+-  Agora, basta seguir as instru&#231;&#245;es do arquivo INSTALL, executando o 
+-  &quot;configure&quot; com as op&#231;&#245;es desejadas e, em seguida, executando &quot;make&quot; e 
+-  &quot;make install&quot;, se quiser instalar os arquivos no sistema.
++  Agora, basta seguir as instru&#231;&#245;es do arquivo INSTALL, executando o &quot;configure&quot;
++  com as op&#231;&#245;es desejadas e, em seguida, executando &quot;make&quot; e &quot;make install&quot;, se
++  quiser instalar os arquivos no sistema.
+ 
++
+ o Realizando commits
+ 
+   As mensagens de commit devem, idealmente, seguir pequenas conven&#231;&#245;es:
+@@ -84,18 +151,17 @@
+ 
+   -Toda descri&#231;&#227;o l&#243;gica deve iniciar em uma nova linha, prefixada por &quot;-&quot;.
+ 
+-    Ex: Duas descri&#231;&#245;es para as modifica&#231;&#245;es do arquivo A.cpp :
++    Ex: Duas descri&#231;&#245;es para as modifica&#231;&#245;es do arquivo A.cpp:
+ 
+       $ svn ci A.cpp -m&quot;-Utilizando algoritmo mais r&#225;pido para a fun&#231;&#227;o f()
+-      &gt; -Adicionado classe X para lidar com erros do usu&#225;rio&quot;
++      &gt;-Adicionado classe X para lidar com erros do usu&#225;rio&quot;
+ 
+ 
+-  - Todas as modifica&#231;&#245;es l&#243;gicas que envolvem v&#225;rios arquivos devem
+-    ser commitadas em uma mesma leva, a n&#227;o ser que um ou mais arquivos
+-    envolvidos contenham outras modifica&#231;&#245;es. Neste &#250;ltimo caso,
+-    o arquivo poder&#225; ser commitado separadamente, mas com a mesma
+-    mensagem do commit da leva, al&#233;m da mensagem descrevendo as 
+-    modifica&#231;&#245;es espec&#237;ficas.
++  - Todas as modifica&#231;&#245;es l&#243;gicas que envolvem v&#225;rios arquivos devem ser
++    commitadas em uma mesma leva, a n&#227;o ser que um ou mais arquivos envolvidos
++    contenham outras modifica&#231;&#245;es. Neste &#250;ltimo caso, o arquivo poder&#225; ser
++    commitado separadamente, mas com a mesma mensagem do commit da leva, al&#233;m da
++    mensagem descrevendo as modifica&#231;&#245;es espec&#237;ficas.
+ 
+     Ex 1: A.cpp e B.cpp foram modificados. A.cpp teve o nome de uma fun&#231;&#227;o
+     modificada, e B.cpp, por usar esta fun&#231;&#227;o, teve que ser modificado tamb&#233;m.
+@@ -104,13 +170,13 @@
+       $ svn ci A.cpp B.cpp -m&quot;-Fun&#231;&#227;o func() renomeada para f()&quot;
+ 
+ 
+-    Ex 2: A.cpp e B.cpp foram modificados. A.cpp melhorou um algoritmo e 
++    Ex 2: A.cpp e B.cpp foram modificados. A.cpp melhorou um algoritmo e
+     modificou o nome de uma fun&#231;&#227;o. B.cpp, por utilizar esta fun&#231;&#227;o, teve que
+-    ser modificado tamb&#233;m. Os dois arquivos, A.cpp e B.cpp podem ser
+-    commitdos separadamente:
++    ser modificado tamb&#233;m. Os dois arquivos, A.cpp e B.cpp podem ser commitdos
++    separadamente:
+ 
+       $ svn ci A.cpp -m&quot;-Fun&#231;&#227;o func() renomeada para f()
+-      &gt; -Utilizando algoritmo xyz para a funcao z()&quot;
++      &gt;-Utilizando algoritmo xyz para a funcao z()&quot;
+  
+       $ svn ci B.cpp -m&quot;-Fun&#231;&#227;o func() renomeada para f()&quot;
+ 
+@@ -125,16 +191,16 @@
+ 
+   -Mensagens de modifica&#231;&#245;es que resolvem bugs devem ser precedidos por BUGFIX:
+ 
+-     $svn ci A.cpp -m&quot;BUGFIX: resolvido bug ao fazer atribui&#231;&#227;o de inteiros&quot;
++      $ svn ci A.cpp -m&quot;BUGFIX: resolvido bug ao fazer atribui&#231;&#227;o de inteiros&quot;
+ 
+-  -Mensagens de modifica&#231;&#245;es que representam novas funcionalidades ou algo 
++  -Mensagens de modifica&#231;&#245;es que representam novas funcionalidades ou algo
+    vis&#237;vel/relevante para o usu&#225;rio devem iniciar com NEW:
+ 
+-     $svn ci A.cpp -m&quot;NEW: estruturas caso/repita agora s&#227;o suportados&quot;
++      $ svn ci A.cpp -m&quot;NEW: estruturas caso/repita agora s&#227;o suportados&quot;
+ 
+   -Mensagens que devem ser ignoradas devem iniciar com DEVNULL
+ 
+-     $svn ci A.cpp -m&quot;DEVNULL: identac&#227;o de c&#243;digo corrigida&quot;
++      $ svn ci A.cpp -m&quot;DEVNULL: identac&#227;o de c&#243;digo corrigida&quot;
+ 
+ 
+  Ex 3: Misturando tudo:
+@@ -152,56 +218,66 @@
+     &gt; REGULAR:
+     &gt; -Adicionado gerador de c&#243;digo para caso/repita&quot;
+ 
+-   No exemplo acima, 2 mensagens s&#227;o de bugfix, 2 s&#227;o de novidades,
+-   1 ser&#225; ignorada e 2 (a primeira e a &#250;ltima) s&#227;o mensagens normais.
++   No exemplo acima, 2 mensagens s&#227;o de bugfix, 2 s&#227;o de novidades, 1 ser&#225;
++   ignorada e 2 (a primeira e a &#250;ltima) s&#227;o mensagens normais.
+  
+    Portanto, todas as keywords s&#227;o flags que marcam o texto a seguir em diante.
+    REGULAR, portanto, resolve para o default, que s&#227;o mensagens normais.
+ 
+ 
+-  Estas conven&#231;&#245;es devem ser seguidas para a gera&#231;&#227;o de arquivos ChangeLog
+-  e NEWS automatizada. ChangeLog reunir&#225; todas as modifica&#231;&#245;es feitas em um 
+-  per&#237;odo, ignorando mensagens marcadas com DEVNULL, e exibindo mensagens 
+-  normais e de bugfix. O arquivo NEWS conter&#225; mensagens marcadas com NEW
+-  e bugfixes.
++  Estas conven&#231;&#245;es devem ser seguidas para a gera&#231;&#227;o de arquivos ChangeLog e
++  NEWS automatizada. ChangeLog reunir&#225; todas as modifica&#231;&#245;es feitas em um
++  per&#237;odo, ignorando mensagens marcadas com DEVNULL, e exibindo mensagens
++  normais e de bugfix. O arquivo NEWS conter&#225; mensagens marcadas com NEW e
++  bugfixes.
+ 
+   Al&#233;m do mais, BUGFIX pode ser seguido de um n&#250;mero (ie #1234), que representa
+-  o n&#250;mero do bug em um sistema de gerencia de bugs, que no nosso caso &#233; o Mantis.
++  o n&#250;mero do bug em um sistema de gerencia de bugs, que no nossa caso &#233; o
++  Mantis.
+ 
++
+ o Unit Testing
+ 
+-  -Todo c&#243;digo que pode se beneficiar de testes automatizados *devem* ter testes
++  -Todo c&#243;digo que pode se beneficiar de testes automatizados *deve* ter testes
+   automatizados. Vers&#245;es de n&#243;s mesmos no futuro agradecem.
+   
+-  -Mensagens de commit para arquivos de testes n&#227;o s&#227;o t&#227;o obrigat&#243;rios.
+-  Use o bom senso para decidir se a descri&#231;&#227;o do commit ajudaria ou n&#227;o.
+-  
++  -Mensagens de commit para arquivos de testes n&#227;o s&#227;o t&#227;o obrigat&#243;rios.  Use o
++  bom senso para decidir se a descri&#231;&#227;o do commit ajudaria ou n&#227;o.
+ 
++
+   TODO: explicar a infraestrutura de testes (quando houver uma)
+ 
++
+ Documentando
+ =============
+ 
+   Os arquivos de documenta&#231;&#227;o ficam no diret&#243;rio doc.
+ 
+-  O manual est&#225; em doc/manual e &#233; escrito em Latex, portanto ser&#225; necess&#225;rio a instala&#231;&#227;o dos seguintes pacotes:
+-  - latex-make
+-  - texlive-latex-base
+-  - latex2html
++  O manual est&#225; em doc/manual e &#233; escrito em LaTeX. Em abientes
++  Debian/(K)Ubuntu, os seguintes pacotes fazem parte da instala&#231;&#227;o:
++  - latex-make - texlive-latex-base - latex2html
+   
+-  Os arquivos do manual ficam na pasta doc/manual. E o arquivo principal &#233; o manual.tex.
+-  Ap&#243;s fazer as modifica&#231;&#245;es, para gerar o pdf, basta executar o comando
++  Os arquivos do manual ficam na pasta doc/manual. E o arquivo principal &#233; o
++  manual.tex.  Ap&#243;s fazer as modifica&#231;&#245;es, basta compilar com o comando:
++
+   $ latex manual.tex
++
++  Para gerar o pdf, executa-se:
++
++  $ pdflatex manual.tex
+   
+-  Para gerar o manual em html, use o comando
++  Para gerar o manual em html, use o comando:
++
+   $ latex2html manual.tex
+ 
++
+ Distribuindo
+ =============
+ 
+ Para a distribu&#231;&#227;o de uma nova vers&#227;o do GPT pode-se seguir os seguinte passos:
+-  
++ 
+ o Atualizar documenta&#231;&#227;o (ver se&#231;&#227;o Documentando)
++  -Modificar a vers&#227;o no manual
+   
+ o Checar se todos os arquivos novos/modificados est&#227;o no reposit&#243;rio
+   $ svn status 
+@@ -209,33 +285,42 @@
+ o Testar o vers&#227;o do SVN em outros ambientes
+   
+ o Mudar a vers&#227;o no arquivo configure.ac
+-  Atualizar os paramentros das fun&#231;&#245;es AC_INIT e AM_INIT_AUTOMAKE com a nova vers&#227;o do gpt
+-  Ap&#243;s isso executar os comandos, para que a mudan&#231;a reflita nos arquivos gerados automaticamente:
++  -Atualizar os paramentros das fun&#231;&#245;es AC_INIT e AM_INIT_AUTOMAKE com a nova
++  vers&#227;o do gpt. Ap&#243;s isso executar:
+   $ autoconf &amp;&amp; automake
+     
+ o Atualizar NEWS
+-  O arquivo NEWS dever&#225; ser atualizado manualmente seguindo o padr&#227;o utilizado.
++  -O arquivo NEWS dever&#225; ser atualizado manualmente seguindo o padr&#227;o utilizado.
+     
+ o Atualizar ChangeLog
+-  Para gerar o ChangeLog ser&#225; necess&#225;rio a instala&#231;&#227;o do pacote:
+-  - php-cli
+-  
+-  Executar o comando
++  -Para gerar o ChangeLog ser&#225; necess&#225;rio a instala&#231;&#227;o do php (em sistemas
++  Debian/(K)Ubuntu, instalar o pacote php-cli).  
++  -Executar o comando:
+   $ php stuff/svn2cl.php &gt; ChangeLog
+   
+-o Commit e tag
+-  Ap&#243;s essas atualiza&#231;&#245;es, dever&#225; ser feito um commit sem coment&#225;rios e tagear a vers&#227;o no SVN. 
+-  $ svn commit
+-  $ svn copy <A HREF="https://username@svn.berlios.de/svnroot/repos/gpt/trunk/gpt">https://username@svn.berlios.de/svnroot/repos/gpt/trunk/gpt</A> \
+-            <A HREF="https://username@svn.berlios.de/svnroot/repos/gpt/tags/gpt-1.1\">https://username@svn.berlios.de/svnroot/repos/gpt/tags/gpt-1.1\</A>
+-      -m &quot;Release 1.1&quot;
+-
+ o Criar pacotes
+   - tar.gz
+-    $ make distclean; mkdir build; cd build; ../configure &amp;&amp; make &amp;&amp; make distcheck
++    $ make distclean; mkdir build; cd build; \
++    &gt; ../configure &amp;&amp; make &amp;&amp; make distcheck
+     
+   - debian
++     TODO
+ 
+-o Fazer o upload dos arquivos
++  - MS Windows
++    Usar o Inno Setup (<A HREF="http://www.jrsoftware.org/isdl.php">http://www.jrsoftware.org/isdl.php</A>) para cria&#231;&#227;o do
++    installer.  A configura&#231;&#227;o para cria&#231;&#227;o do pacote se encontra em
++    /gpt/packages/win_setup/
+   
++
++o Commit e tag
++  Ap&#243;s essas atualiza&#231;&#245;es, dever&#225; ser feito um commit e tagear
++  a vers&#227;o no SVN:
++
++  $ svn commit -m &quot;Congelando a versao 1.1&quot;
++  $ svn copy <A HREF="https://username@svn.berlios.de/svnroot/repos/gpt/trunk/gpt">https://username@svn.berlios.de/svnroot/repos/gpt/trunk/gpt</A> \
++            <A HREF="https://username@svn.berlios.de/svnroot/repos/gpt/tags/gpt-1.1\">https://username@svn.berlios.de/svnroot/repos/gpt/tags/gpt-1.1\</A>
++      -m &quot;Release 1.1&quot;
++
++o Fazer o upload dos arquivos para gpt.berlios.de 
++  
+ o Atualizar o site e publicar as novidades
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000217.html">[gpt-commit] r544 - trunk/gpt
+</A></li>
+	<LI>Next message: <A HREF="000219.html">[gpt-commit] r546 - trunk/gpt/doc/manual
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#218">[ date ]</a>
+              <a href="thread.html#218">[ thread ]</a>
+              <a href="subject.html#218">[ subject ]</a>
+              <a href="author.html#218">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

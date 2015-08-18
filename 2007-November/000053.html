@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r379 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r379%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711211733.lALHXFTO031919%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000052.html">
+   <LINK REL="Next"  HREF="000054.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r379 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r379%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711211733.lALHXFTO031919%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r379 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Nov 21 18:33:15 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000052.html">[gpt-commit] r378 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000054.html">[gpt-commit] r380 - in trunk/gpt2/gptc: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#53">[ date ]</a>
+              <a href="thread.html#53">[ thread ]</a>
+              <a href="subject.html#53">[ subject ]</a>
+              <a href="author.html#53">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-21 18:33:15 +0100 (Wed, 21 Nov 2007)
+New Revision: 379
+
+Modified:
+   trunk/gpt2/gptc/src/teste.cpp
+Log:
+nomsg
+
+Modified: trunk/gpt2/gptc/src/teste.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/teste.cpp	2007-11-21 17:32:12 UTC (rev 378)
++++ trunk/gpt2/gptc/src/teste.cpp	2007-11-21 17:33:15 UTC (rev 379)
+@@ -1,22 +1,26 @@
+ #include &lt;stdio.h&gt;
++#include &lt;fstream&gt;
++
++#include &lt;antlr/TokenBuffer.hpp&gt;
++#include &lt;antlr/CommonAST.hpp&gt;
++
+ #include &quot;PortugolLexer.hpp&quot;
+ #include &quot;PortugolParser.hpp&quot;
+ #include &quot;SemanticWalker.hpp&quot;
+ #include &quot;PortugolTokenTypes.hpp&quot;
+-#include &lt;antlr/TokenBuffer.hpp&gt;
+-#include &lt;antlr/CommonAST.hpp&gt;
++#include &quot;SymbolTable.hpp&quot;
+ 
+-#include &lt;fstream&gt;
++#include &quot;TokenNames.hpp&quot;
+ 
+ void dump_tokens(char* fname) {
+-  #include &quot;tokenNames.hpp&quot;
++
+   std::ifstream fi(fname);
+   PortugolLexer lexer(fi, true);
+   antlr::TokenBuffer *buffer = new antlr::TokenBuffer(lexer);
+ 
+   while (true) {
+     std::cout &lt;&lt; lexer.getLine() &lt;&lt; &quot;: [&quot; &lt;&lt; buffer-&gt;LA(1) &lt;&lt; &quot;] &quot;
+-              &lt;&lt; tokenNames[buffer-&gt;LA(1)] &lt;&lt; &quot; (&quot; &lt;&lt; lexer.getText() &lt;&lt; &quot;)&quot;;
++              &lt;&lt; g_tokenNames[buffer-&gt;LA(1)] &lt;&lt; &quot; (&quot; &lt;&lt; lexer.getText() &lt;&lt; &quot;)&quot;;
+     buffer-&gt;consume();
+     getchar();
+ 
+@@ -26,20 +30,22 @@
+   }
+ }
+ 
+-antlr::RefAST dump_tree(char* fname, bool should_dump) {
++RefPortugolAST dump_tree(char* fname, bool should_dump) {
+ 
+   std::ifstream fi(fname);
+   PortugolLexer lexer(fi, true);
+   PortugolParser parser(lexer);
+ 
+-  antlr::ASTFactory ast_factory(antlr::CommonAST::TYPE_NAME,&amp;antlr::CommonAST::factory);
++  antlr::ASTFactory ast_factory(PortugolAST::TYPE_NAME,
++                                &amp;PortugolAST::factory);
++
+   parser.initializeASTFactory(ast_factory);
+   parser.setASTFactory(&amp;ast_factory);
+ 
+   parser.programa();
+ 
+   antlr::RefAST ast = parser.getAST();
+-  antlr::RefCommonAST cast = antlr::RefCommonAST(ast);
++  RefPortugolAST cast = RefPortugolAST(ast);
+ 
+   if (!cast) {
+     std::cerr &lt;&lt; &quot;no parse tree!&quot; &lt;&lt; std::endl;
+@@ -48,16 +54,20 @@
+   if (should_dump) {
+     std::cerr &lt;&lt; cast-&gt;toStringList() &lt;&lt; std::endl &lt;&lt; std::endl;
+   }
+-  return ast;
++  return cast;
+ }
+ 
+ void semantic(char* fname) {
+-  antlr::RefAST ast;
++  RefPortugolAST ast;
+ 
+   ast = dump_tree(fname, true);
+ 
+-  SemanticWalker semantic;
++  SymbolTable* symtable = SymbolTable::create(fname);
++
++  SemanticWalker semantic(symtable);
+   semantic.programa(ast);
++
++  symtable-&gt;dump();
+ }
+ 
+ int main(int argc, char** argv) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000052.html">[gpt-commit] r378 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000054.html">[gpt-commit] r380 - in trunk/gpt2/gptc: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#53">[ date ]</a>
+              <a href="thread.html#53">[ thread ]</a>
+              <a href="subject.html#53">[ subject ]</a>
+              <a href="author.html#53">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

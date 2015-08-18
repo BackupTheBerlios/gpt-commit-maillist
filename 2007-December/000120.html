@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r446 - in trunk/gpt2: common/src gptasm/src gptvm/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r446%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%20gptvm/src&In-Reply-To=%3C200712191348.lBJDmBIu013675%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000119.html">
+   <LINK REL="Next"  HREF="000121.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r446 - in trunk/gpt2: common/src gptasm/src gptvm/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r446%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%20gptvm/src&In-Reply-To=%3C200712191348.lBJDmBIu013675%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r446 - in trunk/gpt2: common/src gptasm/src gptvm/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 14:48:11 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000119.html">[gpt-commit] r445 - trunk/gpt2/gptvm/src
+</A></li>
+        <LI>Next message: <A HREF="000121.html">[gpt-commit] r447 - in trunk/gpt2: common/src gptc/src	gptc/src/gptasm_target gptc/src/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#120">[ date ]</a>
+              <a href="thread.html#120">[ thread ]</a>
+              <a href="subject.html#120">[ subject ]</a>
+              <a href="author.html#120">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 14:48:10 +0100 (Wed, 19 Dec 2007)
+New Revision: 446
+
+Modified:
+   trunk/gpt2/common/src/Tools.cpp
+   trunk/gpt2/common/src/Tools.hpp
+   trunk/gpt2/gptasm/src/CData.cpp
+   trunk/gpt2/gptasm/src/lexer.g
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+Log:
+-Adicionado codigo para opcode c2s
+-Adicionado suporte para caracteres constantes
+
+Modified: trunk/gpt2/common/src/Tools.cpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.cpp	2007-12-19 13:43:02 UTC (rev 445)
++++ trunk/gpt2/common/src/Tools.cpp	2007-12-19 13:48:10 UTC (rev 446)
+@@ -313,3 +313,66 @@
+    return address;
+ }
+ 
++int toUTF8Char(const std::string&amp; chr)
++{
++  int ch = 0;
++  int inchar = chr[0];
++
++  if( (inchar &amp; 0x80) == 0 )
++    return inchar;
++
++  unsigned int need = 0;
++  if( (inchar &amp; 0xF8) == 0xF8 )
++  {
++    ch = inchar &amp; 7;
++    need = 3;
++  }
++  else if( (inchar &amp; 0xE0) == 0xE0 )
++  {
++    ch = inchar &amp; 0xF;
++    need = 2;
++  }
++  else if( (inchar &amp; 0xC0) == 0xC0 )
++  {
++    ch = inchar &amp; 0x1F;
++    need = 1;
++  }  
++
++  int i = 1;
++  while( need )
++  {
++    inchar = chr[i++];
++    ch &lt;&lt;= 6;
++    ch += inchar &amp; 0x3F;
++    need--;
++  }
++  return ch;
++}
++
++void appendUTF8Char(std::string&amp; text, int c)
++{
++  if (c &lt; 0x80)
++  {
++    text += c;
++    return;
++  }
++  else if (c &lt; 0x800)
++  {
++    text += ( (c &gt;&gt; 6) | 0xC0 );
++    text += ( c &amp; 0x3F | 0x80 );
++  }
++  else if (c &lt; 0x10000)
++  {
++    text += ( (c &gt;&gt; 12) | 0xE0 );
++    text += ( ((c &gt;&gt; 6) &amp; 0x3F) | 0x80 );
++    text += ( (c &amp; 0x3F) | 0x80 );
++  }
++  else if (c &lt; 0x200000)
++  {
++    text += ( (c &gt;&gt; 18) | 0xF0 );				// first 3 bits
++    text += ( (((c &gt;&gt; 16) &amp; 0x3) &lt;&lt; 4) |
++              ((c &gt;&gt; 12) &amp; 0xF) | 0x80 );
++    text += ( ((c &gt;&gt; 6) &amp; 0x3F) | 0x80 );
++    text += ( (c &amp; 0x3F) | 0x80 );
++  }  
++}
+\ No newline at end of file
+
+Modified: trunk/gpt2/common/src/Tools.hpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.hpp	2007-12-19 13:43:02 UTC (rev 445)
++++ trunk/gpt2/common/src/Tools.hpp	2007-12-19 13:48:10 UTC (rev 446)
+@@ -39,5 +39,7 @@
+ int realAddress(int address);
+ std::string realAddressString(int address);
+ int sumAddress(int address, int value);
++int  toUTF8Char(const std::string&amp;);
++void appendUTF8Char(std::string&amp; text, int c);
+ 
+ #endif
+
+Modified: trunk/gpt2/gptasm/src/CData.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CData.cpp	2007-12-19 13:43:02 UTC (rev 445)
++++ trunk/gpt2/gptasm/src/CData.cpp	2007-12-19 13:48:10 UTC (rev 446)
+@@ -65,6 +65,8 @@
+       writeInt(atoi(name.c_str()));
+    } else if (type == CSymbol::REAL) {
+       writeReal(atof(name.c_str()));
++   } else if (type == CSymbol::CHAR) {
++      writeInt(toUTF8Char(name));
+    }
+ 
+    return symbol;
+
+Modified: trunk/gpt2/gptasm/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptasm/src/lexer.g	2007-12-19 13:43:02 UTC (rev 445)
++++ trunk/gpt2/gptasm/src/lexer.g	2007-12-19 13:48:10 UTC (rev 446)
+@@ -1,6 +1,8 @@
+ header {
+    #include &lt;string&gt;
+    #include &lt;sstream&gt;
++   #include &quot;UnicodeCharBuffer.hpp&quot;
++   #include &quot;UnicodeCharScanner.hpp&quot;
+ }
+ 
+ 
+@@ -9,14 +11,15 @@
+ }
+ 
+ 
+-class GptAssemblyLexer extends Lexer;
++class GptAssemblyLexer extends Lexer(&quot;UnicodeCharScanner&quot;);
+ 
+ 
+ options {
+    k=2;
+    charVocabulary='\0'..'\377';
+    exportVocab=GptAssemblyLexer;
+-  testLiterals = true;
++   testLiterals = true;
++   noConstructors=true;
+ //  testLiterals = false;
+ //  filter=T_INVALID;
+ //  genHashLines=false;//no #line
+@@ -180,8 +183,9 @@
+ 
+ {
+ public:  
+-
+-private:
++   GptAssemblyLexer(std::istream&amp; in)
++    : UnicodeCharScanner(new UnicodeCharBuffer(in), true) {
++   }
+ }
+ 
+ 
+@@ -259,7 +263,7 @@
+ options {
+    paraphrase = &quot;char&quot;;
+ }
+-   : '\'' ( ~( '\'' | '\\' ) | ESC )? '\''
++   : '\''! ( ~( '\'' | '\\' ) | ESC )? '\''!
+    ;
+ 
+ T_STRING_VALUE
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-19 13:43:02 UTC (rev 445)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-19 13:48:10 UTC (rev 446)
+@@ -967,7 +967,15 @@
+ 
+ void CRunBytecode::c2sOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;c2s opcode&quot;);
++
++   int varAddress = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++
++   std::string op1 = _dataStack.getString(varAddress);
++
++   appendUTF8Char(op1, _dataStack.getInt(val1Address));
++   _dataStack.setString(varAddress,  op1);
+ }
+ 
+ void CRunBytecode::r2sOpcode()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000119.html">[gpt-commit] r445 - trunk/gpt2/gptvm/src
+</A></li>
+	<LI>Next message: <A HREF="000121.html">[gpt-commit] r447 - in trunk/gpt2: common/src gptc/src	gptc/src/gptasm_target gptc/src/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#120">[ date ]</a>
+              <a href="thread.html#120">[ thread ]</a>
+              <a href="subject.html#120">[ subject ]</a>
+              <a href="author.html#120">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

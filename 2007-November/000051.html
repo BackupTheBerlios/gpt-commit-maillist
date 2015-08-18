@@ -1,0 +1,223 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r377 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r377%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711211729.lALHTN4a024162%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000050.html">
+   <LINK REL="Next"  HREF="000052.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r377 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r377%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711211729.lALHTN4a024162%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r377 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Nov 21 18:29:23 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000050.html">[gpt-commit] r376 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000052.html">[gpt-commit] r378 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-21 18:29:23 +0100 (Wed, 21 Nov 2007)
+New Revision: 377
+
+Added:
+   trunk/gpt2/gptc/src/PortugolAST.cpp
+   trunk/gpt2/gptc/src/PortugolAST.hpp
+Log:
+-Usando PortugolAST
+
+Added: trunk/gpt2/gptc/src/PortugolAST.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/PortugolAST.cpp	2007-11-21 17:27:56 UTC (rev 376)
++++ trunk/gpt2/gptc/src/PortugolAST.cpp	2007-11-21 17:29:23 UTC (rev 377)
+@@ -0,0 +1,79 @@
++/***************************************************************************
++ *   Copyright (C) 2003-2006 by Thiago Silva                               *
++ *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>                                               *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU General Public License     *
++ *   along with this program; if not, write to the                         *
++ *   Free Software Foundation, Inc.,                                       *
++ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
++ ***************************************************************************/
++
++
++#include &quot;PortugolAST.hpp&quot;
++#include &lt;sstream&gt;
++
++const char* const PortugolAST::TYPE_NAME = &quot;PortugolAST&quot;;
++
++PortugolAST::PortugolAST()
++    : CommonAST(), line(-1) {
++}
++
++PortugolAST::PortugolAST(RefToken t)
++    : CommonAST(t), line(t-&gt;getLine()) {
++}
++
++PortugolAST::PortugolAST( const CommonAST&amp; other )
++    : CommonAST(other), line(-1) {
++}
++
++PortugolAST::PortugolAST( const PortugolAST&amp; other )
++    : CommonAST(other), line(other.line) {
++}
++
++PortugolAST::~PortugolAST() {
++}
++
++RefAST PortugolAST::clone( void ) const
++{
++  PortugolAST *ast = new PortugolAST( *this );
++  return RefAST(ast);
++}
++
++const char* PortugolAST::typeName( void ) const
++{
++  return PortugolAST::TYPE_NAME;
++}
++
++void PortugolAST::initialize(RefToken t)
++{
++  CommonAST::initialize(t);
++  setLine(t-&gt;getLine());
++}
++
++void PortugolAST::setLine(int line_) {
++  line = line_;
++}
++
++int PortugolAST::getLine() const {
++  return line;
++}
++
++// std::string PortugolAST::toString() const {
++//   std::stringstream s;
++//   s &lt;&lt; &quot;(&quot; &lt;&lt; getLine() &lt;&lt; &quot;)&quot; &lt;&lt; getText();
++//   return s.str();
++// }
++
++RefAST PortugolAST::factory() {
++  return RefAST(new PortugolAST);
++}
+
+Added: trunk/gpt2/gptc/src/PortugolAST.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/PortugolAST.hpp	2007-11-21 17:27:56 UTC (rev 376)
++++ trunk/gpt2/gptc/src/PortugolAST.hpp	2007-11-21 17:29:23 UTC (rev 377)
+@@ -0,0 +1,61 @@
++/***************************************************************************
++ *   Copyright (C) 2003-2006 by Thiago Silva                               *
++ *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>                                               *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU General Public License     *
++ *   along with this program; if not, write to the                         *
++ *   Free Software Foundation, Inc.,                                       *
++ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
++ ***************************************************************************/
++
++#ifndef PORTUGOLAST_HPP
++#define PORTUGOLAST_HPP
++
++#include &lt;antlr/CommonAST.hpp&gt;
++#include &lt;string&gt;
++
++using namespace std;
++using namespace antlr;
++
++class PortugolAST : public CommonAST {
++public:
++  PortugolAST();
++  PortugolAST( RefToken t );
++  PortugolAST( const CommonAST&amp; other );
++  PortugolAST( const PortugolAST&amp; other );
++
++  ~PortugolAST();
++
++  void setLine(int line);
++  int getLine() const;
++
++  virtual RefAST clone( void ) const;
++
++  virtual void initialize( RefToken t );
++
++  virtual const char* typeName( void ) const;
++
++//   virtual std::string toString() const;
++
++  static RefAST factory();
++  static const char* const TYPE_NAME;
++protected:
++  int line;
++  int endLine;
++  int eval_type; //evaluated type of expression
++  string filename;
++};
++
++typedef ASTRefCount&lt;PortugolAST&gt; RefPortugolAST;
++
++#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000050.html">[gpt-commit] r376 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000052.html">[gpt-commit] r378 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

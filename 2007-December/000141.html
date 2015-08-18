@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r467 - in trunk/gpt: . packages packages/deb	packages/deb/DEBIAN packages/deb/usr packages/deb/usr/local	packages/deb/usr/local/bin packages/deb/usr/local/lib	packages/deb/usr/local/lib/gpt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r467%20-%20in%20trunk/gpt%3A%20.%20packages%20packages/deb%0A%09packages/deb/DEBIAN%20packages/deb/usr%20packages/deb/usr/local%0A%09packages/deb/usr/local/bin%20packages/deb/usr/local/lib%0A%09packages/deb/usr/local/lib/gpt&In-Reply-To=%3C200712272256.lBRMuvCd008339%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000140.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r467 - in trunk/gpt: . packages packages/deb	packages/deb/DEBIAN packages/deb/usr packages/deb/usr/local	packages/deb/usr/local/bin packages/deb/usr/local/lib	packages/deb/usr/local/lib/gpt</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r467%20-%20in%20trunk/gpt%3A%20.%20packages%20packages/deb%0A%09packages/deb/DEBIAN%20packages/deb/usr%20packages/deb/usr/local%0A%09packages/deb/usr/local/bin%20packages/deb/usr/local/lib%0A%09packages/deb/usr/local/lib/gpt&In-Reply-To=%3C200712272256.lBRMuvCd008339%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r467 - in trunk/gpt: . packages packages/deb	packages/deb/DEBIAN packages/deb/usr packages/deb/usr/local	packages/deb/usr/local/bin packages/deb/usr/local/lib	packages/deb/usr/local/lib/gpt">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Dec 27 23:56:57 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000140.html">[gpt-commit] r466 - trunk/gpt/exemplos
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#141">[ date ]</a>
+              <a href="thread.html#141">[ thread ]</a>
+              <a href="subject.html#141">[ subject ]</a>
+              <a href="author.html#141">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: adorilson
+Date: 2007-12-27 23:54:24 +0100 (Thu, 27 Dec 2007)
+New Revision: 467
+
+Added:
+   trunk/gpt/packages/
+   trunk/gpt/packages/deb/
+   trunk/gpt/packages/deb/DEBIAN/
+   trunk/gpt/packages/deb/DEBIAN/control
+   trunk/gpt/packages/deb/usr/
+   trunk/gpt/packages/deb/usr/local/
+   trunk/gpt/packages/deb/usr/local/bin/
+   trunk/gpt/packages/deb/usr/local/bin/gpt
+   trunk/gpt/packages/deb/usr/local/lib/
+   trunk/gpt/packages/deb/usr/local/lib/gpt/
+   trunk/gpt/packages/deb/usr/local/lib/gpt/base.gpt
+   trunk/gpt/packages/gpt_1.0.1_i386.deb
+Log:
+Adicao inicial do pacote .deb
+
+Added: trunk/gpt/packages/deb/DEBIAN/control
+===================================================================
+--- trunk/gpt/packages/deb/DEBIAN/control	2007-12-27 22:51:14 UTC (rev 466)
++++ trunk/gpt/packages/deb/DEBIAN/control	2007-12-27 22:54:24 UTC (rev 467)
+@@ -0,0 +1,13 @@
++Package: gpt
++Priority: optional
++Version: 1.0.1
++Architecture: i386
++Maintainer: Adorilson Bezerra de Ara&#250;jo
++Depends:
++Description: O compilador da linguagem G-Portugol. Permite:
++    * Compilar programas para MS Windows e GNU/Linux;
++    * Traduzir programas para C;
++    * Interpretar programas;
++    * Depurar programas (recomend&#225;vel usar com o front-end GPTEditor).
++
++
+
+Added: trunk/gpt/packages/deb/usr/local/bin/gpt
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/gpt/packages/deb/usr/local/bin/gpt
+___________________________________________________________________
+Name: svn:executable
+   + *
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: trunk/gpt/packages/deb/usr/local/lib/gpt/base.gpt
+===================================================================
+--- trunk/gpt/packages/deb/usr/local/lib/gpt/base.gpt	2007-12-27 22:51:14 UTC (rev 466)
++++ trunk/gpt/packages/deb/usr/local/lib/gpt/base.gpt	2007-12-27 22:54:24 UTC (rev 467)
+@@ -0,0 +1,84 @@
++/*
++ * Biblioteca padr&#227;o da linguagem G-Portugol (v1.0).
++ * Autor: Thiago Silva
++ *
++ * Nota: as fun&#231;&#245;es dessa biblioteca suprem apenas
++ * funcionalidades e cen&#225;rios simples. Melhorias e 
++ * adi&#231;&#245;es s&#227;o bem vindas.
++ * 
++ */
++
++fun&#231;&#227;o arredonda(num: real) : real
++  trunc : inteiro;
++in&#237;cio
++  trunc := num + 0.5;
++fim
++
++fun&#231;&#227;o absoluto(num: real) : real
++in&#237;cio
++  se num &lt; 0 ent&#227;o
++    retorne -num;
++  sen&#227;o
++    retorne num;
++  fim-se
++fim
++
++fun&#231;&#227;o potencia(base: real, exp: real) : real
++  i    : inteiro;
++  res  : real;
++  expi : inteiro;
++in&#237;cio
++  se exp = 0 ent&#227;o
++    retorne 1;
++  fim-se
++
++  se exp = 1 ent&#227;o
++    retorne base;
++  fim-se
++
++  se exp = -1 ent&#227;o
++    retorne 1 / base;
++  fim-se
++
++  res := 1;
++  expi := exp;
++  para i de 0 at&#233; expi-1 fa&#231;a
++    res := res * base;
++  fim-para
++  retorne res;
++fim
++
++/*
++ * Encontra a raiz usando o m&#233;todo Newton-Raphson
++ * baseado no c&#243;digo da p&#225;gina:
++ * <A HREF="http://en.literateprograms.org/Newton-Raphson">http://en.literateprograms.org/Newton-Raphson</A>'s_method_for_root_finding_(C)
++ */
++fun&#231;&#227;o raiz_quadrada(num: real) : real
++  x     : real;
++  xn    : real;
++  iters : inteiro;
++  i     : inteiro;
++  n     : inteiro;
++  val   : real;
++in&#237;cio
++  n := num;
++  para i de 0 at&#233; n fa&#231;a
++    val := i * i - num;
++    se val = 0 ent&#227;o
++      retorne i;
++    fim-se  
++
++    se val &gt; 0 ent&#227;o
++      xn := (i+(i-1))/2.0;
++      i := n+1; //sair do loop!
++    fim-se
++  fim-para
++
++  enquanto n&#227;o ((iters  &gt;= 100) ou (x = xn)) fa&#231;a
++    iters := iters + 1;
++    x := xn;
++    xn := x - (x * x - n) / (2 * x);
++  fim-enquanto
++  
++  retorne xn;
++fim
+
+Added: trunk/gpt/packages/gpt_1.0.1_i386.deb
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/gpt/packages/gpt_1.0.1_i386.deb
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000140.html">[gpt-commit] r466 - trunk/gpt/exemplos
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#141">[ date ]</a>
+              <a href="thread.html#141">[ thread ]</a>
+              <a href="subject.html#141">[ subject ]</a>
+              <a href="author.html#141">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

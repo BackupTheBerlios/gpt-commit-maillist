@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r506 - trunk/gpt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r506%20-%20trunk/gpt&In-Reply-To=%3C200803182106.m2IL6J52029209%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000178.html">
+   <LINK REL="Next"  HREF="000180.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r506 - trunk/gpt</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r506%20-%20trunk/gpt&In-Reply-To=%3C200803182106.m2IL6J52029209%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r506 - trunk/gpt">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Mar 18 22:06:19 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000178.html">[gpt-commit] r505 - trunk/gpt
+</A></li>
+        <LI>Next message: <A HREF="000180.html">[gpt-commit] r507 - in trunk/gpt/doc/man: . pt_BR
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#179">[ date ]</a>
+              <a href="thread.html#179">[ thread ]</a>
+              <a href="subject.html#179">[ subject ]</a>
+              <a href="author.html#179">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-03-18 22:06:19 +0100 (Tue, 18 Mar 2008)
+New Revision: 506
+
+Modified:
+   trunk/gpt/NEWS
+Log:
+nomsg
+
+Modified: trunk/gpt/NEWS
+===================================================================
+--- trunk/gpt/NEWS	2008-03-18 21:05:18 UTC (rev 505)
++++ trunk/gpt/NEWS	2008-03-18 21:06:19 UTC (rev 506)
+@@ -1,6 +1,15 @@
+ Sum&#225;rio de mudan&#231;as
+ -------------------
+ 
++18 de Mar&#231;o de 2008  * gpt 1.0.1
++
++  * Suporte exclusivo para arquivos fontes escritos em UTF-8.
++  * (Win) Adapta&#231;&#227;o do programa Notepad++ para ser usado com o compilador.
++  * (Win) Novo instalador para sistemas MS Windows.
++  * (Win) Adi&#231;&#227;o do script gptshell.bat.
++  * Corre&#231;&#227;o de bug relativo aos flags de tradu&#231;&#227;o do compilador.
++  * Diversos outros bugs corrigidos.
++
+ 08 de Abril de 2006  * gpt 1.0
+ 
+  * Adi&#231;&#227;o de arquivo com fun&#231;&#245;es b&#225;sicas (base.gpt).
+@@ -21,8 +30,8 @@
+  * Corre&#231;&#227;o de bugs na tradu&#231;&#227;o para C (express&#245;es envolvendo valores literais).
+  * Corre&#231;&#227;o de bugs na interpreta&#231;&#227;o (express&#245;es envolvendo valores reais
+    calculadas incorretamente).
+- * Corre&#231;&#227;o de bugs na interpreta&#231;&#227;o (avalia&#231;&#227;o de diversas opera&#231;&#245;es)   
+- * Corre&#231;&#227;o de bugs na interpreta&#231;&#227;o (enunciado &quot;se&quot; entrando em loop infinito)   
++ * Corre&#231;&#227;o de bugs na interpreta&#231;&#227;o (avalia&#231;&#227;o de diversas opera&#231;&#245;es).
++ * Corre&#231;&#227;o de bugs na interpreta&#231;&#227;o (enunciado &quot;se&quot; entrando em loop infinito).
+  * Corre&#231;&#227;o de bugs na interpreta&#231;&#227;o (retorno de dados em fun&#231;&#245;es).
+  * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (avalia&#231;&#227;o de subtra&#231;&#227;o envolvendo valores 
+    reais).
+@@ -30,9 +39,9 @@
+    envolvendo valores reais).
+  * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (operador un&#225;rio de nega&#231;&#227;o).
+  * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (retorno de valores de tipos diferentes
+-   sem utilizar casting)
++   sem utilizar casting).
+  * Corre&#231;&#227;o de bugs na an&#225;lise sem&#226;ntica (avalia&#231;&#227;o de retorno de valores
+-   em fun&#231;&#245;es)
++   em fun&#231;&#245;es).
+  * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (casting de par&#226;metro inteiro para
+    real e real para inteiro).
+  * Adicionado suporte a compila&#231;&#227;o de algoritmos usando mais de um arquivo.
+@@ -54,9 +63,9 @@
+ 08 de Mar&#231;o de 2006  * gpt 0.9b
+ 
+  * Implementa&#231;&#227;o da gera&#231;&#227;o de c&#243;digo execut&#225;vel (x86, PE/ELF,
+-   NASM como backend)
+- * GPT portado para MS Windows (testado com compilador MingW32)
+- * V&#225;rios bugfixes (ver ChangeLog)
++   NASM como backend).
++ * GPT portado para MS Windows (testado com compilador MingW32).
++ * V&#225;rios bugfixes (ver ChangeLog).
+ 
+ 27 de Janeiro de 2006  * gpt 0.8b
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000178.html">[gpt-commit] r505 - trunk/gpt
+</A></li>
+	<LI>Next message: <A HREF="000180.html">[gpt-commit] r507 - in trunk/gpt/doc/man: . pt_BR
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#179">[ date ]</a>
+              <a href="thread.html#179">[ thread ]</a>
+              <a href="subject.html#179">[ subject ]</a>
+              <a href="author.html#179">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

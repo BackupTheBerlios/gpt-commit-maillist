@@ -1,0 +1,744 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r436 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r436%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712190052.lBJ0qjcf020433%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000109.html">
+   <LINK REL="Next"  HREF="000111.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r436 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r436%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712190052.lBJ0qjcf020433%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r436 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 01:52:45 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000109.html">[gpt-commit] r435 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000111.html">[gpt-commit] r437 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#110">[ date ]</a>
+              <a href="thread.html#110">[ thread ]</a>
+              <a href="subject.html#110">[ subject ]</a>
+              <a href="author.html#110">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 01:52:44 +0100 (Wed, 19 Dec 2007)
+New Revision: 436
+
+Modified:
+   trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+   trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+   trunk/gpt2/gptc/src/semantic.g
+Log:
+-Checando omissao de tamanho das dimensoes corretamente
+-Reavaliacao das expressoes de acordo com a ultima atualizacao das regras no wiki
+-carregando os tipos corretamente nos nodes da ast
+
+Modified: trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseSemanticWalker.cpp	2007-12-19 00:52:09 UTC (rev 435)
++++ trunk/gpt2/gptc/src/BaseSemanticWalker.cpp	2007-12-19 00:52:44 UTC (rev 436)
+@@ -144,7 +144,26 @@
+   _symtable-&gt;setScope(_currentScopeSymbol);
+ }
+ 
++void
++BaseSemanticWalker::checkMatrixDimensions(RefPortugolAST m, 
++                                          const std::list&lt;int&gt;&amp; dimensions) {
++  if (dimensions.size() &gt; 2) {
++    report(m-&gt;getLine(), m-&gt;getColumn(), 
++      &quot;matrizes com mais de 2 dimens&#245;es n&#227;o s&#227;o suportadas&quot;);
++  }
+ 
++  bool found_null = false;
++  std::list&lt;int&gt;::const_iterator it = dimensions.begin();
++  for (; it != dimensions.end(); ++it) {
++    if (*it == 0) {
++      found_null = true;
++    } else if (found_null) {
++      report(m-&gt;getLine(), m-&gt;getColumn(), 
++        &quot;somente as &#250;ltimas dimens&#245;es podem ter o tamanho omitido&quot;);
++    }
++  }
++}
++
+ Type* BaseSemanticWalker::evalMatrixSubscript(RefPortugolAST id, Type* type,
+                                               int dimensions) {
+ 
+@@ -316,21 +335,21 @@
+   }
+ 
+   if (!ltype-&gt;isLValueFor(rtype)) {
+-    report(lastId-&gt;getLine(), lastId-&gt;getColumn(), 
+-            string(&quot;vari&#225;vel do tipo '&quot;) + ltype-&gt;name() 
++    report(lastId-&gt;getLine(), lastId-&gt;getColumn(),
++            string(&quot;vari&#225;vel do tipo '&quot;) + ltype-&gt;name()
+             + &quot;' n&#227;o pode receber valor do tipo '&quot; + rtype-&gt;name() + &quot;'&quot;);
+   }
+ }
+ 
+-void BaseSemanticWalker::evalAttribution(const ExpressionReturn&amp; l, 
++void BaseSemanticWalker::evalAttribution(const ExpressionReturn&amp; l,
+                                          const ExpressionReturn&amp; r) {
+   if (l.second-&gt;isError() || r.second-&gt;isError()) {
+     return;
+   }
+ 
+   if (!l.second-&gt;isLValueFor(r.second)) {
+-    report(r.first-&gt;getLine(), r.first-&gt;getColumn(), 
+-            &quot;vari&#225;vel do tipo '&quot; + l.second-&gt;name() 
++    report(r.first-&gt;getLine(), r.first-&gt;getColumn(),
++            &quot;vari&#225;vel do tipo '&quot; + l.second-&gt;name()
+             + &quot;' n&#227;o pode receber valor do tipo '&quot; + r.second-&gt;name() + &quot;'&quot;);
+   }
+ }
+@@ -392,21 +411,52 @@
+ 
+ /************************ EXPR ********************************************/
+ 
+-Type*
+-BaseSemanticWalker::evalExpr_OU(RefPortugolAST,Type* left, Type* right) {
+   //TODO: refatorar os copy/pastes dos metodos evalExpr
+ 
+-  return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
++Type*
++BaseSemanticWalker::evalExpr_OU(RefPortugolAST op,Type* left, Type* right) {
++
++//l&#243;gico ou l&#243;gico --&gt; l&#243;gico
++
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
++  if (left-&gt;equals(PortugolTokenTypes::T_LOGICO) &amp;&amp;
++      right-&gt;equals(PortugolTokenTypes::T_LOGICO)) {
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
++  } else {
++    report(op-&gt;getLine(), op-&gt;getColumn(), 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; ou &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
++  }
+ }
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_E(RefPortugolAST,Type* left, Type* right) {
+-  return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
++BaseSemanticWalker::evalExpr_E(RefPortugolAST op,Type* left, Type* right) {
++
++//l&#243;gico e l&#243;gico --&gt; l&#243;gico
++
++  if (left-&gt;isError() || right-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
++  if (left-&gt;equals(PortugolTokenTypes::T_LOGICO) &amp;&amp;
++      right-&gt;equals(PortugolTokenTypes::T_LOGICO)) {
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
++  } else {
++    report(op-&gt;getLine(), op-&gt;getColumn(), 
++      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; e &quot; + right-&gt;name());
++    return _typeBuilder-&gt;errorType();
++  }
+ }
+ 
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_BIT_OU(RefPortugolAST op,Type* left, Type* right) {
++
++//inteiro | inteiro --&gt; inteiro
++
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -424,6 +474,9 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_BIT_OUX(RefPortugolAST op, Type* left, Type* right) {
++
++//inteiro ^ inteiro --&gt; inteiro
++
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -441,6 +494,9 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_BIT_E(RefPortugolAST op, Type* left, Type* right) {
++
++//inteiro &amp; inteiro --&gt; inteiro
++
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -458,11 +514,21 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_IGUAL(RefPortugolAST op, Type* left, Type* right) {
++/*
++    * inteiro = inteiro --&gt; l&#243;gico
++    * real = real --&gt; l&#243;gico
++    * caractere = caractere --&gt; l&#243;gico
++    * literal = literal --&gt; l&#243;gico
++    * l&#243;gico = l&#243;gico --&gt; l&#243;gico 
++*/
++
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+-  if (left-&gt;equals(right)) {
++  if (left-&gt;isPrimitive() &amp;&amp; 
++      !left-&gt;equals(PortugolTokenTypes::T_CORINGA) &amp;&amp; 
++      left-&gt;equals(right)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+     report(op-&gt;getLine(), op-&gt;getColumn(),
+@@ -474,11 +540,21 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_DIFERENTE(RefPortugolAST op, Type* left, Type* right) {
++/*
++    * inteiro &lt;&gt; inteiro --&gt; l&#243;gico
++    * real &lt;&gt; real --&gt; l&#243;gico
++    * caractere &lt;&gt; caractere --&gt; l&#243;gico
++    * literal &lt;&gt; literal --&gt; l&#243;gico
++    * l&#243;gico &lt;&gt; l&#243;gico --&gt; l&#243;gico 
++*/
++
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+-  if (left-&gt;equals(right)) {
++  if (left-&gt;isPrimitive() &amp;&amp; 
++      !left-&gt;equals(PortugolTokenTypes::T_CORINGA) &amp;&amp; 
++      left-&gt;equals(right)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+     report(op-&gt;getLine(), op-&gt;getColumn(),
+@@ -490,12 +566,38 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MAIOR(RefPortugolAST op, Type* left, Type* right) {
++/*
++    * inteiro &gt; inteiro --&gt; l&#243;gico
++    * real &gt; real --&gt; l&#243;gico
++    * caractere &gt; caractere --&gt; l&#243;gico 
++    * literal &gt; literal --&gt; l&#243;gico 
++
++    * inteiro &gt; real --&gt; l&#243;gico
++    * real &gt; inteiro --&gt; l&#243;gico 
++*/
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+   if ((left-&gt;isPrimitive() &amp;&amp; right-&gt;isPrimitive()) &amp;&amp;
+-      (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
++          (left-&gt;equals(right) || 
++           left-&gt;intOrReal(right) || 
++           left-&gt;caracOrLit(right))) {
++
++    if (left-&gt;equals(PortugolTokenTypes::T_LOGICO) &amp;&amp; 
++        right-&gt;equals(PortugolTokenTypes::T_LOGICO)) {
++      report(op-&gt;getLine(), op-&gt;getColumn(),
++        std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &gt; &quot; + right-&gt;name());
++      return _typeBuilder-&gt;errorType();
++    }
++  
++    if (left-&gt;equals(PortugolTokenTypes::T_CORINGA) &amp;&amp; 
++        right-&gt;equals(PortugolTokenTypes::T_CORINGA)) {
++      report(op-&gt;getLine(), op-&gt;getColumn(),
++        std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &gt; &quot; + right-&gt;name());
++      return _typeBuilder-&gt;errorType();
++    }
++
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+     report(op-&gt;getLine(), op-&gt;getColumn(),
+@@ -507,12 +609,36 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MENOR(RefPortugolAST op, Type* left, Type* right) {
++/*
++    * inteiro &lt; inteiro --&gt; l&#243;gico
++    * real &lt; real --&gt; l&#243;gico
++    * caractere &lt; caractere --&gt; l&#243;gico 
++    * literal &lt; literal --&gt; l&#243;gico 
++
++    * inteiro &lt; real --&gt; l&#243;gico
++    * real &lt; inteiro --&gt; l&#243;gico 
++*/
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+   if ((left-&gt;isPrimitive() &amp;&amp; right-&gt;isPrimitive()) &amp;&amp;
+       (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
++
++    if (left-&gt;equals(PortugolTokenTypes::T_LOGICO) &amp;&amp; 
++        right-&gt;equals(PortugolTokenTypes::T_LOGICO)) {
++      report(op-&gt;getLine(), op-&gt;getColumn(),
++        std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt; &quot; + right-&gt;name());
++      return _typeBuilder-&gt;errorType();
++    }
++  
++    if (left-&gt;equals(PortugolTokenTypes::T_CORINGA) &amp;&amp; 
++        right-&gt;equals(PortugolTokenTypes::T_CORINGA)) {
++      report(op-&gt;getLine(), op-&gt;getColumn(),
++        std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt; &quot; + right-&gt;name());
++      return _typeBuilder-&gt;errorType();
++    }
++
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+     report(op-&gt;getLine(), op-&gt;getColumn(),
+@@ -524,12 +650,36 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MAIOR_EQ(RefPortugolAST op, Type* left, Type* right) {
++/*
++    * inteiro &gt;= inteiro --&gt; l&#243;gico
++    * real &gt;= real --&gt; l&#243;gico
++    * caractere &gt;= caractere --&gt; l&#243;gico 
++    * literal &gt;= literal --&gt; l&#243;gico 
++
++    * inteiro &gt;= real --&gt; l&#243;gico
++    * real &gt;= inteiro --&gt; l&#243;gico 
++*/
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+   if ((left-&gt;isPrimitive() &amp;&amp; right-&gt;isPrimitive()) &amp;&amp;
+       (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
++
++    if (left-&gt;equals(PortugolTokenTypes::T_LOGICO) &amp;&amp; 
++        right-&gt;equals(PortugolTokenTypes::T_LOGICO)) {
++      report(op-&gt;getLine(), op-&gt;getColumn(),
++        std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &gt;= &quot; + right-&gt;name());
++      return _typeBuilder-&gt;errorType();
++    }
++  
++    if (left-&gt;equals(PortugolTokenTypes::T_CORINGA) &amp;&amp; 
++        right-&gt;equals(PortugolTokenTypes::T_CORINGA)) {
++      report(op-&gt;getLine(), op-&gt;getColumn(),
++        std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &gt;= &quot; + right-&gt;name());
++      return _typeBuilder-&gt;errorType();
++    }
++
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+     report(op-&gt;getLine(), op-&gt;getColumn(),
+@@ -542,12 +692,37 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MENOR_EQ(RefPortugolAST op, Type* left, Type* right) {
++/*
++    * inteiro &lt;= inteiro --&gt; l&#243;gico
++    * real &lt;= real --&gt; l&#243;gico
++    * caractere &lt;= caractere --&gt; l&#243;gico 
++    * literal &lt;= literal --&gt; l&#243;gico 
++
++    * inteiro &gt;= real --&gt; l&#243;gico
++    * real &gt;= inteiro --&gt; l&#243;gico 
++*/
++
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+   if ((left-&gt;isPrimitive() &amp;&amp; right-&gt;isPrimitive()) &amp;&amp;
+       (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
++
++    if (left-&gt;equals(PortugolTokenTypes::T_LOGICO) &amp;&amp; 
++        right-&gt;equals(PortugolTokenTypes::T_LOGICO)) {
++      report(op-&gt;getLine(), op-&gt;getColumn(),
++        std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt;= &quot; + right-&gt;name());
++      return _typeBuilder-&gt;errorType();
++    }
++  
++    if (left-&gt;equals(PortugolTokenTypes::T_CORINGA) &amp;&amp; 
++        right-&gt;equals(PortugolTokenTypes::T_CORINGA)) {
++      report(op-&gt;getLine(), op-&gt;getColumn(),
++        std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt;= &quot; + right-&gt;name());
++      return _typeBuilder-&gt;errorType();
++    }
++
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+     report(op-&gt;getLine(), op-&gt;getColumn(),
+@@ -559,6 +734,9 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_BIT_SHIFT_LEFT(RefPortugolAST op, Type* left, Type* right) {
++
++//inteiro &lt;&lt; inteiro --&gt; inteiro
++
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -576,6 +754,9 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_BIT_SHIFT_RIGHT(RefPortugolAST op, Type* left, Type* right) {
++
++//inteiro &gt;&gt; inteiro --&gt; inteiro
++
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -593,21 +774,32 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MAIS(RefPortugolAST op, Type* left, Type* right) {
++
++/*
++    * inteiro + inteiro --&gt; inteiro
++    * real + real --&gt; real 
++
++    * inteiro + real --&gt; real
++    * real + inteiro --&gt; real
++
++
++    * literal + literal --&gt; literal
++    * caractere + caractere --&gt; literal
++    * literal + caractere --&gt; literal
++    * caractere + literal --&gt; literal 
++
++*/
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+-  if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    report(op-&gt;getLine(), op-&gt;getColumn(),
+-      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; + &quot; + right-&gt;name());
+-    return _typeBuilder-&gt;errorType();
+-  }
+-
+   Type* ret;
+   if (ret = left-&gt;intOrReal(right)) {
+-    return ret;
+-  } else if (ret = left-&gt;caracOrLit(right)) {
+-    return ret;
++    //int ou real
++    return ret; 
++  } else if (left-&gt;caracOrLit(right)) {
++    //sempre literal
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LITERAL);
+   } else {
+     report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; + &quot; + right-&gt;name());
+@@ -618,16 +810,18 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MENOS(RefPortugolAST op, Type* left, Type* right) {
++/*
++    * inteiro - inteiro --&gt; inteiro
++    * real - real --&gt; real 
++
++    * inteiro - real --&gt; real
++    * real - inteiro --&gt; real 
++*/
++
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+-  if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    report(op-&gt;getLine(), op-&gt;getColumn(),
+-      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; - &quot; + right-&gt;name());
+-    return _typeBuilder-&gt;errorType();
+-  }
+-
+   Type* ret;
+   if (ret = left-&gt;intOrReal(right)) {
+     return ret;
+@@ -641,16 +835,17 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_DIV(RefPortugolAST op, Type* left, Type* right) {
++/*
++    * inteiro / inteiro --&gt; inteiro
++    * real / real --&gt; real 
++
++    * inteiro / real --&gt; real
++    * real / inteiro --&gt; real 
++*/
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+-  if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    report(op-&gt;getLine(), op-&gt;getColumn(),
+-      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; / &quot; + right-&gt;name());
+-    return _typeBuilder-&gt;errorType();
+-  }
+-
+   Type* ret;
+   if (ret = left-&gt;intOrReal(right)) {
+     return ret;
+@@ -664,16 +859,18 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MULTIP(RefPortugolAST op, Type* left, Type* right) {
++
++/*
++    * inteiro * inteiro --&gt; inteiro
++    * real * real --&gt; real 
++
++    * inteiro * real --&gt; real
++    * real * inteiro --&gt; real 
++*/
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+-  if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    report(op-&gt;getLine(), op-&gt;getColumn(),
+-      std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; * &quot; + right-&gt;name());
+-    return _typeBuilder-&gt;errorType();
+-  }
+-
+   Type* ret;
+   if (ret = left-&gt;intOrReal(right)) {
+     return ret;
+@@ -687,6 +884,9 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MOD(RefPortugolAST op, Type* left, Type* right) {
++
++//inteiro % inteiro --&gt; inteiro
++
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) &amp;&amp;
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+@@ -700,56 +900,80 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_UN_NEGATIVO(RefPortugolAST op, Type* left) {
+-  if (left-&gt;isError()) {
++BaseSemanticWalker::evalExpr_UN_NEGATIVO(RefPortugolAST op, Type* term) {
++/*
++    * - inteiro --&gt; inteiro
++    * - real --&gt; real 
++*/
++  if (term-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+-  if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) ||
+-      left-&gt;equals(PortugolTokenTypes::T_REAL)) {
+-    return _typeBuilder-&gt;primitiveType(left-&gt;primitiveType());
++  if (term-&gt;equals(PortugolTokenTypes::T_INTEIRO) ||
++      term-&gt;equals(PortugolTokenTypes::T_REAL)) {
++    return _typeBuilder-&gt;primitiveType(term-&gt;primitiveType());
+   } else {
+     report(op-&gt;getLine(), op-&gt;getColumn(),
+-      std::string(&quot;ilegal: &quot;) + &quot; - &quot; + left-&gt;name());
++      std::string(&quot;ilegal: &quot;) + &quot; - &quot; + term-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_UN_POSITIVO(RefPortugolAST op, Type* left) {
+-  if (left-&gt;isError()) {
++BaseSemanticWalker::evalExpr_UN_POSITIVO(RefPortugolAST op, Type* term) {
++/*
++    * + inteiro --&gt; inteiro
++    * + real --&gt; real 
++*/
++  if (term-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+-  if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) ||
+-      left-&gt;equals(PortugolTokenTypes::T_REAL)) {
+-    return _typeBuilder-&gt;primitiveType(left-&gt;primitiveType());
++  if (term-&gt;equals(PortugolTokenTypes::T_INTEIRO) ||
++      term-&gt;equals(PortugolTokenTypes::T_REAL)) {
++    return _typeBuilder-&gt;primitiveType(term-&gt;primitiveType());
+   } else {
+     report(op-&gt;getLine(), op-&gt;getColumn(),
+-      std::string(&quot;ilegal: &quot;) + &quot; + &quot; + left-&gt;name());
++      std::string(&quot;ilegal: &quot;) + &quot; + &quot; + term-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_NAO(RefPortugolAST, Type* left) {
+-  return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
++BaseSemanticWalker::evalExpr_NAO(RefPortugolAST op, Type* term) {
++
++//n&#227;o l&#243;gico --&gt; l&#243;gico
++
++  if (term-&gt;isError()) {
++    return _typeBuilder-&gt;errorType();
++  }
++
++  if (term-&gt;equals(PortugolTokenTypes::T_LOGICO)) {
++    return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
++  } else {
++    report(op-&gt;getLine(), op-&gt;getColumn(), 
++      std::string(&quot;ilegal: &quot;) + &quot; n&#227;o &quot; + term-&gt;name());
++    return _typeBuilder-&gt;errorType();
++  }
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_NAO(RefPortugolAST op, Type* left) {
+-  if (left-&gt;isError()) {
++BaseSemanticWalker::evalExpr_BIT_NAO(RefPortugolAST op, Type* term) {
++
++//~ inteiro --&gt; inteiro
++
++  if (term-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+-  if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
++  if (term-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+     report(op-&gt;getLine(), op-&gt;getColumn(),
+-      std::string(&quot;ilegal: &quot;) + &quot; ~ &quot; + left-&gt;name());
++      std::string(&quot;ilegal: &quot;) + &quot; ~ &quot; + term-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+ }
+@@ -761,7 +985,6 @@
+ using std::cerr;
+ using std::endl;
+ 
+-
+ void BaseSemanticWalker::report(int line, int col, const std::string&amp; msg) {
+   //&lt;file&gt;:&lt;line&gt;: &lt;message&gt;
+   //.............&lt;source code&gt;
+
+Modified: trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseSemanticWalker.hpp	2007-12-19 00:52:09 UTC (rev 435)
++++ trunk/gpt2/gptc/src/BaseSemanticWalker.hpp	2007-12-19 00:52:44 UTC (rev 436)
+@@ -77,9 +77,11 @@
+   void declareStruct(RefPortugolAST, const SymbolList&amp; );
+ 
+ 
++  void checkMatrixDimensions(RefPortugolAST, const std::list&lt;int&gt;&amp;);
++
+   Type* evalInitStruct(const InitStructList&amp; stc);
+   Type* evalInitMatrix(RefPortugolAST, const InitMatrixList&amp; mtx);
+-
++  
+   Type* evalMatrixSubscript(RefPortugolAST, Type*, int);
+   void  evalMatrixSubscriptType(RefPortugolAST,Type*);
+ 
+
+Modified: trunk/gpt2/gptc/src/semantic.g
+===================================================================
+--- trunk/gpt2/gptc/src/semantic.g	2007-12-19 00:52:09 UTC (rev 435)
++++ trunk/gpt2/gptc/src/semantic.g	2007-12-19 00:52:44 UTC (rev 436)
+@@ -154,9 +154,12 @@
+                           Type* ofType;
+                         }
+ 
+-  : #(T_MATRIZ ofType=tipo dims=dimensoes)
++  : #(m:T_MATRIZ ofType=tipo dims=dimensoes)
+ 
+-                  {type =_typeBuilder-&gt;matrixType(ofType,dims);}
++                  {
++                    checkMatrixDimensions(m,dims);
++                    type =_typeBuilder-&gt;matrixType(ofType,dims);
++                  }
+ 
+   ;
+ 
+@@ -507,12 +510,16 @@
+   ;
+ 
+ literal returns [Type *type]
+-  : T_TEXTO_LITERAL         {type = _typeBuilder-&gt;primitiveType(T_LITERAL);}
+-  | T_INTEIRO_LITERAL       {type = _typeBuilder-&gt;primitiveType(T_INTEIRO);}
+-  | T_REAL_LITERAL          {type = _typeBuilder-&gt;primitiveType(T_REAL);}
+-  | T_CARACTERE_LITERAL     {type = _typeBuilder-&gt;primitiveType(T_CARACTERE);}
+-  | T_VERDADEIRO            {type = _typeBuilder-&gt;primitiveType(T_LOGICO);}
+-  | T_FALSO                 {type = _typeBuilder-&gt;primitiveType(T_LOGICO);}
++                            {RefPortugolAST ast = _t;}
++  : (
++      T_TEXTO_LITERAL       {type = _typeBuilder-&gt;primitiveType(T_LITERAL);}
++    | T_INTEIRO_LITERAL     {type = _typeBuilder-&gt;primitiveType(T_INTEIRO);}
++    | T_REAL_LITERAL        {type = _typeBuilder-&gt;primitiveType(T_REAL);}
++    | T_CARACTERE_LITERAL   {type = _typeBuilder-&gt;primitiveType(T_CARACTERE);}
++    | T_VERDADEIRO          {type = _typeBuilder-&gt;primitiveType(T_LOGICO);}
++    | T_FALSO               {type = _typeBuilder-&gt;primitiveType(T_LOGICO);}
++    )
++    {ast-&gt;setEvalType(type);}
+   ;
+ 
+ 
+@@ -523,7 +530,7 @@
+                               int dimensions;
+                             }
+ 
+-  : #(id:T_IDENTIFICADOR    {type = getSymbolType(id);}
++  : #(lv:T_LVALUE id:T_IDENTIFICADOR    {type = getSymbolType(id);}
+ 
+       (
+         dimensions=lvalue_indices
+@@ -534,7 +541,10 @@
+       (type=lvalue_membro[id,type])?
+     )
+ 
+-      {ret.first = id; ret.second = type;}
++      {
++        ret.first = id; ret.second = type;
++        lv-&gt;setEvalType(type);
++      }
+   ;
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000109.html">[gpt-commit] r435 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000111.html">[gpt-commit] r437 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#110">[ date ]</a>
+              <a href="thread.html#110">[ thread ]</a>
+              <a href="subject.html#110">[ subject ]</a>
+              <a href="author.html#110">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

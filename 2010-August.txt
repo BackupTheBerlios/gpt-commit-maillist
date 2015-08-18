@@ -1,0 +1,1396 @@
+From gpt-commit-noreply at mail.berlios.de  Sat Aug 21 00:03:30 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Sat, 21 Aug 2010 00:03:30 +0200
+Subject: [gpt-commit] r544 - trunk/gpt
+Message-ID: <20100820220330.A2DF0480F0F@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2010-08-21 00:03:30 +0200 (Sat, 21 Aug 2010)
+New Revision: 544
+
+Modified:
+   trunk/gpt/NEWS
+Log:
+-Removendo duplicata
+
+Modified: trunk/gpt/NEWS
+===================================================================
+--- trunk/gpt/NEWS	2010-06-16 04:06:12 UTC (rev 543)
++++ trunk/gpt/NEWS	2010-08-20 22:03:30 UTC (rev 544)
+@@ -4,7 +4,6 @@
+ 24 de Mar?o de 2010 * gpt 1.1
+ 
+   * Implemeta??o da estrutura repita
+-  * Adicionado suporte a retorne no bloco principal
+   * Corre??o do bug #83 (ver mantis)
+   * Corre??o de bug na impress?o de valores l?gicos
+   * O bloco principal agora tem suporte para instru??o "retorne"
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Sat Aug 21 00:04:17 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Sat, 21 Aug 2010 00:04:17 +0200
+Subject: [gpt-commit] r545 - trunk/gpt
+Message-ID: <20100820220418.0C9DB480F0F@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2010-08-21 00:04:17 +0200 (Sat, 21 Aug 2010)
+New Revision: 545
+
+Modified:
+   trunk/gpt/HACKING
+Log:
+-Adicionado documentacao para MS Windows e algumas limpezas
+
+Modified: trunk/gpt/HACKING
+===================================================================
+--- trunk/gpt/HACKING	2010-08-20 22:03:30 UTC (rev 544)
++++ trunk/gpt/HACKING	2010-08-20 22:04:17 UTC (rev 545)
+@@ -1,9 +1,9 @@
+ Desenvolvendo
+ =============
+ 
+-o Instalando depend?ncias
++o Instalando depend?ncias em GNU/Linux
+ 
+-  Para desenvolver o GPT ? necess?rio instalar os seguintes programas:
++  Para desenvolver o GPT ? necess?rio instalar os seguintes softwares:
+ 
+   - g++ 
+   - make
+@@ -14,17 +14,83 @@
+   - pcre e pcrecpp
+   - nasm
+ 
+-  Para satisfazer estas depend?ncias no (K)Ubuntu ou Debian, pode-se executar
+-  o seguinte comando:
++  Para satisfazer estas depend?ncias no (K)Ubuntu ou Debian, pode-se executar o
++  seguinte comando:
+ 
+   # aptitude install g++ make automake1.9 autoconf libtool antlr libantlr-dev \
+   > libpcrecpp0 libpcre3-dev nasm
+ 
+ 
++o Instalando depend?ncias em MS Windows
++
++  Utilizamos os softwares MingW/MSYS para o desenvolvimento do projeto neste
++  sistema operacional. Eis um passo-a-passo para ter o ambiente de
++  desenvolvimento operacional:
++
++  1) Instale um SDK do Java
++
++  2) Instale o MingW:
++   
++     ex:
++       -Baixe o installer "mingw-get":
++        http://sourceforge.net/downloads/mingw/Automated%20MinGW%20Installer/mingw-get/mingw-get-0.1-mingw32-alpha-2-bin.tar.gz
++
++       -descompacte em c:\mingw (ou no driver escolhido)
++       -No prompt de comando execute:
++
++           > cd c:\mingw
++           > path=c:\mingw\bin;%path%
++	   > mingw-get.exe install mingwrt w32api binutils gcc g++ mingw32-make
++
++        Isso dever? instalar os pacotes necess?rios do MingW
++
++  3) Installe o MSYS
++
++     ex: 
++       -Baixe e instale:
++       http://downloads.sourceforge.net/mingw/MSYS-1.0.11.exe
++
++  4) Instale o ANTLR v2.x a partir do fonte
++
++     ex: 
++       -Baixe o pacote antlr-2.7.7.tar.gz em c:\msys\1.0\home\<usuario>:
++         http://www.antlr2.org/download/antlr-2.7.7.tar.gz
++
++       -Execute o shell do MSYS
++       -Descompacte, compile e instale o antlr:
++       
++          $ tar xvfz antlr-2.7.7.tar.gz
++          $ cd antlr-2.7.7; ./configure && make && make install
++
++       - Crie um link simb?lico para o antlr:
++
++          $ ln -s /usr/local/bin/antlr /usr/local/bin/runantlr
++
++  5) Instale a biblioteca PCRE
++
++     ex: 
++       - Baixe o pacote pcre-8.10.tar.gz em c:\msys\1.0\home\<usuario>:
++
++        ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.10.tar.gz
++
++       -Execute o shell do MSYS
++       -Descompacte, compile e instale o pcre:
++       
++          $ tar xvfz pcre-8.10.tar.gz
++          $ cd pcre-8.10; ./configure && make && make install
++
++
++  Agora, com os compiladores e bibliotecas presentes e o MSYS como shell, o
++  c?digo fonte do GPT pode ser compilado.   
++
++  6) Instale o NASM (http://www.nasm.us) para usar o GPT como compilador.
++
++
+ o Baixando a ?ltima vers?o do GPT
+ 
+-  Para obter as ?ltimas vers?es do c?digo fonte do GPT, ? necess?rio
+-  fazer um checkout no reposit?rio, utilizando o subversion. Para instala-lo, use o seguinte comando:
++ Para obter as ?ltimas vers?es do c?digo fonte do GPT, ? necess?rio fazer um
++ checkout no reposit?rio, utilizando o subversion. Para instal?-lo, use o
++ seguinte comando (debian/(K)Ubuntu):
+ 
+   # aptitude install subversion 
+ 
+@@ -36,7 +102,8 @@
+ 
+   ex (checkout autenticado):
+ 
+-    $ svn checkout svn+ssh://username at svn.berlios.de/svnroot/repos/gpt/trunk/gpt
++    $ svn checkout \
++    svn+ssh://username at svn.berlios.de/svnroot/repos/gpt/trunk/gpt
+ 
+   Maiores informa??es na p?gina do projeto no BerliOS:
+ 
+@@ -45,36 +112,36 @@
+ 
+ o Iniciando o desenvolvimento
+ 
+-  Se voc? estiver utilizando o c?digo fonte do reposit?rio, ? necess?rio
+-  fazer o setup do sistema de constru??o com o seguinte comando:
++  Se voc? estiver utilizando o c?digo fonte do reposit?rio, ? necess?rio fazer o
++  setup do sistema de constru??o com o seguinte comando:
+ 
+   $ make -f Makefile.cvs
+ 
+   Isto criar? os Makefile.in's nescess?rios e o shell script "configure"
+-  utilizado para criar os Makefile's utilizados pelo programa "make"
+-  para automatizar a compila??o do projeto.
++  utilizado para criar os Makefile's utilizados pelo programa "make" para
++  automatizar a compila??o do projeto.
+ 
+-  Se estiver utilizando o c?digo fonte de uma vers?o espec?fica
+-  (obtida por meio de um pacote tar.gz, por exemplo), o script "configure"
+-  j? estar? dispon?vel.
++  Se estiver utilizando o c?digo fonte de uma vers?o espec?fica (obtida por meio
++  de um pacote tar.gz, por exemplo), o script "configure" j? estar? dispon?vel.
+ 
+ 
+-  NOTA: se estiver obtendo erros nos arquivos Makefile.am ao executar
++  NOTA: se estiver obtendo erros nos arquivos Makefile.am ao executar 
+   make -f Makefile.cvs, verifique a vers?o do automake sendo utilizada:
+ 
+     $ automake --version
+ 
+   Se o comando acima informar uma vers?o inferior ? 1.9, desinstale esta vers?o,
+-  execute manualmente o automake1.9 ou fa?a as devidas configura??es para que
+-  a vers?o correta seja utilizada.
++  execute manualmente o automake1.9 ou fa?a as devidas configura??es para que a
++  vers?o correta seja utilizada.
+ 
+ 
+ o Configurando e construindo
+ 
+-  Agora, basta seguir as instru??es do arquivo INSTALL, executando o 
+-  "configure" com as op??es desejadas e, em seguida, executando "make" e 
+-  "make install", se quiser instalar os arquivos no sistema.
++  Agora, basta seguir as instru??es do arquivo INSTALL, executando o "configure"
++  com as op??es desejadas e, em seguida, executando "make" e "make install", se
++  quiser instalar os arquivos no sistema.
+ 
++
+ o Realizando commits
+ 
+   As mensagens de commit devem, idealmente, seguir pequenas conven??es:
+@@ -84,18 +151,17 @@
+ 
+   -Toda descri??o l?gica deve iniciar em uma nova linha, prefixada por "-".
+ 
+-    Ex: Duas descri??es para as modifica??es do arquivo A.cpp :
++    Ex: Duas descri??es para as modifica??es do arquivo A.cpp:
+ 
+       $ svn ci A.cpp -m"-Utilizando algoritmo mais r?pido para a fun??o f()
+-      > -Adicionado classe X para lidar com erros do usu?rio"
++      >-Adicionado classe X para lidar com erros do usu?rio"
+ 
+ 
+-  - Todas as modifica??es l?gicas que envolvem v?rios arquivos devem
+-    ser commitadas em uma mesma leva, a n?o ser que um ou mais arquivos
+-    envolvidos contenham outras modifica??es. Neste ?ltimo caso,
+-    o arquivo poder? ser commitado separadamente, mas com a mesma
+-    mensagem do commit da leva, al?m da mensagem descrevendo as 
+-    modifica??es espec?ficas.
++  - Todas as modifica??es l?gicas que envolvem v?rios arquivos devem ser
++    commitadas em uma mesma leva, a n?o ser que um ou mais arquivos envolvidos
++    contenham outras modifica??es. Neste ?ltimo caso, o arquivo poder? ser
++    commitado separadamente, mas com a mesma mensagem do commit da leva, al?m da
++    mensagem descrevendo as modifica??es espec?ficas.
+ 
+     Ex 1: A.cpp e B.cpp foram modificados. A.cpp teve o nome de uma fun??o
+     modificada, e B.cpp, por usar esta fun??o, teve que ser modificado tamb?m.
+@@ -104,13 +170,13 @@
+       $ svn ci A.cpp B.cpp -m"-Fun??o func() renomeada para f()"
+ 
+ 
+-    Ex 2: A.cpp e B.cpp foram modificados. A.cpp melhorou um algoritmo e 
++    Ex 2: A.cpp e B.cpp foram modificados. A.cpp melhorou um algoritmo e
+     modificou o nome de uma fun??o. B.cpp, por utilizar esta fun??o, teve que
+-    ser modificado tamb?m. Os dois arquivos, A.cpp e B.cpp podem ser
+-    commitdos separadamente:
++    ser modificado tamb?m. Os dois arquivos, A.cpp e B.cpp podem ser commitdos
++    separadamente:
+ 
+       $ svn ci A.cpp -m"-Fun??o func() renomeada para f()
+-      > -Utilizando algoritmo xyz para a funcao z()"
++      >-Utilizando algoritmo xyz para a funcao z()"
+  
+       $ svn ci B.cpp -m"-Fun??o func() renomeada para f()"
+ 
+@@ -125,16 +191,16 @@
+ 
+   -Mensagens de modifica??es que resolvem bugs devem ser precedidos por BUGFIX:
+ 
+-     $svn ci A.cpp -m"BUGFIX: resolvido bug ao fazer atribui??o de inteiros"
++      $ svn ci A.cpp -m"BUGFIX: resolvido bug ao fazer atribui??o de inteiros"
+ 
+-  -Mensagens de modifica??es que representam novas funcionalidades ou algo 
++  -Mensagens de modifica??es que representam novas funcionalidades ou algo
+    vis?vel/relevante para o usu?rio devem iniciar com NEW:
+ 
+-     $svn ci A.cpp -m"NEW: estruturas caso/repita agora s?o suportados"
++      $ svn ci A.cpp -m"NEW: estruturas caso/repita agora s?o suportados"
+ 
+   -Mensagens que devem ser ignoradas devem iniciar com DEVNULL
+ 
+-     $svn ci A.cpp -m"DEVNULL: identac?o de c?digo corrigida"
++      $ svn ci A.cpp -m"DEVNULL: identac?o de c?digo corrigida"
+ 
+ 
+  Ex 3: Misturando tudo:
+@@ -152,56 +218,66 @@
+     > REGULAR:
+     > -Adicionado gerador de c?digo para caso/repita"
+ 
+-   No exemplo acima, 2 mensagens s?o de bugfix, 2 s?o de novidades,
+-   1 ser? ignorada e 2 (a primeira e a ?ltima) s?o mensagens normais.
++   No exemplo acima, 2 mensagens s?o de bugfix, 2 s?o de novidades, 1 ser?
++   ignorada e 2 (a primeira e a ?ltima) s?o mensagens normais.
+  
+    Portanto, todas as keywords s?o flags que marcam o texto a seguir em diante.
+    REGULAR, portanto, resolve para o default, que s?o mensagens normais.
+ 
+ 
+-  Estas conven??es devem ser seguidas para a gera??o de arquivos ChangeLog
+-  e NEWS automatizada. ChangeLog reunir? todas as modifica??es feitas em um 
+-  per?odo, ignorando mensagens marcadas com DEVNULL, e exibindo mensagens 
+-  normais e de bugfix. O arquivo NEWS conter? mensagens marcadas com NEW
+-  e bugfixes.
++  Estas conven??es devem ser seguidas para a gera??o de arquivos ChangeLog e
++  NEWS automatizada. ChangeLog reunir? todas as modifica??es feitas em um
++  per?odo, ignorando mensagens marcadas com DEVNULL, e exibindo mensagens
++  normais e de bugfix. O arquivo NEWS conter? mensagens marcadas com NEW e
++  bugfixes.
+ 
+   Al?m do mais, BUGFIX pode ser seguido de um n?mero (ie #1234), que representa
+-  o n?mero do bug em um sistema de gerencia de bugs, que no nosso caso ? o Mantis.
++  o n?mero do bug em um sistema de gerencia de bugs, que no nossa caso ? o
++  Mantis.
+ 
++
+ o Unit Testing
+ 
+-  -Todo c?digo que pode se beneficiar de testes automatizados *devem* ter testes
++  -Todo c?digo que pode se beneficiar de testes automatizados *deve* ter testes
+   automatizados. Vers?es de n?s mesmos no futuro agradecem.
+   
+-  -Mensagens de commit para arquivos de testes n?o s?o t?o obrigat?rios.
+-  Use o bom senso para decidir se a descri??o do commit ajudaria ou n?o.
+-  
++  -Mensagens de commit para arquivos de testes n?o s?o t?o obrigat?rios.  Use o
++  bom senso para decidir se a descri??o do commit ajudaria ou n?o.
+ 
++
+   TODO: explicar a infraestrutura de testes (quando houver uma)
+ 
++
+ Documentando
+ =============
+ 
+   Os arquivos de documenta??o ficam no diret?rio doc.
+ 
+-  O manual est? em doc/manual e ? escrito em Latex, portanto ser? necess?rio a instala??o dos seguintes pacotes:
+-  - latex-make
+-  - texlive-latex-base
+-  - latex2html
++  O manual est? em doc/manual e ? escrito em LaTeX. Em abientes
++  Debian/(K)Ubuntu, os seguintes pacotes fazem parte da instala??o:
++  - latex-make - texlive-latex-base - latex2html
+   
+-  Os arquivos do manual ficam na pasta doc/manual. E o arquivo principal ? o manual.tex.
+-  Ap?s fazer as modifica??es, para gerar o pdf, basta executar o comando
++  Os arquivos do manual ficam na pasta doc/manual. E o arquivo principal ? o
++  manual.tex.  Ap?s fazer as modifica??es, basta compilar com o comando:
++
+   $ latex manual.tex
++
++  Para gerar o pdf, executa-se:
++
++  $ pdflatex manual.tex
+   
+-  Para gerar o manual em html, use o comando
++  Para gerar o manual em html, use o comando:
++
+   $ latex2html manual.tex
+ 
++
+ Distribuindo
+ =============
+ 
+ Para a distribu??o de uma nova vers?o do GPT pode-se seguir os seguinte passos:
+-  
++ 
+ o Atualizar documenta??o (ver se??o Documentando)
++  -Modificar a vers?o no manual
+   
+ o Checar se todos os arquivos novos/modificados est?o no reposit?rio
+   $ svn status 
+@@ -209,33 +285,42 @@
+ o Testar o vers?o do SVN em outros ambientes
+   
+ o Mudar a vers?o no arquivo configure.ac
+-  Atualizar os paramentros das fun??es AC_INIT e AM_INIT_AUTOMAKE com a nova vers?o do gpt
+-  Ap?s isso executar os comandos, para que a mudan?a reflita nos arquivos gerados automaticamente:
++  -Atualizar os paramentros das fun??es AC_INIT e AM_INIT_AUTOMAKE com a nova
++  vers?o do gpt. Ap?s isso executar:
+   $ autoconf && automake
+     
+ o Atualizar NEWS
+-  O arquivo NEWS dever? ser atualizado manualmente seguindo o padr?o utilizado.
++  -O arquivo NEWS dever? ser atualizado manualmente seguindo o padr?o utilizado.
+     
+ o Atualizar ChangeLog
+-  Para gerar o ChangeLog ser? necess?rio a instala??o do pacote:
+-  - php-cli
+-  
+-  Executar o comando
++  -Para gerar o ChangeLog ser? necess?rio a instala??o do php (em sistemas
++  Debian/(K)Ubuntu, instalar o pacote php-cli).  
++  -Executar o comando:
+   $ php stuff/svn2cl.php > ChangeLog
+   
+-o Commit e tag
+-  Ap?s essas atualiza??es, dever? ser feito um commit sem coment?rios e tagear a vers?o no SVN. 
+-  $ svn commit
+-  $ svn copy https://username at svn.berlios.de/svnroot/repos/gpt/trunk/gpt \
+-            https://username at svn.berlios.de/svnroot/repos/gpt/tags/gpt-1.1\
+-      -m "Release 1.1"
+-
+ o Criar pacotes
+   - tar.gz
+-    $ make distclean; mkdir build; cd build; ../configure && make && make distcheck
++    $ make distclean; mkdir build; cd build; \
++    > ../configure && make && make distcheck
+     
+   - debian
++     TODO
+ 
+-o Fazer o upload dos arquivos
++  - MS Windows
++    Usar o Inno Setup (http://www.jrsoftware.org/isdl.php) para cria??o do
++    installer.  A configura??o para cria??o do pacote se encontra em
++    /gpt/packages/win_setup/
+   
++
++o Commit e tag
++  Ap?s essas atualiza??es, dever? ser feito um commit e tagear
++  a vers?o no SVN:
++
++  $ svn commit -m "Congelando a versao 1.1"
++  $ svn copy https://username at svn.berlios.de/svnroot/repos/gpt/trunk/gpt \
++            https://username at svn.berlios.de/svnroot/repos/gpt/tags/gpt-1.1\
++      -m "Release 1.1"
++
++o Fazer o upload dos arquivos para gpt.berlios.de 
++  
+ o Atualizar o site e publicar as novidades
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Sat Aug 21 00:05:06 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Sat, 21 Aug 2010 00:05:06 +0200
+Subject: [gpt-commit] r546 - trunk/gpt/doc/manual
+Message-ID: <20100820220506.BFD2E480F0F@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2010-08-21 00:05:06 +0200 (Sat, 21 Aug 2010)
+New Revision: 546
+
+Modified:
+   trunk/gpt/doc/manual/manual.tex
+Log:
+-Adicionado documentacao do 'repita' e algumas limpezas
+
+Modified: trunk/gpt/doc/manual/manual.tex
+===================================================================
+--- trunk/gpt/doc/manual/manual.tex	2010-08-20 22:04:17 UTC (rev 545)
++++ trunk/gpt/doc/manual/manual.tex	2010-08-20 22:05:06 UTC (rev 546)
+@@ -233,7 +233,7 @@
+ portugol. Semelhante ? linguagens como Pascal e C, ? uma linguagem imperativa, com comandos de 
+ controle de fluxo, manipula??o de dados e recursos de entrada e sa?da b?sicos.
+ A linguagem em \textit{case sensitive}, o que significa que, por exemplo, uma
+-fun??o chamada ''leia'' ? diferente de uma fun??o chamada ''Leia''.
++fun??o chamada ``leia'' ? diferente de uma fun??o chamada ``Leia''.
+ 
+ \section{Tipos de dados}
+ 
+@@ -252,7 +252,7 @@
+     inteiro & 19 \\
+     real & 2.5 \\
+     caractere & 'a' \\
+-    literal & ''uma frase'' \\
++    literal & ``uma frase'' \\
+     l?gico & verdadeiro \\
+     \hline
+   \end{tabular}
+@@ -261,7 +261,7 @@
+ \end{center}
+ \end{table}
+ 
+-Com esses tipos, pode-se criar conjuntos como vetores ou matrizes ''n''
++Com esses tipos, pode-se criar conjuntos como vetores ou matrizes ``n''
+ dimensionais. Tipos mais complexos n?o s?o suportados.
+ 
+ 
+@@ -269,8 +269,8 @@
+ 
+ O conjunto de estruturas de controle s?o os mais primitivos. Uma
+ estrutura condicional (se/sen?o) e duas estruturas de repeti??o (enquanto/para)
+-s?o suportadas. Embora a estrutura ''para'' seja uma especializa??o de um la?o
+-simples como o ''enquanto'', ela foi implementada, visto que uma variedade
++s?o suportadas. Embora a estrutura ``para'' seja uma especializa??o de um la?o
++simples como o ``enquanto'', ela foi implementada, visto que uma variedade
+ de livros e muitos professores os discutem.
+ 
+ \begin{table}[h!t]
+@@ -283,6 +283,7 @@
+       \hline
+       se/ent?o/sen?o/& condicional \\
+       enquanto & repeti??o \\
++      repita & repeti??o \\
+       para & repeti??o \\
+       \hline    
+     \end{tabular}
+@@ -330,7 +331,7 @@
+   imprima("Ol? mundo!");
+ fim
+   \end{verbatim}
+-  \caption{''Ol? Mundo'' em G-Portugol.}
++  \caption{``Ol? Mundo'' em G-Portugol.}
+ \end{program}
+ 
+ \noindent 
+@@ -348,9 +349,9 @@
+ \end{verbatim}
+ 
+ Esse comando compila o algoritmo e salva o arquivo bin?rio resultante como
+-''olamundo'' (ou ''olamundo.exe'') no diret?rio atual. Se a op??o ''-o
++``olamundo'' (ou ``olamundo.exe'') no diret?rio atual. Se a op??o ``-o
+ <arquivo>'' n?o for informada, o GPT criar? o execut?vel usando o nome do
+-algoritmo. Ap?s executar o programa criado, ? exibido o texto ''Ola mundo!'' na
++algoritmo. Ap?s executar o programa criado, ? exibido o texto ``Ola mundo!'' na
+ tela.
+ \newline
+ 
+@@ -365,7 +366,7 @@
+           "Concatena??o"); //erro!
+ \end{verbatim}
+ 
+-Outro detalhe ? a pontua??o. Da mesma forma que em C, o '';'' ? utilizado como
++Outro detalhe ? a pontua??o. Da mesma forma que em C, o ``;'' ? utilizado como
+ finalizador de enunciados. Se for necess?rio utilizar uma aspa dupla em um literal, 
+ deve-se utilizar o escape:
+ 
+@@ -376,8 +377,8 @@
+ \section{Vari?veis}
+ 
+ A declara??o de vari?veis deve ser feita dentro de um bloco espec?fico, que deve aparecer logo ap?s a 
+-declara??o do algoritmo. O bloco ? iniciado pela palavra-chave ''vari?veis'' (sim, com acento) e 
+-termina com a palavra chave ''fim-vari?veis''. Pelo menos uma vari?vel deve
++declara??o do algoritmo. O bloco ? iniciado pela palavra-chave ``vari?veis'' (sim, com acento) e 
++termina com a palavra chave ``fim-vari?veis''. Pelo menos uma vari?vel deve
+ ser declarada dentro do bloco (embora o bloco em si seja opcional) e apenas
+ um bloco em escopo global deve ser declarado. Eis um exemplo para estudo:
+ 
+@@ -407,10 +408,10 @@
+ \end{verbatim}
+ 
+ Isso ?, um ou mais identificadores separados por virgula, seguido de um
+-'':'', seguido de um tipo, seguido, finalmente, de '';''. Como pode-se notar, ?
++``:'', seguido de um tipo, seguido, finalmente, de ``;''. Como pode-se notar, ?
+ parecido com Pascal. Assim que um programa ? executado, todas as vari?veis,
+ primitivas ou vetores/matrizes, declaradas s?o iniciadas com um valor nulo ou
+-''0'' automaticamente. Vale ressaltar que constantes (const, final, etc) n?o s?o
++``0'' automaticamente. Vale ressaltar que constantes (const, final, etc) n?o s?o
+ suportados. Os tipos primitivos suportados encontram-se na tabela
+ \ref{tb_tipos_primitivos}
+ 
+@@ -419,12 +420,12 @@
+ 
+ \begin{itemize}
+  \item 
+-  Observe que o nome do algoritmo (''teste\_variaveis'')
++  Observe que o nome do algoritmo (``teste\_variaveis'')
+ n?o tem
+-acento. Se declarar o algoritmo como ''teste\_vari?veis'' e tentar
++acento. Se declarar o algoritmo como ``teste\_vari?veis'' e tentar
+ compilar o c?digo, o seguinte erro ser? exibido:
+ 
+-  \textbf{Linha: 1 - ''teste\_vari?veis'' n?o pode ter caracteres
++  \textbf{Linha: 1 - ``teste\_vari?veis'' n?o pode ter caracteres
+ especiais.}
+ 
+   Portanto, identificadores (nomes de vari?veis, fun??es e do algoritmo) n?o
+@@ -435,16 +436,16 @@
+   formam identificadores v?lidos. 
+ 
+  \item 
+-  O segundo ponto, ? a palavra-chave ''vari?veis'': ela tem acento, e isso ?
++  O segundo ponto, ? a palavra-chave ``vari?veis'': ela tem acento, e isso ?
+ permitido e obrigat?rio. 
+ 
+   \item
+   O terceiro, ? a defini??o do bloco e sua (falta de) semelhan?a com o Pascal. Todas os blocos em G-Portugol 
+-  tentam seguir o formato ''nome/fim-nome'', em favor da uniformidade e em detrimento de exce??es lingu?sticas 
++  tentam seguir o formato ``nome/fim-nome'', em favor da uniformidade e em detrimento de exce??es lingu?sticas 
+   que confundem os estudantes.
+ 
+   \item 
+-  E, finalmente, o quarto ponto ? a aus?ncia de c?digo entre ''in?cio'' e ''fim''. 
++  E, finalmente, o quarto ponto ? a aus?ncia de c?digo entre ``in?cio'' e ``fim''. 
+   O programa n?o ? obrigado a ter enunciados ou comandos.
+ \end{itemize}
+ 
+@@ -455,7 +456,7 @@
+ \subsection{Vetores e matrizes (conjuntos)}
+ 
+ 
+-Vetores e matrizes ''n'' dimensionais de tipos primitivos s?o suportados. Um
++Vetores e matrizes ``n'' dimensionais de tipos primitivos s?o suportados. Um
+ exemplo de declara??o de uma matriz:
+ 
+ 
+@@ -466,22 +467,22 @@
+ fim-vari?veis 
+ \end{verbatim}
+ 
+-O tipo do vetor ou matriz ? dado pelo nome do tipo no plural (''inteiros'' para tipo inteiro, ''literais'' 
+-para tipo literal, etc). Os subscritos na declara??o (delimitados por ''[]'') indicam o tamanho da matriz, 
+-e sua dimens?o ? informada pelo n?mero de subscritos. Portanto, ''bitset'' ? um vetor de 10 valores l?gicos,
+-enquanto ''quadr'' ? uma matriz bidimensional, onde as duas dimens?es tem tamanho 4.
++O tipo do vetor ou matriz ? dado pelo nome do tipo no plural (``inteiros'' para tipo inteiro, ``literais'' 
++para tipo literal, etc). Os subscritos na declara??o (delimitados por ``[]'') indicam o tamanho da matriz, 
++e sua dimens?o ? informada pelo n?mero de subscritos. Portanto, ``bitset'' ? um vetor de 10 valores l?gicos,
++enquanto ``quadr'' ? uma matriz bidimensional, onde as duas dimens?es tem tamanho 4.
+ 
+-? importante observar que matrizes s?o ''0 based'', isso ?, iniciam no
+-?ndice 0 e seus ?ndices s?o sempre inteiros positivos. Logo, a matriz ''bitset''
++? importante observar que matrizes s?o ``0 based'', isso ?, iniciam no
++?ndice 0 e seus ?ndices s?o sempre inteiros positivos. Logo, a matriz ``bitset''
+ pode ser usada do ?ndice 0 at? o ?ndice 9 (inclusive). Seu ?ndice 10 n?o ?
+ v?lido e seu uso poder? acarretar em erros de execu??o (\textit{runtime
+ errors}). Matrizes, assim como vari?veis de tipos primitivos, s?o inicializadas
+-com o valor ''0'' ou ''nulo'' em todas as suas posi??es. Quando usadas como
++com o valor ``0'' ou ``nulo'' em todas as suas posi??es. Quando usadas como
+ argumentos de fun??es, matrizes s?o passadas \textit{por valor}.
+ 
+ \begin{quotation}
+-  \textit{''O mundo ? divido em dois grupos: aqueles que come?am a
+-contar a partir do ''0'', e aqueles que n?o.''}
++  \textit{``As pessoas s?o dividas em dois grupos: aquelas que come?am a
++contar a partir do '0', e aquelas que n?o.''}
+    \begin{flushright}
+   -- An?nimo
+   \end{flushright}
+@@ -493,7 +494,7 @@
+ demais estruturas utilizam express?es, que s?o avaliadas para que uma
+ decis?o seja tomada (repetir execu??o, selecionar bloco de instru??es,
+ etc). Qualquer express?o pode ser avaliada como express?o l?gica.
+-Express?es num?ricas de valor ''0'' s?o avaliadas como falso. Demais valores
++Express?es num?ricas de valor ``0'' s?o avaliadas como falso. Demais valores
+ num?ricos s?o avaliados como verdadeiro. Valores literais nulos, da mesma forma,
+ s?o avaliados como falso, e demais textos, como verdadeiro. Para maiores
+ detalhes sobre express?es, veja a se??o \ref{sec:expr}.
+@@ -549,18 +550,18 @@
+ 
+ \begin{itemize}
+   \item 
+-  O nome do algoritmo ? ''idade'', assim como o nome de uma vari?vel. N?o h?
++  O nome do algoritmo ? ``idade'', assim como o nome de uma vari?vel. N?o h?
+ conflitos.
+ 
+   \item
+-  O operador de atribui??o ? o \textit{pascal-like} '':=''.
++  O operador de atribui??o ? o \textit{pascal-like} ``:=''.
+ 
+   \item
+-  A fun??o interna ''leia'' pode ser usada por vari?veis primitivas de qualquer
++  A fun??o interna ``leia'' pode ser usada por vari?veis primitivas de qualquer
+ tipo.
+ 
+   \item
+-  A fun??o ''imprima'' recebe um n?mero vari?vel de argumentos de qualquer tipo primitivo,
++  A fun??o ``imprima'' recebe um n?mero vari?vel de argumentos de qualquer tipo primitivo,
+ sendo que pelo menos um argumento deve ser passado, que podem ser constantes literais 
+ (n?meros, textos entre aspas, caracteres entre aspas simples,...), vari?veis primitivas ou 
+ ?ndices de vetores/matrizes. Os valores s?o concatenados e adicionados de um caractere EOL 
+@@ -572,15 +573,15 @@
+ tamb?m, permite escapes para representar caracteres como EOL ('$\backslash$n').
+ 
+   \item
+-  Assim como a palavra-chave ''vari?veis'', ''ent?o'' e ''sen?o'' devem ser acentuadas. 
++  Assim como a palavra-chave ``vari?veis'', ``ent?o'' e ``sen?o'' devem ser acentuadas. 
+ 
+   \item 
+-  Par?ntesis ao redor da express?o da estrutura ''se/ent?o'' s?o opcionais.
++  Par?ntesis ao redor da express?o da estrutura ``se/ent?o'' s?o opcionais.
+ 
+   \item
+-  Como em ''vari?veis/fim-vari?veis'', blocos ''se'' tem seus respectivos e obrigat?rios ''fim-se''. 
++  Como em ``vari?veis/fim-vari?veis'', blocos ``se'' tem seus respectivos e obrigat?rios ``fim-se''. 
+   N?o h? a op??o de ignorar a defini??o do bloco quando apenas um enunciado ?
+-  usado, como na linguagem C onde o uso de ''\{\}'' ? opcional. Tamb?m, n?o h? 
++  usado, como na linguagem C onde o uso de ``\{\}'' ? opcional. Tamb?m, n?o h? 
+   imposi??es  sobre a indenta??o. O programa \ref{programa_se_incorreto}
+ ilustra esse assunto.
+ 
+@@ -604,11 +605,11 @@
+ 
+ \section{Estruturas de repeti??o}
+ 
+-\subsection{A estrutura ''enquanto''}
++\subsection{A estrutura ``enquanto''}
+ 
+-A estrutura ''enquanto'' ? a mais b?sica e comum das estruturas de repeti??o. Seu funcionamento ? o mesmo que
++A estrutura ``enquanto'' ? a mais b?sica e comum das estruturas de repeti??o. Seu funcionamento ? o mesmo que
+ em outras linguagens populares, onde um conjunto de instru??es ? executado repetidamente enquanto o valor 
+-l?gico de uma dada express?o for avaliado como ''verdadeiro''.
++l?gico de uma dada express?o for avaliado como ``verdadeiro''.
+ 
+ \begin{program}
+   \begin{verbatim}
+@@ -635,20 +636,55 @@
+   imprima("fatorial de ",fat," ? igual a ",res);  
+ fim
+   \end{verbatim}
+-  \caption{Exemplo de programa que utiliza a estrutura ''enquanto''.}
++  \caption{Exemplo de programa que utiliza a estrutura ``enquanto''.}
+ \end{program}
+ 
+ 
+-Assim como na estrutura ''se/ent?o'', par?nteses em volta da express?o s?o
++Assim como na estrutura ``se/ent?o'', par?nteses em volta da express?o s?o
+ opcionais e as express?es seguem as mesmas regras.
+ 
+-\subsection{A estrutura ''para''}
++\subsection{A estrutura ``repita''}
+ 
+-A estrutura ''para'' ? uma especializa??o da estrutura ''enquanto'', e costuma ser ensinada em cursos de programa??o.
++A estrutura ``repita'' tem o funcionamento semelhante ? ``enquanto''. A
++diferen?a est? na ordem da avalia??o da condi??o de repeti??o: ``enquanto''
++avalia a condi??o antes de iniciar o la?o, e ``repita'' avalia ao final do bloco.
++
++\begin{program}
++  \begin{verbatim}
++algoritmo fatorial2;
++
++vari?veis
++  res : inteiro;
++  fat : inteiro;
++  x   : inteiro;
++fim-vari?veis
++
++in?cio
++  imprima("Digite um n?mero:");
++  fat := leia();
++  res := 1;
++  x := fat;
++
++  repita
++    res := res * x;
++    x   := x - 1;
++  at? x <= 0;
++
++  imprima("fatorial de ",fat," ? igual a ",res);  
++fim
++  \end{verbatim}
++  \caption{Exemplo de programa que utiliza a estrutura ``repita.''}
++\end{program}
++
++ 
++
++\subsection{A estrutura ``para''}
++
++A estrutura ``para'' ? uma especializa??o da estrutura ``enquanto'', e costuma ser ensinada em cursos de programa??o.
+ Sua sintaxe ? semelhante ao que se v? em literatura sobre algoritmos e estruturas de dados, entretanto, ? uma sintaxe
+ diferente de linguagens populares como C e Java.
+ 
+-A estrutura ''para'' tem a seguinte forma:
++A estrutura ``para'' tem a seguinte forma:
+ 
+ \begin{verbatim}
+  para <vari?vel> de <express?o> at? <express?o> [passo <inteiro>] fa?a
+@@ -660,18 +696,18 @@
+ Onde:
+ \begin{itemize}
+  \item 
+-  ''vari?vel'' deve ser uma vari?vel num?rica;
++  ``vari?vel'' deve ser uma vari?vel num?rica;
+   \item
+-  ''express?o'' deve ser uma express?o que tem seu valor avaliado como num?rico;
++  ``express?o'' deve ser uma express?o que tem seu valor avaliado como num?rico;
+   \item
+-  ''passo'', se existir, deve ser seguido por um inteiro constante.
++  ``passo'', se existir, deve ser seguido por um inteiro constante.
+ \end{itemize}
+   
+ As express?es de/at? controlam os valores que a vari?vel num?rica ter? no
+ in?cio e no fim do la?o, respectivamente. Tanto o controle da frequ?ncia, quanto
+ a decis?o de incrementar ou decrementar a vari?vel de controle ? feita pelo
+-termo opcional ''passo'', e seu valor padr?o ? 1. Por exemplo, para iterar o
+-valor de uma vari?vel num?rica ''x'' de 0 at? 10, escreve-se: 
++termo opcional ``passo'', e seu valor padr?o ? 1. Por exemplo, para iterar o
++valor de uma vari?vel num?rica ``x'' de 0 at? 10, escreve-se: 
+ 
+   \begin{verbatim}
+ para x de 0 at? 10 fa?a
+@@ -714,35 +750,35 @@
+ fim
+ 
+   \end{verbatim}
+-  \caption{Exemplo de programa que utiliza a estrutura ''para''.}
++  \caption{Exemplo de programa que utiliza a estrutura ``para''.}
+ \end{program}
+ 
+ 
+-Em compara??o com a estrutura ''for'' de linguagens com sintaxe baseadas em C,
+-h? diferen?as n?o s? de sintaxe, mas de implementa??o. Um ''for'' que itera
++Em compara??o com a estrutura ``for'' de linguagens com sintaxe baseadas em C,
++h? diferen?as n?o s? de sintaxe, mas de implementa??o. Um ``for'' que itera
+ sobre uma vari?vel num?rica de 0 at? (incluindo) 10, ao sair do la?o, o
+ valor dessa vari?vel ser? 11. Em G-Portugol, a vari?vel ter? o valor 10 ao
+-sair do la?o. Essa diferen?a acontece porque a sintaxe do ''para'' induz a esse
+-comportamento, diferente da sintaxe do ''for'', que tem um aspecto de mais
++sair do la?o. Essa diferen?a acontece porque a sintaxe do ``para'' induz a esse
++comportamento, diferente da sintaxe do ``for'', que tem um aspecto de mais
+ baixo n?vel.
+ 
+ \begin{verbatim}  
+ //c?digo em C
+ for(x = 0; x <= 10; x++);
+-printf("%d", x); //imprime ''11''
++printf("%d", x); //imprime "11"
+ //--------------
+ 
+ //c?digo equivalente em G-Portugol
+ para x de 0 at? 10 fa?a
+ fim-para
+ 
+-imprima(x); //imprime ''10''
++imprima(x); //imprime "10"
+ \end{verbatim}
+ 
+-Ademais, da mesma forma que o ''for'', ? poss?vel que a vari?vel de controle tenha seu valor
++Ademais, da mesma forma que o ``for'', ? poss?vel que a vari?vel de controle tenha seu valor
+ alterado pelos comandos aninhados. Isso permite que o la?o seja encerrado prematuramente, como tamb?m ? comum
+-em estruturas como ''enquanto''. A utilidade dessa t?cnica est? no fato de G-Portugol n?o incorporar mecanismos
+-para refinar o controle de la?os (como ''break'' e ''continue'', encontrados em linguagens populares).
++em estruturas como ``enquanto''. A utilidade dessa t?cnica est? no fato de G-Portugol n?o incorporar mecanismos
++para refinar o controle de la?os (como ``break'' e ``continue'', encontrados em linguagens populares).
+ 
+ \section{Fun??es}
+ 
+@@ -752,10 +788,10 @@
+ retorno, que deve ser de tipo primitivo. Tanto o retorno de dados como a
+ passagem de argumentos s?o feitos \textit{por valor}.
+ 
+-Para retorno prematuro ou retorno de dados, a palavra chave ''retorne'' ? usada. Para fun??es que retornam dados,
+-''retorne'' deve ser seguido de um operando, que ? uma express?o cujo valor deve ser compat?vel com o tipo da fun??o.
+-J? fun??es que n?o declaram um tipo de retorno expliticamente  (equivalente a fun??es de retorno ''void'' em C), 
+-''retorne'' deve ser usado sem operando.
++Para retorno prematuro ou retorno de dados, a palavra chave ``retorne'' ? usada. Para fun??es que retornam dados,
++``retorne'' deve ser seguido de um operando, que ? uma express?o cujo valor deve ser compat?vel com o tipo da fun??o.
++J? fun??es que n?o declaram um tipo de retorno expliticamente  (equivalente a fun??es de retorno ``void'' em C), 
++``retorne'' deve ser usado sem operando.
+ 
+ \begin{program}[h!t]
+  \begin{verbatim}
+@@ -787,20 +823,20 @@
+ \subsection{Fun??es internas}
+ \label{sec:func_internas}
+ 
+-Como j? foi visto em exemplos anteriores, G-Portugol oferece duas fun??es internas: ''leia'' e ''imprima'', que
++Como j? foi visto em exemplos anteriores, G-Portugol oferece duas fun??es internas: ``leia'' e ``imprima'', que
+ permitem uso b?sico de entrada e sa?da, respectivamente.
+ 
+-A fun??o ''leia'' n?o recebe argumentos e retorna o valor lido da entrada padr?o
+-(''STDIN''), o que significa, geralmente, ler os dados que o usu?rio digitar
+-no teclado, seguido do caractere ''nova linha'' (em geral, associado a
+-tecla ''Enter'' no teclado). O tipo de dado retornado por ''leia''
++A fun??o ``leia'' n?o recebe argumentos e retorna o valor lido da entrada padr?o
++(``STDIN''), o que significa, geralmente, ler os dados que o usu?rio digitar
++no teclado, seguido do caractere ``nova linha'' (em geral, associado a
++tecla ``Enter'' no teclado). O tipo de dado retornado por ``leia''
+ ? implicitamente convertido para o tipo primitivo exigido no contexto em que ela
+ ? usada.
+ 
+-A fun??o ''imprima'' recebe um n?mero vari?vel de argumentos de qualquer tipo
++A fun??o ``imprima'' recebe um n?mero vari?vel de argumentos de qualquer tipo
+ primitivo, sendo que pelo menos um argumento deve ser passado. Os
+ valores passados como argumentos s?o convertidos para texto, concatenados
+-na ordem definida e enviados para ''STDOUT'' (em geral, associado ao
++na ordem definida e enviados para ``STDOUT'' (em geral, associado ao
+ \textit{display} ou monitor). N?o h? retorno de valor para esta fun??o.
+ 
+ \begin{program}
+@@ -832,7 +868,7 @@
+ fim
+   \end{verbatim}
+ 
+-  \caption{Exemplo de usos das fun??es internas ''leia'' e ''imprima''.}
++  \caption{Exemplo de usos das fun??es internas ``leia'' e ``imprima''.}
+ \end{program}
+ 
+ 
+@@ -905,7 +941,7 @@
+ usu?rios (estudantes e professores) a se ater mais com o estudo da linguagem do
+ que com o estudo da disciplina em quest?o. Isso ?, a aus?ncia de acentos, por
+ exemplo, obriga o usu?rio a aprender seus termos excepcionais. Al?m do mais,
+-o uso de termos como ''nao'', chama a aten??o constante do usu?rio para o fato
++o uso de termos como ``nao'', chama a aten??o constante do usu?rio para o fato
+ de a palavra n?o estar acentuada, o que costuma desviar aten??o do estudo.
+ 
+ Consequentemente, o uso de acentos permite que a linguagem seja o mais pr?ximo
+@@ -913,7 +949,7 @@
+ si. Ademais, o c?digo fica mais leg?vel e permite uma leitura mais agrad?vel.
+ 
+ Al?m dos acentos, ? exigido que as palavras-chave usadas sejam completas ou por
+-extenso, sem permitir abrevia??es (ex. ''proc'', ''func'', ''char'', ''int'',
++extenso, sem permitir abrevia??es (ex. ``proc'', ``func'', ``char'', ``int'',
+ ...), o que dificulta a leitura de programas por um leigo.
+ 
+ H? tamb?m decis?es quanto a forma verbal de comandos e fun??es. Em geral,
+@@ -927,7 +963,7 @@
+ literaturas sobre algoritmos.
+ 
+ \begin{quotation}
+-  \textit{''Programas devem ser escritos para pessoas lerem e, apenas incidentalmente, para m?quinas executarem.''}
++  \textit{``Programas devem ser escritos para pessoas lerem e, apenas incidentalmente, para m?quinas executarem.''}
+    \begin{flushright}
+   -- Abelson e Sussman
+   \end{flushright}
+@@ -964,7 +1000,7 @@
+ estruturas, como algumas declara??es e enunciados. 
+ 
+ Por exemplo, pode ser interessante que, para se declarar uma var?avel, n?o se
+-use um bloco iniciado por ''vari?veis'' e terminado por ''fim-vari?veis'', mas
++use um bloco iniciado por ``vari?veis'' e terminado por ``fim-vari?veis'', mas
+ como um bloco parecido com a declara??o de vari?veis em Pascal, ou at? em C (que
+ sequer exige delimita??o de bloco de vari?veis).
+ 
+@@ -1015,7 +1051,7 @@
+ \end{verbatim}
+ 
+ Esse formato difere de linguagens como Pascal e C. Em Pascal, o bloco n?o tem um
+-delimitador final (como ''fim-vari?veis'') e em C, n?o existe qualquer
++delimitador final (como ``fim-vari?veis'') e em C, n?o existe qualquer
+ delimitador.
+ 
+ Delimitar o bloco permite maior consist?ncia com outras formas gramaticais
+@@ -1024,15 +1060,15 @@
+ 
+ Os tipos primitivos englobam os tipos mais b?sicos das linguagens populares.
+ No momento, agregados heterog?neos como, por exemplo, estruturas/registros
+-(''struct'' em C) n?o s?o suportados. Para uma lista dos tipos suportados, veja
++(``struct'' em C) n?o s?o suportados. Para uma lista dos tipos suportados, veja
+ a tabela \ref{tb_tipos_primitivos}.
+   
+ \subsection{Bloco Principal}
+ 
+-As linguagens de programa??o devem, de alguma forma, oferecer um ''entry point''
++As linguagens de programa??o devem, de alguma forma, oferecer um ``entry point''
+ (ponto de entrada), de onde se inicia a execu??o do programa. O ponto de entrada
+ pode ser uma fun??o ou um bloco an?nimo. Na literatura, em geral, o bloco
+-principal ? delimitado pelos termos ''in?cio''e ''fim'' e G-Portugol segue
++principal ? delimitado pelos termos ``in?cio''e ``fim'' e G-Portugol segue
+ essa conven??o. Essa decis?o mant?m um n?vel satisfat?rio de coer?ncia
+ com o bloco de vari?veis globais e estruturas de controle, embora n?o sejam
+ intimamente relacionados.
+@@ -1041,9 +1077,9 @@
+ recurso pode ser vantajoso no ensino, promovendo a clareza de c?digo,
+ portanto, sua implementa??o pode ser discutida para vers?es futuras.
+ 
+-Embora a sintaxe seja bem diferente, o bloco principal tem uma fun??o sem?ntica semelhante ?
+-fun??o \textit{main} do C. Possuindo a possibilidade de retornar um valor inteiro atrav?s do 
+-comando ''retorne''. 
++Embora a sintaxe seja bem diferente, o bloco principal pode ser visto como uma
++fun??o (como \textit{main} na linguagem C). H?, portanto, a possibilidade de
++retornar um valor inteiro atrav?s do comando ``retorne''.
+ 
+ \begin{program}
+   \begin{verbatim}
+@@ -1063,12 +1099,12 @@
+ 
+ Estruturas de controle s?o formadas por um cabe?alho seguido por
+ um bloco de comandos e terminados por um delimitador final. Embora os
+-delimitadores do bloco n?o sejam ''in?cio'' e ''fim'', h? um grau de semelhan?a
++delimitadores do bloco n?o sejam ``in?cio'' e ``fim'', h? um grau de semelhan?a
+ mantido: o delimitador inicial ? omitido (uma vez que o cabe?alho ? entendido
+-como delimitador inicial) e o delimitador final ? o termo ''fim-'' seguido do
++como delimitador inicial) e o delimitador final ? o termo ``fim-'' seguido do
+ nome da estrutura.
+ 
+-No cabe?alho das estruturas como ''enquanto'' e ''se'', as express?es n?o
++No cabe?alho das estruturas como ``enquanto'' e ``se'', as express?es n?o
+ precisam ser delimitadas por par?nteses.
+ 
+ 
+@@ -1088,43 +1124,43 @@
+  \item 
+   Inteiros: Podem ser representados em base decimal, hexadecimal, octal e
+ bin?ria. Representa??es decimais s?o formadas, opcionalmente, por um sinal
+-(''+'' ou ''-'') seguido de um mais algarismos(ex.''120'', ''+5'', e ''-2'').
+-Representa??es hexadecimais s?o representadas com o prefixo ''0x'' ou
+-'' 0X'', seguido de algarismos entre ''0'' e ''9'' e letras entre ''a'' e ''f''
+-ou ''A'' e ''F'' (ex. ''0xF1A5''). Representa??es octais s?o representadas com o
+-prefixo ''0c'' ou ''0C'', seguido de algarismos entre ''0'' e ''7'' (ex.
+-''0c61''). Finalmente, representa??es bin?rias s?o formadas pelo prefixo ''0b''
+-ou ''0B'', seguido de algarismos ''0'' e ''1'' (ex. ''0b101'').
++(``+'' ou ``-'') seguido de um mais algarismos(ex.``120'', ``+5'', e ``-2'').
++Representa??es hexadecimais s?o representadas com o prefixo ``0x'' ou
++`` 0X'', seguido de algarismos entre ``0'' e ``9'' e letras entre ``a'' e ``f''
++ou ``A'' e ``F'' (ex. ``0xF1A5''). Representa??es octais s?o representadas com o
++prefixo ``0c'' ou ``0C'', seguido de algarismos entre ``0'' e ``7'' (ex.
++``0c61''). Finalmente, representa??es bin?rias s?o formadas pelo prefixo ``0b''
++ou ``0B'', seguido de algarismos ``0'' e ``1'' (ex. ``0b101'').
+ 
+   \item
+-  Reais: s?o representados por, opcionalmente, um sinal (''+ ou
+-''-''), seguido de algarismos separados por um ''.'' como ''-1.2345''.
++  Reais: s?o representados por, opcionalmente, um sinal (``+'' ou
++``-''), seguido de algarismos separados por um ``.'' como ``-1.2345''.
+ 
+   \item
+   Caracteres: s?o representados por um ?nico simbolo entre aspas simples.
+-Alguns caracteres especiais s?o representados com escape (''$\backslash$'')
+-seguido de s?mbolo identificador. Esses caracteres s?o o LF (''$\backslash$n''),
+-CR (''$\backslash$r'') e barra invertida (''$\backslash$$\backslash$''). A
+-aus?ncia de s?mbolos entre as aspas simples indica um caractere ''nulo''.
++Alguns caracteres especiais s?o representados com escape (``$\backslash$'')
++seguido de s?mbolo identificador. Esses caracteres s?o o LF (``$\backslash$n''),
++CR (``$\backslash$r'') e barra invertida (``$\backslash$$\backslash$''). A
++aus?ncia de s?mbolos entre as aspas simples indica um caractere ``nulo''.
+ Internamente, caracteres s?o representados como n?meros inteiros, o que permite
+ sua compatibilidade num?rica.
+ 
+   \item
+   Literais: s?o representados por um conjunto de caracteres entre aspas duplas.
+-Eles podem conter caracteres especiais como ''$\backslash$n'' e devem ser
++Eles podem conter caracteres especiais como ``$\backslash$n'' e devem ser
+ definidos em apenas uma linha de c?digo. Valores literais s?o os ?nicos que n?o
+ tem uma representa??o num?rica, impedindo sua participa??o em express?es com
+ operadores aritm?ticos (soma, divis?o, etc). Compara??es de igualdade
+ para valores literais s?o feitas caractere por caractere em \textit{case
+-sensitive}. Portanto, a express?o ''portugol'' = ''Portugol'' ? avaliada como
++sensitive}. Portanto, a express?o ``portugol'' = ``Portugol'' ? avaliada como
+ falsa. J? compara??es de grandeza s?o feitos calculando o n?mero de caracteres
+-que comp?em os valores literais. Ent?o, a express?o ''maria'' > ''jos?'' ?
++que comp?em os valores literais. Ent?o, a express?o ``maria'' > ``jos?'' ?
+ avaliada como verdadeira.
+ 
+   \item
+-  L?gicos: s?o representados pelas palavras ''verdadeiro'' e ''falso''.
+-Numericamente, qualquer valor diferente de ''0'' representa o valor verdadeiro e
+-''0'' representa o valor falso.
++  L?gicos: s?o representados pelas palavras ``verdadeiro'' e ``falso''.
++Numericamente, qualquer valor diferente de ``0'' representa o valor verdadeiro e
++``0'' representa o valor falso.
+ 
+ \end{itemize}
+ 
+@@ -1172,13 +1208,13 @@
+ Existem dois casos em que ocorre uma coer??o impl?cita. O primeiro caso ocorre
+ durante a avalia??o de uma express?o que tem operandos de tipos diferentes (mas
+ compat?veis entre si), onde n?o h? perda de dados e um dos termos ? promovido
+-para o tipo do seu termo complementar. Por exemplo, na express?o ''2 + 1.5'', o
+-termo ''2'' ? promovido para o tipo ''real'', tendo o valor ''2.0'' antes
+- que  a soma seja processada. Da mesma forma, sendo ''x'' uma vari?vel de tipo
+-real, a express?o ''x := 5 / 2'' atribuir? a ''x'' o valor ''2.00''. Esse
+-comportamento n?o muito ?bvio ? similar ao da linguagem C, onde ''5 / 2'' ?
++para o tipo do seu termo complementar. Por exemplo, na express?o ``2 + 1.5'', o
++termo ``2'' ? promovido para o tipo ``real'', tendo o valor ``2.0'' antes
++ que  a soma seja processada. Da mesma forma, sendo ``x'' uma vari?vel de tipo
++real, a express?o ``x := 5 / 2'' atribuir? a ``x'' o valor ``2.00''. Esse
++comportamento n?o muito ?bvio ? similar ao da linguagem C, onde ``5 / 2'' ?
+ avaliado como uma divis?o de inteiros, onde apenas o valor inteiro final ?
+-relevante. Para obter o resultado real, a express?o deve ser ''5.0 / 2'', para
++relevante. Para obter o resultado real, a express?o deve ser ``5.0 / 2'', para
+ informar ao compilador que a divis?o usar? valores reais, produzindo a promo??o
+ de tipos mencionada anteriormente.
+ 
+@@ -1189,8 +1225,8 @@
+   \subsection{Atribui??es}
+   \label{subsec:atribuicoes}
+ Atribui??es permitem a manipula??o de valores na mem?ria. Em G-Portugol,
+-como j? foi visto, ? usado o operador '':='', onde o termo a esquerda ou
+-''\textit{lvalue}'' deve ser uma vari?vel primitiva ou ?ndice de uma
++como j? foi visto, ? usado o operador ``:='', onde o termo a esquerda ou
++``\textit{lvalue}'' deve ser uma vari?vel primitiva ou ?ndice de uma
+ matriz/vetor, e o termo a direita, uma express?o que, quando avaliada, tem seu
+ tipo compat?vel com o \textit{lvalue}.
+ 
+@@ -1228,11 +1264,11 @@
+ e podem receber argumentos e retornar valores. Em tempo de execu??o, as fun??es
+ criam um novo escopo sobreposto ao escopo principal. Isso permite recursos
+ como recurs?o e possibilita que vari?veis locais (no escopo da fun??o) tenham o
+-mesmo nome que vari?veis globais, onde essas ?ltimas ficam ''escondidas'', isso
++mesmo nome que vari?veis globais, onde essas ?ltimas ficam ``escondidas'', isso
+ ?, incapazes de serem acessadas enquanto o escopo durar. Ressalta-se que n?o h?
+ suporte para fun??es aninhadas, isso ?, fun??es declaradas dentro de fun??es. 
+ 
+-O retorno de dados ? feito por meio da instru??o ''retorne'' e o valor de
++O retorno de dados ? feito por meio da instru??o ``retorne'' e o valor de
+ retorno (se houver) deve ser compat?vel com o tipo da fun??o. Esse tipo n?o
+ pode ser um tipo agregado como matrizes e vetores.
+ 
+@@ -1242,9 +1278,9 @@
+ 
+ As vari?veis locais de uma fun??o s?o formadas por seus par?metros e pelas
+ vari?veis declaradas em seu escopo. A declara??o de vari?veis locais ? feita
+-entre o cabe?alho da fun??o e a palavra-chave ''in?cio'', portanto, n?o ?
++entre o cabe?alho da fun??o e a palavra-chave ``in?cio'', portanto, n?o ?
+ uniforme em rela??o a declara??o global, onde se usa as palavras-chave
+-''vari?veis'' e ''fim-vari?veis''. 
++``vari?veis'' e ``fim-vari?veis''. 
+ 
+ A declara??o dos par?metros da fun??o tamb?m n?o segue estritamente o formato
+ de declara??o de vari?veis. O programa \ref{exemplo_funcao} ilustra a
+@@ -1276,7 +1312,7 @@
+ sa?da. Ambas as fun??es tem comportamentos excepcionais quando comparadas
+ com as fun??es de usu?rio. Essas fun??es s?o discutidas na sess?o a seguir.
+ 
+-  \subsection{A fun??o ''imprima''}
++  \subsection{A fun??o ``imprima''}
+ 
+ A fun??o imprima tem como objetivo imprimir texto no dispositivo de sa?da.
+ Ela recebe um n?mero vari?vel de argumentos (pelo menos um), onde cada
+@@ -1288,38 +1324,38 @@
+ argumentos.
+ 
+ 
+-  \subsection{A fun??o ''leia''}
++  \subsection{A fun??o ``leia''}
+ 
+-A fun??o ''leia'' espera por uma entrada do teclado seguida do caractere LF (em
+-geral, associado a tecla ''Enter'') e retorna o valor lido. Esse valor ?
++A fun??o ``leia'' espera por uma entrada do teclado seguida do caractere LF (em
++geral, associado a tecla ``Enter'') e retorna o valor lido. Esse valor ?
+ convertido implicitamente para o tipo do \textit{lvalue}. A tabela
+ \ref{tb_leia_casts} apresenta convers?es impl?citas processadas pela
+-fun??o ''leia'' para o enunciado de exemplo ''x := leia()''.
++fun??o ``leia'' para o enunciado de exemplo ``x := leia()''.
+ 
+ Nota: n?meros reais s?o arredondados, se necess?rio, e exibidos no formato
+-.xx (com duas casas decimais). Portanto, o n?mero ''250.0'' ou ''250'' seria
+-impresso como ''250.00'' e ''1.449'' seria impresso como ''1.45''. Se o
++.xx (com duas casas decimais). Portanto, o n?mero ``250.0'' ou ``250'' seria
++impresso como ``250.00'' e ``1.449'' seria impresso como ``1.45''. Se o
+ par?metro for uma vari?vel, seu valor n?o ser? modificado.
+ 
+ \begin{table}[ht]
+ \begin{center}
+   \begin{tabular}{|l|l|l|}
+     \hline
+-    \multicolumn{3}{|c|}{Convers?es da fun??o ''leia''} \\
++    \multicolumn{3}{|c|}{Convers?es da fun??o ``leia''} \\
+     \hline
+-      Tipo do LValue ''x'' & Texto lido & Valor final de ''x'' \\
++      Tipo do LValue ``x'' & Texto lido & Valor final de ``x'' \\
+     \hline
+       inteiro & 123 & 123 \\
+       inteiro & 123 456 & 123 \\
+       inteiro & abc & 0 \\
+       inteiro & 123s & 123 \\
+       l?gico  & falso & falso \\
+-      l?gico & ''0'' & falso \\
++      l?gico & ``0'' & falso \\
+       l?gico & falso 12wtc & verdadeiro \\
+       l?gico & 0 umdois3 & verdadeiro\\
+     \hline
+   \end{tabular}
+-  \caption{Convers?es impl?citas da fun??o ''leia'' \label{tb_leia_casts}}
++  \caption{Convers?es impl?citas da fun??o ``leia'' \label{tb_leia_casts}}
+ \end{center}
+ \end{table}
+ 
+@@ -1327,7 +1363,7 @@
+ Essa fun??o se comporta de forma excepcional visto que seu tipo de retorno n?o
+ ? absoluto (\textit{overloaded}, depende do tipo de \textit{lvalue}) e, no
+ momento, ? restrita express?es isentas de operadores. Isso ?, n?o ? permitido
+-aplic?-la como um termo em uma express?o com m?ltiplos operandos (ex. ''x :=  y
++aplic?-la como um termo em uma express?o com m?ltiplos operandos (ex. ``x :=  y
+ + leia()''), embora seja poss?vel utiliz?-la em subscritos de vetores e
+ matrizes, assim como em express?es de estruturas de controle. 
+ 
+@@ -1376,7 +1412,7 @@
+ \section{Op??es gerais}
+ \label{sec:opcoes_gerais}
+ 
+-Ao executar o programa ''gpt'' com o argumento ''-h'', ? mostrado:
++Ao executar o programa ``gpt'' com o argumento ``-h'', ? mostrado:
+ 
+ \begin{verbatim}
+ Modo de uso: gpt [op??es] arquivos
+@@ -1397,10 +1433,10 @@
+ 
+ \begin{itemize}
+  \item 
+-  v: Exibe a vers?o do programa ''gpt'', assim como informa??es de copyright;
++  v: Exibe a vers?o do programa ``gpt'', assim como informa??es de copyright;
+ 
+   \item
+-  h: exibe todas as op??es suportadas pelo programa ''gpt'';
++  h: exibe todas as op??es suportadas pelo programa ``gpt'';
+ 
+   \item
+   o <arquivo>: Ao compilar um algoritmo, salva o execut?vel com o nome de
+@@ -1417,14 +1453,14 @@
+ 
+   \item 
+   i: Executa o algoritmo diretamente, sem compilar ou criar arquivos. Op??o
+-conhecida como ''interpreta??o'' ou ''scripting''.
++conhecida como ``interpreta??o'' ou ``scripting''.
+ 
+   \item
+   d: Exibe mais informa??es no relat?rio de erros, como dicas de como proceder
+ para solucionar errors de sintaxe.
+ \end{itemize}
+ 
+-A ?ltima op??o (''arquivos'') ? uma lista de arquivos contendo o c?digo fonte
++A ?ltima op??o (``arquivos'') ? uma lista de arquivos contendo o c?digo fonte
+ em G-Portugol, embora seja mais comum utilizar um arquivo apenas para cada
+ algoritmo.
+ 
+@@ -1432,7 +1468,7 @@
+   
+ Em geral, as ferramentas de diversas linguagens de programa??o oferecem o
+ m?nimo de informa??es a cerca de erros de compila??o, ?s vezes, tendo uma
+-forma ''criptica'' dificultando seu entendimento e posterior corre??o.
++forma ``criptica'' dificultando seu entendimento e posterior corre??o.
+ Comum, tamb?m a possibilidade de que determinados erros sejam reportados em
+ localiza??es distantes de onde o erro efetivamente se encontra no c?digo
+ fonte. Ademais, ? importante notar que nessas linguagens, os erros s?o
+@@ -1479,14 +1515,14 @@
+ compilador pode emitir avisos e erros, visto que \textit{printf} ? uma fun??o da
+ biblioteca padr?o, usada no c?digo C resultante. Da mesma forma,
+ identificadores com \textit{underlines} antes ou depois em seus nomes
+-(como ''\_\_leia\_texto'') devem ser evitados,
++(como ``\_\_leia\_texto'') devem ser evitados,
+ pois muitos identificadores internos utilizam essas conven??es de nomea??o, e
+ seu uso pode acarretar em conflitos durante a tradu??o.
+ 
+ \subsection{Interpreta??o de c?digo}
+ 
+ O programa GPT permite que o algoritmo seja executado sem gerar c?digo bin?rio.
+-Esse modo ? conhecido como ''interpreta??o'' e linguagens como Perl, PHP e Ruby
++Esse modo ? conhecido como ``interpreta??o'' e linguagens como Perl, PHP e Ruby
+ utilizam esta t?cnica.
+ 
+ Esse modo permite depurar algoritmos passo a passo (por meio de um
+@@ -1495,20 +1531,20 @@
+ 
+ A ?nica diferen?a na execu??o de algoritmos em modo interpretado em rela??o a
+ outros modos ? que as matrizes/vetores tem seus subscritos checados
+-(''\textit{bound checking}''). Isso ?, erros de execu??o s?o emitidos se um
++(``\textit{bound checking}''). Isso ?, erros de execu??o s?o emitidos se um
+ ?ndice n?o existir em uma matriz/vetor.
+ 
+ \subsubsection{Depura??o interativa}
+ 
+-A depura??o interativa ? feita em modo ''interpreta??o'', portanto n?o gera
++A depura??o interativa ? feita em modo ``interpreta??o'', portanto n?o gera
+ c?digo bin?rio, executando o algoritmo diretamente. Para depurar
+ interativamente um algoritmo ? necess?rio um programa extra: o \textit{client
+ debugger}. Atualmente, o programa GPTEditor suporta a depura??o interativa.
+ 
+ Entre os recursos dispon?veis, pode-se citar a execu??o passo a passo em 3
+-modos (comumente conhecidas como ''step into'', ''step over'' e ''step out''),
++modos (comumente conhecidas como ``step into'', ``step over'' e ``step out''),
+ inspe??o de vari?veis locais/globais e pontos de
+-parada (''\textit{breakpoints}'').
++parada (``\textit{breakpoints}'').
+ 
+ A depura??o ocorre tendo o programa GPT se comunicando via socket com o cliente
+ (ex: GPTEditor), iniciando transmiss?o de dados entre esses dois pontos. As
+@@ -1545,7 +1581,7 @@
+ A primeira forma ? explicada na sess?o \ref{sec:opcoes_gerais}. A segunda forma
+ pretende facilitar a utiliza??o de fun??es que devem estar dispon?veis por
+ padr?o a cada execu??o/compila??o dos algoritmos. Pode-se definir a vari?vel de
+-ambiente GPT\_INCLUDE contendo v?rios caminhos de arquivos separados por '':''.
++ambiente GPT\_INCLUDE contendo v?rios caminhos de arquivos separados por ``:''.
+ Em sistemas Unix, por exemplo, pode-se criar a essa vari?vel da seguinte forma
+ (utilizando Bash):
+ 
+@@ -1553,7 +1589,7 @@
+ $ export GPT_INCLUDE="/usr/local/lib/gpt/base.gpt:/usr/local/lib/gpt/util.gpt"
+ \end{verbatim}
+ 
+-Onde ''base.gpt'' e ''util.gpt'' s?o arquivos contendo fun??es escritas em
++Onde ``base.gpt'' e ``util.gpt'' s?o arquivos contendo fun??es escritas em
+ G-Portugol.
+ 
+ Os arquivos passados pela linha de comando e/ou que se encontram na vari?vel
+@@ -1684,6 +1720,7 @@
+   | stm_ret
+   | stm_se
+   | stm_enquanto
++  | stm_repita
+   | stm_para
+   ;
+ stm_ret
+@@ -1706,6 +1743,10 @@
+   : "enquanto" expr "fa?a" stm_list "fim-enquanto"
+   ;
+ 
++stm_repita
++  : "repita" stm_list "at?" expr ";"
++  ;
++
+ stm_para 
+   : "para" lvalue "de" expr "at?" expr  passo? "fa?a" stm_list "fim-para"
+   ;
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Sat Aug 21 03:12:09 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Sat, 21 Aug 2010 03:12:09 +0200
+Subject: [gpt-commit] r547 - trunk/gpt
+Message-ID: <20100821011209.1EF31480F0F@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2010-08-21 03:12:08 +0200 (Sat, 21 Aug 2010)
+New Revision: 547
+
+Modified:
+   trunk/gpt/HACKING
+Log:
+-Adicionando passo para usar o autoconf no windows e mais algumas limpezas
+
+Modified: trunk/gpt/HACKING
+===================================================================
+--- trunk/gpt/HACKING	2010-08-20 22:05:06 UTC (rev 546)
++++ trunk/gpt/HACKING	2010-08-21 01:12:08 UTC (rev 547)
+@@ -50,8 +50,14 @@
+        -Baixe e instale:
+        http://downloads.sourceforge.net/mingw/MSYS-1.0.11.exe
+ 
+-  4) Instale o ANTLR v2.x a partir do fonte
++  4) Instale o MSYS DTK (necess?rio para ter o autoconf & cia):
+ 
++     ex:
++       -Baixe e instale:
++       http://downloads.sourceforge.net/mingw/msysDTK-1.0.1.exe
++
++  5) Instale o ANTLR v2.x a partir do fonte
++
+      ex: 
+        -Baixe o pacote antlr-2.7.7.tar.gz em c:\msys\1.0\home\<usuario>:
+          http://www.antlr2.org/download/antlr-2.7.7.tar.gz
+@@ -66,7 +72,7 @@
+ 
+           $ ln -s /usr/local/bin/antlr /usr/local/bin/runantlr
+ 
+-  5) Instale a biblioteca PCRE
++  6) Instale a biblioteca PCRE
+ 
+      ex: 
+        - Baixe o pacote pcre-8.10.tar.gz em c:\msys\1.0\home\<usuario>:
+@@ -83,7 +89,7 @@
+   Agora, com os compiladores e bibliotecas presentes e o MSYS como shell, o
+   c?digo fonte do GPT pode ser compilado.   
+ 
+-  6) Instale o NASM (http://www.nasm.us) para usar o GPT como compilador.
++  7) Instale o NASM (http://www.nasm.us) para usar o GPT como compilador.
+ 
+ 
+ o Baixando a ?ltima vers?o do GPT
+@@ -117,6 +123,10 @@
+ 
+   $ make -f Makefile.cvs
+ 
++  ou
++
++  $ autoconf
++
+   Isto criar? os Makefile.in's nescess?rios e o shell script "configure"
+   utilizado para criar os Makefile's utilizados pelo programa "make" para
+   automatizar a compila??o do projeto.
+@@ -307,10 +317,11 @@
+      TODO
+ 
+   - MS Windows
+-    Usar o Inno Setup (http://www.jrsoftware.org/isdl.php) para cria??o do
++
++    -Usar o Inno Setup (http://www.jrsoftware.org/isdl.php) para cria??o do
+     installer.  A configura??o para cria??o do pacote se encontra em
+     /gpt/packages/win_setup/
+-  
++    -Verificar a termina??o de linha nos arquivos de texto do pacote
+ 
+ o Commit e tag
+   Ap?s essas atualiza??es, dever? ser feito um commit e tagear
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Sat Aug 21 03:16:40 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Sat, 21 Aug 2010 03:16:40 +0200
+Subject: [gpt-commit] r548 - tags
+Message-ID: <20100821011640.4DD9A480F0F@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2010-08-21 03:16:40 +0200 (Sat, 21 Aug 2010)
+New Revision: 548
+
+Added:
+   tags/gpt-1.0.1/
+Removed:
+   tags/gpt-1.1/
+Log:
+-tag gpt-1.1 nao corresponde a versao 1.1
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Sat Aug 21 03:22:03 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Sat, 21 Aug 2010 03:22:03 +0200
+Subject: [gpt-commit] r549 - tags
+Message-ID: <20100821012204.041AD480F0F@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2010-08-21 03:22:03 +0200 (Sat, 21 Aug 2010)
+New Revision: 549
+
+Added:
+   tags/gpt-1.1/
+Log:
+-Tagueando tarde o 1.1. Em relacao aos releases, so ha diferencas em algumas documentacoes. ver log entre 540 e 547 do trunk
+
+
+

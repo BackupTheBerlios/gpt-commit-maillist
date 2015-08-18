@@ -1,0 +1,31 @@
+From gpt-commit-noreply at mail.berlios.de  Sat Jul 12 04:06:28 2008
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Sat, 12 Jul 2008 04:06:28 +0200
+Subject: [gpt-commit] r512 - trunk/gpt/src
+Message-ID: <200807120206.m6C26Svh015935@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2008-07-12 04:06:27 +0200 (Sat, 12 Jul 2008)
+New Revision: 512
+
+Modified:
+   trunk/gpt/src/GPT.cpp
+Log:
+FIX: nasm 'short jump out of range'
+
+Modified: trunk/gpt/src/GPT.cpp
+===================================================================
+--- trunk/gpt/src/GPT.cpp	2008-06-24 16:07:29 UTC (rev 511)
++++ trunk/gpt/src/GPT.cpp	2008-07-12 02:06:27 UTC (rev 512)
+@@ -199,7 +199,7 @@
+     fo.close();
+ 
+     stringstream cmd;
+-    cmd << "nasm -fbin -o \"" << ofname << "\" " << ftmpname;
++    cmd << "nasm -O1 -fbin -o \"" << ofname << "\" " << ftmpname;
+ 
+     if(system(cmd.str().c_str()) == -1) {
+       s << PACKAGE << ": n?o foi poss?vel invocar o nasm." << endl;
+
+
+

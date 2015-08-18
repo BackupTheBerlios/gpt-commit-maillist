@@ -1,0 +1,80 @@
+From gpt-commit-noreply at mail.berlios.de  Thu Dec 11 20:27:26 2008
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Thu, 11 Dec 2008 20:27:26 +0100
+Subject: [gpt-commit] r515 - trunk/gpt/src/modules/parser
+Message-ID: <200812111927.mBBJRQkD019277@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2008-12-11 20:27:26 +0100 (Thu, 11 Dec 2008)
+New Revision: 515
+
+Modified:
+   trunk/gpt/src/modules/parser/UnicodeCharScanner.hpp
+Log:
+resolvendo compilacao com gcc 4.4
+
+Modified: trunk/gpt/src/modules/parser/UnicodeCharScanner.hpp
+===================================================================
+--- trunk/gpt/src/modules/parser/UnicodeCharScanner.hpp	2008-10-21 22:28:20 UTC (rev 514)
++++ trunk/gpt/src/modules/parser/UnicodeCharScanner.hpp	2008-12-11 19:27:26 UTC (rev 515)
+@@ -1,6 +1,7 @@
+ #ifndef INC_UnicodeCharScanner_hpp__
+ #define INC_UnicodeCharScanner_hpp__
+ 
++#include <cstdio>
+ #include <map>
+ #include <cctype>
+ 
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Thu Dec 11 20:32:16 2008
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Thu, 11 Dec 2008 20:32:16 +0100
+Subject: [gpt-commit] r516 - trunk/gpt
+Message-ID: <200812111932.mBBJWGLG019737@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2008-12-11 20:32:15 +0100 (Thu, 11 Dec 2008)
+New Revision: 516
+
+Modified:
+   trunk/gpt/NEWS
+   trunk/gpt/configure.ac
+Log:
+nomsg
+
+Modified: trunk/gpt/NEWS
+===================================================================
+--- trunk/gpt/NEWS	2008-12-11 19:27:26 UTC (rev 515)
++++ trunk/gpt/NEWS	2008-12-11 19:32:15 UTC (rev 516)
+@@ -1,6 +1,10 @@
+ Sum?rio de mudan?as
+ -------------------
+ 
++11 de Dezembro de 2008 * gpt 1.0.2a
++
++  * Corre??o de bugs relacionados ? compila??o com gcc 4.4
++
+ 24 de Junho de 2008 * gpt 1.0.2
+ 
+   * Corre??o de bugs relacionados ? compila??o com gcc 4.3
+
+Modified: trunk/gpt/configure.ac
+===================================================================
+--- trunk/gpt/configure.ac	2008-12-11 19:27:26 UTC (rev 515)
++++ trunk/gpt/configure.ac	2008-12-11 19:32:15 UTC (rev 516)
+@@ -4,8 +4,8 @@
+ 
+ AC_PREREQ(2.60)
+ 
+-AC_INIT(gpt, 1.0.2)
+-AM_INIT_AUTOMAKE(gpt, 1.0.2)
++AC_INIT(gpt, 1.0.3)
++AM_INIT_AUTOMAKE(gpt, 1.0.3)
+ AC_CONFIG_HEADER([config.h])
+ AC_LANG(C++)
+ AC_PROG_CXX
+
+
+

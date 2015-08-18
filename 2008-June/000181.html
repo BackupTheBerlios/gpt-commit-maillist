@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r508 - in trunk/gpt/src: . modules	modules/c_translator modules/interpreter modules/parser
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r508%20-%20in%20trunk/gpt/src%3A%20.%20modules%0A%09modules/c_translator%20modules/interpreter%20modules/parser&In-Reply-To=%3C200806231555.m5NFteQ0022685%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000182.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r508 - in trunk/gpt/src: . modules	modules/c_translator modules/interpreter modules/parser</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r508%20-%20in%20trunk/gpt/src%3A%20.%20modules%0A%09modules/c_translator%20modules/interpreter%20modules/parser&In-Reply-To=%3C200806231555.m5NFteQ0022685%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r508 - in trunk/gpt/src: . modules	modules/c_translator modules/interpreter modules/parser">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon Jun 23 17:55:40 CEST 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000182.html">[gpt-commit] r509 - trunk/gpt/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#181">[ date ]</a>
+              <a href="thread.html#181">[ thread ]</a>
+              <a href="subject.html#181">[ subject ]</a>
+              <a href="author.html#181">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-06-23 17:55:40 +0200 (Mon, 23 Jun 2008)
+New Revision: 508
+
+Modified:
+   trunk/gpt/src/main.cpp
+   trunk/gpt/src/modules/GPTDisplay.hpp
+   trunk/gpt/src/modules/c_translator/pt2c.g
+   trunk/gpt/src/modules/interpreter/InterpreterEval.hpp
+   trunk/gpt/src/modules/parser/SemanticEval.hpp
+   trunk/gpt/src/modules/parser/lexer.g
+Log:
+Patch do metal: adicao de headers para resolver a compilacao com gcc 4.3 em outras plataformas
+
+Modified: trunk/gpt/src/main.cpp
+===================================================================
+--- trunk/gpt/src/main.cpp	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/main.cpp	2008-06-23 15:55:40 UTC (rev 508)
+@@ -27,6 +27,8 @@
+ #include &lt;string&gt;
+ #include &lt;list&gt;
+ #include &lt;unistd.h&gt;
++#include &lt;stdio.h&gt;
++#include &lt;string.h&gt;
+ 
+ #define DEFAULT_PORT &quot;7680&quot;
+ 
+
+Modified: trunk/gpt/src/modules/GPTDisplay.hpp
+===================================================================
+--- trunk/gpt/src/modules/GPTDisplay.hpp	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/modules/GPTDisplay.hpp	2008-06-23 15:55:40 UTC (rev 508)
+@@ -25,6 +25,7 @@
+ #include &lt;list&gt;
+ #include &lt;string&gt;
+ #include &lt;sstream&gt;
++#include &lt;stdlib.h&gt;
+ 
+ using namespace std;
+ 
+
+Modified: trunk/gpt/src/modules/c_translator/pt2c.g
+===================================================================
+--- trunk/gpt/src/modules/c_translator/pt2c.g	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/modules/c_translator/pt2c.g	2008-06-23 15:55:40 UTC (rev 508)
+@@ -26,6 +26,8 @@
+   #include &lt;sstream&gt;
+   #include &lt;map&gt;
+   #include &lt;list&gt;
++  #include &lt;stdlib.h&gt;
++  
+   using namespace std;
+ 
+   typedef struct production_t {
+
+Modified: trunk/gpt/src/modules/interpreter/InterpreterEval.hpp
+===================================================================
+--- trunk/gpt/src/modules/interpreter/InterpreterEval.hpp	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/modules/interpreter/InterpreterEval.hpp	2008-06-23 15:55:40 UTC (rev 508)
+@@ -30,6 +30,7 @@
+ #include &lt;stack&gt;
+ #include &lt;map&gt;
+ #include &lt;iostream&gt;
++#include &lt;stdlib.h&gt;
+ 
+ using namespace std;
+ 
+
+Modified: trunk/gpt/src/modules/parser/SemanticEval.hpp
+===================================================================
+--- trunk/gpt/src/modules/parser/SemanticEval.hpp	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/modules/parser/SemanticEval.hpp	2008-06-23 15:55:40 UTC (rev 508)
+@@ -27,6 +27,7 @@
+ #include &lt;string&gt;
+ #include &lt;map&gt;
+ #include &lt;list&gt;
++#include &lt;stdlib.h&gt;
+ 
+ //---------- helpers ------------
+ 
+
+Modified: trunk/gpt/src/modules/parser/lexer.g
+===================================================================
+--- trunk/gpt/src/modules/parser/lexer.g	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/modules/parser/lexer.g	2008-06-23 15:55:40 UTC (rev 508)
+@@ -28,6 +28,7 @@
+   #include &lt;antlr/TokenStreamSelector.hpp&gt;
+ 	#include &quot;UnicodeCharBuffer.hpp&quot;
+ 	#include &quot;UnicodeCharScanner.hpp&quot;
++  #include &lt;stdlib.h&gt;
+ 
+   using namespace antlr;
+   using namespace std;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000182.html">[gpt-commit] r509 - trunk/gpt/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#181">[ date ]</a>
+              <a href="thread.html#181">[ thread ]</a>
+              <a href="subject.html#181">[ subject ]</a>
+              <a href="author.html#181">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r344 - trunk/gpt2/src/gptc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r344%20-%20trunk/gpt2/src/gptc&In-Reply-To=%3C200711090310.lA93AaZ4028373%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000017.html">
+   <LINK REL="Next"  HREF="000019.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r344 - trunk/gpt2/src/gptc</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r344%20-%20trunk/gpt2/src/gptc&In-Reply-To=%3C200711090310.lA93AaZ4028373%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r344 - trunk/gpt2/src/gptc">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Nov  9 04:10:36 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000017.html">[gpt-commit] r343 - trunk/gpt2/src/gptc
+</A></li>
+        <LI>Next message: <A HREF="000019.html">[gpt-commit] r345 - trunk/gpt2/src/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-09 04:10:35 +0100 (Fri, 09 Nov 2007)
+New Revision: 344
+
+Modified:
+   trunk/gpt2/src/gptc/parser.g
+Log:
+-Concertado ast para 'senao' da estrutura 'se'
+
+Modified: trunk/gpt2/src/gptc/parser.g
+===================================================================
+--- trunk/gpt2/src/gptc/parser.g	2007-11-09 02:52:29 UTC (rev 343)
++++ trunk/gpt2/src/gptc/parser.g	2007-11-09 03:10:35 UTC (rev 344)
+@@ -329,7 +329,7 @@
+ 
+ en_se
+   : T_SE^ expressao T_ENTAO!
+-      lista_enunciados (T_SENAO! lista_enunciados)? T_FIM_SE!
++      lista_enunciados (T_SENAO lista_enunciados)? T_FIM_SE!
+   ;
+ 
+ en_enquanto
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000017.html">[gpt-commit] r343 - trunk/gpt2/src/gptc
+</A></li>
+	<LI>Next message: <A HREF="000019.html">[gpt-commit] r345 - trunk/gpt2/src/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

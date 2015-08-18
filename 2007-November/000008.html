@@ -1,0 +1,1118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r333 - in trunk/gpt2: src/modules/parser test/wikki
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r333%20-%20in%20trunk/gpt2%3A%20src/modules/parser%20test/wikki&In-Reply-To=%3C200711011324.lA1DOQWS007889%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000009.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r333 - in trunk/gpt2: src/modules/parser test/wikki</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r333%20-%20in%20trunk/gpt2%3A%20src/modules/parser%20test/wikki&In-Reply-To=%3C200711011324.lA1DOQWS007889%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r333 - in trunk/gpt2: src/modules/parser test/wikki">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Nov  1 14:24:26 CET 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000009.html">[gpt-commit] r334 - trunk/gpt2/src/modules/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#8">[ date ]</a>
+              <a href="thread.html#8">[ thread ]</a>
+              <a href="subject.html#8">[ subject ]</a>
+              <a href="author.html#8">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-01 14:24:25 +0100 (Thu, 01 Nov 2007)
+New Revision: 333
+
+Added:
+   trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp
+   trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp
+   trunk/gpt2/src/modules/parser/CTemporaryVar.cpp
+   trunk/gpt2/src/modules/parser/CTemporaryVar.hpp
+Removed:
+   trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp
+   trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CMakeLabels.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CMakeLabels.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CMakeTempVars.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CMakeTempVars.hpp
+Modified:
+   trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp
+   trunk/gpt2/src/modules/parser/Makefile.am
+   trunk/gpt2/src/modules/parser/Tools.cpp
+   trunk/gpt2/src/modules/parser/Tools.hpp
+   trunk/gpt2/src/modules/parser/lexer.g
+   trunk/gpt2/src/modules/parser/parser.g
+   trunk/gpt2/test/wikki/estruturas_condicionais_4.gpt
+   trunk/gpt2/test/wikki/expressoes_matematicas_1.gpt
+Log:
+REGULAR:
+- Adequacao do exemplo de uso da sentenca &quot;caso&quot; conforme a gramatica
+- Criacao de exemplos mais simples com expressoes matematicas para testar o GptC
+- Ajustes no Parser:
+  - Correcao na gramatica da regra &quot;declaracao_variaveis&quot;
+  - Traducao (parcial) da definicao de variaveis para GptAssembly
+  - Traducao (parcial) de expressoes para GptAssembly (codigo herdado da V1)
+  - Traducao (parcial) de atribuicoes para GptAssembly
+  - Traducao (parcial) da sentenca &quot;se&quot; para GptAssembly
+  - Traducao (parcial) da sentenca &quot;enquanto&quot; para GptAssembly
+  - Traducao (parcial) da sentenca &quot;para&quot; para GptAssembly
+  - Traducao (parcial) da sentenca &quot;caso&quot; para GptAssembly
+  - Implementacao dos metodos para emissao de alguns mnemonicos
+  - Acrescentado a definicao do token &quot;fim-caso&quot;
+
+
+Deleted: trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -1,46 +0,0 @@
+-#include &lt;Tools.hpp&gt;
+-#include &quot;CTemporarySymbol.hpp&quot;
+-
+-CTemporarySymbol::CTemporarySymbol( )
+-{
+-}
+-
+-CTemporarySymbol::CTemporarySymbol( const string &amp;baseName, const int &amp;initialValue)
+-	: _baseName(baseName), _count(initialValue)
+-{
+-}
+-
+-CTemporarySymbol::~CTemporarySymbol( )
+-{
+-}
+-
+-void CTemporarySymbol::setBaseName( string baseName )
+-{
+-	_baseName = baseName;
+-}
+-
+-void CTemporarySymbol::setInitialValue( int initialValue )
+-{
+-	_count = initialValue;
+-}
+-
+-string CTemporarySymbol::getNewSymbol( )
+-{
+-	return( _baseName + itoa( _count++ ) );
+-}
+-
+-void CTemporarySymbol::removeLastSymbol( )
+-{
+-	_count--;
+-}
+-
+-unsigned int CTemporarySymbol::getMaxSymbolsUsed( )
+-{
+-	return( _count );
+-}
+-
+-string CTemporarySymbol::getLastSymbol( )
+-{
+-	return( _baseName + itoa( _count - 1 ) );
+-}
+-
+
+Added: trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -0,0 +1,48 @@
++#include &lt;Tools.hpp&gt;
++
++#include &quot;CTemporarySymbol.hpp&quot;
++
++CTemporarySymbol::CTemporarySymbol( )
++	: _baseName(&quot;_ts&quot;), _count(1)
++{
++}
++
++CTemporarySymbol::CTemporarySymbol( const string &amp;baseName, const int &amp;initialValue)
++	: _baseName(baseName), _count(initialValue)
++{
++}
++
++CTemporarySymbol::~CTemporarySymbol( )
++{
++}
++
++void CTemporarySymbol::setBaseName( string baseName )
++{
++	_baseName = baseName;
++}
++
++void CTemporarySymbol::setInitialValue( int initialValue )
++{
++	_count = initialValue;
++}
++
++string CTemporarySymbol::getNew( )
++{
++	return( _baseName + itoa( _count++ ) );
++}
++
++void CTemporarySymbol::removeLast( )
++{
++	_count--;
++}
++
++unsigned int CTemporarySymbol::getMaxUsed( )
++{
++	return( _count );
++}
++
++string CTemporarySymbol::getLast( )
++{
++	return( _baseName + itoa( _count - 1 ) );
++}
++
+
+Deleted: trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -1,25 +0,0 @@
+-#ifndef GPT_CTEMPORARY_SYMBOL_H
+-#define GPT_CTEMPORARY_SYMBOL_H
+-
+-#include &lt;string&gt;
+-
+-using namespace std;
+-
+-class CTemporarySymbol
+-{
+-public:
+-	CTemporarySymbol( );
+-	CTemporarySymbol( const string &amp;baseName, const int &amp;initialValue = 0 );
+-	~CTemporarySymbol( );
+-	void setBaseName( string baseName );
+-	void setInitialValue( int initialValue );
+-	string getNewSymbol( );
+-	void removeLastSymbol( );
+-	unsigned int getMaxSymbolsUsed( );
+-	string getLastSymbol( );
+-private:
+-	string _baseName;
+-	int _count;
+-};
+-
+-#endif
+
+Added: trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -0,0 +1,25 @@
++#ifndef GPT_CTEMPORARY_SYMBOL_H
++#define GPT_CTEMPORARY_SYMBOL_H
++
++#include &lt;string&gt;
++
++using namespace std;
++
++class CTemporarySymbol
++{
++public:
++	CTemporarySymbol( );
++	CTemporarySymbol( const string &amp;baseName, const int &amp;initialValue = 0 );
++	~CTemporarySymbol( );
++	void setBaseName( string baseName );
++	void setInitialValue( int initialValue );
++	string getNew( );
++	void removeLast( );
++	unsigned int getMaxUsed( );
++	string getLast( );
++private:
++	string _baseName;
++	int _count;
++};
++
++#endif
+
+Copied: trunk/gpt2/src/modules/parser/CTemporaryVar.cpp (from rev 330, trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp)
+
+Copied: trunk/gpt2/src/modules/parser/CTemporaryVar.hpp (from rev 331, trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp)
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -1,6 +1,8 @@
+ #include &quot;GASMFE_CAsmProgram.hpp&quot;
+ 
++#include &quot;Tools.hpp&quot;
+ 
++
+ CAsmProgram::CAsmProgram( COptions *options )
+ 	: _options( options ), _context( NULL )
+ {
+@@ -62,3 +64,9 @@
+ 	return _context;
+ }
+ 
++
++void CAsmProgram::emitVarDefinition( const string &amp;name, const int &amp;type )
++{
++	_file-&gt;writeln( &quot;var &quot; + name + &quot; &quot; + typeInAsm( type ) );
++}
++
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -19,6 +19,7 @@
+ 	CContext *addContext( );
+ 	CContext *remContext( );
+ 	CContext *getContext( );
++	void emitVarDefinition( const string &amp;name, const int &amp;type );
+ private:
+ 	COptions *_options;
+ 	CContext *_context;
+
+Deleted: trunk/gpt2/src/modules/parser/GASMFE_CMakeLabels.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CMakeLabels.cpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/GASMFE_CMakeLabels.cpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -1,17 +0,0 @@
+-#include &quot;GASMFE_CMakeLabels.hpp&quot;
+-
+-CMakeLabels::CMakeLabels( const int &amp;initialValue ) : CTemporarySymbol( &quot;__lbl_&quot;, initialValue )
+-{
+-}
+-
+-
+-CMakeLabels::~CMakeLabels( )
+-{
+-}
+-
+-
+-string CMakeLabels::newLabel( )
+-{
+-	return getNewSymbol( );
+-}
+-
+
+Deleted: trunk/gpt2/src/modules/parser/GASMFE_CMakeLabels.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CMakeLabels.hpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/GASMFE_CMakeLabels.hpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -1,18 +0,0 @@
+-#ifndef GASMFE_CMAKE_LABELS_H
+-#define GASMFE_CMAKE_LABELS_H
+-
+-#include &lt;string&gt;
+-using namespace std;
+-
+-#include &quot;CTemporarySymbol.hpp&quot;
+-
+-class CMakeLabels : private CTemporarySymbol
+-{
+-public:
+-	CMakeLabels( const int &amp;initialValue = 1 );
+-	~CMakeLabels( );
+-	string newLabel( );
+-};
+-
+-#endif
+-
+
+Deleted: trunk/gpt2/src/modules/parser/GASMFE_CMakeTempVars.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CMakeTempVars.cpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/GASMFE_CMakeTempVars.cpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -1,19 +0,0 @@
+-#include &quot;GASMFE_CMakeTempVars.hpp&quot;
+-
+-
+-CMakeTempVars::CMakeTempVars( const int &amp;initialValue )
+-	: CTemporarySymbol( &quot;__tempvar_&quot;, initialValue )
+-{
+-}
+-
+-
+-CMakeTempVars::~CMakeTempVars( )
+-{
+-}
+-
+-
+-string CMakeTempVars::newVar( )
+-{
+-	return getNewSymbol( );
+-}
+-
+
+Deleted: trunk/gpt2/src/modules/parser/GASMFE_CMakeTempVars.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CMakeTempVars.hpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/GASMFE_CMakeTempVars.hpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -1,18 +0,0 @@
+-#ifndef GASMFE_CMAKE_TEMP_VARS_H
+-#define GASMFE_CMAKE_TEMP_VARS_H
+-
+-#include &lt;string&gt;
+-using namespace std;
+-
+-#include &quot;CTemporarySymbol.hpp&quot;
+-
+-class CMakeTempVars : private CTemporarySymbol
+-{
+-public:
+-	CMakeTempVars( const int &amp;initialValue = 1 );
+-	~CMakeTempVars( );
+-	string newVar( );
+-};
+-
+-#endif
+-
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -101,12 +101,68 @@
+ //	writeln( &quot;add&quot; );
+ //}
+ 
++
++void CSubroutine::emitISUMMn( const string &amp;var, const string &amp;op1, const string &amp;op2 )
++{
++	writeln( &quot;isum &quot; + var + &quot;, &quot; + op1 + &quot;, &quot; + op2 );
++}
++
++
++void CSubroutine::emitIMULMn( const string &amp;var, const string &amp;op1, const string &amp;op2 )
++{
++	writeln( &quot;imul &quot; + var + &quot;, &quot; + op1 + &quot;, &quot; + op2 );
++}
++
++
++void CSubroutine::emitIGEMn( const string &amp;var, const string &amp;op1, const string &amp;op2 )
++{
++	writeln( &quot;ige &quot; + var + &quot;, &quot; + op1 + &quot;, &quot; + op2 );
++}
++
++
++void CSubroutine::emitIFNOTMn( const string &amp;var, const string &amp;label )
++{
++	writeln( &quot;ifnot &quot; + var + &quot;, &quot; + label );
++}
++
++void CSubroutine::emitJMPMn( const string &amp;label )
++{
++	writeln( &quot;jmp &quot; + label );
++}
++
++
++void CSubroutine::emitMn( const string &amp;mn, const string &amp;op1, const string &amp;op2, const string &amp;op3)
++{
++	write( mn );
++	if (op1.empty()) {
++		writeln( );
++		return;
++	}
++
++	write( &quot; &quot; + op1 );
++	if (op2.empty()) {
++		writeln( );
++		return;
++	}
++
++	write( &quot;, &quot; + op2 );
++	if (op3.empty()) {
++		writeln( );
++		return;
++	}
++
++	writeln( &quot;, &quot; + op3 );
++}
++
++
+ void CSubroutine::emitLabel( const string &amp;label )
+ {
+ 	writeln( label + string(&quot;:&quot;) );
+ }
+ 
+ 
++
++
+ void CSubroutine::write( string value )
+ {
+ /*	if ( _sourceInfo &amp;&amp; *_options-&gt;sourceLine &gt; _lastSourceLine ) {
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -27,10 +27,17 @@
+         void emitISETMn( const string &amp;var, const string &amp;value );
+         void emitPUSHMn( const antlr::RefToken &amp;_token, const bool &amp;_pushType = false );
+ 	void emitPUSHMn( const int&amp; value );
++	void emitISUMMn( const string &amp;var, const string &amp;op1, const string &amp;op2 );
++	void emitIMULMn( const string &amp;var, const string &amp;op1, const string &amp;op2 );
++	void emitIGEMn( const string &amp;var, const string &amp;op1, const string &amp;op2 );
++	void emitIFNOTMn( const string &amp;var, const string &amp;label );
++	void emitJMPMn( const string &amp;label );
++	void emitMn( const string &amp;mn, const string &amp;op1 = &quot;&quot;, const string &amp;op2 = &quot;&quot;, const string &amp;op3 = &quot;&quot;);
++
+ 	void emitLabel( const string &amp;label );
+ 
+ 	void write( string value );
+-	void writeln( string value );
++	void writeln( string value = &quot;&quot; );
+ 
+ 	const string&amp; getName( ) const
+ 	{
+
+Modified: trunk/gpt2/src/modules/parser/Makefile.am
+===================================================================
+--- trunk/gpt2/src/modules/parser/Makefile.am	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/Makefile.am	2007-11-01 13:24:25 UTC (rev 333)
+@@ -8,9 +8,9 @@
+ 
+ nodist_libparser_la_SOURCES = $(BUILT_SOURCES)
+ libparser_la_SOURCES = BasePortugolParser.cpp MismatchedUnicodeCharException.cpp GASMFE_CSubroutine.cpp \
+-                       GASMFE_CArguments.cpp  GASMFE_CMakeTempVars.cpp CTemporarySymbol.cpp   \
++                       GASMFE_CArguments.cpp  CTemporarySymbol.cpp   \
+                        GASMFE_CContext.cpp Tools.cpp CTextFile.cpp GASMFE_CGptAssemblyFile.cpp          \
+-                       GASMFE_CAsmProgram.cpp GASMFE_CMakeLabels.cpp
++                       GASMFE_CAsmProgram.cpp
+ 
+ 
+ if INSTALL_DEVEL
+
+Modified: trunk/gpt2/src/modules/parser/Tools.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/Tools.cpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/Tools.cpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -252,3 +252,22 @@
+    return &quot;ERRO !!!&quot;;
+ }
+ 
++const string typeInAsm( const int &amp;type )
++{
++   if (type == PortugolParserTokenTypes::T_KW_INTEIRO) {
++      return &quot;int&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_LITERAL) {
++      return &quot;string&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_CARACTERE) {
++      return &quot;int&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_LOGICO) {
++      return &quot;int&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_CORINGA) {
++      return &quot;pointer ???&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_MATRIZ) {
++      return &quot;matrix&quot;;
++   }
++
++   return &quot;ERRO !!!&quot;;
++}
++
+
+Modified: trunk/gpt2/src/modules/parser/Tools.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/Tools.hpp	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/Tools.hpp	2007-11-01 13:24:25 UTC (rev 333)
+@@ -33,5 +33,6 @@
+ bool streamtoken(istringstream&amp;, string&amp;, string&amp;);
+ // string&amp; getStringWithTab(string, string);
+ const string typeToText(const int &amp;type);
++const string typeInAsm( const int &amp;type );
+ 
+ #endif
+
+Modified: trunk/gpt2/src/modules/parser/lexer.g
+===================================================================
+--- trunk/gpt2/src/modules/parser/lexer.g	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/lexer.g	2007-11-01 13:24:25 UTC (rev 333)
+@@ -96,6 +96,7 @@
+   T_KW_SEJA=&quot;seja&quot;;
+   T_KW_FIM_SENAO=&quot;fim-sen&#227;o&quot;;
+   T_KW_FIM_FACA=&quot;fim-fa&#231;a&quot;;
++  T_KW_FIM_CASO=&quot;fim-caso&quot;;
+   T_KW_VARIAVEL=&quot;vari&#225;vel&quot;;
+   T_KW_USE=&quot;use&quot;;
+   T_KW_CORINGA=&quot;coringa&quot;;
+
+Modified: trunk/gpt2/src/modules/parser/parser.g
+===================================================================
+--- trunk/gpt2/src/modules/parser/parser.g	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/src/modules/parser/parser.g	2007-11-01 13:24:25 UTC (rev 333)
+@@ -24,6 +24,7 @@
+   #include &quot;GPTDisplay.hpp&quot;
+   #include &quot;GASMFE_CAsmProgram.hpp&quot;
+   #include &quot;GASMFE_COptions.hpp&quot;
++  #include &quot;CTemporarySymbol.hpp&quot;
+ }
+ 
+ options {
+@@ -42,21 +43,20 @@
+ }
+ 
+ {  
+-//  public:
+-//    RefPortugolAST getPortugolAST()
+-//    {
+-//      return returnAST;
+-//    }
+    public:
+       COptions options;
+       CAsmProgram  *asmPrg;
+       CSubroutine *subroutine;
+       CArguments args;
++      CTemporarySymbol tempVar;
++      CTemporarySymbol tempLabel;
+       void initParser( )
+       {
+          options.sourcefile = &quot;xxx.gpt&quot;;
+          options.destfile   = &quot;xxx.gasm&quot;;
+          asmPrg = new CAsmProgram( &amp;options );
++         tempVar.setBaseName( &quot;__temp_&quot; );
++         tempLabel.setBaseName( &quot;__label_&quot; );
+       }
+       void finishParser( )
+       {
+@@ -66,26 +66,17 @@
+ }
+ 
+ 
++//#########################
++//## In&#237;cio da gram&#225;tica ##
++//#########################
+ 
++//##############
++//## Programa ##
++//##############
+ 
+-/******************************** GRAMATICA *************************************************/
+-
+-/*algoritmo
+-  : declaracao_algoritmo (var_decl_block)? stm_block (func_decls)* EOF
+-  ;
+-
+-  exception //nem &quot;variaveis&quot; nem &quot;inicio&quot;
+-  catch[antlr::NoViableAltException e] {
+-    reportParserError(e.getLine(), 
+-      &quot;\&quot;vari&#225;veis\&quot; ou \&quot;in&#237;cio\&quot; ap&#243;s declara&#231;&#227;o de algoritmo&quot;, getTokenDescription(e.token));
+-  }
+-
+-  catch[antlr::MismatchedTokenException e] { //EOF
+-    reportParserError(e.getLine(), expecting_eof_or_function, getTokenDescription(e.token));
+-  }
+-*/
+-
+-programa 
++//--------
++  programa
++//-------- 
+   : { initParser( ); } (declaracao_algoritmo)? (importacao)*
+     (declaracao_constantes | bloco_declaracao_estrutura | declaracao_variaveis)* corpo EOF
+     { finishParser( ); }
+@@ -106,10 +97,15 @@
+   ;
+ 
+ 
+-/****************************************************************************/
+-declaracao_variaveis
++//#############################
++//## Declara&#231;&#227;o de vari&#225;veis ##
++//#############################
++
++//--------------------
++  declaracao_variaveis
++//--------------------
+   : bloco_declaracao_variaveis
+-  | &quot;vari&#225;vel&quot; declaracao_variavel T_SEMICOL
++  | &quot;vari&#225;vel&quot; declaracao_variavel
+   ;
+ 
+ bloco_declaracao_variaveis
+@@ -117,7 +113,16 @@
+   ;
+ 
+ declaracao_variavel
+-  : T_IDENTIFICADOR (T_COMMA T_IDENTIFICADOR)* T_COLON tipo (lista_inicializacao)? T_SEMICOL
++{
++  RefToken tk_type;
++}
++  : tk_id:T_IDENTIFICADOR 
++    (T_COMMA T_IDENTIFICADOR)* 
++    T_COLON tipo {tk_type = lastToken; }
++    (lista_inicializacao)? T_SEMICOL
++    { // TODO: nao esta correto porque so gera uma variavel...
++       asmPrg-&gt;emitVarDefinition( tk_id-&gt;getText( ), tk_type-&gt;getType( ) );
++    }
+   ;
+ 
+ declaracao_variavel_sing
+@@ -131,7 +136,7 @@
+   ;
+ 
+ lista_inicializacao
+-  : T_ATTR (expressao | inicializacao_composta)
++  : T_ATTR (expr | inicializacao_composta)
+   ;
+ 
+ inicializacao_composta
+@@ -140,11 +145,11 @@
+   ;
+ 
+ inicializacao_indices
+-  : (expressao | inicializacao_composta)
++  : (expr | inicializacao_composta)
+   ;
+ 
+ inicializacao_membros
+-  : T_IDENTIFICADOR T_ATTR (expressao | inicializacao_composta)
++  : T_IDENTIFICADOR T_ATTR (expr | inicializacao_composta)
+   ;
+ 
+ tipo_primitivo
+@@ -217,46 +222,105 @@
+   ;
+ 
+ enunciado
+-  : en_atribuicao
++  : (lvalue T_ATTR)=&gt; en_atribuicao
+   | en_retorne
+   | en_se
+   | en_enquanto
+-  | en_repita
++//  | en_repita
+   | en_para
+   | en_caso
+   | en_asm
+-  | expressao
++  | expr
+   | &quot;sair&quot; T_SEMICOL
+   | T_SEMICOL
+   ;
+ 
+ en_atribuicao
+ {
+-   RefToken tklvalue;
+-   RefToken tkexpret;
++   string tklvalue;
++   string tkexpret;
+ }
+-  : tklvalue=lvalue T_ATTR tkexpret=expressao T_SEMICOL
+-    { subroutine-&gt;emitISETMn( tklvalue-&gt;getText( ), tkexpret-&gt;getText( ) ); }
++  : tklvalue=lvalue T_ATTR tkexpret=expr T_SEMICOL
++//  : tklvalue=lvalue T_ATTR tkexpret=expr T_SEMICOL
++//  : (lvalue T_ATTR)=&gt; stm_attr {tkexpret=lastToken;} T_SEMICOL
++    { subroutine-&gt;emitISETMn( tklvalue, tkexpret ); }
+   ;
+ 
++stm_attr
++  : lvalue T_ATTR expr
++  ;
++
+ en_retorne
+-  : &quot;retorne&quot; (expressao)? T_SEMICOL
++  : &quot;retorne&quot; (expr)? T_SEMICOL
+   ;
+ 
+-lvalue returns [RefToken tk_id]
+-  : T_IDENTIFICADOR {tk_id=lastToken;} //(T_ABREC expressao T_FECHAC)*
++lvalue returns [string tk_id]
++  : T_IDENTIFICADOR {tk_id=lastToken-&gt;getText( );} //(T_ABREC expr T_FECHAC)*
+   ;
+ 
+ en_se
+-  : &quot;se&quot; expressao &quot;ent&#227;o&quot; lista_enunciados (&quot;sen&#227;o&quot; lista_enunciados)? &quot;fim-se&quot;
++{
++  string expRet;
++  string elseLabel;
++  string nextLabel;
++}
++  : &quot;se&quot; expRet=expr &quot;ent&#227;o&quot; { elseLabel = tempLabel.getNew( ); subroutine-&gt;emitIFNOTMn( expRet, elseLabel ); }
++    lista_enunciados
++    { nextLabel = tempLabel.getNew( ); subroutine-&gt;emitJMPMn( nextLabel ); }
++    (&quot;sen&#227;o&quot; { subroutine-&gt;emitLabel( elseLabel ); } lista_enunciados)? &quot;fim-se&quot;
++    { subroutine-&gt;emitLabel( nextLabel ); }
+   ;
+ 
+ en_enquanto
+-  : &quot;enquanto&quot; expressao &quot;fa&#231;a&quot; lista_enunciados &quot;fim-enquanto&quot;
++{
++  string testLabel;
++  string expRet;
++  string nextCommandLabel;
++}
++  : &quot;enquanto&quot;
++    {
++       testLabel = tempLabel.getNew( );
++       nextCommandLabel = tempLabel.getNew( );
++       subroutine-&gt;emitLabel( testLabel );
++    }
++    expRet=expr &quot;fa&#231;a&quot;
++    {
++       subroutine-&gt;emitIFNOTMn( expRet, nextCommandLabel );
++    }
++    lista_enunciados
++    &quot;fim-enquanto&quot;
++    {
++       subroutine-&gt;emitJMPMn( testLabel );
++       subroutine-&gt;emitLabel( nextCommandLabel );
++    }
+   ;
+ 
+ en_para
+-  : &quot;para&quot; lvalue &quot;de&quot; expressao &quot;at&#233;&quot; expressao (passo)? &quot;fa&#231;a&quot; lista_enunciados &quot;fim-para&quot;
++{
++  string lvalueRet;
++  string exp1;
++  string exp2;
++  string testLabel;
++  string nextCommandLabel;
++  string testVar;
++}
++  : &quot;para&quot; lvalueRet=lvalue &quot;de&quot; exp1=expr &quot;at&#233;&quot; exp2=expr (passo)? &quot;fa&#231;a&quot;
++    {
++       subroutine-&gt;emitISETMn( lvalueRet, exp1 );
++       testLabel = tempLabel.getNew( );
++       nextCommandLabel = tempLabel.getNew( );
++       testVar   = tempVar.getNew( );
++       subroutine-&gt;emitLabel( testLabel );
++       subroutine-&gt;emitMn( &quot;ile&quot;, testVar, lvalueRet, exp2 );
++       subroutine-&gt;emitIFNOTMn( testVar, nextCommandLabel );
++    }
++    lista_enunciados
++    &quot;fim-para&quot;
++    {
++       subroutine-&gt;emitMn( &quot;iinc&quot;, lvalueRet, &quot;1&quot; );
++       subroutine-&gt;emitJMPMn( testLabel );
++       subroutine-&gt;emitLabel( nextCommandLabel );
++    }
+   ;
+ 
+ passo
+@@ -264,20 +328,48 @@
+   ;
+ 
+ //en_repita
+-//  : &quot;repita&quot; lista_enunciados &quot;enquanto&quot; expressao
+-//  | &quot;repita&quot; lista_enunciados &quot;at&#233;&quot; expressao
++//  : &quot;repita&quot; lista_enunciados &quot;enquanto&quot; expr
++//  | &quot;repita&quot; lista_enunciados &quot;at&#233;&quot; expr
+ //  ;
+ 
+-en_repita
+-  : &quot;repita&quot; lista_enunciados &quot;at&#233;&quot; expressao
+-  ;
++//en_repita
++//  : &quot;repita&quot; lista_enunciados &quot;at&#233;&quot; expr
++//  ;
+ 
+ en_caso 
+-  : &quot;caso&quot; expressao &quot;seja&quot; (teste_caso)+ (&quot;sen&#227;o&quot; lista_enunciados &quot;fim-sen&#227;o&quot;)? &quot;fim-caso&quot; 
++{
++  string expret;
++  string varTest;
++  string nextCommandLabel;
++  string nextTestLabel;
++}
++  : &quot;caso&quot; expret=expr &quot;seja&quot; 
++    {
++       varTest = tempVar.getNew( );
++       subroutine-&gt;emitISETMn( varTest, expret );
++       nextCommandLabel = tempLabel.getNew( );
++    }
++    (
++       nextTestLabel=teste_caso[varTest]
++       {subroutine-&gt;emitJMPMn( nextCommandLabel ); subroutine-&gt;emitLabel( nextTestLabel );}
++    )+ (&quot;sen&#227;o&quot; lista_enunciados &quot;fim-sen&#227;o&quot;)? &quot;fim-caso&quot; 
++    {
++       subroutine-&gt;emitLabel( nextCommandLabel );
++    }
+   ; 
+   
+-teste_caso
+-  : literal &quot;fa&#231;a&quot; lista_enunciados &quot;fim-fa&#231;a&quot;
++teste_caso [string varTest] returns [string nextTestLabel]
++{
++  string lit;
++}
++  : lit=literal &quot;fa&#231;a&quot; 
++    {
++       subroutine-&gt;emitMn( &quot;ieq&quot;, tempVar.getNew( ), varTest, lit );
++       nextTestLabel = tempLabel.getNew( );
++       subroutine-&gt;emitIFNOTMn( tempVar.getLast( ), nextTestLabel );
++    }
++    lista_enunciados
++    &quot;fim-fa&#231;a&quot;
+   ;
+ 
+ en_asm
+@@ -286,79 +378,123 @@
+ 
+ 
+ /****************************************************************************/
+-expressao returns [RefToken tk_ret]
+-  : termo {tk_ret=lastToken;} //T_BIT_E termo
++chamada_subrotina
++  : tk_id:T_IDENTIFICADOR T_ABREP
++    ( {args.init( subroutine, tk_id-&gt;getText( ) ); } lista_argumentos { args.emitMnsInSubroutineCall( ); })? T_FECHAP
++    { subroutine-&gt;emitPCALLMn( tk_id-&gt;getText( ) ); }
++  ; 
++
++lista_argumentos
++{
++   RefToken exp;
++}
++  : expr { args.push_back( lastToken ); }
++    (T_COMMA expr { args.push_back( lastToken ); } )*
+   ;
+ 
+-/*
+-expressao
+-  : termo &quot;|&quot; termo
+-  | termo &quot;^&quot; termo
+-  | termo &quot;&amp;&quot; termo
+-  | termo &quot;&gt;&gt;&quot; termo 
+-  | termo &quot;&lt;&lt;&quot; termo
+-  | termo (&quot;ou&quot; | &quot;||&quot;) termo
+-  | termo (&quot;e&quot; | &quot;&amp;&amp;&quot;) termo
+-  | termo (&quot;=&quot; | &quot;&lt;&gt;&quot;) termo
+-  | termo (&quot;&gt;&quot; | &quot;&gt;=&quot;|&quot;&lt;&quot;|&quot;&lt;=&quot;) termo
+-  | termo (&quot;+&quot; | &quot;-&quot;) termo
+-  | termo (&quot;/&quot; | &quot;*&quot; | &quot;%&quot;) termo
+-  | (&quot;+&quot; | &quot;-&quot; | &quot;~&quot; | &quot;n&#227;o&quot;)? termo
+-  | &quot;(&quot; termo &quot;)&quot;
+-  | chamada_subrotina
++literal returns [string ret]
++  : ( T_STRING_LIT | T_INT_LIT | T_REAL_LITERAL | T_CARAC_LITERAL | &quot;verdadeiro&quot; | &quot;falso&quot; ) {ret=lastToken-&gt;getText( );}
+   ;
+-*/
+ 
+-/*expressao
+-  : expressao &quot;|&quot; expressao
+-  | expressao &quot;^&quot; expressao
+-  | expressao &quot;&amp;&quot; expressao
+-  | expressao &quot;&gt;&gt;&quot; expressao 
+-  | expressao &quot;&lt;&lt;&quot; expressao
+-  | expressao (&quot;ou&quot; | &quot;||&quot;) expressao
+-  | expressao (&quot;e&quot; | &quot;&amp;&amp;&quot;) expressao
+-  | expressao (&quot;=&quot; | &quot;&lt;&gt;&quot;) expressao
+-  | expressao (&quot;&gt;&quot; | &quot;&gt;=&quot;|&quot;&lt;&quot;|&quot;&lt;=&quot;) expressao
+-  | expressao (&quot;+&quot; | &quot;-&quot;) expressao
+-  | expressao (&quot;/&quot; | &quot;*&quot; | &quot;%&quot;) expressao
+-  | (&quot;+&quot; | &quot;-&quot; | &quot;~&quot; | &quot;n&#227;o&quot;)? termo
++
++/* ----------------------------- Expressoes ---------------------------------- */
++
++expr returns [string ret]
++  : ret=expr_e (T_KW_OU expr_e)*
+   ;
+-*/
++  
++expr_e  returns [string ret]
++options {
++  defaultErrorHandler=false; //noviable should be caught on expr
++}
++{
++  string op2;
++}
++  : ret=expr_bit_ou (T_KW_E op2=expr_bit_ou {subroutine-&gt;emitMn( &quot;and&quot;, tempVar.getNew( ), ret, op2 ); ret=tempVar.getLast( ); } )*
++  ;
+ 
++expr_bit_ou returns [string ret]
++options {
++  defaultErrorHandler=false; //noviable should be caught on expr
++}
++  : ret=expr_bit_xou (T_BIT_OU expr_bit_xou)*
++  ;
+ 
+-termo returns [RefToken tk_ret]
+-  : tk_ret=lvalue
+-  | literal { tk_ret = lastToken; }
+-  | chamada_subrotina
++expr_bit_xou  returns [string ret]
++options {
++  defaultErrorHandler=false; //noviable should be caught on expr
++}
++  : ret=expr_bit_e (T_BIT_XOU expr_bit_e)*
+   ;
+ 
+-//termo
+-//  : chamada_subrotina
+-//  | lvalue
+-//  | literal
+-////  | &quot;(&quot; expressao &quot;)&quot;
+-//  ;
++expr_bit_e returns [string ret]
++options {
++  defaultErrorHandler=false; //noviable should be caught on expr
++}
++  : ret=expr_igual (T_BIT_E expr_igual)*
++  ;
++  
++expr_igual returns [string ret]
++options {
++  defaultErrorHandler=false; //noviable should be caught on expr
++}
++  : ret=expr_relacional (T_IGUAL expr_relacional|T_DIFERENTE expr_relacional)*
++  ;
++        
++expr_relacional returns [string ret]
++options {
++  defaultErrorHandler=false; //noviable should be caught on expr
++}
++{
++  string op2;
++}
++  : ret=expr_ad ((T_MAIOR| T_MAIOR_EQ| T_MENOR| T_MENOR_EQ)
++    op2=expr_ad {subroutine-&gt;emitIGEMn( tempVar.getNew( ), ret, op2 ); ret=tempVar.getLast( ); } )*
++  ;
+ 
+-chamada_subrotina
+-  : tk_id:T_IDENTIFICADOR T_ABREP
+-    ( {args.init( subroutine, tk_id-&gt;getText( ) ); } lista_argumentos { args.emitMnsInSubroutineCall( ); })? T_FECHAP
+-    { subroutine-&gt;emitPCALLMn( tk_id-&gt;getText( ) ); }
+-  ; 
++expr_ad returns [string ret]
++options {
++  defaultErrorHandler=false; //noviable should be caught on expr
++}
++{
++   string op2;
++}
++  : ret=expr_multip (T_MAIS op2=expr_multip {subroutine-&gt;emitISUMMn( tempVar.getNew( ), ret, op2 ); ret=tempVar.getLast( ); }
++                    | T_MENOS expr_multip)*
++  ;
+ 
+-lista_argumentos
++expr_multip returns [string op1]
++options {
++  defaultErrorHandler=false; //noviable should be caught on expr
++}
+ {
+-   RefToken exp;
++  string op2;
++  RefToken op;
+ }
+-  : exp=expressao { args.push_back( exp ); }
+-    (T_COMMA exp=expressao { args.push_back( exp ); } )*
++  : op1=expr_unario
++    (( T_DIV | T_MULTIP | T_MOD ) {op=lastToken;} op2=expr_unario {subroutine-&gt;emitIMULMn( tempVar.getNew( ), op1, op2 ); op1=tempVar.getLast( ); } )*
+   ;
+ 
+-literal
+-  : T_STRING_LIT
+-  | T_INT_LIT
+-  | T_REAL_LITERAL
+-  | T_CARAC_LITERAL
+-  | &quot;verdadeiro&quot;
+-  | &quot;falso&quot;
++expr_unario returns [string ret]
++options {
++  defaultErrorHandler=false; //noviable should be caught on expr
++}
++  : op_unario ret=expr_elemento
+   ;
+ 
++op_unario
++  : (
++        e:T_MENOS
++      | a:T_MAIS
++      | n:T_KW_NOT
++      | b:T_BIT_NOT
++    )?
++  ; 
++
++expr_elemento returns [string ret]
++  : (T_IDENTIFICADOR T_ABREP)=&gt; chamada_subrotina // ret= ???
++  | ret=lvalue
++  | ret=literal
++  | t:T_ABREP ret=expr T_FECHAP 
++  ;
++
+
+Modified: trunk/gpt2/test/wikki/estruturas_condicionais_4.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/estruturas_condicionais_4.gpt	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/test/wikki/estruturas_condicionais_4.gpt	2007-11-01 13:24:25 UTC (rev 333)
+@@ -4,15 +4,15 @@
+ 
+ in&#237;cio
+     x := leia( );
+-    caso x fa&#231;a
+-    op&#231;&#227;o 1:
++    caso x seja
++    1 fa&#231;a
+         imprima( &quot;x = um&quot; );
+-    fim-op&#231;&#227;o
+-    op&#231;&#227;o 2:
++    fim-fa&#231;a
++    2 fa&#231;a
+         imprima( &quot;x = dois&quot; );
+-    fim-op&#231;&#227;o
+-    sen&#227;o:
++    fim-fa&#231;a
++    sen&#227;o
+         imprima( &quot;x diferente de um e dois&quot; );
+-    fim-op&#231;&#227;o
++    fim-sen&#227;o
+     fim-caso
+ fim
+
+Modified: trunk/gpt2/test/wikki/expressoes_matematicas_1.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/expressoes_matematicas_1.gpt	2007-10-31 13:25:47 UTC (rev 332)
++++ trunk/gpt2/test/wikki/expressoes_matematicas_1.gpt	2007-11-01 13:24:25 UTC (rev 333)
+@@ -1,5 +1,12 @@
+ algoritmo exemplo;
+ 
++vari&#225;vel t1: inteiro;
++
+ in&#237;cio
+-    imprima( &quot;2+5*3=&quot;, 2+5*3 );
++    t1 := 1+2;
++    t1 := 5*3;
++    t2 := 2+t1;
++    imprima( &quot;2+5*3=&quot;, t2 );
++    t1 := 2+5*3;
++    imprima( &quot;2+5*3=&quot;, t1 );
+ fim
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000009.html">[gpt-commit] r334 - trunk/gpt2/src/modules/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#8">[ date ]</a>
+              <a href="thread.html#8">[ thread ]</a>
+              <a href="subject.html#8">[ subject ]</a>
+              <a href="author.html#8">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

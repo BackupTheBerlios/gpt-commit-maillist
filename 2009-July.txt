@@ -1,0 +1,693 @@
+From gpt-commit-noreply at mail.berlios.de  Tue Jul  7 01:38:02 2009
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Tue, 7 Jul 2009 01:38:02 +0200
+Subject: [gpt-commit] r536 - in trunk/gpt: . doc/manual src/modules/x86 test
+Message-ID: <200907062338.n66Nc2eg017190@sheep.berlios.de>
+
+Author: adorilson
+Date: 2009-07-07 01:37:42 +0200 (Tue, 07 Jul 2009)
+New Revision: 536
+
+Added:
+   trunk/gpt/test/run_test.sh
+Modified:
+   trunk/gpt/HACKING
+   trunk/gpt/doc/manual/manual.tex
+   trunk/gpt/src/modules/x86/X86.cpp
+Log:
+- Corre?\195?\167?\195?\163o de bug referente a impressao de literal com aspas simples (') no modo compilado
+
+
+Modified: trunk/gpt/HACKING
+===================================================================
+--- trunk/gpt/HACKING	2009-06-10 05:08:14 UTC (rev 535)
++++ trunk/gpt/HACKING	2009-07-06 23:37:42 UTC (rev 536)
+@@ -199,44 +199,43 @@
+ Distribuindo
+ =============
+ 
+-  Para a distribu????o do GPT pode-se seguir os seguinte passos:
++Para a distribu????o de uma nova vers??o do GPT pode-se seguir os seguinte passos:
+   
+-  o Atualizar documenta????o (ver se????o Documentando)
++o Atualizar documenta????o (ver se????o Documentando)
+   
+-  o Checar se todos os arquivos novos/modificados est??o no reposit??rio
+-    $ svn status 
++o Checar se todos os arquivos novos/modificados est??o no reposit??rio
++  $ svn status 
+   
+-  o Testar o vers??o do SVN em outros ambientes
++o Testar o vers??o do SVN em outros ambientes
+   
+-  o Mudar a vers??o no arquivo configure.ac
+-    Atualizar os paramentros das fun????es AC_INIT e AM_INIT_AUTOMAKE com a nova vers??o do gpt
+-    Ap??s isso executar os comandos, para que a mudan??a reflita nos arquivos gerados automaticamente:
+-    $ autoconf && automake
++o Mudar a vers??o no arquivo configure.ac
++  Atualizar os paramentros das fun????es AC_INIT e AM_INIT_AUTOMAKE com a nova vers??o do gpt
++  Ap??s isso executar os comandos, para que a mudan??a reflita nos arquivos gerados automaticamente:
++  $ autoconf && automake
+     
+-  o Atualizar NEWS
+-    O arquivo NEWS dever?? ser atualizado manualmente seguindo o padr??o utilizado.
++o Atualizar NEWS
++  O arquivo NEWS dever?? ser atualizado manualmente seguindo o padr??o utilizado.
+     
+-  o Atualizar ChangeLog
+-    Para gerar o ChangeLog ser?? necess??rio a instala????o do pacote:
+-    - php-cli
++o Atualizar ChangeLog
++  Para gerar o ChangeLog ser?? necess??rio a instala????o do pacote:
++  - php-cli
+   
+-    Executar o comando
+-    $ php stuff/svn2cl.php > ChangeLog
++  Executar o comando
++  $ php stuff/svn2cl.php > ChangeLog
+   
+-  o Commit e tag
+-    Ap??s essas atualiza????es, dever?? ser feito um commit sem coment??rios e tagear a vers??o no SVN. 
+-    $ svn commit
+-    $ svn copy svn://svn.berlios.de/gpt/trunk/gpt \
+-           svn://svn.berlios.de/gpt/tags/gpt-1.1 \
++o Commit e tag
++  Ap??s essas atualiza????es, dever?? ser feito um commit sem coment??rios e tagear a vers??o no SVN. 
++  $ svn commit
++  $ svn copy https://username at svn.berlios.de/svnroot/repos/gpt/trunk/gpt \
++            https://username at svn.berlios.de/svnroot/repos/gpt/tags/gpt-1.1\
+       -m "Release 1.1"
+ 
+-  o Criar pacotes
+-    - tar.gz
+-      $ make distclean; mkdir build; cd build; ../configure && make && make distcheck
++o Criar pacotes
++  - tar.gz
++    $ make distclean; mkdir build; cd build; ../configure && make && make distcheck
+     
+-    
+-    - debian
++  - debian
+ 
+-  o Fazer o upload dos arquivos
++o Fazer o upload dos arquivos
+   
+-  o Atualizar o site e publicar as novidades
++o Atualizar o site e publicar as novidades
+
+Modified: trunk/gpt/doc/manual/manual.tex
+===================================================================
+--- trunk/gpt/doc/manual/manual.tex	2009-06-10 05:08:14 UTC (rev 535)
++++ trunk/gpt/doc/manual/manual.tex	2009-07-06 23:37:42 UTC (rev 536)
+@@ -366,8 +366,13 @@
+ \end{verbatim}
+ 
+ Outro detalhe ? a pontua??o. Da mesma forma que em C, o '';'' ? utilizado como
+-finalizador de enunciados.
++finalizador de enunciados. Se for necess?rio utilizar uma aspa dupla em um literal, 
++deve-se utilizar o escape:
+ 
++\begin{verbatim}
++  imprima("Isso ? literal com aspas duplas ($\backslash$") "); 
++\end{verbatim}
++
+ \section{Vari?veis}
+ 
+ A declara??o de vari?veis deve ser feita dentro de um bloco espec?fico, que deve aparecer logo ap?s a 
+
+Modified: trunk/gpt/src/modules/x86/X86.cpp
+===================================================================
+--- trunk/gpt/src/modules/x86/X86.cpp	2009-06-10 05:08:14 UTC (rev 535)
++++ trunk/gpt/src/modules/x86/X86.cpp	2009-07-06 23:37:42 UTC (rev 536)
+@@ -305,7 +305,11 @@
+           ret += str[i];
+       }
+     } else {
+-      ret += str[i];
++      if(str[i] == '\'') {
++        ret += "',39,'";
++      } else {
++        ret += str[i];
++      }
+     }
+   }
+   return ret;
+
+Added: trunk/gpt/test/run_test.sh
+===================================================================
+--- trunk/gpt/test/run_test.sh	2009-06-10 05:08:14 UTC (rev 535)
++++ trunk/gpt/test/run_test.sh	2009-07-06 23:37:42 UTC (rev 536)
+@@ -0,0 +1,27 @@
++#! /bin/bash
++
++echo "
++Testando a compila????o direta"
++../src/gpt -o tester tester.gpt
++./tester
++echo "echo \$?=$?"
++
++echo "
++Testando a interpreta????o"
++../src/gpt -i tester.gpt
++echo "echo \$?=$?"
++
++echo "
++Testando a tradu????o para linguagem C"
++../src/gpt -t tester.c tester.gpt
++gcc -o tester.c.exe tester.c
++./tester.c.exe
++echo "echo \$?=$?"
++
++echo "
++Testando a tradu????o para linguagem Assembly"
++../src/gpt -s tester.asm tester.gpt
++nasm -O1 -fbin -o tester.asm.exe tester.asm
++chmod +x tester.asm.exe
++./tester.asm.exe
++echo "echo \$?=$?"
+
+
+Property changes on: trunk/gpt/test/run_test.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Sat Jul 11 03:44:56 2009
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Sat, 11 Jul 2009 03:44:56 +0200
+Subject: [gpt-commit] r537 - in trunk/gpt: src/modules/parser
+	src/modules/x86 test
+Message-ID: <200907110144.n6B1iuxg017489@sheep.berlios.de>
+
+Author: adorilson
+Date: 2009-07-11 03:32:56 +0200 (Sat, 11 Jul 2009)
+New Revision: 537
+
+Modified:
+   trunk/gpt/src/modules/parser/BasePortugolParser.cpp
+   trunk/gpt/src/modules/parser/BasePortugolParser.hpp
+   trunk/gpt/src/modules/parser/lexer.g
+   trunk/gpt/src/modules/parser/parser.g
+   trunk/gpt/src/modules/parser/semantic.g
+   trunk/gpt/src/modules/x86/x86.g
+   trunk/gpt/test/tester.gpt
+Log:
+- Implemetacao da estrutura repita no modulo x86
+
+
+Modified: trunk/gpt/src/modules/parser/BasePortugolParser.cpp
+===================================================================
+--- trunk/gpt/src/modules/parser/BasePortugolParser.cpp	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/parser/BasePortugolParser.cpp	2009-07-11 01:32:56 UTC (rev 537)
+@@ -38,6 +38,7 @@
+ string BasePortugolParser::expecting_stm_or_fimse = "\"fim-se\" ou comando v?lido";
+ string BasePortugolParser::expecting_stm_or_fimenq = "\"fim-enquanto\" ou comando v?lido";
+ string BasePortugolParser::expecting_stm_or_fimpara = "\"fim-para\" ou comando v?lido";
++string BasePortugolParser::expecting_stm_or_ate="\"at?\" ou comando v?lido";
+ string BasePortugolParser::expecting_eof_or_function = "fim de arquivo (EOF) ou \"fun??o\"";
+ string BasePortugolParser::expecting_function_name = "nome da fun??o";
+ string BasePortugolParser::expecting_param_or_fparen = "vari?vel ou \")\"";
+
+Modified: trunk/gpt/src/modules/parser/BasePortugolParser.hpp
+===================================================================
+--- trunk/gpt/src/modules/parser/BasePortugolParser.hpp	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/parser/BasePortugolParser.hpp	2009-07-11 01:32:56 UTC (rev 537)
+@@ -64,6 +64,7 @@
+   static string expecting_stm_or_fimse;
+   static string expecting_stm_or_fimenq;
+   static string expecting_stm_or_fimpara;
++  static string expecting_stm_or_ate;
+   static string expecting_eof_or_function;
+   static string expecting_function_name;
+   static string expecting_param_or_fparen;
+@@ -112,6 +113,7 @@
+            || (tk == PortugolParserTokenTypes::T_KW_ATE)
+            || (tk == PortugolParserTokenTypes::T_KW_PASSO)
+            || (tk == PortugolParserTokenTypes::T_KW_FIM_PARA)
++           || (tk == PortugolParserTokenTypes::T_KW_REPITA)
+            || (tk == PortugolParserTokenTypes::T_KW_FUNCAO)
+            || (tk == PortugolParserTokenTypes::T_KW_RETORNE)
+ //            || (tk == PortugolParserTokenTypes::T_KW_CONJUNTO)
+
+Modified: trunk/gpt/src/modules/parser/lexer.g
+===================================================================
+--- trunk/gpt/src/modules/parser/lexer.g	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/parser/lexer.g	2009-07-11 01:32:56 UTC (rev 537)
+@@ -81,6 +81,7 @@
+   T_KW_DE="de";
+   T_KW_ATE="at?";
+   T_KW_FIM_PARA="fim-para";
++  T_KW_REPITA="repita";
+   T_KW_MATRIZ="matriz";
+   T_KW_INTEIROS="inteiros";
+   T_KW_REAIS="reais";
+
+Modified: trunk/gpt/src/modules/parser/parser.g
+===================================================================
+--- trunk/gpt/src/modules/parser/parser.g	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/parser/parser.g	2009-07-11 01:32:56 UTC (rev 537)
+@@ -342,6 +342,7 @@
+       | stm_ret {tk=lastToken;} T_SEMICOL!
+       | stm_se
+       | stm_enquanto
++      | stm_repita {tk=lastToken;} T_SEMICOL!
+       | stm_para
+     )*
+   ;
+@@ -362,6 +363,7 @@
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+@@ -380,7 +382,7 @@
+   exception
+   catch[antlr::NoViableAltException e] {
+     reportParserError(lastToken->getLine(), expecting_expression, "", lastToken->getText());
+-  
++
+     //tudo o que vem depois de stm_list
+     BitSet b;
+     b.add(T_IDENTIFICADOR);
+@@ -389,9 +391,11 @@
+     b.add(T_KW_ENQUANTO);
+     b.add(T_KW_PARA);
+     b.add(T_KW_SENAO);
++    b.add(T_KW_REPITA);
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+@@ -491,10 +495,12 @@
+     b.add(T_KW_SE);
+     b.add(T_KW_ENQUANTO);
+     b.add(T_KW_PARA);
++    b.add(T_KW_REPITA);
+     b.add(T_KW_SENAO);
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+@@ -512,10 +518,12 @@
+     b.add(T_KW_SE);
+     b.add(T_KW_ENQUANTO);
+     b.add(T_KW_PARA);
++    b.add(T_KW_REPITA);
+     b.add(T_KW_SENAO);
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+@@ -549,10 +557,12 @@
+     b.add(T_KW_SE);
+     b.add(T_KW_ENQUANTO);
+     b.add(T_KW_PARA);
++    b.add(T_KW_REPITA);
+     b.add(T_KW_SENAO);
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+@@ -560,6 +570,49 @@
+   //nota: stm_enquanto nao lanca noViable
+ 
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++
++stm_repita
++{RefToken tk;}
++  : rep:T_KW_REPITA^ stm_list {tk=lastToken;} ate:T_KW_ATE! expr {tk=lastToken;}
++  ;
++
++  exception
++  catch[antlr::MismatchedTokenException e] {
++    if(e.expecting != T_KW_ATE) {
++      if(e.getLine() == tk->getLine()) {
++        reportParserError(e.getLine(), getTokenNames()[e.expecting], getTokenDescription(e.token));
++      } else {
++        reportParserError(tk->getLine(), getTokenNames()[e.expecting], "", tk->getText());
++      }
++    } else {
++      if(e.getLine() == tk->getLine()) {
++        reportParserError(e.getLine(), expecting_stm_or_ate, getTokenDescription(e.token));
++      } else {
++        reportParserError(tk->getLine(), expecting_stm_or_ate, "", tk->getText());
++      }  
++    }
++
++    //tudo o que vem depois de stm_list
++    BitSet b;
++    b.add(T_IDENTIFICADOR);
++    b.add(T_KW_RETORNE);
++    b.add(T_KW_SE);
++    b.add(T_KW_ENQUANTO);
++    b.add(T_KW_PARA);
++    b.add(T_KW_REPITA);
++    b.add(T_KW_SENAO);
++    b.add(T_KW_FIM_SE);
++    b.add(T_KW_FIM_ENQUANTO);
++    b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
++    b.add(T_KW_FIM);
++    consumeUntil(b);
++  }
++
++  //nota: stm_repita nao lanca noViable
++
++
++//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ stm_para 
+ {RefToken tk;}
+   : T_KW_PARA^ 
+@@ -596,10 +649,12 @@
+     b.add(T_KW_SE);
+     b.add(T_KW_ENQUANTO);
+     b.add(T_KW_PARA);
++    b.add(T_KW_REPITA);
+     b.add(T_KW_SENAO);
+     b.add(T_KW_FIM_SE);
+     b.add(T_KW_FIM_ENQUANTO);
+     b.add(T_KW_FIM_PARA);
++    b.add(T_KW_ATE);
+     b.add(T_KW_FIM);
+     consumeUntil(b);
+   }
+
+Modified: trunk/gpt/src/modules/parser/semantic.g
+===================================================================
+--- trunk/gpt/src/modules/parser/semantic.g	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/parser/semantic.g	2009-07-11 01:32:56 UTC (rev 537)
+@@ -183,6 +183,7 @@
+   | stm_ret
+   | stm_se
+   | stm_enquanto
++  | stm_repita
+   | stm_para
+   ;
+ 
+@@ -246,6 +247,13 @@
+   : #(e:T_KW_ENQUANTO etype=expr {evaluator.evaluateBooleanExpr(etype, e->getLine());} (stm)* )
+   ;
+ 
++stm_repita
++{
++  ExpressionValue etype;
++}
++  : #(r:T_KW_REPITA (stm)* etype=expr {evaluator.evaluateBooleanExpr(etype, r->getLine());} )
++  ;
++
+ stm_para
+ {
+   ExpressionValue lv, de, ate;
+@@ -377,4 +385,4 @@
+ exception
+ catch[antlr::NoViableAltException&e] {
+   //
+-}
+\ No newline at end of file
++}
+
+Modified: trunk/gpt/src/modules/x86/x86.g
+===================================================================
+--- trunk/gpt/src/modules/x86/x86.g	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/src/modules/x86/x86.g	2009-07-11 01:32:56 UTC (rev 537)
+@@ -165,6 +165,7 @@
+   | stm_ret
+   | stm_se
+   | stm_enquanto
++  | stm_repita
+   | stm_para
+   ;
+ 
+@@ -457,6 +458,35 @@
+     )
+   ;
+ 
++stm_repita
++{
++  stringstream s;
++  string lbrep = x86.createLabel(true, "repita");;
++  string lbfim = x86.createLabel(true, "ate");;
++
++  s << lbrep << ":";
++  x86.writeTEXT(s.str());
++  s.str("");
++
++  x86.writeTEXT("; repita");
++}
++  : #(T_KW_REPITA 
++       (stm)*
++      {
++       x86.writeTEXT("; until expressao");
++      }
++       expr[TIPO_LOGICO]
++      {
++        x86.writeTEXT("; until resultado");
++        x86.writeTEXT("pop eax");
++        x86.writeTEXT("cmp eax, 0");
++        s << "je near " << lbrep;
++        x86.writeTEXT(s.str());
++      }
++    )
++  ;
++
++
+ stm_para
+ {
+   stringstream s;
+
+Modified: trunk/gpt/test/tester.gpt
+===================================================================
+--- trunk/gpt/test/tester.gpt	2009-07-06 23:37:42 UTC (rev 536)
++++ trunk/gpt/test/tester.gpt	2009-07-11 01:32:56 UTC (rev 537)
+@@ -21,8 +21,8 @@
+   testar_matriz_literais();  
+   testar_enquanto();
+   testar_para();
++  testar_repita();
+ 
+-
+   testar_funcoes();
+ 
+ //overflow de inteiros, caracteres logicos e reais
+@@ -66,7 +66,7 @@
+     imprima("testar_inicializacao: local <> 0");
+   fim-se
+ 
+-  para local de 0 at? 1 fa?a  
++  para local de 0  1 fa?a  
+     se mat[local] <> 0 ent?o
+       imprima("testar_inicializacao: mat[",local,"] <> 0");
+     fim-se
+@@ -457,8 +457,37 @@
+   fim-se
+ fim
+ 
++fun??o testar_repita()
++  local : literal;
++  z : inteiro;
++in?cio
+ 
++  repita
++    z := z + 1;
++  at? z=10;
+ 
++  se z <> 10 ent?o
++    imprima("testar_repita: z <> 10");
++  fim-se
++
++  repita
++    z := z - 1;
++  at? z<5;
++
++  se z >= 5 ent?o
++    imprima("testar_repita: z >= 5");
++  fim-se
++
++  repita
++  at? n?o local;
++
++ se local ent?o
++    imprima("testar_repita: local <> (nulo)");
++  fim-se
++
++fim
++
++
+ fun??o testar_funcoes()
+   lit : literal;
+   mm  : matriz[2] de inteiros;
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Sun Jul 12 01:12:48 2009
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Sun, 12 Jul 2009 01:12:48 +0200
+Subject: [gpt-commit] r538 - in trunk/gpt: src/modules/c_translator
+	src/modules/interpreter test
+Message-ID: <200907112312.n6BNCmO3019403@sheep.berlios.de>
+
+Author: adorilson
+Date: 2009-07-12 01:12:35 +0200 (Sun, 12 Jul 2009)
+New Revision: 538
+
+Modified:
+   trunk/gpt/src/modules/c_translator/pt2c.g
+   trunk/gpt/src/modules/interpreter/interpreter.g
+   trunk/gpt/test/tester.gpt
+Log:
+- Implemetacao da estrutura repita nos modulos tradutor para C e interpretador
+
+
+Modified: trunk/gpt/src/modules/c_translator/pt2c.g
+===================================================================
+--- trunk/gpt/src/modules/c_translator/pt2c.g	2009-07-11 01:32:56 UTC (rev 537)
++++ trunk/gpt/src/modules/c_translator/pt2c.g	2009-07-11 23:12:35 UTC (rev 538)
+@@ -639,6 +639,7 @@
+   | stm_ret
+   | stm_se
+   | stm_enquanto
++  | stm_repita
+   | stm_para
+   ;
+ 
+@@ -782,6 +783,28 @@
+     )
+   ;
+ 
++stm_repita
++{
++  production e;
++  stringstream str;
++}
++  :#(T_KW_REPITA
++      {
++        str << "do{";
++        writeln(str);
++        indent();
++      }
++      (stm)*
++      e=expr[TIPO_LOGICO]
++      {
++        unindent();
++        str.str(""); 
++        str << "}while (! "  << e.expr.second << ");";
++        writeln(str);
++      }
++    )
++  ;
++
+ stm_para
+ {
+   bool haspasso = false;
+
+Modified: trunk/gpt/src/modules/interpreter/interpreter.g
+===================================================================
+--- trunk/gpt/src/modules/interpreter/interpreter.g	2009-07-11 01:32:56 UTC (rev 537)
++++ trunk/gpt/src/modules/interpreter/interpreter.g	2009-07-11 23:12:35 UTC (rev 538)
+@@ -186,6 +186,7 @@
+   | stm_ret
+   | stm_se
+   | stm_enquanto
++  | stm_repita
+   | stm_para
+   ;
+ 
+@@ -303,11 +304,32 @@
+           exec = expr(exprNode).ifTrue();
+           stmNode = first_stm;
+         }
+-        _t = _retTree;
+       }
+     )
+   ;
+ 
++stm_repita
++{
++  ExprValue e;
++  bool exec;
++  RefPortugolAST exprNode, first_stm, stmNode;
++}
++  : #(rep:T_KW_REPITA
++      {
++        stmNode = first_stm = _t;
++        do{
++          while(stmNode->getNextSibling() != antlr::nullAST) {
++            stm(stmNode);
++		        stmNode = stmNode->getNextSibling();
++		      }
++          exprNode = stmNode;
++		      exec = expr(exprNode).ifTrue();
++		      stmNode = first_stm;
++        }while(!exec);
++      }
++    )
++  ;
++
+ stm_para
+ {
+   ExprValue de, ate;
+@@ -351,7 +373,6 @@
+           //lv deve ter um valor a mais do que at? (ou a menos, se loop decrescente).
+           //setar o valor de lv para valor de ate
+           interpreter.execAttribution(lv, ate);
+-          _t = _retTree;
+         }
+     )
+   ;
+
+Modified: trunk/gpt/test/tester.gpt
+===================================================================
+--- trunk/gpt/test/tester.gpt	2009-07-11 01:32:56 UTC (rev 537)
++++ trunk/gpt/test/tester.gpt	2009-07-11 23:12:35 UTC (rev 538)
+@@ -66,7 +66,7 @@
+     imprima("testar_inicializacao: local <> 0");
+   fim-se
+ 
+-  para local de 0  1 fa?a  
++  para local de 0 at? 1 fa?a  
+     se mat[local] <> 0 ent?o
+       imprima("testar_inicializacao: mat[",local,"] <> 0");
+     fim-se
+@@ -464,6 +464,9 @@
+ 
+   repita
+     z := z + 1;
++    se z>10 ent?o
++      imprima("testar_repita: z <> 10. la?o infinito");
++    fim-se  
+   at? z=10;
+ 
+   se z <> 10 ent?o
+@@ -472,10 +475,10 @@
+ 
+   repita
+     z := z - 1;
+-  at? z<5;
++  at? z<=5;
+ 
+-  se z >= 5 ent?o
+-    imprima("testar_repita: z >= 5");
++  se z > 5 ent?o
++    imprima("testar_repita: z > 5");
+   fim-se
+ 
+   repita
+
+
+

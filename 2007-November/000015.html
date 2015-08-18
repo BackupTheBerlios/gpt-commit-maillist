@@ -1,0 +1,534 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r341 - trunk/gpt2/src/gptc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r341%20-%20trunk/gpt2/src/gptc&In-Reply-To=%3C200711090210.lA92A735024619%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000014.html">
+   <LINK REL="Next"  HREF="000016.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r341 - trunk/gpt2/src/gptc</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r341%20-%20trunk/gpt2/src/gptc&In-Reply-To=%3C200711090210.lA92A735024619%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r341 - trunk/gpt2/src/gptc">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Nov  9 03:10:07 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000014.html">[gpt-commit] r340 - trunk/gpt2/src/gptc
+</A></li>
+        <LI>Next message: <A HREF="000016.html">[gpt-commit] r342 - trunk/gpt2/src/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#15">[ date ]</a>
+              <a href="thread.html#15">[ thread ]</a>
+              <a href="subject.html#15">[ subject ]</a>
+              <a href="author.html#15">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-09 03:10:06 +0100 (Fri, 09 Nov 2007)
+New Revision: 341
+
+Modified:
+   trunk/gpt2/src/gptc/lexer.g
+   trunk/gpt2/src/gptc/parser.g
+Log:
+-Mudanca nos nomes dos tokens / remocao do prefixo KW
+
+Modified: trunk/gpt2/src/gptc/lexer.g
+===================================================================
+--- trunk/gpt2/src/gptc/lexer.g	2007-11-08 08:02:03 UTC (rev 340)
++++ trunk/gpt2/src/gptc/lexer.g	2007-11-09 02:10:06 UTC (rev 341)
+@@ -42,78 +42,74 @@
+ }
+ 
+ tokens {
+-  T_KW_ALGORITMO=&quot;algoritmo&quot;;
+-  T_KW_USE=&quot;use&quot;;
+-  T_KW_VARIAVEL=&quot;vari&#225;vel&quot;;
+-  T_KW_VARIAVEIS=&quot;vari&#225;veis&quot;;
+-  T_KW_FIM_VARIAVEIS=&quot;fim-vari&#225;veis&quot;;
+-  T_KW_INTEIRO=&quot;inteiro&quot;;
+-  T_KW_REAL=&quot;real&quot;;
+-  T_KW_CARACTERE=&quot;caractere&quot;;
+-  T_KW_LITERAL=&quot;literal&quot;;
+-  T_KW_LOGICO=&quot;l&#243;gico&quot;;
+-  T_KW_CORINGA=&quot;coringa&quot;;
+-  T_KW_MATRIZ=&quot;matriz&quot;;
+-  T_KW_DO=&quot;do&quot;;
+-  T_KW_TIPO=&quot;tipo&quot;;
+-  T_KW_CONSTANTE=&quot;constante&quot;;
+-  T_KW_CONSTANTES=&quot;constantes&quot;;
+-  T_KW_FIM_CONSTANTES=&quot;fim-constantes&quot;;
+-  T_KW_ESTRUTURA=&quot;estrutura&quot;;
+-  T_KW_FIM_ESTRUTURA=&quot;fim-estrutura&quot;;
+-  T_KW_FUNCAO=&quot;fun&#231;&#227;o&quot;;
+-  T_KW_PROCEDIMENTO=&quot;procedimento&quot;;
+-  T_KW_REF=&quot;ref&quot;;
+-  T_KW_INICIO=&quot;in&#237;cio&quot;;
+-  T_KW_FIM=&quot;fim&quot;;
+-  T_KW_SAIR=&quot;sair&quot;;
+-  T_KW_RETORNE=&quot;retorne&quot;;
+-  T_KW_SE=&quot;se&quot;;
+-  T_KW_ENTAO=&quot;ent&#227;o&quot;;
+-  T_KW_SENAO=&quot;sen&#227;o&quot;;
+-  T_KW_FIM_SE=&quot;fim-se&quot;;
+-  T_KW_ENQUANTO=&quot;enquanto&quot;;
+-  T_KW_FACA=&quot;fa&#231;a&quot;;
+-  T_KW_FIM_ENQUANTO=&quot;fim-enquanto&quot;;
+-  T_KW_PARA=&quot;para&quot;;
+-  T_KW_DE=&quot;de&quot;;
+-  T_KW_ATE=&quot;at&#233;&quot;;
+-  T_KW_FIM_PARA=&quot;fim-para&quot;;
+-  T_KW_PASSO=&quot;passo&quot;;
+-  T_KW_REPITA=&quot;repita&quot;;
+-  T_KW_CASO=&quot;caso&quot;;
+-  T_KW_SEJA=&quot;seja&quot;;
+-  T_KW_FIM_SENAO=&quot;fim-sen&#227;o&quot;;
+-  T_KW_FIM_CASO=&quot;fim-caso&quot;;
+-  T_KW_FIM_FACA=&quot;fim-fa&#231;a&quot;;
+-  T_KW_OU=&quot;ou&quot;;
+-  T_KW_E=&quot;e&quot;;
+-  T_KW_NAO=&quot;n&#227;o&quot;;
+-  T_KW_VERDADEIRO=&quot;verdadeiro&quot;;
+-  T_KW_FALSO=&quot;falso&quot;;
+-  T_KW_ASM=&quot;asm&quot;;
+-  T_KW_FIMASM=&quot;fim-asm&quot;;
++  T_ALGORITMO=&quot;algoritmo&quot;;
++  T_USE=&quot;use&quot;;
++  T_VARIAVEL=&quot;vari&#225;vel&quot;;
++  T_VARIAVEIS=&quot;vari&#225;veis&quot;;
++  T_FIM_VARIAVEIS=&quot;fim-vari&#225;veis&quot;;
++  T_INTEIRO=&quot;inteiro&quot;;
++  T_REAL=&quot;real&quot;;
++  T_CARACTERE=&quot;caractere&quot;;
++  T_LITERAL=&quot;literal&quot;;
++  T_LOGICO=&quot;l&#243;gico&quot;;
++  T_CORINGA=&quot;coringa&quot;;
++  T_MATRIZ=&quot;matriz&quot;;
++  T_DO=&quot;do&quot;;
++  T_TIPO=&quot;tipo&quot;;
++  T_CONSTANTE=&quot;constante&quot;;
++  T_CONSTANTES=&quot;constantes&quot;;
++  T_FIM_CONSTANTES=&quot;fim-constantes&quot;;
++  T_ESTRUTURA=&quot;estrutura&quot;;
++  T_FIM_ESTRUTURA=&quot;fim-estrutura&quot;;
++  T_FUNCAO=&quot;fun&#231;&#227;o&quot;;
++  T_PROCEDIMENTO=&quot;procedimento&quot;;
++  T_REF=&quot;ref&quot;;
++  T_INICIO=&quot;in&#237;cio&quot;;
++  T_FIM=&quot;fim&quot;;
++  T_SAIR=&quot;sair&quot;;
++  T_RETORNE=&quot;retorne&quot;;
++  T_SE=&quot;se&quot;;
++  T_ENTAO=&quot;ent&#227;o&quot;;
++  T_SENAO=&quot;sen&#227;o&quot;;
++  T_FIM_SE=&quot;fim-se&quot;;
++  T_ENQUANTO=&quot;enquanto&quot;;
++  T_FACA=&quot;fa&#231;a&quot;;
++  T_FIM_ENQUANTO=&quot;fim-enquanto&quot;;
++  T_PARA=&quot;para&quot;;
++  T_DE=&quot;de&quot;;
++  T_ATE=&quot;at&#233;&quot;;
++  T_FIM_PARA=&quot;fim-para&quot;;
++  T_PASSO=&quot;passo&quot;;
++  T_REPITA=&quot;repita&quot;;
++  T_CASO=&quot;caso&quot;;
++  T_SEJA=&quot;seja&quot;;
++  T_FIM_SENAO=&quot;fim-sen&#227;o&quot;;
++  T_FIM_CASO=&quot;fim-caso&quot;;
++  T_FIM_FACA=&quot;fim-fa&#231;a&quot;;
++  T_OU=&quot;ou&quot;;
++  T_E=&quot;e&quot;;
++  T_NAO=&quot;n&#227;o&quot;;
++  T_VERDADEIRO=&quot;verdadeiro&quot;;
++  T_FALSO=&quot;falso&quot;;
++  T_ASM=&quot;asm&quot;;
++  T_FIMASM=&quot;fim-asm&quot;;
+ 
+   T_REAL_LITERAL=&quot;n&#250;mero real&quot;; //a regra T_INTEIRO_LITERAL lida com reais
+ 
+ 
+   //imagin&#225;rios para a AST
+ 
+-  TI_VALOR;
+-  TI_VMATRIZ;    //valor da matriz    (literal [])
+-  TI_VESTRUTURA; //valor da estrutura (literal {})
++  T_VALOR;
++  T_VAL_MATRIZ;    //valor da matriz    (literal [])
++  T_VAL_ESTRUTURA; //valor da estrutura (literal {})
+ 
+-  TI_MATRIZ;
+-  TI_DIMENSOES;
+-  TI_NULL;
++  T_DIMENSOES;
++  T_NULL;
+ 
+-  TI_UN_POSITIVO;
+-  TI_UN_NEGATIVO;
+-  TI_UN_NEGACAO;
+-  TI_UN_NEGACAOB;
+-  TI_PARENTESIS;
++  T_UN_POSITIVO;
++  T_UN_NEGATIVO;
+ 
+-  TI_CALL;
++  T_CALL;
+ }
+ 
+ 
+
+Modified: trunk/gpt2/src/gptc/parser.g
+===================================================================
+--- trunk/gpt2/src/gptc/parser.g	2007-11-08 08:02:03 UTC (rev 340)
++++ trunk/gpt2/src/gptc/parser.g	2007-11-09 02:10:06 UTC (rev 341)
+@@ -74,11 +74,11 @@
+   ;
+ 
+ declaracao_algoritmo!
+-  : T_KW_ALGORITMO T_IDENTIFICADOR T_PONTO_VIRGULA
++  : T_ALGORITMO T_IDENTIFICADOR T_PONTO_VIRGULA
+   ;
+ 
+ importacao
+-  : T_KW_USE^ T_TEXTO_LITERAL T_PONTO_VIRGULA!
++  : T_USE^ T_TEXTO_LITERAL T_PONTO_VIRGULA!
+   ;
+ 
+ corpo
+@@ -95,11 +95,11 @@
+ 
+ declaracao_variaveis
+   : bloco_declaracao_variaveis
+-  | T_KW_VARIAVEL! declaracao_variavel_uniq
++  | T_VARIAVEL! declaracao_variavel_uniq
+   ;
+ 
+ bloco_declaracao_variaveis
+-  : T_KW_VARIAVEIS^ (declaracao_variavel)+ T_KW_FIM_VARIAVEIS!
++  : T_VARIAVEIS^ (declaracao_variavel)+ T_FIM_VARIAVEIS!
+   ;
+ 
+ declaracao_variavel!
+@@ -109,10 +109,10 @@
+             {
+               if (l_AST == antlr::nullAST) {
+                 #declaracao_variavel =
+-                    #([T_KW_VARIAVEL,&quot;&amp;var&quot;], t,ids);
++                    #([T_VARIAVEL,&quot;&amp;var&quot;], t,ids);
+               } else {
+                 #declaracao_variavel =
+-                    #([T_KW_VARIAVEL,&quot;&amp;var&quot;], t,ids,([TI_VALOR,&quot;&amp;valor&quot;],l));
++                    #([T_VARIAVEL,&quot;&amp;var&quot;], t,ids,([T_VALOR,&quot;&amp;valor&quot;],l));
+               }
+             }
+   ;
+@@ -128,10 +128,10 @@
+             {
+               if (l_AST == antlr::nullAST) {
+                 #declaracao_variavel_uniq=
+-                    #([T_KW_VARIAVEL,&quot;&amp;var&quot;], t,id);
++                    #([T_VARIAVEL,&quot;&amp;var&quot;], t,id);
+               } else {
+                 #declaracao_variavel_uniq =
+-                    #([T_KW_VARIAVEL,&quot;&amp;var&quot;], t,id,([TI_VALOR,&quot;&amp;valor&quot;],l));
++                    #([T_VARIAVEL,&quot;&amp;var&quot;], t,id,([T_VALOR,&quot;&amp;valor&quot;],l));
+               }
+             }
+   ;
+@@ -151,13 +151,13 @@
+       idx:inicializacao_indices
+     T_FECHA_CHAVE!
+ 
+-                 {#inicializacao_composta = #([TI_VMATRIZ, &quot;&amp;vmatriz&quot;],idx);}
++                 {#inicializacao_composta = #([T_VAL_MATRIZ, &quot;&amp;vmatriz&quot;],idx);}
+ 
+   | T_ABRE_COLCHETE!
+       mem:inicializacao_membros
+     T_FECHA_COLCHETE!
+ 
+-                 {#inicializacao_composta = #([TI_VESTRUTURA, &quot;&amp;vestr&quot;],mem);}
++                 {#inicializacao_composta = #([T_VAL_ESTRUTURA, &quot;&amp;vestr&quot;],mem);}
+   ;
+ 
+ inicializacao_indices
+@@ -170,25 +170,25 @@
+   ;
+ 
+ tipo_primitivo
+-  : T_KW_INTEIRO
+-  | T_KW_REAL
+-  | T_KW_CARACTERE
+-  | T_KW_LITERAL
+-  | T_KW_LOGICO
+-  | T_KW_CORINGA
++  : T_INTEIRO
++  | T_REAL
++  | T_CARACTERE
++  | T_LITERAL
++  | T_LOGICO
++  | T_CORINGA
+   ;
+ 
+ tipo_matriz!
+-  : T_KW_MATRIZ dim:matriz_dimensoes
+-    T_KW_DO T_KW_TIPO t:matriz_tipo
++  : m:T_MATRIZ dim:matriz_dimensoes
++    T_DO T_TIPO t:matriz_tipo
+ 
+-                    {#tipo_matriz = #([TI_MATRIZ, &quot;&amp;matriz&quot;], t,dim);}
++                    {#tipo_matriz = #(m, t,dim);}
+   ;
+ 
+ matriz_dimensoes
+   : ( T_ABRE_CHAVE!
+       ( T_INTEIRO_LITERAL
+-        | /*vazio*/  {addChildNode(currentAST, createNode(TI_NULL,&quot;&amp;null&quot;));}
++        | /*vazio*/  {addChildNode(currentAST, createNode(T_NULL,&quot;&amp;null&quot;));}
+       )
+       T_FECHA_CHAVE!
+     )+
+@@ -207,18 +207,18 @@
+ 
+ declaracao_constantes
+   : bloco_declaracao_constantes
+-  | T_KW_CONSTANTE! declaracao_constante
++  | T_CONSTANTE! declaracao_constante
+   ;
+ 
+ bloco_declaracao_constantes
+-  : T_KW_CONSTANTES^ (declaracao_constante)+ T_KW_FIM_CONSTANTES!
++  : T_CONSTANTES^ (declaracao_constante)+ T_FIM_CONSTANTES!
+   ;
+ 
+ declaracao_constante!
+   : id:T_IDENTIFICADOR T_2_PONTOS t:tipo
+     l:lista_inicializacao T_PONTO_VIRGULA
+ 
+-               {#declaracao_constante = #([T_KW_CONSTANTE,&quot;&amp;const&quot;], t,id,l);}
++               {#declaracao_constante = #([T_CONSTANTE,&quot;&amp;const&quot;], t,id,l);}
+   ;
+ 
+ 
+@@ -230,7 +230,7 @@
+ 
+ 
+ bloco_declaracao_estrutura
+-  : T_KW_ESTRUTURA^ T_IDENTIFICADOR (declaracao_variavel)+ T_KW_FIM_ESTRUTURA!
++  : T_ESTRUTURA^ T_IDENTIFICADOR (declaracao_variavel)+ T_FIM_ESTRUTURA!
+   ;
+ 
+ 
+@@ -246,14 +246,14 @@
+   ;
+ 
+ declaracao_funcao
+-  : T_KW_FUNCAO^ T_IDENTIFICADOR
++  : T_FUNCAO^ T_IDENTIFICADOR
+       T_ABRE_PAREN! (lista_parametros)? T_FECHA_PAREN! T_2_PONTOS! tipo
+     (declaracao_constantes | declaracao_variaveis)*
+     bloco_codigo
+   ;
+ 
+ declaracao_procedimento
+-  : T_KW_PROCEDIMENTO^ T_IDENTIFICADOR
++  : T_PROCEDIMENTO^ T_IDENTIFICADOR
+       T_ABRE_PAREN! (lista_parametros)? T_FECHA_PAREN!
+     (declaracao_constantes | declaracao_variaveis)*
+     bloco_codigo
+@@ -264,9 +264,9 @@
+   ;
+ 
+ parametro!
+-  : ((c:T_KW_CONSTANTE)? r:T_KW_REF)? id:T_IDENTIFICADOR T_2_PONTOS t:tipo
++  : ((c:T_CONSTANTE)? r:T_REF)? id:T_IDENTIFICADOR T_2_PONTOS t:tipo
+ 
+-                        {#parametro = #([T_KW_VARIAVEL,&quot;&amp;param&quot;],t,id,c,r);}
++                        {#parametro = #([T_VARIAVEL,&quot;&amp;param&quot;],t,id,c,r);}
+   ;
+ 
+ 
+@@ -276,7 +276,7 @@
+ //####################################
+ 
+ bloco_codigo
+-  : T_KW_INICIO^ lista_enunciados T_KW_FIM!
++  : T_INICIO^ lista_enunciados T_FIM!
+   ;
+ 
+ lista_enunciados
+@@ -294,7 +294,7 @@
+ 
+   | en_asm
+ 
+-  | T_KW_SAIR^ T_PONTO_VIRGULA!
++  | T_SAIR^ T_PONTO_VIRGULA!
+   | T_PONTO_VIRGULA!
+ 
+ //  TODO: retirar da gramatica ou resolver a ambiguidade
+@@ -310,7 +310,7 @@
+ 
+ 
+ en_retorne
+-  : T_KW_RETORNE^ (expressao)? T_PONTO_VIRGULA!
++  : T_RETORNE^ (expressao)? T_PONTO_VIRGULA!
+   ;
+ 
+ lvalue
+@@ -325,48 +325,48 @@
+   ;
+ 
+ en_se
+-  : T_KW_SE^ expressao T_KW_ENTAO!
+-      lista_enunciados (T_KW_SENAO! lista_enunciados)? T_KW_FIM_SE!
++  : T_SE^ expressao T_ENTAO!
++      lista_enunciados (T_SENAO! lista_enunciados)? T_FIM_SE!
+   ;
+ 
+ en_enquanto
+-  : T_KW_ENQUANTO^ expressao T_KW_FACA! lista_enunciados T_KW_FIM_ENQUANTO!
++  : T_ENQUANTO^ expressao T_FACA! lista_enunciados T_FIM_ENQUANTO!
+   ;
+ 
+ en_para
+-  : T_KW_PARA^ lvalue T_KW_DE! expressao
+-    T_KW_ATE! expressao (passo)? T_KW_FACA!
+-      lista_enunciados T_KW_FIM_PARA!
++  : T_PARA^ lvalue T_DE! expressao
++    T_ATE! expressao (passo)? T_FACA!
++      lista_enunciados T_FIM_PARA!
+   ;
+ 
+ passo
+-  : T_KW_PASSO^ (T_MAIS|T_MENOS)? T_INTEIRO_LITERAL
++  : T_PASSO^ (T_MAIS|T_MENOS)? T_INTEIRO_LITERAL
+   ;
+ 
+ en_repita
+-  : T_KW_REPITA^ lista_enunciados T_KW_ATE expressao
++  : T_REPITA^ lista_enunciados T_ATE expressao
+   ;
+ 
+ en_caso
+-  : T_KW_CASO^ expressao
+-      T_KW_SEJA! (teste_caso)+
+-      (caso_senao)? T_KW_FIM_CASO!
++  : T_CASO^ expressao
++      T_SEJA! (teste_caso)+
++      (caso_senao)? T_FIM_CASO!
+   ;
+ 
+ teste_caso!
+-  : l:literal T_KW_FACA! en:lista_enunciados T_KW_FIM_FACA!
++  : l:literal T_FACA! en:lista_enunciados T_FIM_FACA!
+ 
+                                 {#teste_caso = #(l, en);}
+   ;
+ 
+ caso_senao
+-  : T_KW_SENAO^ lista_enunciados T_KW_FIM_SENAO!
++  : T_SENAO^ lista_enunciados T_FIM_SENAO!
+   ;
+ 
+ 
+ //TODO: codigo ilustrativo.
+ en_asm!
+-  : T_KW_ASM (~(T_KW_FIMASM))* T_KW_FIMASM
++  : T_ASM (~(T_FIMASM))* T_FIMASM
+   ;
+ 
+ 
+@@ -375,14 +375,14 @@
+ //####################################
+ 
+ expressao
+-  : expr_e (T_KW_OU^ expr_e)*
++  : expr_e (T_OU^ expr_e)*
+   ;
+ 
+ expr_e
+ options {
+   defaultErrorHandler=false;
+ }
+-  : expr_bit_ou (T_KW_E^ expr_bit_ou)*
++  : expr_bit_ou (T_E^ expr_bit_ou)*
+   ;
+ 
+ expr_bit_ou
+@@ -442,10 +442,10 @@
+   ;
+ 
+ op_unario!
+-  : ( T_MENOS   {#op_unario = #[TI_UN_NEGATIVO,&quot;&amp;negat&quot;];}
+-    | T_MAIS    {#op_unario = #[TI_UN_POSITIVO,&quot;&amp;pos&quot;];}
+-    | T_KW_NAO  {#op_unario = #[TI_UN_NEGACAO ,&quot;nega&#231;&quot;];}
+-    | T_BIT_NAO {#op_unario = #[TI_UN_NEGACAOB,&quot;&amp;negb&quot;];}
++  : ( T_MENOS      {#op_unario = #[T_UN_NEGATIVO,&quot;&amp;negat&quot;];}
++    | T_MAIS       {#op_unario = #[T_UN_POSITIVO,&quot;&amp;pos&quot;];}
++    | n:T_NAO      {#op_unario = #[T_NAO        ,&quot;nega&#231;&quot;];}
++    | bn:T_BIT_NAO {#op_unario = #[T_BIT_NAO    ,&quot;&amp;negb&quot;];}
+     )?
+   ;
+ 
+@@ -453,15 +453,14 @@
+   :  (T_IDENTIFICADOR T_ABRE_PAREN)=&gt; chamada_subrotina
+   |  lvalue
+   |  literal
+-  |! T_ABRE_PAREN e:expressao T_FECHA_PAREN {#expr_elemento =
+-                                              #([TI_PARENTESIS,&quot;&amp;paren&quot;], e);}
++  | T_ABRE_PAREN! expressao T_FECHA_PAREN!
+   ;
+ 
+ 
+ chamada_subrotina!
+   : id:T_IDENTIFICADOR T_ABRE_PAREN (args:lista_argumentos)? T_FECHA_PAREN
+ 
+-                        {#chamada_subrotina = #([TI_CALL,&quot;&amp;call&quot;], id, args);}
++                        {#chamada_subrotina = #([T_CALL,&quot;&amp;call&quot;], id, args);}
+   ;
+ 
+ lista_argumentos
+@@ -473,6 +472,6 @@
+   | T_INTEIRO_LITERAL
+   | T_REAL_LITERAL
+   | T_CARACTERE_LITERAL
+-  | T_KW_VERDADEIRO
+-  | T_KW_FALSO
++  | T_VERDADEIRO
++  | T_FALSO
+   ;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000014.html">[gpt-commit] r340 - trunk/gpt2/src/gptc
+</A></li>
+	<LI>Next message: <A HREF="000016.html">[gpt-commit] r342 - trunk/gpt2/src/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#15">[ date ]</a>
+              <a href="thread.html#15">[ thread ]</a>
+              <a href="subject.html#15">[ subject ]</a>
+              <a href="author.html#15">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

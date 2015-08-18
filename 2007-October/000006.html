@@ -1,0 +1,1025 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r331 - in trunk/gpt2: . src/modules/parser test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r331%20-%20in%20trunk/gpt2%3A%20.%20src/modules/parser%20test&In-Reply-To=%3C200710311322.l9VDMULp022206%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000005.html">
+   <LINK REL="Next"  HREF="000007.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r331 - in trunk/gpt2: . src/modules/parser test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r331%20-%20in%20trunk/gpt2%3A%20.%20src/modules/parser%20test&In-Reply-To=%3C200710311322.l9VDMULp022206%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r331 - in trunk/gpt2: . src/modules/parser test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Oct 31 14:22:30 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000005.html">[gpt-commit] r330 - in trunk: . gpt2 gpt2/doc gpt2/doc/man	gpt2/doc/manual gpt2/exemplos gpt2/lib gpt2/src	gpt2/src/modules gpt2/src/modules/parser gpt2/stuff gpt2/test	gpt2/test/asm gpt2/test/asm/win32
+</A></li>
+        <LI>Next message: <A HREF="000007.html">[gpt-commit] r332 - in trunk/gpt2/test: . wikki
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#6">[ date ]</a>
+              <a href="thread.html#6">[ thread ]</a>
+              <a href="subject.html#6">[ subject ]</a>
+              <a href="author.html#6">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-10-31 14:22:29 +0100 (Wed, 31 Oct 2007)
+New Revision: 331
+
+Modified:
+   trunk/gpt2/Makefile.am
+   trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp
+   trunk/gpt2/src/modules/parser/CTextFile.cpp
+   trunk/gpt2/src/modules/parser/CTextFile.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CArguments.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CArguments.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CContext.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CContext.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp
+   trunk/gpt2/src/modules/parser/Tools.cpp
+   trunk/gpt2/src/modules/parser/Tools.hpp
+   trunk/gpt2/src/modules/parser/parser.g
+   trunk/gpt2/test/hw.gpt
+Log:
+REGULAR:
+- Compilador converte Hello World em portugol para GptAssembly
+  corretamente
+- Retirado parcialmente o codigo nao utilizado que foi herdado
+  do projeto HoloVM
+- Compilador avalia se eh necessario empilhar o tipo e o numero
+  de argumentos na chamada de subrotinas. Por enquanto imprima
+  esta sendo tratada como um caso &quot;especial&quot;.
+- Formato do arquivo GptAssembly agora esta correto e mais legivel
+
+
+Modified: trunk/gpt2/Makefile.am
+===================================================================
+--- trunk/gpt2/Makefile.am	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/Makefile.am	2007-10-31 13:22:29 UTC (rev 331)
+@@ -8,4 +8,4 @@
+ 
+ uninstall-devel:
+ 	rm -rf $(includedir)/${PACKAGE} 
+-	rm -f $(libdir)/libgportugol*
+\ No newline at end of file
++	rm -f $(libdir)/libgportugol*
+
+Modified: trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -1,5 +1,5 @@
+-#ifndef CTEMPORARY_SYMBOL_H
+-#define CTEMPORARY_SYMBOL_H
++#ifndef GPT_CTEMPORARY_SYMBOL_H
++#define GPT_CTEMPORARY_SYMBOL_H
+ 
+ #include &lt;string&gt;
+ 
+
+Modified: trunk/gpt2/src/modules/parser/CTextFile.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTextFile.cpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/CTextFile.cpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -1,14 +1,14 @@
+ #include &quot;CTextFile.hpp&quot;
+ 
+ 
+-/*inline*/ CTextFile::CTextFile( const string &amp;filename, const string &amp;chrTab )
++CTextFile::CTextFile( const string &amp;filename, const string &amp;chrTab )
+ 	: _chrTab( chrTab ), _emitTab( true )
+ {
+ 	_file = new ofstream( filename.c_str( ) );
+ }
+ 
+ 
+-/*inline*/ CTextFile::~CTextFile( )
++CTextFile::~CTextFile( )
+ {
+ 	delete _file;
+ }
+@@ -41,14 +41,13 @@
+ }
+ 
+ 
+-/*inline*/
+ void CTextFile::incTab( )
+ {
+     _tabs += _chrTab;
+ }
+ 
+ 
+-/*inline*/ void CTextFile::decTab( )
++void CTextFile::decTab( )
+ {
+     _tabs.erase( _tabs.length( ) - _chrTab.length( ), _chrTab.length( ) );
+ }
+
+Modified: trunk/gpt2/src/modules/parser/CTextFile.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTextFile.hpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/CTextFile.hpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -1,5 +1,5 @@
+-#ifndef CTEXT_FILE_H
+-#define CTEXT_FILE_H
++#ifndef GPT_CTEXT_FILE_H
++#define GPT_CTEXT_FILE_H
+ 
+ #include &lt;string&gt;
+ #include &lt;fstream&gt;
+@@ -8,14 +8,13 @@
+ class CTextFile
+ {
+ public:
+-	/*inline*/ CTextFile( const string &amp;filename, const string &amp;chrTab = &quot;\t&quot; );
+-	/*inline*/ ~CTextFile( );
++	CTextFile( const string &amp;filename, const string &amp;chrTab = &quot;\t&quot; );
++	~CTextFile( );
+ 	void writeln( const string &amp;message );
+ 	void writeln( );
+ 	void write( const string &amp;message );
+-	/*inline*/
+ 	void incTab( );
+-	/*inline*/ void decTab( );
++	void decTab( );
+ 	CTextFile&amp; operator &lt;&lt; ( const string &amp;message );
+ private:
+ 	string _chrTab;
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CArguments.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CArguments.cpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/GASMFE_CArguments.cpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -1,36 +1,32 @@
+ #include &quot;GASMFE_CArguments.hpp&quot;
+ 
+ 
+-CArguments::CArguments( CSubroutine *subroutine )
+-	: _subroutine( subroutine )
++CArguments::CArguments( )
+ {
+ }
+ 
++void CArguments::init( CSubroutine* subroutine, const string &amp;subroutineName )
++{
++	clear( );
++	_subroutine     = subroutine;
++	_subroutineName = subroutineName;
++}
++
+ void CArguments::emitMnsInSubroutineCall( )
+ {
+ 	iterator argument;
+ 
+-	// TODO: emite ao contrario... e se for &quot;imprima&quot; empilha o nro de argumentos e o tipo de cada um
++	bool varArgs = _subroutineName == &quot;imprima&quot;;
++
++	// TODO: emite ao contrario
++	// se for &quot;imprima&quot; empilha o nro de argumentos e o tipo de cada um
+ 	// por enquanto imprima eh um caso especial, mas nas proximas versoes isso seria corrigido...
+ 	for( argument = begin(); argument != end(); argument++ ) {
+-		_subroutine-&gt;emitPUSHMn( &quot;aaa&quot; );
+-//              string ttt = argument-&gt;getText( );
+-//		_subroutine-&gt;emitPUSHMn( argument );
+-/*
+-		if ((*argument)-&gt;getType( ) == PortugolParserTokenTypes::T_KW_INTEIROS) {
+-			xxx
+-		} else if ((*argument)-&gt;_type == AT_DESTRUCTIVE || (*argument)-&gt;_type == AT_REFERENCE) {
+-			if (!(*argument)-&gt;_indexVar.empty()) {
+-				// Variaveis indexadas
+-				subroutine-&gt;emitLVMn( (*argument)-&gt;_indexVar );
+-				subroutine-&gt;emitSIVMn( (*argument)-&gt;_name );
+-			} else {
+-				// Variaveis nao indexadas
+-				subroutine-&gt;emitSVMn( (*argument)-&gt;_name );
+-			}
+-		} else {
+-			subroutine-&gt;emitSNMn( );
+-		}
+-*/
++                antlr::RefToken token = *argument;
++		_subroutine-&gt;emitPUSHMn( token, varArgs );
++
+ 	}
++	if (varArgs) {
++		_subroutine-&gt;emitPUSHMn( size( ) );
++	}
+ }
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CArguments.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CArguments.hpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/GASMFE_CArguments.hpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -4,30 +4,21 @@
+ #include &lt;vector&gt;
+ using namespace std;
+ 
+-
+-
+-// TODO: talvez nao precise de todos esses headers abaixo...
+-#include &lt;antlr/config.hpp&gt;
+-#include &lt;antlr/TokenStream.hpp&gt;
+-#include &lt;antlr/TokenBuffer.hpp&gt;
+-#include &lt;antlr/NoViableAltException.hpp&gt;
+-#include &lt;antlr/LLkParser.hpp&gt;
+ #include &quot;PortugolParserTokenTypes.hpp&quot;
+ 
+-
+-
+-
+-
+-//#include &quot;GASMFE_CArgument.hpp&quot;
+ #include &quot;GASMFE_CSubroutine.hpp&quot;
+ 
+ class CArguments : public vector&lt;antlr::RefToken&gt; // usar list :-)
+ {
+ public:
+-	CArguments( CSubroutine *subroutine );
+-	// TODO: subroutine no construtor
++	CArguments( );
++	void init( CSubroutine* subroutine, const string &amp;subroutineName );
+ 	void emitMnsInSubroutineCall( );
++	void setSubroutineName( const string &amp;_name ) {
++		_subroutineName = _name;
++	}
+ private:
++	string _subroutineName;
+ 	CSubroutine *_subroutine;
+ };
+ 
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -6,10 +6,16 @@
+ {
+ 	_file = new CGptAssemblyFile( _options-&gt;destfile );
+ 	_file-&gt;makeFileHeader( _options-&gt;destfile );
++	_file-&gt;writeln( &quot;program &quot; + _options-&gt;destfile );
++	_file-&gt;writeln( );
+ }
+ 
+ CAsmProgram::~CAsmProgram( )
+ {
++	_file-&gt;makeFileFooter( );
++
++	_file-&gt;writeln( &quot;end-program&quot; );
++
+ 	delete _file;
+ }
+ 
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -1,7 +1,6 @@
+ #ifndef GASMFE_CASM_PROGRAM_H
+ #define GASMFE_CASM_PROGRAM_H
+ 
+-//#include &quot;GASMFE_CBeing.h&quot;
+ #include &quot;GASMFE_CContext.hpp&quot;
+ #include &quot;GASMFE_CGptAssemblyFile.hpp&quot;
+ #include &quot;GASMFE_COptions.hpp&quot;
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CContext.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CContext.cpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/GASMFE_CContext.cpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -1,6 +1,6 @@
+ #include &quot;GASMFE_CContext.hpp&quot;
+ 
+-CContext::CContext( ) : _arity(0), lastStoredVar(NULL), lastInvocationType(IT_QU)
++CContext::CContext( ) : _arity(0), lastStoredVar(NULL)//, lastInvocationType(IT_QU)
+ {
+ }
+ 
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CContext.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CContext.hpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/GASMFE_CContext.hpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -24,8 +24,8 @@
+ 	string tempVar1;
+ 	string tempVar2;
+ //	CArguments arguments;
+-	int lastInvocationType;
+-	int blackboardType;
++//	int lastInvocationType;
++//	int blackboardType;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.cpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.cpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -14,23 +14,24 @@
+ 
+ void CGptAssemblyFile::makeFileHeader( const string &amp;filename )
+ {
+-//		writeln( &quot;///////////////////////////////////////////////////&quot; );
+-//		writeln( &quot;// Programa XXX.hasm gerado a partir de XXX.gpt //&quot; );
+-//		writeln( &quot;///////////////////////////////////////////////////&quot; );
++	writeln( &quot;// Programa XXX.gasm gerado a partir de XXX.gpt&quot; );
+ }
+ 
+ 
+-void CGptAssemblyFile::makeBeingHeader( const string &amp;being )
++void CGptAssemblyFile::makeProcedureHeader( const string &amp;name )
+ {
+-//		writeln( &quot;///////////////&quot; );
+-//		writeln( &quot;// Being XXX //&quot; );
+-//		writeln( &quot;///////////////&quot; );
++	writeln( string( &quot;// Procedure &quot; ) + name );
+ }
+ 
+ 
+-void CGptAssemblyFile::makeProcedureHeader( const string &amp;name )
++void CGptAssemblyFile::makeProcedureFooter( )
+ {
+-		writeln( &quot;//****&quot; );
+-		writeln( string( &quot;// Procedure &quot; ) + name );
+-		writeln( &quot;//****&quot; );
++	writeln( &quot;// Fim da procedure&quot; );
++	writeln( );
+ }
++
++
++void CGptAssemblyFile::makeFileFooter( )
++{
++}
++
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.hpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.hpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -1,5 +1,5 @@
+-#ifndef HASMFE_CGPT_ASSEMBLY_FILE_H
+-#define HASMFE_CGPT_ASSEMBLY_FILE_H
++#ifndef GASMFE_CGPT_ASSEMBLY_FILE_H
++#define GASMFE_CGPT_ASSEMBLY_FILE_H
+ 
+ #include &quot;CTextFile.hpp&quot;
+ 
+@@ -9,8 +9,9 @@
+ 	CGptAssemblyFile( const string &amp;filename, const string &amp;chrTab = &quot;\t&quot; );
+ 	~CGptAssemblyFile( );
+ 	void makeFileHeader( const string &amp;filename );
+-	void makeBeingHeader( const string &amp;being );
++	void makeFileFooter( );
+ 	void makeProcedureHeader( const string &amp;name );
++	void makeProcedureFooter( );
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -7,10 +7,10 @@
+ 
+ 
+ CSubroutine::CSubroutine( COptions *options, CGptAssemblyFile *file, const string &amp;name )
+-	: _options( options ), _file( file ), _lastSourceLine( 0 )
++	: _options( options ), _file( file ), _name( name ), _lastSourceLine( 0 )
+ {
+-	_file-&gt;makeProcedureHeader( name );
+-	_file-&gt;writeln( &quot;proc &quot; + name );
++	_file-&gt;makeProcedureHeader( _name );
++	_file-&gt;writeln( &quot;proc &quot; + _name );
+ 	_file-&gt;incTab( );
+ 
+ 	if ( _options-&gt;sentences ) {
+@@ -27,7 +27,9 @@
+ 	//}
+ 
+ 	_file-&gt;decTab( );
+-	_file-&gt;writeln( &quot;end&quot; );
++	_file-&gt;writeln( &quot;end-proc&quot; );
++
++	_file-&gt;makeProcedureFooter( );
+ }
+ 
+ 
+@@ -57,7 +59,7 @@
+ void CSubroutine::emitCodeToLoadParamValues( )
+ {
+ 	for( int param = _params.size( )-1; param &gt;= 0; param-- ) {
+-		emitLVMn( _params[param] );
++		//emitLVMn( _params[param] );
+ 	}
+ }
+ 
+@@ -74,308 +76,37 @@
+ }
+ 
+ 
+-void CSubroutine::emitPUSHMn( const string &amp;literal )
++void CSubroutine::emitPUSHMn( const antlr::RefToken &amp;_token, const bool &amp;_pushType )
+ {
+-	writeln( string(&quot;push &quot;) + literal );
++//	writeln( string(&quot;push &quot;) + literal );
++   if (_token-&gt;getType( ) == PortugolParserTokenTypes::T_STRING_LIT) {
++      writeln( string(&quot;push \&quot;&quot;) + _token-&gt;getText( ) + &quot;\&quot;&quot; );
++   } else {
++      writeln( string(&quot;push &quot;) + _token-&gt;getText( ) );
++   }
++   if (_pushType) {
++      writeln( string(&quot;push_&quot;) + typeToText( _token-&gt;getType( ) ) );
++   }
+ }
+ 
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-void CSubroutine::emitSVMn(const string &amp;var)
++void CSubroutine::emitPUSHMn( const int&amp; value )
+ {
+-	writeln( string(&quot;sv &quot;) + var );
++   writeln( string(&quot;push &quot;) + itoa( value ) );
+ }
+ 
+ 
+-void CSubroutine::emitLVMn(const string &amp;var)
+-{
+-	writeln( string(&quot;lv &quot;) + var );
+-}
++//void CSubroutine::emitADDMn( )
++//{
++//	writeln( &quot;add&quot; );
++//}
+ 
+-
+-void CSubroutine::emitSIVMn(const string &amp;var)
+-{
+-	writeln( string(&quot;siv &quot;) + var );
+-}
+-
+-
+-void CSubroutine::emitLIVMn(const string &amp;var)
+-{
+-	writeln( string(&quot;liv &quot;) + var );
+-}
+-
+-
+-void CSubroutine::emitADDMn( )
+-{
+-	writeln( &quot;add&quot; );
+-}
+-
+-
+-void CSubroutine::emitSUBMn( )
+-{
+-	writeln( &quot;sub&quot; );
+-}
+-
+-
+-void CSubroutine::emitMULMn( )
+-{
+-	writeln( &quot;mul&quot; );
+-}
+-
+-
+-void CSubroutine::emitDIVMn( )
+-{
+-	writeln( &quot;div&quot; );
+-}
+-
+-
+-void CSubroutine::emitINCMn( )
+-{
+-	writeln( &quot;inc&quot; );
+-}
+-
+-
+-void CSubroutine::emitDECMn( )
+-{
+-	writeln( &quot;dec&quot; );
+-}
+-
+-
+-void CSubroutine::emitLSBMn( const string &amp;symbol )
+-{
+-	if ( symbol == &quot;null&quot; ) {
+-		emitLNMn( );
+-	} else {
+-		writeln( string(&quot;lsb &quot;) + symbol );
+-	}
+-}
+-
+-
+ void CSubroutine::emitLabel( const string &amp;label )
+ {
+-	writeln( string(&quot;:&quot;) + label );
++	writeln( label + string(&quot;:&quot;) );
+ }
+ 
+ 
+-void CSubroutine::emitGTMn( )
+-{
+-	writeln( &quot;gt&quot; );
+-}
+-
+-
+-void CSubroutine::emitGEMn( )
+-{
+-	writeln( &quot;ge&quot; );
+-}
+-
+-
+-void CSubroutine::emitEQMn( )
+-{
+-	writeln( &quot;eq&quot; );
+-}
+-
+-
+-void CSubroutine::emitLEMn( )
+-{
+-	writeln( &quot;le&quot; );
+-}
+-
+-
+-void CSubroutine::emitLTMn( )
+-{
+-	writeln( &quot;lt&quot; );
+-}
+-
+-
+-void CSubroutine::emitNEMn( )
+-{
+-	writeln( &quot;ne&quot; );
+-}
+-
+-
+-void CSubroutine::emitIFNOTMn( const string &amp;label )
+-{
+-	writeln( string(&quot;ifnot &quot;) + label );
+-}
+-
+-
+-void CSubroutine::emitIFMn( const string &amp;label )
+-{
+-	writeln( string(&quot;if &quot;) + label );
+-}
+-
+-
+-void CSubroutine::emitGOTOMn( const string &amp;label )
+-{
+-	writeln( string(&quot;goto &quot;) + label );
+-}
+-
+-
+-void CSubroutine::emitSNMn( )
+-{
+-	writeln( &quot;sn&quot; );
+-}
+-
+-
+-void CSubroutine::emitLNMn( )
+-{
+-	writeln( &quot;ln&quot; );
+-}
+-
+-
+-void CSubroutine::emitLBMn( )
+-{
+-	writeln( &quot;lb&quot; );
+-}
+-
+-
+-void CSubroutine::emitLOBMn( )
+-{
+-	writeln( &quot;lob&quot; );
+-}
+-
+-
+-void CSubroutine::emitLHMn( )
+-{
+-	writeln( &quot;lh&quot; );
+-}
+-
+-
+-void CSubroutine::emitLOHMn( )
+-{
+-	writeln( &quot;loh&quot; );
+-}
+-
+-
+-void CSubroutine::emitAFMn( )
+-{
+-	writeln( &quot;af&quot; );
+-}
+-
+-
+-void CSubroutine::emitQUMn( )
+-{
+-	writeln( &quot;qu&quot; );
+-}
+-
+-
+-void CSubroutine::emitNBQUMn( )
+-{
+-	writeln( &quot;nbqu&quot; );
+-}
+-
+-
+-void CSubroutine::emitNBDQUMn( )
+-{
+-	writeln( &quot;nbdqu&quot; );
+-}
+-
+-
+-void CSubroutine::emitDQUMn( )
+-{
+-	writeln( &quot;dqu&quot; );
+-}
+-
+-
+-void CSubroutine::emitWHOAMIMn( )
+-{
+-	writeln( &quot;whoami&quot; );
+-}
+-
+-
+-void CSubroutine::emitHOWMANYMn( )
+-{
+-	writeln( &quot;howmany&quot; );
+-}
+-
+-
+-void CSubroutine::emitWHEREAMIMn( )
+-{
+-	writeln( &quot;whereami&quot; );
+-}
+-
+-
+-void CSubroutine::emitTIMEMn( )
+-{
+-	writeln( &quot;time&quot; );
+-}
+-
+-
+-void CSubroutine::emitREADMn( )
+-{
+-	writeln( &quot;read&quot; );
+-}
+-
+-
+-void CSubroutine::emitWRMn( )
+-{
+-	writeln( &quot;wr&quot; );
+-}
+-
+-
+-void CSubroutine::emitWRLNMn( )
+-{
+-	writeln( &quot;wrln&quot; );
+-}
+-
+-
+-void CSubroutine::emitANDMn( )
+-{
+-	writeln( &quot;and&quot; );
+-}
+-
+-
+-void CSubroutine::emitORMn( )
+-{
+-	writeln( &quot;or&quot; );
+-}
+-
+-
+-void CSubroutine::emitCLONEMn( )
+-{
+-	writeln( &quot;clone&quot; );
+-}
+-
+-
+-void CSubroutine::emitMOVEMn( )
+-{
+-	writeln( &quot;move&quot; );
+-}
+-
+-void CSubroutine::emitLISTSIZEMn( )
+-{
+-	writeln( &quot;ivs&quot; );
+-}
+-
+-void CSubroutine::emitLISTINDEXMn( )
+-{
+-	writeln( &quot;ivi&quot; );
+-}
+-
+-void CSubroutine::emitLISTVALUEMn( )
+-{
+-	writeln( &quot;ivv&quot; );
+-}
+-
+ void CSubroutine::write( string value )
+ {
+ /*	if ( _sourceInfo &amp;&amp; *_options-&gt;sourceLine &gt; _lastSourceLine ) {
+@@ -404,28 +135,3 @@
+ 	_file-&gt;writeln( value );
+ }
+ 
+-
+-void CSubroutine::emitInvocationTypeMn( const int &amp;invocationType )
+-{
+-	switch( invocationType ) {
+-		case IT_AF:
+-			emitAFMn( );
+-			break;
+-		case IT_QU:
+-			emitQUMn( );
+-			break;
+-		case IT_NBQU:
+-			emitNBQUMn( );
+-			break;
+-		case IT_NBDQU:
+-			emitNBDQUMn( );
+-			break;
+-		case IT_DQU:
+-			emitDQUMn( );
+-			break;
+-		default:
+-			break;
+-			// TODO: Nao deveria chegar aqui... abortar
+-	}
+-}
+-
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -8,22 +8,12 @@
+ #include &quot;GASMFE_COptions.hpp&quot;
+ //#include &quot;SourceInfo.hpp&quot;
+ 
++#include &lt;antlr/LLkParser.hpp&gt;
++#include &quot;PortugolParserTokenTypes.hpp&quot;
++
+ using namespace std;
+ 
+-// argument type
+-const int AT_UNKNOWN       = 0;
+-const int AT_DESTRUCTIVE   = 1;
+-const int AT_REFERENCE     = 2;
+-const int AT_ACTION_RETURN = 3;
+ 
+-// invocation type
+-const int IT_NBQU = 1;
+-const int IT_NBDQU = 2;
+-const int IT_QU = 3;
+-const int IT_DQU = 4;
+-const int IT_AF = 5;
+-
+-
+ class CSubroutine
+ {
+ public:
+@@ -35,65 +25,24 @@
+ 	void emitCodeToLoadParamValues( );
+         void emitPCALLMn( const string &amp;name );
+         void emitISETMn( const string &amp;var, const string &amp;value );
+-	void emitPUSHMn( const string &amp;literal );
+-
+-
+-
+-	void emitSVMn(const string &amp;var);
+-	void emitLVMn(const string &amp;var);
+-	void emitSIVMn(const string &amp;var);
+-	void emitLIVMn(const string &amp;var);
+-	void emitADDMn( );
+-	void emitSUBMn( );
+-	void emitMULMn( );
+-	void emitDIVMn( );
+-	void emitINCMn( );
+-	void emitDECMn( );
+-	void emitLSBMn( const string &amp;symbol );
++        void emitPUSHMn( const antlr::RefToken &amp;_token, const bool &amp;_pushType = false );
++	void emitPUSHMn( const int&amp; value );
+ 	void emitLabel( const string &amp;label );
+-	void emitGTMn( );
+-	void emitGEMn( );
+-	void emitEQMn( );
+-	void emitLEMn( );
+-	void emitLTMn( );
+-	void emitNEMn( );
+-	void emitIFNOTMn( const string &amp;label );
+-	void emitIFMn( const string &amp;label );
+-	void emitGOTOMn( const string &amp;label );
+-	void emitSNMn( );
+-	void emitLNMn( );
+-	void emitLBMn( );
+-	void emitLOBMn( );
+-	void emitLHMn( );
+-	void emitLOHMn( );
+-	void emitAFMn( );
+-	void emitQUMn( );
+-	void emitNBQUMn( );
+-	void emitNBDQUMn( );
+-	void emitDQUMn( );
+-	void emitWHOAMIMn( );
+-	void emitHOWMANYMn( );
+-	void emitWHEREAMIMn( );
+-	void emitTIMEMn( );
+-	void emitREADMn( );
+-	void emitWRMn( );
+-	void emitWRLNMn( );
+-	void emitANDMn( );
+-	void emitORMn( );
+-	void emitCLONEMn( );
+-	void emitMOVEMn( );
+-	void emitLISTSIZEMn( );
+-	void emitLISTINDEXMn( );
+-	void emitLISTVALUEMn( );
+-	void emitInvocationTypeMn( const int &amp;invocationType );
++
+ 	void write( string value );
+ 	void writeln( string value );
++
++	const string&amp; getName( ) const
++	{
++		return _name;
++	}
+ private:
+ 	COptions *_options;
+ 	vector&lt;string&gt; _params;
+ 	CGptAssemblyFile* _file;
+ 	//SourceInfo *_sourceInfo;
+ 	int _lastSourceLine;
++	string _name;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/src/modules/parser/Tools.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/Tools.cpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/Tools.cpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -18,6 +18,8 @@
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+  */
+ 
++#include &quot;PortugolParserTokenTypes.hpp&quot;
++
+ #include &quot;Tools.hpp&quot;
+ 
+ 
+@@ -233,3 +235,20 @@
+ 
+      return !stream.eof();
+ }
++
++
++const string typeToText(const int &amp;type)
++{
++   if (type == PortugolParserTokenTypes::T_INT_LIT) {
++      return &quot;int&quot;;
++   } else if (type == PortugolParserTokenTypes::T_CARAC_LIT) {
++      return &quot;carac lit ???&quot;;
++   } else if (type == PortugolParserTokenTypes::T_STRING_LIT) {
++      return &quot;string&quot;;
++   } else if (type == PortugolParserTokenTypes::T_IDENTIFICADOR) {
++      return &quot;id&quot;;
++   }
++
++   return &quot;ERRO !!!&quot;;
++}
++
+
+Modified: trunk/gpt2/src/modules/parser/Tools.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/Tools.hpp	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/Tools.hpp	2007-10-31 13:22:29 UTC (rev 331)
+@@ -1,5 +1,5 @@
+-#ifndef ASG_TOOLS_H
+-#define ASG_TOOLS_H
++#ifndef GPT_TOOLS_H
++#define GPT_TOOLS_H
+ 
+ #include &lt;iomanip&gt;
+ 
+@@ -32,5 +32,6 @@
+ string wo_ctrl_chrs(string str, char = ' ');
+ bool streamtoken(istringstream&amp;, string&amp;, string&amp;);
+ // string&amp; getStringWithTab(string, string);
++const string typeToText(const int &amp;type);
+ 
+ #endif
+
+Modified: trunk/gpt2/src/modules/parser/parser.g
+===================================================================
+--- trunk/gpt2/src/modules/parser/parser.g	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/src/modules/parser/parser.g	2007-10-31 13:22:29 UTC (rev 331)
+@@ -51,6 +51,7 @@
+       COptions options;
+       CAsmProgram  *asmPrg;
+       CSubroutine *subroutine;
++      CArguments args;
+       void initParser( )
+       {
+          options.sourcefile = &quot;xxx.gpt&quot;;
+@@ -339,18 +340,17 @@
+ //  ;
+ 
+ chamada_subrotina
+-  : tk_id:T_IDENTIFICADOR T_ABREP (lista_argumentos)? T_FECHAP
++  : tk_id:T_IDENTIFICADOR T_ABREP
++    ( {args.init( subroutine, tk_id-&gt;getText( ) ); } lista_argumentos { args.emitMnsInSubroutineCall( ); })? T_FECHAP
+     { subroutine-&gt;emitPCALLMn( tk_id-&gt;getText( ) ); }
+   ; 
+ 
+ lista_argumentos
+ {
+    RefToken exp;
+-   CArguments args(subroutine);
+ }
+   : exp=expressao { args.push_back( exp ); }
+     (T_COMMA exp=expressao { args.push_back( exp ); } )*
+-    { args.emitMnsInSubroutineCall( ); }
+   ;
+ 
+ literal
+
+Modified: trunk/gpt2/test/hw.gpt
+===================================================================
+--- trunk/gpt2/test/hw.gpt	2007-10-30 19:23:58 UTC (rev 330)
++++ trunk/gpt2/test/hw.gpt	2007-10-31 13:22:29 UTC (rev 331)
+@@ -1,8 +1,5 @@
+-algoritmo teste ;
++algoritmo teste;
+ 
+ in&#237;cio
+-    v := 2;
+-    imprima( 1 );
+     imprima( &quot;Hello world !!!&quot; );
+ fim
+-
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000005.html">[gpt-commit] r330 - in trunk: . gpt2 gpt2/doc gpt2/doc/man	gpt2/doc/manual gpt2/exemplos gpt2/lib gpt2/src	gpt2/src/modules gpt2/src/modules/parser gpt2/stuff gpt2/test	gpt2/test/asm gpt2/test/asm/win32
+</A></li>
+	<LI>Next message: <A HREF="000007.html">[gpt-commit] r332 - in trunk/gpt2/test: . wikki
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#6">[ date ]</a>
+              <a href="thread.html#6">[ thread ]</a>
+              <a href="subject.html#6">[ subject ]</a>
+              <a href="author.html#6">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

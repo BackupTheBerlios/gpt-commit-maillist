@@ -1,0 +1,4548 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r335 - in trunk/gpt2: . src src/modules	src/modules/parser test test/wikki test/wikki/checked
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r335%20-%20in%20trunk/gpt2%3A%20.%20src%20src/modules%0A%09src/modules/parser%20test%20test/wikki%20test/wikki/checked&In-Reply-To=%3C200711051607.lA5G7qnb030507%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000009.html">
+   <LINK REL="Next"  HREF="000011.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r335 - in trunk/gpt2: . src src/modules	src/modules/parser test test/wikki test/wikki/checked</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r335%20-%20in%20trunk/gpt2%3A%20.%20src%20src/modules%0A%09src/modules/parser%20test%20test/wikki%20test/wikki/checked&In-Reply-To=%3C200711051607.lA5G7qnb030507%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r335 - in trunk/gpt2: . src src/modules	src/modules/parser test test/wikki test/wikki/checked">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon Nov  5 17:07:52 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000009.html">[gpt-commit] r334 - trunk/gpt2/src/modules/parser
+</A></li>
+        <LI>Next message: <A HREF="000011.html">[gpt-commit] r336 - trunk/gpt2/src/modules/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#10">[ date ]</a>
+              <a href="thread.html#10">[ thread ]</a>
+              <a href="subject.html#10">[ subject ]</a>
+              <a href="author.html#10">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-05 17:07:40 +0100 (Mon, 05 Nov 2007)
+New Revision: 335
+
+Added:
+   trunk/gpt2/test/check.sh
+   trunk/gpt2/test/check_all.sh
+   trunk/gpt2/test/comp.sh
+   trunk/gpt2/test/comp_all.sh
+   trunk/gpt2/test/gpt
+   trunk/gpt2/test/prep_tests.sh
+   trunk/gpt2/test/show_and_comp.sh
+   trunk/gpt2/test/test_ok.sh
+   trunk/gpt2/test/test_ok_all.sh
+   trunk/gpt2/test/teste_chamada_subrotinas.gpt
+   trunk/gpt2/test/wikki/checked/
+   trunk/gpt2/test/wikki/checked/estruturas_condicionais_1.gasm
+   trunk/gpt2/test/wikki/checked/estruturas_condicionais_1.gpt
+   trunk/gpt2/test/wikki/checked/estruturas_condicionais_2.gasm
+   trunk/gpt2/test/wikki/checked/estruturas_condicionais_2.gpt
+   trunk/gpt2/test/wikki/checked/estruturas_condicionais_3.gasm
+   trunk/gpt2/test/wikki/checked/estruturas_condicionais_3.gpt
+   trunk/gpt2/test/wikki/checked/estruturas_condicionais_4.gasm
+   trunk/gpt2/test/wikki/checked/estruturas_condicionais_4.gpt
+   trunk/gpt2/test/wikki/checked/estruturas_condicionais_5.gasm
+   trunk/gpt2/test/wikki/checked/estruturas_condicionais_5.gpt
+   trunk/gpt2/test/wikki/checked/estruturas_repeticao_1.gasm
+   trunk/gpt2/test/wikki/checked/estruturas_repeticao_1.gpt
+   trunk/gpt2/test/wikki/checked/estruturas_repeticao_2.gasm
+   trunk/gpt2/test/wikki/checked/estruturas_repeticao_2.gpt
+   trunk/gpt2/test/wikki/checked/estruturas_repeticao_3.gasm
+   trunk/gpt2/test/wikki/checked/estruturas_repeticao_3.gpt
+   trunk/gpt2/test/wikki/checked/estruturas_repeticao_4.gasm
+   trunk/gpt2/test/wikki/checked/estruturas_repeticao_4.gpt
+   trunk/gpt2/test/wikki/checked/expressoes_matematicas_1.gasm
+   trunk/gpt2/test/wikki/checked/expressoes_matematicas_1.gpt
+   trunk/gpt2/test/wikki/checked/expressoes_matematicas_2.gasm
+   trunk/gpt2/test/wikki/checked/expressoes_matematicas_2.gpt
+   trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_1.gasm
+   trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_1.gpt
+   trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_2.gasm
+   trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_2.gpt
+   trunk/gpt2/test/wikki/checked/inline_codigo_gptassembly.gasm
+   trunk/gpt2/test/wikki/checked/inline_codigo_gptassembly.gpt
+   trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_1.gasm
+   trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_1.gpt
+   trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_2.gasm
+   trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_2.gpt
+   trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_1.gasm
+   trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_1.gpt
+   trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_2.gasm
+   trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_2.gpt
+   trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_3.gasm
+   trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_3.gpt
+   trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_4.gasm
+   trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_4.gpt
+   trunk/gpt2/test/wikki/checked/variaveis_1.gasm
+   trunk/gpt2/test/wikki/checked/variaveis_1.gpt
+   trunk/gpt2/test/wikki/checked/variaveis_2.gasm
+   trunk/gpt2/test/wikki/checked/variaveis_2.gpt
+   trunk/gpt2/test/wikki/checked/variaveis_3.gasm
+   trunk/gpt2/test/wikki/checked/variaveis_3.gpt
+   trunk/gpt2/test/wikki/checked/variaveis_4.gasm
+   trunk/gpt2/test/wikki/checked/variaveis_4.gpt
+   trunk/gpt2/test/wikki/checked/variaveis_5.gasm
+   trunk/gpt2/test/wikki/checked/variaveis_5.gpt
+   trunk/gpt2/test/wikki/checked/variaveis_6.gasm
+   trunk/gpt2/test/wikki/checked/variaveis_6.gpt
+   trunk/gpt2/test/wikki/checked/variaveis_7.gasm
+   trunk/gpt2/test/wikki/checked/variaveis_7.gpt
+   trunk/gpt2/test/wikki/estruturas_condicionais_5.gpt
+   trunk/gpt2/test/wikki/expressoes_matematicas_2.gpt
+Modified:
+   trunk/gpt2/configure.in
+   trunk/gpt2/src/GPT.cpp
+   trunk/gpt2/src/GPT.hpp
+   trunk/gpt2/src/modules/Symbol.cpp
+   trunk/gpt2/src/modules/Symbol.hpp
+   trunk/gpt2/src/modules/SymbolTable.cpp
+   trunk/gpt2/src/modules/SymbolTable.hpp
+   trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp
+   trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp
+   trunk/gpt2/src/modules/parser/CTextFile.cpp
+   trunk/gpt2/src/modules/parser/CTextFile.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CArguments.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CArguments.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_COptions.hpp
+   trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp
+   trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp
+   trunk/gpt2/src/modules/parser/Makefile.am
+   trunk/gpt2/src/modules/parser/Tools.cpp
+   trunk/gpt2/src/modules/parser/Tools.hpp
+   trunk/gpt2/src/modules/parser/lexer.g
+   trunk/gpt2/src/modules/parser/parser.g
+   trunk/gpt2/test/wikki/constantes_1.gpt
+   trunk/gpt2/test/wikki/estruturas_repeticao_4.gpt
+   trunk/gpt2/test/wikki/expressoes_matematicas_1.gpt
+   trunk/gpt2/test/wikki/inline_codigo_gptassembly.gpt
+   trunk/gpt2/test/wikki/matrizes_3.gpt
+   trunk/gpt2/test/wikki/variaveis_4.gpt
+   trunk/gpt2/test/wikki/variaveis_7.gpt
+Log:
+- Geracao do prototipo do ambiente para execucao de testes regressivos
+- Implementado parcialmente o suporte a qualquer simbolo da linguagem
+  na tabela de simbolos
+- Implementado metodos para conversao de tipos entre Portugol e GptAssembly
+- Correcao de exemplos em Portugol estavam sintaticamente incorretos
+- Alteracoes no front-end para geracao de codigo GptAssembly
+  - Flexibilizacao nas rotinas de geracao de mnemonicos
+  - Refactory nas classes de geracao do texto em GptAssembly
+  - Geracao correta da declaracao de variaveis globais, locais e parametros
+  - Geracao correta para expressoes (com precedencia)
+  - Geracao dos mnemonicos corretos conforme o tipo de dado
+  - Geracao correta para declaracao de procedimentos e funcoes
+  - Geracao correta para chamada de procedimentos e funcoes
+    - Empilha na ordem inversa os argumentos
+    - Gera espaco para retorno de funcoes e desempilha o resultado
+  - Geracao correta para as seguintes sentencas:
+    - se..fim-se
+    - se..senao..fim-se
+    - enquanto..fim-enquanto
+    - para..fim-para (com e sem passo)
+    - repita..ate
+    - caso..fim-caso
+  - Geracao correta para assembly inline
+
+
+Modified: trunk/gpt2/configure.in
+===================================================================
+--- trunk/gpt2/configure.in	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/configure.in	2007-11-05 16:07:40 UTC (rev 335)
+@@ -39,17 +39,19 @@
+   if test $use_debug_code = &quot;full&quot;; then
+     CXXFLAGS=&quot;-g3 $CXXFLAGS&quot;
+   else
+-    CXXFLAGS=&quot;-g -O2 $CXXFLAGS&quot;
++    CXXFLAGS=&quot;-g  $CXXFLAGS&quot;
+   fi
+ else
+-  CXXFLAGS=&quot;-O2 $CXXFLAGS&quot;
++  CXXFLAGS=&quot;-g $CXXFLAGS&quot;
+ fi
+ 
+ if test &quot;$use_debug_define&quot; = &quot;yes&quot;; then
+   CXXFLAGS=&quot;-DDEBUG $CXXFLAGS&quot;
+ fi
+ 
++CXXFLAGS += &quot;-g&quot;
+ 
++
+ dnl------------------------------
+ dnl Check SO
+ dnl------------------------------
+
+Modified: trunk/gpt2/src/GPT.cpp
+===================================================================
+--- trunk/gpt2/src/GPT.cpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/GPT.cpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -131,25 +131,13 @@
+   }
+ 
+   string ofname = _outputfile;
+-//  if(!_useOutputFile) {
+-//    if(!genBinary) {
+-      ofname += &quot;.asm&quot;;
+-//    } 
+-//    #ifdef WIN32
+-//    else 
+-//    {      
+-//      ofname += &quot;.exe&quot;;      
+-//    }
+-//    #endif
+-//  }
++  ofname += &quot;.asm&quot;;
+ 
+-//  X86Walker x86(_stable);
+   string asmsrc = &quot;teste.gasm&quot;;//x86.algoritmo(_astree);
+ 
+   string ftmpname = createTmpFile();
+   ofstream fo;
+ 
+-//  if(!genBinary) { //salva assembly code
+     fo.open(ofname.c_str(), ios_base::out);
+     if(!fo) {
+       s &lt;&lt; PACKAGE &lt;&lt; &quot;: n&#227;o foi poss&#237;vel abrir o arquivo: \&quot;&quot; &lt;&lt; ofname &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl;
+@@ -158,32 +146,8 @@
+     }
+     fo &lt;&lt; asmsrc;
+     fo.close();
+-//  } else { //compile
+-//    fo.open(ftmpname.c_str(), ios_base::out);
+-//    if(!fo) {
+-//      s &lt;&lt; PACKAGE &lt;&lt; &quot;: erro ao processar arquivo tempor&#225;rio&quot; &lt;&lt; endl;
+-//      GPTDisplay::self()-&gt;showError(s);
+-//      goto bail;
+-//    }
+-//    fo &lt;&lt; asmsrc;
+-//    fo.close();
+ 
+-//    stringstream cmd;
+-//    cmd &lt;&lt; &quot;nasm -fbin -o &quot; &lt;&lt; ofname &lt;&lt; &quot; &quot; &lt;&lt; ftmpname;
+ 
+-//    if(system(cmd.str().c_str()) == -1) {
+-//      s &lt;&lt; PACKAGE &lt;&lt; &quot;: n&#227;o foi poss&#237;vel invocar gcc.&quot; &lt;&lt; endl;
+-//      GPTDisplay::self()-&gt;showError(s);
+-//      goto bail;
+-//    }
+-
+-//    #ifndef WIN32
+-//      cmd.str(&quot;&quot;);
+-//      cmd &lt;&lt; &quot;chmod +x &quot; &lt;&lt; ofname;
+-//      system(cmd.str().c_str());
+-//    #endif
+-  //}
+-
+   success = true;
+ 
+   bail:
+@@ -193,54 +157,7 @@
+     return success;
+ }
+ 
+-/*bool GPT::translate2C(const list&lt;string&gt;&amp; ifnames) {
+-  bool success = false;
+-  stringstream s;
+ 
+-  if(!prologue(ifnames)) {
+-    return false;
+-  }
+-
+-  string ofname = _outputfile;
+-  if(!_useOutputFile) {
+-     ofname += &quot;.c&quot;;
+-  }
+-
+-  Portugol2CWalker pt2c(_stable);
+-  string c_src = pt2c.algoritmo(_astree);
+-
+-  ofstream fo;
+-  fo.open(ofname.c_str(), ios_base::out);
+-  if(!fo) {
+-    s &lt;&lt; PACKAGE &lt;&lt; &quot;: n&#227;o foi poss&#237;vel abrir o arquivo: \&quot;&quot; &lt;&lt; ofname &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl;
+-    GPTDisplay::self()-&gt;showError(s);
+-    goto bail;
+-  }
+-  fo &lt;&lt; c_src;
+-  fo.close();
+-
+-  success = true;
+-
+-  bail:
+-    return success;
+-}
+-*/
+-
+-
+-/*
+-bool GPT::interpret(const list&lt;string&gt;&amp; ifnames, const string&amp; host, int port) {
+-  if(!prologue(ifnames)) {
+-    return false;
+-  }
+-
+-  InterpreterWalker interpreter(_stable, host, port);
+-  interpreter.algoritmo(_astree);
+-
+-  return true;
+-}
+-*/
+-
+-
+ bool GPT::parse(list&lt;pair&lt;string,istream*&gt; &gt;&amp; istream_list) {
+   stringstream s;
+   
+@@ -282,36 +199,32 @@
+ 
+     GPTDisplay::self()-&gt;setCurrentFile(firstFile);
+     
+-//    ASTFactory ast_factory(PortugolAST::TYPE_NAME,&amp;PortugolAST::factory);
+-//    parser.initializeASTFactory(ast_factory);
+-//    parser.setASTFactory(&amp;ast_factory);
++    // nao esta correto, mas funciona utilizarmos fistFile enquanto tivermos um arquivo apenas
++    string file = firstFile;
++    // retira a extensao
++    size_t pos = file.rfind( &quot;.&quot; );
++    file.erase( pos, 4 );
+ 
+-//    parser.algoritmo();
+-    parser.programa();
+-    if(_outputfile.empty()) {
+-      _outputfile = parser.nomeAlgoritmo();
+-    }
++    string asmProgram = parser.programa(file);
+ 
+     if(GPTDisplay::self()-&gt;hasError()) {
+       GPTDisplay::self()-&gt;showErrors();
+       return false;
+     }
+ 
+-//    _astree = parser.getPortugolAST();
+ 
+-//    if(!_astree) {
+-//      s &lt;&lt; PACKAGE &lt;&lt; &quot;: erro interno: no parse tree&quot; &lt;&lt; endl;
+-//      GPTDisplay::self()-&gt;showError(s);
+-//      return false;
+-//    }
++    ofstream fo;
+ 
+-//    if(_printParseTree) {
+-//      std::cerr &lt;&lt; _astree-&gt;toStringList() &lt;&lt; std::endl &lt;&lt; std::endl;
+-//    }
++    string asmFile = file + &quot;.gasm&quot;;
++    fo.open(asmFile.c_str(), ios_base::out);
++    if(!fo) {
++      s &lt;&lt; PACKAGE &lt;&lt; &quot;: n&#227;o foi poss&#237;vel abrir o arquivo: \&quot;&quot; &lt;&lt; asmFile &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl;
++      GPTDisplay::self()-&gt;showError(s);
++      return false;
++    }
++    fo &lt;&lt; asmProgram;
++    fo.close();
+ 
+-//    SemanticWalker semantic(_stable);
+-//    semantic.algoritmo(_astree);
+-
+     if(GPTDisplay::self()-&gt;hasError()) {
+       GPTDisplay::self()-&gt;showErrors();
+       return false;
+
+Modified: trunk/gpt2/src/GPT.hpp
+===================================================================
+--- trunk/gpt2/src/GPT.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/GPT.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -24,7 +24,6 @@
+ #include &lt;list&gt;
+ #include &lt;string&gt;
+ 
+-//#include &quot;PortugolAST.hpp&quot;
+ #include &quot;SymbolTable.hpp&quot;
+ 
+ 
+@@ -39,16 +38,12 @@
+   static GPT* self();
+ 
+   void reportDicas(bool value);
+-//  void printParseTree(bool value);
+-//   void usePipe(bool value);
+   void setOutputFile(string str);
+ 
+   void showHelp();
+   void showVersion();
+ 
+   bool compile(const list&lt;string&gt;&amp; ifnames, bool genBinary = true);
+-//  bool translate2C(const list&lt;string&gt;&amp; ifnames);
+-//  bool interpret(const list&lt;string&gt;&amp; ifnames, const string&amp; host, int port);
+   
+ private:
+   GPT();
+@@ -61,12 +56,9 @@
+ 
+   bool prologue(const list&lt;string&gt;&amp; ifname);
+ 
+-//   bool _usePipe;
+-//  bool _printParseTree;
+   bool _useOutputFile;
+   string _outputfile;
+ 
+-//  RefPortugolAST _astree;
+   SymbolTable    _stable;
+   
+ };
+
+Modified: trunk/gpt2/src/modules/Symbol.cpp
+===================================================================
+--- trunk/gpt2/src/modules/Symbol.cpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/Symbol.cpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -20,15 +20,18 @@
+ 
+ #include &quot;Symbol.hpp&quot;
+ 
++#include &quot;PortugolParserTokenTypes.hpp&quot;
++
+ #include &lt;sstream&gt;
+ 
+ SymbolType::SymbolType() 
+   : _isPrimitive(true)
+   , _primitiveType(TIPO_NULO)
++  , _isVariable(true)
+   {}
+   
+-SymbolType::SymbolType(int type) 
+-  : _isPrimitive(true), _primitiveType(type)
++SymbolType::SymbolType(int type, bool isVariable) 
++  : _isPrimitive(true), _primitiveType(type), _isVariable(isVariable)
+   {
+ }
+ 
+@@ -38,7 +41,7 @@
+   _dimensions.clear();
+ }
+ 
+-int SymbolType::primitiveType() const {
++int SymbolType::getPrimitiveType() const {
+   return _primitiveType;
+ }
+   
+@@ -50,6 +53,11 @@
+   return _isPrimitive;
+ }
+ 
++void SymbolType::setIsVariable(bool isVariable)
++{
++  _isVariable = isVariable;
++}
++
+ void SymbolType::setDimensions(const list&lt;int&gt;&amp; d) {
+   _isPrimitive = false;
+   _dimensions = d;
+@@ -73,10 +81,36 @@
+   return str.str();
+ }
+ 
++
++string SymbolType::toAsmType() const {
++  string str;
++  switch(_primitiveType) {
++//    case TIPO_NULO:      str = &quot;null&quot;; break;
++    case PortugolParserTokenTypes::T_KW_INTEIRO:    str = &quot;int&quot;; break;
++    case PortugolParserTokenTypes::T_KW_REAL:   str = &quot;real&quot;; break;
++    case PortugolParserTokenTypes::T_KW_CARACTERE:  str = &quot;char&quot;; break;
++    case PortugolParserTokenTypes::T_KW_LITERAL: str = &quot;string&quot;; break;
++    case PortugolParserTokenTypes::T_KW_LOGICO: str = &quot;bool&quot;; break;
++    case PortugolParserTokenTypes::T_KW_MATRIZ: str = &quot;matrix&quot;; break;
++//    case TIPO_LOGICO:    str = &quot;bool&quot;; break;    
++//    case TIPO_MATRIZ:    str = &quot;matrix&quot;; break;
++//    case TIPO_ALL:       str = &quot;@all&quot;; break;
++    default:             str = &quot;desconhecido&quot;; break;
++  }
++  return str;
++}
++
++bool SymbolType::getIsVariable( ) const
++{
++   return _isVariable;
++}
++
++
++
+ //------------------------------------------------------------------------------------//
+ 
+ Symbol::Symbol() 
+-  : cd(-1), scope(), lexeme(), line(-1), type(TIPO_NULO), isFunction(false), isBuiltin(false)
++  : cd(-1), scope(), lexeme(), line(-1), type(TIPO_NULO,false), isFunction(false), isBuiltin(false)
+   , param()
+ {
+ 
+@@ -84,20 +118,21 @@
+ 
+ Symbol::Symbol(const string&amp; scope_, const string&amp; lexeme_, int line_, bool isfunction_) 
+   : cd(-1), scope(scope_), lexeme(lexeme_), line(line_)
+-  , type(TIPO_NULO), isFunction(isfunction_), isBuiltin(false)
++  , type(TIPO_NULO,false), isFunction(isfunction_), isBuiltin(false)
+   , param() {}
+ 
+ 
+-Symbol::Symbol(const string&amp; scope_, const string&amp; lexeme_, int line_, bool isfunction_, int type_) 
++Symbol::Symbol(const string&amp; scope_, const string&amp; lexeme_, int line_, bool isfunction_, int type_, bool isVariable_) 
+     : cd(-1), scope(scope_), lexeme(lexeme_), line(line_)
+     , type(), isFunction(isfunction_), isBuiltin(false)
+     , param() {
+ 
+   type.setPrimitive(true);
+   type.setPrimitiveType(type_);
++  type.setIsVariable(isVariable_);
+ }
+ 
+-Symbol::Symbol(const string&amp; scope_, const string&amp; lexeme_, int line_, bool isfunction_, int type_,
++Symbol::Symbol(const string&amp; scope_, const string&amp; lexeme_, int line_, bool isfunction_, int type_, bool isVariable_,
+   const list&lt;int&gt;&amp; dimensions) 
+     : cd(-1), scope(scope_)
+     , lexeme(lexeme_)
+@@ -113,6 +148,7 @@
+   } else {
+     type.setPrimitive(true);
+   }
++  type.setIsVariable(isVariable_);
+ }
+ 
+ bool Symbol::isValid() const {
+@@ -133,3 +169,9 @@
+   }
+   return str;
+ }
++
++
++SymbolType Symbol::getType( ) const
++{
++   return type;
++}
+
+Modified: trunk/gpt2/src/modules/Symbol.hpp
+===================================================================
+--- trunk/gpt2/src/modules/Symbol.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/Symbol.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -37,22 +37,28 @@
+ class SymbolType {
+ public:
+   SymbolType();
+-  SymbolType(int type);
++  SymbolType(int type, bool isVariable);
+ 
+   void setPrimitiveType(int type);
+-  int primitiveType() const;
++  int getPrimitiveType() const;
+   
+   void setPrimitive(bool);
+   bool isPrimitive() const;
+ 
++  void setIsVariable(bool);
++
+   void setDimensions(const list&lt;int&gt;&amp;);
+   list&lt;int&gt;&amp; dimensions();
+ 
+   string toString() const;
++  string toAsmType() const;
++
++  bool getIsVariable( ) const;
+ protected:
+   bool _isPrimitive;
+   int _primitiveType;  
+   list&lt;int&gt;    _dimensions; //conjunto/matrizASTRef  
++  bool _isVariable;
+ };
+ 
+ class ParameterSig {
+@@ -61,7 +67,7 @@
+   : variable_params(false)  {}
+ 
+   void add(const string&amp; name, int type) {
+-    SymbolType s(type);
++    SymbolType s(type, false);
+     params.push_back(pair&lt;string, SymbolType&gt;(name,s));
+   }
+ 
+@@ -72,7 +78,7 @@
+     params.push_back(pair&lt;string, SymbolType&gt;(name,t));
+   }
+ 
+-  int paramType(int idx) {
++  int getParamType(int idx) {
+     if(isVariable()) {
+       return TIPO_ALL;
+     }
+@@ -80,7 +86,7 @@
+     int c = 0;
+     for(list&lt;pair&lt;string,SymbolType&gt; &gt;::iterator it = params.begin(); it != params.end(); it++, c++) {
+       if(c == idx) {
+-        return (*it).second.primitiveType();
++        return (*it).second.getPrimitiveType();
+       }
+     }
+     return TIPO_NULO; //throw exception?
+@@ -100,16 +106,18 @@
+   
+   Symbol(const string&amp; scope_, const string&amp; lexeme_, int line_, bool isfunction_);
+ 
+-  Symbol(const string&amp; scope_, const string&amp; lexeme_, int line_, bool isfunction_, int type_);
++  Symbol(const string&amp; scope_, const string&amp; lexeme_, int line_, bool isfunction_, int type_, bool isVariable_);
+ 
+-  Symbol(const string&amp; scope_, const string&amp; lexeme_, int line_, bool isfunction_, int type_,
++  Symbol(const string&amp; scope_, const string&amp; lexeme_, int line_, bool isfunction_, int type_, bool isVariable_,
+     const list&lt;int&gt;&amp; dimensions);
+ 
+   bool isValid() const;
+      
+   static string typeToString(int type);
+ 
++  SymbolType getType( ) const;
+ 
++
+   //attrs
+ 
+   
+
+Modified: trunk/gpt2/src/modules/SymbolTable.cpp
+===================================================================
+--- trunk/gpt2/src/modules/SymbolTable.cpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/SymbolTable.cpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -37,14 +37,14 @@
+ }
+ 
+ void SymbolTable::registrarLeia() {
+-  Symbol f(SymbolTable::GlobalScope, &quot;leia&quot;, 0, true, TIPO_ALL);
++  Symbol f(SymbolTable::GlobalScope, &quot;leia&quot;, 0, true, TIPO_ALL, false);
+   f.cd = currentCod++;
+   f.isBuiltin = true;
+   insertSymbol(f, SymbolTable::GlobalScope);
+ }
+ 
+ void SymbolTable::registrarImprima() {
+-  Symbol f(SymbolTable::GlobalScope, &quot;imprima&quot;, 0, true, TIPO_NULO);
++  Symbol f(SymbolTable::GlobalScope, &quot;imprima&quot;, 0, true, TIPO_NULO, false);
+   f.cd = currentCod++;
+   f.param.setVariable(true);
+   f.isBuiltin = true;
+@@ -52,7 +52,7 @@
+ }
+ 
+ void SymbolTable::declareVar(const string&amp; scope, const string&amp; lexeme, int line, int type) {
+-  Symbol s(scope, lexeme, line, false, type);
++  Symbol s(scope, lexeme, line, false, type, true);
+   s.cd = currentCod++;
+   symbols[scope].push_back(s);
+ }
+@@ -60,12 +60,19 @@
+ void SymbolTable::declareVar(const string&amp; scope, const string&amp; lexeme, int line, int type
+       , const list&lt;int&gt;&amp; dimensions) {
+ 
+-  Symbol s(scope, lexeme, line, false, type, dimensions);
++  Symbol s(scope, lexeme, line, false, type, true, dimensions);
+   s.cd = currentCod++;
+   symbols[scope].push_back(s);  
+ }
+ 
++void SymbolTable::addConstant(const string&amp; scope, const string&amp; lexeme, int line, int type) {
++  // O codigo ta igual ao declareVar...
++  Symbol s(scope, lexeme, line, false, type, false);
++  s.cd = currentCod++;
++  symbols[scope].push_back(s);
++}
+ 
++
+ void SymbolTable::insertSymbol(Symbol&amp; s, const string&amp; scope) {
+   s.cd = currentCod++;
+   symbols[scope].push_back(s);
+@@ -92,7 +99,7 @@
+     }
+   }
+ 
+-  throw SymbolTableException(&quot;no symbol found&quot;);
++  throw SymbolTableException(&quot;no symbol found[&quot; + scope + &quot;:&quot; + lexeme);
+ }
+ 
+ list&lt;Symbol&gt; SymbolTable::getSymbols(const string&amp; scope) {
+
+Modified: trunk/gpt2/src/modules/SymbolTable.hpp
+===================================================================
+--- trunk/gpt2/src/modules/SymbolTable.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/SymbolTable.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -50,6 +50,8 @@
+   void declareVar(const string&amp; scope, const string&amp; lexeme, int line, int type
+       , const list&lt;int&gt;&amp; dimensions);
+ 
++  void addConstant( const string&amp; scope, const string&amp; lexeme, int line, int type);
++
+   void insertSymbol(Symbol&amp; s, const string&amp; scope);
+ 
+   Symbol&amp; getSymbol(const string&amp; scope, const string&amp; lexeme, bool searchGlobal = false);
+
+Modified: trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/CTemporarySymbol.cpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -7,8 +7,8 @@
+ {
+ }
+ 
+-CTemporarySymbol::CTemporarySymbol( const string &amp;baseName, const int &amp;initialValue)
+-	: _baseName(baseName), _count(initialValue)
++CTemporarySymbol::CTemporarySymbol( const string &amp;baseName, const int &amp;nextValue)
++	: _baseName(baseName), _count(nextValue)
+ {
+ }
+ 
+@@ -21,14 +21,16 @@
+ 	_baseName = baseName;
+ }
+ 
+-void CTemporarySymbol::setInitialValue( int initialValue )
++void CTemporarySymbol::setNextValue( int nextValue )
+ {
+-	_count = initialValue;
++	_count = nextValue;
+ }
+ 
+ string CTemporarySymbol::getNew( )
+ {
+-	return( _baseName + itoa( _count++ ) );
++	_last = _baseName + itoa( _count++ );
++
++	return _last;
+ }
+ 
+ void CTemporarySymbol::removeLast( )
+@@ -43,6 +45,6 @@
+ 
+ string CTemporarySymbol::getLast( )
+ {
+-	return( _baseName + itoa( _count - 1 ) );
++	return( _last );
+ }
+ 
+
+Modified: trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/CTemporarySymbol.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -9,10 +9,10 @@
+ {
+ public:
+ 	CTemporarySymbol( );
+-	CTemporarySymbol( const string &amp;baseName, const int &amp;initialValue = 0 );
++	CTemporarySymbol( const string &amp;baseName, const int &amp;nextValue = 0 );
+ 	~CTemporarySymbol( );
+ 	void setBaseName( string baseName );
+-	void setInitialValue( int initialValue );
++	void setNextValue( int initialValue );
+ 	string getNew( );
+ 	void removeLast( );
+ 	unsigned int getMaxUsed( );
+@@ -20,6 +20,7 @@
+ private:
+ 	string _baseName;
+ 	int _count;
++	string _last;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/src/modules/parser/CTextFile.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTextFile.cpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/CTextFile.cpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -1,32 +1,30 @@
+ #include &quot;CTextFile.hpp&quot;
+ 
+ 
+-CTextFile::CTextFile( const string &amp;filename, const string &amp;chrTab )
++CTextFile::CTextFile( const string &amp;chrTab )
+ 	: _chrTab( chrTab ), _emitTab( true )
+ {
+-	_file = new ofstream( filename.c_str( ) );
+ }
+ 
+ 
+ CTextFile::~CTextFile( )
+ {
+-	delete _file;
+ }
+ 
+ 
+ void CTextFile::writeln( const string &amp;message )
+ {
+ 	if ( _emitTab ) {
+-		(*_file) &lt;&lt; _tabs;
++		_txt &lt;&lt; _tabs;
+ 	}
+-	(*_file) &lt;&lt; message &lt;&lt; endl;
++	_txt &lt;&lt; message &lt;&lt; endl;
+ 	_emitTab = true;
+ }
+ 
+ 
+ void CTextFile::writeln( )
+ {
+-	(*_file) &lt;&lt; endl;
++	_txt &lt;&lt; endl;
+ 	_emitTab = true;
+ }
+ 
+@@ -34,9 +32,9 @@
+ void CTextFile::write( const string &amp;message )
+ {
+ 	if ( _emitTab ) {
+-		(*_file) &lt;&lt; _tabs;
++		_txt &lt;&lt; _tabs;
+ 	}
+-	(*_file) &lt;&lt; message;
++	_txt &lt;&lt; message;
+ 	_emitTab = false;
+ }
+ 
+@@ -53,26 +51,21 @@
+ }
+ 
+ 
+-CTextFile&amp; CTextFile::operator &lt;&lt; ( const string &amp;message )
++string CTextFile::getText( ) const
+ {
+-    write(message);
+-	
+-	return *this;
++	return _txt.str( );
+ }
+ 
+ 
+-/*
+-ostream&amp; operator &lt;&lt; (ostream&amp; os, const ConstantPool&amp; constantPool) {
+-    os &lt;&lt; &quot;Constant pool size: &quot; &lt;&lt; constantPool.size( ) &lt;&lt; endl;
+-
+-    for ( ConstantPool::const_iterator constant = constantPool.begin( );
+-          constant != constantPool.end( ); constant++ ) {
+-        // number
+-        os &lt;&lt; &quot;\t&quot; &lt;&lt; strZero(constant - constantPool.begin( ), 3) &lt;&lt; &quot;:&quot;
+-        &lt;&lt; *constant;
+-    }
+-
+-    return ( os );
++bool CTextFile::writeToFile( const string &amp;filename )
++{
++	ofstream *_file;
++	_file = new ofstream( filename.c_str( ) );
++	if (_file) {
++		(*_file) &lt;&lt; _txt;
++		delete _file;
++		return true;
++	}
++	return false;
+ }
+-*/
+ 
+
+Modified: trunk/gpt2/src/modules/parser/CTextFile.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/CTextFile.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/CTextFile.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -3,24 +3,27 @@
+ 
+ #include &lt;string&gt;
+ #include &lt;fstream&gt;
++#include &lt;sstream&gt;
++
+ using namespace std;
+ 
+ class CTextFile
+ {
+ public:
+-	CTextFile( const string &amp;filename, const string &amp;chrTab = &quot;\t&quot; );
++	CTextFile( const string &amp;chrTab = &quot;\t&quot; );
+ 	~CTextFile( );
+ 	void writeln( const string &amp;message );
+ 	void writeln( );
+ 	void write( const string &amp;message );
+ 	void incTab( );
+ 	void decTab( );
+-	CTextFile&amp; operator &lt;&lt; ( const string &amp;message );
++	string getText( ) const;
++	bool writeToFile( const string &amp;filename );
+ private:
+ 	string _chrTab;
+ 	string _tabs;
+-	ofstream *_file;
+ 	bool _emitTab;
++	stringstream _txt;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CArguments.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CArguments.cpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/GASMFE_CArguments.cpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -1,6 +1,8 @@
+ #include &quot;GASMFE_CArguments.hpp&quot;
+ 
++#include &quot;Tools.hpp&quot;
+ 
++
+ CArguments::CArguments( )
+ {
+ }
+@@ -18,15 +20,13 @@
+ 
+ 	bool varArgs = _subroutineName == &quot;imprima&quot;;
+ 
+-	// TODO: emite ao contrario
+ 	// se for &quot;imprima&quot; empilha o nro de argumentos e o tipo de cada um
+ 	// por enquanto imprima eh um caso especial, mas nas proximas versoes isso seria corrigido...
+-	for( argument = begin(); argument != end(); argument++ ) {
+-                antlr::RefToken token = *argument;
+-		_subroutine-&gt;emitPUSHMn( token, varArgs );
++	for( argument = end() - 1; argument &gt;= begin(); argument-- ) {
++		_subroutine-&gt;emitPUSHMn( *argument, varArgs );
+ 
+ 	}
+ 	if (varArgs) {
+-		_subroutine-&gt;emitPUSHMn( size( ) );
++		_subroutine-&gt;emitMn( &quot;push&quot;, itoa( size( ) ) );
+ 	}
+ }
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CArguments.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CArguments.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/GASMFE_CArguments.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -4,11 +4,9 @@
+ #include &lt;vector&gt;
+ using namespace std;
+ 
+-#include &quot;PortugolParserTokenTypes.hpp&quot;
+-
+ #include &quot;GASMFE_CSubroutine.hpp&quot;
+ 
+-class CArguments : public vector&lt;antlr::RefToken&gt; // usar list :-)
++class CArguments : public vector&lt;string&gt; // usar list :-)
+ {
+ public:
+ 	CArguments( );
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.cpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -3,27 +3,31 @@
+ #include &quot;Tools.hpp&quot;
+ 
+ 
+-CAsmProgram::CAsmProgram( COptions *options )
+-	: _options( options ), _context( NULL )
++CAsmProgram::CAsmProgram( COptions *options, SymbolTable *symbolTable )
++	: _options( options ), _symbolTable( symbolTable ), _context( NULL )
+ {
+-	_file = new CGptAssemblyFile( _options-&gt;destfile );
+-	_file-&gt;makeFileHeader( _options-&gt;destfile );
+-	_file-&gt;writeln( &quot;program &quot; + _options-&gt;destfile );
+-	_file-&gt;writeln( );
+ }
+ 
+-CAsmProgram::~CAsmProgram( )
++void CAsmProgram::init( )
+ {
+-	_file-&gt;makeFileFooter( );
++	_asmPrg.writeln( &quot;// Programa &quot; + _options-&gt;filename + &quot;.gasm gerado a partir de &quot; + _options-&gt;filename + &quot;.gpt&quot; );
++	_asmPrg.writeln( &quot;program &quot; + _options-&gt;filename );
++	_asmPrg.writeln( );
++}
+ 
+-	_file-&gt;writeln( &quot;end-program&quot; );
++void CAsmProgram::finish( )
++{
++	_asmPrg.writeln( &quot;end-program&quot; );
++}
+ 
+-	delete _file;
++CAsmProgram::~CAsmProgram( )
++{
+ }
+ 
+-CSubroutine *CAsmProgram::initSubroutine( const char *name )
++CSubroutine *CAsmProgram::initSubroutine( string name )
+ {
+-	CSubroutine *action = new CSubroutine( _options, _file, name );
++	CSubroutine *action = new CSubroutine( _options, /*_file,*/ name, _symbolTable );
++	action-&gt;init( );
+ 
+ 	return action;
+ }
+@@ -31,11 +35,13 @@
+ 
+ void CAsmProgram::finishSubroutine( CSubroutine *action )
+ {
++	action-&gt;finish( );
++	_asmPrg.write( action-&gt;getCode( ) );
+ 	delete action;
+ }
+ 
+ 
+-CContext *CAsmProgram::addContext( )
++/*CContext *CAsmProgram::addContext( )
+ {
+ 	CContext* context = new CContext( );
+ 	_contexts.push( context );
+@@ -63,10 +69,16 @@
+ {
+ 	return _context;
+ }
++*/
+ 
+-
+ void CAsmProgram::emitVarDefinition( const string &amp;name, const int &amp;type )
+ {
+-	_file-&gt;writeln( &quot;var &quot; + name + &quot; &quot; + typeInAsm( type ) );
++	_asmPrg.writeln( &quot;var &quot; + name + &quot; &quot; + typeInAsm( type ) );
+ }
+ 
++
++string CAsmProgram::getAsm( ) const
++{
++	return _asmPrg.getText( );
++}
++
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/GASMFE_CAsmProgram.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -2,9 +2,10 @@
+ #define GASMFE_CASM_PROGRAM_H
+ 
+ #include &quot;GASMFE_CContext.hpp&quot;
+-#include &quot;GASMFE_CGptAssemblyFile.hpp&quot;
+ #include &quot;GASMFE_COptions.hpp&quot;
+ 
++#include &quot;SymbolTable.hpp&quot;
++
+ #include &lt;string&gt;
+ #include &lt;stack&gt;
+ using namespace std;
+@@ -12,19 +13,23 @@
+ class CAsmProgram
+ {
+ public:
+-	CAsmProgram( COptions *options );
++	CAsmProgram( COptions *options, SymbolTable *symbolTable );
+ 	~CAsmProgram( );
+-	CSubroutine *initSubroutine( const char *name );
++	void init( );
++	void finish( );
++	CSubroutine *initSubroutine( string name );
+ 	void finishSubroutine( CSubroutine *subroutine );
+ 	CContext *addContext( );
+ 	CContext *remContext( );
+ 	CContext *getContext( );
+ 	void emitVarDefinition( const string &amp;name, const int &amp;type );
++	string getAsm( ) const;
+ private:
+ 	COptions *_options;
+ 	CContext *_context;
+ 	stack&lt;CContext*&gt; _contexts;
+-	CGptAssemblyFile *_file;
++        SymbolTable *_symbolTable;
++	CTextFile _asmPrg;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.cpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.cpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -1,37 +0,0 @@
+-#include &quot;GASMFE_CGptAssemblyFile.hpp&quot;
+-
+-
+-CGptAssemblyFile::CGptAssemblyFile( const string &amp;filename, const string &amp;chrTab )
+-	: CTextFile( filename, chrTab )
+-{
+-}
+-
+-
+-CGptAssemblyFile::~CGptAssemblyFile( )
+-{
+-}
+-
+-
+-void CGptAssemblyFile::makeFileHeader( const string &amp;filename )
+-{
+-	writeln( &quot;// Programa XXX.gasm gerado a partir de XXX.gpt&quot; );
+-}
+-
+-
+-void CGptAssemblyFile::makeProcedureHeader( const string &amp;name )
+-{
+-	writeln( string( &quot;// Procedure &quot; ) + name );
+-}
+-
+-
+-void CGptAssemblyFile::makeProcedureFooter( )
+-{
+-	writeln( &quot;// Fim da procedure&quot; );
+-	writeln( );
+-}
+-
+-
+-void CGptAssemblyFile::makeFileFooter( )
+-{
+-}
+-
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/GASMFE_CGptAssemblyFile.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -1,18 +0,0 @@
+-#ifndef GASMFE_CGPT_ASSEMBLY_FILE_H
+-#define GASMFE_CGPT_ASSEMBLY_FILE_H
+-
+-#include &quot;CTextFile.hpp&quot;
+-
+-class CGptAssemblyFile : public CTextFile
+-{
+-public:
+-	CGptAssemblyFile( const string &amp;filename, const string &amp;chrTab = &quot;\t&quot; );
+-	~CGptAssemblyFile( );
+-	void makeFileHeader( const string &amp;filename );
+-	void makeFileFooter( );
+-	void makeProcedureHeader( const string &amp;name );
+-	void makeProcedureFooter( );
+-};
+-
+-#endif
+-
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_COptions.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_COptions.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/GASMFE_COptions.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -10,8 +10,9 @@
+ 		sentences = false;
+ 		sourceLine = NULL;
+ 	}
+-	string sourcefile;
+-	string destfile;
++	string filename;
++//	string sourcefile;
++//	string destfile;
+ 	bool sentences;
+ 	int *sourceLine;
+ };
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.cpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -5,18 +5,17 @@
+ 
+ #include &quot;Tools.hpp&quot;
+ 
++#include &quot;PortugolParserTokenTypes.hpp&quot;
+ 
+-CSubroutine::CSubroutine( COptions *options, CGptAssemblyFile *file, const string &amp;name )
+-	: _options( options ), _file( file ), _name( name ), _lastSourceLine( 0 )
+-{
+-	_file-&gt;makeProcedureHeader( _name );
+-	_file-&gt;writeln( &quot;proc &quot; + _name );
+-	_file-&gt;incTab( );
+ 
++CSubroutine::CSubroutine( COptions *options, /*CGptAssemblyFile *file,*/ const string &amp;name, SymbolTable *symbolTable )
++	: _options( options ), _name( name ), _symbolTable( symbolTable ), _lastSourceLine( 0 )
++{
+ 	if ( _options-&gt;sentences ) {
+ 		//_sourceInfo = new SourceInfo( );
+ 		//_sourceInfo-&gt;setFileName( _options-&gt;sourcefile );
+ 	}
++	_body.incTab( );
+ }
+ 
+ 
+@@ -25,169 +24,148 @@
+ 	//if ( _sourceInfo ) {
+ 	//	delete _sourceInfo;
+ 	//}
+-
+-	_file-&gt;decTab( );
+-	_file-&gt;writeln( &quot;end-proc&quot; );
+-
+-	_file-&gt;makeProcedureFooter( );
+ }
+ 
+ 
+-void CSubroutine::beginParams( )
++void CSubroutine::init( )
+ {
+-	_file-&gt;write( &quot;(&quot; );
++	_header.writeln( string( &quot;// Procedure &quot; ) + _name );
++	_header.writeln( &quot;proc &quot; + _name );
++	_header.incTab( );
++//	_body.incTab( );
+ }
+ 
+ 
+-void CSubroutine::endParams( )
++void CSubroutine::finish( )
+ {
+-	_file-&gt;writeln( &quot;)&quot; );
++	if (_name == &quot;main&quot;) {
++		_body.writeln( &quot;exit_0&quot; );
++	}
++//	_body-&gt;decTab( );
++	_footer.writeln( &quot;end-proc&quot; );
++
++	_footer.writeln( &quot;// Fim da procedure&quot; );
++	_footer.writeln( );
+ }
+ 
+ 
+-void CSubroutine::addParam( const string &amp;name )
++void CSubroutine::emitPUSHMn( const string &amp;symbol, const bool &amp;pushType )
+ {
+-	_params.push_back(name);
++   SymbolType symbolType = _symbolTable-&gt;getSymbol( getName( ), symbol, true ).getType( );
+ 
+-	if (_params.size() != 1) {
+-		_file-&gt;write( &quot;, &quot; );
+-	}
+-	_file-&gt;write( name );
++   _body.writeln( string(&quot;push &quot;)   + symbol );
++
++   if (pushType) {
++      _body.writeln( string(&quot;push_&quot;) + symbolType.toAsmType( ) );
++   }
+ }
+ 
+ 
+-void CSubroutine::emitCodeToLoadParamValues( )
++void CSubroutine::emitMn( const string &amp;mn, const string &amp;op1, const string &amp;op2, const string &amp;op3)
+ {
+-	for( int param = _params.size( )-1; param &gt;= 0; param-- ) {
+-		//emitLVMn( _params[param] );
++	_body.write( mn );
++	if (op1.empty()) {
++		_body.writeln( );
++		return;
+ 	}
+-}
+ 
++	_body.write( &quot; &quot; + op1 );
++	if (op2.empty()) {
++		_body.writeln( );
++		return;
++	}
+ 
+-void CSubroutine::emitPCALLMn( const string &amp;name )
+-{
+-	writeln( string(&quot;pcall &quot;) + name );
+-}
++	_body.write( &quot;, &quot; + op2 );
++	if (op3.empty()) {
++		_body.writeln( );
++		return;
++	}
+ 
+-
+-void CSubroutine::emitISETMn( const string &amp;var, const string &amp;value )
+-{
+-	writeln( string(&quot;iset &quot;) + var + string(&quot;, &quot;) + value );
++	_body.writeln( &quot;, &quot; + op3 );
+ }
+ 
+-
+-void CSubroutine::emitPUSHMn( const antlr::RefToken &amp;_token, const bool &amp;_pushType )
++void CSubroutine::emitMnWithPrefix( const string &amp;mn, const string &amp;var, const string &amp;op1, const string &amp;op2 )
+ {
+-//	writeln( string(&quot;push &quot;) + literal );
+-   if (_token-&gt;getType( ) == PortugolParserTokenTypes::T_STRING_LIT) {
+-      writeln( string(&quot;push \&quot;&quot;) + _token-&gt;getText( ) + &quot;\&quot;&quot; );
+-   } else {
+-      writeln( string(&quot;push &quot;) + _token-&gt;getText( ) );
+-   }
+-   if (_pushType) {
+-      writeln( string(&quot;push_&quot;) + typeToText( _token-&gt;getType( ) ) );
+-   }
++	emitMn( getMnWithPrefix( mn, var ), var, op1, op2 ); 
+ }
+ 
+ 
+-void CSubroutine::emitPUSHMn( const int&amp; value )
++void CSubroutine::emitLabel( const string &amp;label )
+ {
+-   writeln( string(&quot;push &quot;) + itoa( value ) );
++	_body.writeln( label + string(&quot;:&quot;) );
+ }
+ 
+ 
+-//void CSubroutine::emitADDMn( )
+-//{
+-//	writeln( &quot;add&quot; );
+-//}
+-
+-
+-void CSubroutine::emitISUMMn( const string &amp;var, const string &amp;op1, const string &amp;op2 )
++void CSubroutine::emitAsmCode( const string &amp;code )
+ {
+-	writeln( &quot;isum &quot; + var + &quot;, &quot; + op1 + &quot;, &quot; + op2 );
++	_body.writeln( );
++	_body.writeln( &quot;// asm-begin&quot; );
++	_body.writeln( code );
++	_body.writeln( &quot;// asm-end&quot; );
++	_body.writeln( );
+ }
+ 
+ 
+-void CSubroutine::emitIMULMn( const string &amp;var, const string &amp;op1, const string &amp;op2 )
++/*
++void CSubroutine::write( string value )
+ {
+-	writeln( &quot;imul &quot; + var + &quot;, &quot; + op1 + &quot;, &quot; + op2 );
+-}
++//	if ( _sourceInfo &amp;&amp; *_options-&gt;sourceLine &gt; _lastSourceLine ) {
++//		string line = _sourceInfo-&gt;getLine( *_options-&gt;sourceLine );
++//		line = alltrim( wo_ctrl_chrs( line, ' ' ) );
++//		_file-&gt;write(
++//				string( &quot;// LINE &quot; ) + string( itoa( *_options-&gt;sourceLine ) ) + string( &quot; --&gt; &quot; ) + line
++//				);
++//		_lastSourceLine = *_options-&gt;sourceLine;
++//	}
+ 
+-
+-void CSubroutine::emitIGEMn( const string &amp;var, const string &amp;op1, const string &amp;op2 )
+-{
+-	writeln( &quot;ige &quot; + var + &quot;, &quot; + op1 + &quot;, &quot; + op2 );
++	_body.write( value );
+ }
+ 
+-
+-void CSubroutine::emitIFNOTMn( const string &amp;var, const string &amp;label )
++void CSubroutine::writeln( string value )
+ {
+-	writeln( &quot;ifnot &quot; + var + &quot;, &quot; + label );
++//	if ( _sourceInfo &amp;&amp; *_options-&gt;sourceLine &gt; _lastSourceLine ) {
++//		string line = _sourceInfo-&gt;getLine( *_options-&gt;sourceLine );
++//		line = alltrim( wo_ctrl_chrs( line, ' ' ) );
++//		_file-&gt;writeln(
++//				string( &quot;// LINE &quot; ) + string( itoa( *_options-&gt;sourceLine ) ) + string( &quot; --&gt; &quot; ) + line
++//				);
++//		_lastSourceLine = *_options-&gt;sourceLine;
++//	}
++
++	_body.writeln( value );
+ }
++*/
+ 
+-void CSubroutine::emitJMPMn( const string &amp;label )
++void CSubroutine::emitVarDefinition( const string &amp;name, const int &amp;type )
+ {
+-	writeln( &quot;jmp &quot; + label );
++	_header.writeln( &quot;var &quot; + name + &quot; &quot; + typeInAsm( type ) );
+ }
+ 
+ 
+-void CSubroutine::emitMn( const string &amp;mn, const string &amp;op1, const string &amp;op2, const string &amp;op3)
++void CSubroutine::emitParDefinition( const string &amp;name, const int &amp;type )
+ {
+-	write( mn );
+-	if (op1.empty()) {
+-		writeln( );
+-		return;
+-	}
+-
+-	write( &quot; &quot; + op1 );
+-	if (op2.empty()) {
+-		writeln( );
+-		return;
+-	}
+-
+-	write( &quot;, &quot; + op2 );
+-	if (op3.empty()) {
+-		writeln( );
+-		return;
+-	}
+-
+-	writeln( &quot;, &quot; + op3 );
++	_header.writeln( &quot;par &quot; + name + &quot; &quot; + typeInAsm( type ) );
+ }
+ 
+ 
+-void CSubroutine::emitLabel( const string &amp;label )
++string CSubroutine::getCode( ) const
+ {
+-	writeln( label + string(&quot;:&quot;) );
++	return _header.getText() + _body.getText() + _footer.getText();
+ }
+ 
+ 
+-
+-
+-void CSubroutine::write( string value )
++string CSubroutine::getMnWithPrefix( const string &amp;mn, const string &amp;var ) // TODO: serviria para simbolos tb ???
+ {
+-/*	if ( _sourceInfo &amp;&amp; *_options-&gt;sourceLine &gt; _lastSourceLine ) {
+-		string line = _sourceInfo-&gt;getLine( *_options-&gt;sourceLine );
+-		line = alltrim( wo_ctrl_chrs( line, ' ' ) );
+-		_file-&gt;write(
+-				string( &quot;// LINE &quot; ) + string( itoa( *_options-&gt;sourceLine ) ) + string( &quot; --&gt; &quot; ) + line
+-				);
+-		_lastSourceLine = *_options-&gt;sourceLine;
+-	}*/
++	int primitiveType = _symbolTable-&gt;getSymbol (getName(), var, true).getType().getPrimitiveType();
+ 
+-	_file-&gt;write( value );
++	switch(primitiveType) {
++		case PortugolParserTokenTypes::T_KW_INTEIRO:    return &quot;i&quot; + mn;
++		case PortugolParserTokenTypes::T_KW_REAL:       return &quot;r&quot; + mn;
++		case PortugolParserTokenTypes::T_KW_CARACTERE:  return &quot;i&quot; + mn;
++		case PortugolParserTokenTypes::T_KW_LITERAL:    return &quot;s&quot; + mn;
++		case PortugolParserTokenTypes::T_KW_LOGICO:     return &quot;i&quot; + mn;
++		case PortugolParserTokenTypes::T_KW_MATRIZ:     return &quot;m&quot; + mn;
++		default:                                        return &quot;undefined_&quot; + mn;
++	}
+ }
+ 
+-void CSubroutine::writeln( string value )
+-{
+-/*	if ( _sourceInfo &amp;&amp; *_options-&gt;sourceLine &gt; _lastSourceLine ) {
+-		string line = _sourceInfo-&gt;getLine( *_options-&gt;sourceLine );
+-		line = alltrim( wo_ctrl_chrs( line, ' ' ) );
+-		_file-&gt;writeln(
+-				string( &quot;// LINE &quot; ) + string( itoa( *_options-&gt;sourceLine ) ) + string( &quot; --&gt; &quot; ) + line
+-				);
+-		_lastSourceLine = *_options-&gt;sourceLine;
+-	}*/
+-
+-	_file-&gt;writeln( value );
+-}
+-
+
+Modified: trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/GASMFE_CSubroutine.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -4,52 +4,54 @@
+ #include &lt;string&gt;
+ #include &lt;vector&gt;
+ 
+-#include &quot;GASMFE_CGptAssemblyFile.hpp&quot;
+ #include &quot;GASMFE_COptions.hpp&quot;
+ //#include &quot;SourceInfo.hpp&quot;
+ 
+ #include &lt;antlr/LLkParser.hpp&gt;
+ #include &quot;PortugolParserTokenTypes.hpp&quot;
+ 
++#include &quot;SymbolTable.hpp&quot;
++#include &quot;CTextFile.hpp&quot;
++
+ using namespace std;
+ 
+ 
+ class CSubroutine
+ {
+ public:
+-	CSubroutine( COptions *options, CGptAssemblyFile *file, const string &amp;name );
++	CSubroutine( COptions *options, /*CGptAssemblyFile *file,*/ const string &amp;name, SymbolTable *symbolTable );
+ 	~CSubroutine( );
+-	void beginParams( );
+-	void endParams( );
+-	void addParam( const string &amp;name );
+-	void emitCodeToLoadParamValues( );
+-        void emitPCALLMn( const string &amp;name );
+-        void emitISETMn( const string &amp;var, const string &amp;value );
+-        void emitPUSHMn( const antlr::RefToken &amp;_token, const bool &amp;_pushType = false );
+-	void emitPUSHMn( const int&amp; value );
+-	void emitISUMMn( const string &amp;var, const string &amp;op1, const string &amp;op2 );
+-	void emitIMULMn( const string &amp;var, const string &amp;op1, const string &amp;op2 );
+-	void emitIGEMn( const string &amp;var, const string &amp;op1, const string &amp;op2 );
+-	void emitIFNOTMn( const string &amp;var, const string &amp;label );
+-	void emitJMPMn( const string &amp;label );
++	void init( );
++	void finish( );
++	void emitPUSHMn( const string &amp;symbol, const bool &amp;pushType = false );
+ 	void emitMn( const string &amp;mn, const string &amp;op1 = &quot;&quot;, const string &amp;op2 = &quot;&quot;, const string &amp;op3 = &quot;&quot;);
++	void emitMnWithPrefix( const string &amp;mn, const string &amp;var, const string &amp;op1 = &quot;&quot;, const string &amp;op2 = &quot;&quot; );
+ 
+ 	void emitLabel( const string &amp;label );
+ 
+-	void write( string value );
+-	void writeln( string value = &quot;&quot; );
++	void emitAsmCode( const string &amp;code );
+ 
++//	void write( string value );
++//	void writeln( string value = &quot;&quot; );
++
+ 	const string&amp; getName( ) const
+ 	{
+ 		return _name;
+ 	}
++	void emitVarDefinition( const string &amp;name, const int &amp;type );
++	void emitParDefinition( const string &amp;name, const int &amp;type );
++	string getCode( ) const;
+ private:
++	string getMnWithPrefix( const string &amp;mn, const string &amp;var );
+ 	COptions *_options;
+ 	vector&lt;string&gt; _params;
+-	CGptAssemblyFile* _file;
+ 	//SourceInfo *_sourceInfo;
+ 	int _lastSourceLine;
+ 	string _name;
++	SymbolTable *_symbolTable;
++	CTextFile _header;
++	CTextFile _body;
++	CTextFile _footer;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/src/modules/parser/Makefile.am
+===================================================================
+--- trunk/gpt2/src/modules/parser/Makefile.am	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/Makefile.am	2007-11-05 16:07:40 UTC (rev 335)
+@@ -9,7 +9,7 @@
+ nodist_libparser_la_SOURCES = $(BUILT_SOURCES)
+ libparser_la_SOURCES = BasePortugolParser.cpp MismatchedUnicodeCharException.cpp GASMFE_CSubroutine.cpp \
+                        GASMFE_CArguments.cpp  CTemporarySymbol.cpp   \
+-                       GASMFE_CContext.cpp Tools.cpp CTextFile.cpp GASMFE_CGptAssemblyFile.cpp          \
++                       GASMFE_CContext.cpp Tools.cpp CTextFile.cpp   \
+                        GASMFE_CAsmProgram.cpp
+ 
+ 
+
+Modified: trunk/gpt2/src/modules/parser/Tools.cpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/Tools.cpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/Tools.cpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -242,9 +242,11 @@
+    if (type == PortugolParserTokenTypes::T_INT_LIT) {
+       return &quot;int&quot;;
+    } else if (type == PortugolParserTokenTypes::T_CARAC_LIT) {
+-      return &quot;carac lit ???&quot;;
++      return &quot;char&quot;;
+    } else if (type == PortugolParserTokenTypes::T_STRING_LIT) {
+       return &quot;string&quot;;
++   } else if (type == PortugolParserTokenTypes::T_REAL_LIT) {
++      return &quot;real&quot;;
+    } else if (type == PortugolParserTokenTypes::T_IDENTIFICADOR) {
+       return &quot;id&quot;;
+    }
+@@ -259,9 +261,11 @@
+    } else if (type == PortugolParserTokenTypes::T_KW_LITERAL) {
+       return &quot;string&quot;;
+    } else if (type == PortugolParserTokenTypes::T_KW_CARACTERE) {
+-      return &quot;int&quot;;
++      return &quot;char&quot;;
+    } else if (type == PortugolParserTokenTypes::T_KW_LOGICO) {
+-      return &quot;int&quot;;
++      return &quot;bool&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_REAL) {
++      return &quot;real&quot;;
+    } else if (type == PortugolParserTokenTypes::T_KW_CORINGA) {
+       return &quot;pointer ???&quot;;
+    } else if (type == PortugolParserTokenTypes::T_KW_MATRIZ) {
+@@ -271,3 +275,25 @@
+    return &quot;ERRO !!!&quot;;
+ }
+ 
++
++const int typeToLiteral( const int &amp;type )
++{
++   switch (type) {
++      case PortugolParserTokenTypes::T_KW_INTEIRO:
++         return PortugolParserTokenTypes::T_INT_LIT;
++      case PortugolParserTokenTypes::T_KW_LITERAL:
++         return PortugolParserTokenTypes::T_STRING_LIT;
++      case PortugolParserTokenTypes::T_KW_CARACTERE:
++         return PortugolParserTokenTypes::T_CARAC_LIT;
++      case PortugolParserTokenTypes::T_KW_LOGICO:
++         return PortugolParserTokenTypes::T_INT_LIT;
++//      case PortugolParserTokenTypes::T_KW_CORINGA:
++//         return &quot;pointer ???&quot;;
++//      case PortugolParserTokenTypes::T_KW_MATRIZ:
++//          return PortugolParserTokenTypes::T_MATRIZ;
++      default:
++          return 0;
++          // trow exception ???
++   }
++}
++
+
+Modified: trunk/gpt2/src/modules/parser/Tools.hpp
+===================================================================
+--- trunk/gpt2/src/modules/parser/Tools.hpp	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/Tools.hpp	2007-11-05 16:07:40 UTC (rev 335)
+@@ -34,5 +34,6 @@
+ // string&amp; getStringWithTab(string, string);
+ const string typeToText(const int &amp;type);
+ const string typeInAsm( const int &amp;type );
++const int typeToLiteral( const int &amp;type );
+ 
+ #endif
+
+Modified: trunk/gpt2/src/modules/parser/lexer.g
+===================================================================
+--- trunk/gpt2/src/modules/parser/lexer.g	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/lexer.g	2007-11-05 16:07:40 UTC (rev 335)
+@@ -105,9 +105,11 @@
+   T_KW_CONSTANTE=&quot;constante&quot;;
+   T_KW_CONSTANTES=&quot;constantes&quot;;
+   T_KW_ESTRUTURA=&quot;estrutura&quot;;
++  T_KW_FIM_ESTRUTURA=&quot;fim-estrutura&quot;;
+   T_KW_PROCEDIMENTO=&quot;procedimento&quot;;
+   T_KW_SAIR=&quot;sair&quot;;
+   T_KW_ASM=&quot;asm&quot;;
++  T_KW_FIM_ASM=&quot;fim-asm&quot;;
+ 
+ 
+   T_REAL_LIT=&quot;n&#250;mero real&quot;; //nondeterminism T_INT_LIT &amp; T_REAL_LIT
+@@ -147,6 +149,11 @@
+     nextFilename = str;
+   }
+ 
++  string getNextFilename( )
++  {
++    return nextFilename;
++  }
++
+ private:
+   string nextFilename;
+   TokenStreamSelector* selector;  
+@@ -290,6 +297,7 @@
+ /*-----------------Constant literals ***********************/
+ 
+ 
++// TODO: realmente eh nao deterministico ???
+ T_INT_LIT
+ options {
+   paraphrase = &quot;n&#250;mero inteiro&quot;;
+@@ -408,7 +416,8 @@
+   paraphrase = &quot;caractere&quot;;
+ }
+ //  : '\''! ( ~('\''|'\n'|'\r'|'\\') | ESC )? '\''!
+-  : '\''! ( ~( '\'' | '\\' ) | ESC )? '\''!
++//  : '\''! ( ~( '\'' | '\\' ) | ESC )? '\''!
++  : '\'' ( ~( '\'' | '\\' ) | ESC )? '\''
+   ;
+ 
+ //&quot;Digite um \&quot;);
+@@ -418,9 +427,11 @@
+   paraphrase = &quot;literal&quot;;
+ }
+ //  : '&quot;'! (ESC|~('&quot;'|'\\'|'\n'|'\r'))* '&quot;'!
+-  : '&quot;'! ( ~( '&quot;' | '\\' | '\n' | '\r') | ESC)* '&quot;'!
++  : '&quot;' ( ~( '&quot;' | '\\' | '\n' | '\r') | ESC)* '&quot;'
++//  : '&quot;'! ( ~( '&quot;' | '\\' | '\n' | '\r') | ESC)* '&quot;'!
+   ;
+ 
++
+ protected
+ ESC
+   //: '\\' ('n'| 't' | 'r' | '\\' | '\'' | '&quot;')
+@@ -462,6 +473,13 @@
+   : ','
+   ;
+ 
++T_DOT
++options {
++  paraphrase = &quot;'.'&quot;;
++}
++  : '.'
++  ;
++
+ T_WS_ : (' '
+   | '\t'
+   | '\n' { newline(); }
+@@ -492,6 +510,42 @@
+     {$setType(antlr::Token::SKIP);}
+   ;
+ 
++// TODO: nao consegui seguir a sintaxe de &quot;asm&quot; .. &quot;fim-asm&quot; sem o uso de { }
++T_ASM_CODE
++{int line = getLine();}
++  : '{'!
++    ( 
++      options { generateAmbigWarnings=false; } :  
++        '\n'                     {newline();}
++      | ('\r' '\n')=&gt; '\r' '\n'  {newline();}
++      | '\r'                     {newline();}
++      |~('}')
++//      |~('*'|'\n'|'\r')
++//      | ('*' ~'/' )=&gt; '*' 
++    )* 
++    '}'!
++  ;
++
++//T_ASM
++//  : &quot;asm&quot; (~(&quot;fim-asm&quot;))* &quot;fim-asm&quot;
++//  ;
++
++
++//ASM_CODE
++//{int line = getLine();}
++//  : &quot;asm&quot;!
++//    ( 
++//      options { generateAmbigWarnings=false; } :  
++//        '\n'                     {newline();}
++//      | ('\r' '\n')=&gt; '\r' '\n'  {newline();}
++//      | '\r'                     {newline();}
++//      |~('*'|'\n'|'\r')
++//      | ('*' ~'/' )=&gt; '*' 
++//      |~(&quot;fim-asm&quot;)
++//    )* 
++//    &quot;fim-asm&quot;!
++//  ;
++
+ exception
+ catch[antlr::RecognitionException] {  
+   stringstream s;
+
+Modified: trunk/gpt2/src/modules/parser/parser.g
+===================================================================
+--- trunk/gpt2/src/modules/parser/parser.g	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/src/modules/parser/parser.g	2007-11-05 16:07:40 UTC (rev 335)
+@@ -25,6 +25,9 @@
+   #include &quot;GASMFE_CAsmProgram.hpp&quot;
+   #include &quot;GASMFE_COptions.hpp&quot;
+   #include &quot;CTemporarySymbol.hpp&quot;
++  #include &quot;SymbolTable.hpp&quot;
++  #include &quot;Tools.hpp&quot;
++  #include &lt;stdlib.h&gt;
+ }
+ 
+ options {
+@@ -39,7 +42,7 @@
+ options {
+   importVocab=Portugol;  // use vocab generated by lexer
+   genHashLines=false;//no #line
+-  k=2;
++  k=3;
+ }
+ 
+ {  
+@@ -47,15 +50,17 @@
+       COptions options;
+       CAsmProgram  *asmPrg;
+       CSubroutine *subroutine;
+-      CArguments args;
+       CTemporarySymbol tempVar;
+       CTemporarySymbol tempLabel;
+-      void initParser( )
++      SymbolTable symbolTable;
++      void initParser( string filename )
+       {
+-         options.sourcefile = &quot;xxx.gpt&quot;;
+-         options.destfile   = &quot;xxx.gasm&quot;;
+-         asmPrg = new CAsmProgram( &amp;options );
++         options.filename = filename;
++//         options.sourcefile = filename + &quot;.gpt&quot;;
++//         options.destfile   = filename + &quot;.gasm&quot;;
++         asmPrg = new CAsmProgram( &amp;options, &amp;symbolTable );
+          tempVar.setBaseName( &quot;__temp_&quot; );
++         tempVar.setNextValue( 1 );
+          tempLabel.setBaseName( &quot;__label_&quot; );
+       }
+       void finishParser( )
+@@ -63,23 +68,50 @@
+          delete asmPrg;
+          asmPrg = NULL;
+       }
++      void declareProgramVar(const string&amp; scope, const string&amp; lexeme, int line, int type)
++      {
++         symbolTable.declareVar( scope, lexeme, line, type );
++         asmPrg-&gt;emitVarDefinition( lexeme, type );
++      }
++      void declareSubroutineVar(const string&amp; scope, const string&amp; lexeme, int line, int type)
++      {
++         symbolTable.declareVar( scope, lexeme, line, type );
++         subroutine-&gt;emitVarDefinition( lexeme, type );
++      }
++      void declareParameter(const string&amp; lexeme, int line, int type)
++      {
++         symbolTable.declareVar( subroutine-&gt;getName(), lexeme, line, type );
++         subroutine-&gt;emitParDefinition( lexeme, type );
++      }
++      int getSymbolType( const string&amp; lexeme )
++      {
++         return symbolTable.getSymbol(subroutine-&gt;getName(), lexeme, true).getType().getPrimitiveType();
++      }
++//      string getAsmProgram( ) const
++//      {
++//         return asmPrg-&gt;getAsm( );
++//      }
+ }
+ 
+ 
+-//#########################
+-//## In&#237;cio da gram&#225;tica ##
+-//#########################
++//####################################################################
++//####################### In&#237;cio da gram&#225;tica ########################
++//####################################################################
+ 
+ //##############
+ //## Programa ##
+ //##############
+ 
+ //--------
+-  programa
++  programa [string filename] returns [string ret]
+ //-------- 
+-  : { initParser( ); } (declaracao_algoritmo)? (importacao)*
+-    (declaracao_constantes | bloco_declaracao_estrutura | declaracao_variaveis)* corpo EOF
+-    { finishParser( ); }
++  : { initParser( filename ); asmPrg-&gt;init( ); } (declaracao_algoritmo)? (importacao)*
++    (declaracao_constantes | bloco_declaracao_estrutura | declaracao_variaveis[false])* corpo EOF
++    {
++       asmPrg-&gt;finish( );
++       ret = asmPrg-&gt;getAsm( );
++       finishParser( );
++    }
+   ;
+ 
+ declaracao_algoritmo
+@@ -102,74 +134,96 @@
+ //#############################
+ 
+ //--------------------
+-  declaracao_variaveis
++  declaracao_variaveis [bool isLocal]
+ //--------------------
+-  : bloco_declaracao_variaveis
+-  | &quot;vari&#225;vel&quot; declaracao_variavel
++  : bloco_declaracao_variaveis[isLocal]
++  | &quot;vari&#225;vel&quot; declaracao_variavel[isLocal]
+   ;
+ 
+-bloco_declaracao_variaveis
+-  : &quot;vari&#225;veis&quot; (declaracao_variavel)+ &quot;fim-vari&#225;veis&quot;
++bloco_declaracao_variaveis [bool isLocal]
++  : &quot;vari&#225;veis&quot; (declaracao_variavel[isLocal])+ &quot;fim-vari&#225;veis&quot;
+   ;
+ 
+-declaracao_variavel
++declaracao_variavel [bool isLocal]
+ {
+-  RefToken tk_type;
++  int tk_type;
+ }
+   : tk_id:T_IDENTIFICADOR 
+     (T_COMMA T_IDENTIFICADOR)* 
+-    T_COLON tipo {tk_type = lastToken; }
++    //T_COLON tipo {tk_type = lastToken; }
++    T_COLON tk_type=tipo
+     (lista_inicializacao)? T_SEMICOL
+     { // TODO: nao esta correto porque so gera uma variavel...
+-       asmPrg-&gt;emitVarDefinition( tk_id-&gt;getText( ), tk_type-&gt;getType( ) );
++       if (isLocal) {
++          declareSubroutineVar( SymbolTable::GlobalScope, tk_id-&gt;getText( ), 0, tk_type );
++       } else {
++          declareProgramVar( SymbolTable::GlobalScope, tk_id-&gt;getText( ), 0, tk_type );
++       }
+     }
+   ;
+ 
+-declaracao_variavel_sing
+-  : T_IDENTIFICADOR T_COLON tipo (lista_inicializacao)? T_SEMICOL
+-  ;
++//declaracao_variavel_sing
++//{
++//  int type;
++//}
++//  : T_IDENTIFICADOR T_COLON type=tipo (lista_inicializacao)? T_SEMICOL
++//  ;
+ 
+-tipo 
+-  : tipo_primitivo 
+-  | tipo_matriz 
+-  | T_IDENTIFICADOR
++tipo returns [int ret]
++  : ret=tipo_primitivo 
++  | ret=tipo_matriz 
++  | T_IDENTIFICADOR {ret=T_KW_ESTRUTURA;}
+   ;
+ 
+ lista_inicializacao
+-  : T_ATTR (expr | inicializacao_composta)
++{
++  string result;
++}
++  : T_ATTR (result=expr | inicializacao_composta)
+   ;
+ 
+ inicializacao_composta
+-  : &quot;[&quot; (inicializacao_indices) (T_COLON inicializacao_indices)* &quot;]&quot;
+-  | &quot;{&quot; (inicializacao_membros) (T_COLON inicializacao_membros)* &quot;}&quot;
++  : T_ABREC inicializacao_indice (T_COLON inicializacao_indice)* T_FECHAC
++//  | &quot;{&quot; (inicializacao_membro) (T_COLON inicializacao_membro)* &quot;}&quot;
+   ;
+ 
+-inicializacao_indices
+-  : (expr | inicializacao_composta)
++inicializacao_indice
++{
++  string result;
++}
++  : result=expr
++//  : (result=expr | inicializacao_composta)
+   ;
+ 
+-inicializacao_membros
+-  : T_IDENTIFICADOR T_ATTR (expr | inicializacao_composta)
++inicializacao_membro
++{
++  string result;
++}
++  : T_IDENTIFICADOR T_ATTR (result=expr | inicializacao_composta)
+   ;
+ 
+-tipo_primitivo
+-  : &quot;inteiro&quot;
+-  | &quot;real&quot;
+-  | &quot;caractere&quot;
+-  | &quot;literal&quot;
+-  | &quot;l&#243;gico&quot;
+-  | &quot;coringa&quot;
++tipo_primitivo returns [int ret]
++  : &quot;inteiro&quot;   {ret=T_KW_INTEIRO;}
++  | &quot;real&quot;      {ret=T_KW_REAL;}
++  | &quot;caractere&quot; {ret=T_KW_CARACTERE;}
++  | &quot;literal&quot;   {ret=T_KW_LITERAL;}
++  | &quot;l&#243;gico&quot;    {ret=T_KW_LOGICO;}
++  | &quot;coringa&quot;   {ret=T_KW_CORINGA;}
+   ;
+ 
+-tipo_matriz
+-  : &quot;matriz&quot; (&quot;[&quot; (T_INT_LIT)? &quot;]&quot;)+ &quot;do&quot; &quot;tipo&quot; (tipo_primitivo | T_IDENTIFICADOR)
++tipo_matriz returns [int ret]
++{
++  int type;
++}
++  : &quot;matriz&quot; (T_ABREC (T_INT_LIT)? T_FECHAC)+ &quot;do&quot; &quot;tipo&quot; (type=tipo_primitivo | T_IDENTIFICADOR)
++    {ret=T_KW_MATRIZ;}
+   ;
+ 
+ 
+ /****************************************************************************/
+ declaracao_constantes
+   : bloco_declaracao_constantes
+-  | &quot;constante&quot; declaracao_constante T_SEMICOL
++  | &quot;constante&quot; declaracao_constante
+   ;
+ 
+ bloco_declaracao_constantes
+@@ -177,13 +231,16 @@
+   ;
+ 
+ declaracao_constante
+-  : T_IDENTIFICADOR T_COLON tipo lista_inicializacao T_SEMICOL
++{
++  int type;
++}
++  : T_IDENTIFICADOR T_COLON type=tipo lista_inicializacao T_SEMICOL
+   ;
+ 
+ 
+ /****************************************************************************/
+ bloco_declaracao_estrutura
+-  : &quot;estrutura&quot; T_IDENTIFICADOR (declaracao_variavel)+ &quot;fim-estrutura&quot;
++  : &quot;estrutura&quot; T_IDENTIFICADOR (declaracao_variavel[false])+ &quot;fim-estrutura&quot;
+   ;
+ 
+ 
+@@ -194,23 +251,44 @@
+   ;
+ 
+ declaracao_funcao
++{
++   int tk_type;
++}
+ //  : &quot;fun&#231;&#227;o&quot; T_IDENTIFICADOR &quot;(&quot; (lista_parametros)? &quot;)&quot; &quot;:&quot; tipo
+-  : &quot;fun&#231;&#227;o&quot; T_IDENTIFICADOR &quot;(&quot; &quot;)&quot; T_COLON tipo
+-    (declaracao_constantes | declaracao_variaveis)*
++  : &quot;fun&#231;&#227;o&quot; tk_id:T_IDENTIFICADOR
++    { subroutine = asmPrg-&gt;initSubroutine( tk_id-&gt;getText( ) ); }
++    T_ABREP (lista_parametros)? T_FECHAP T_COLON tk_type=tipo
++    {
++       declareSubroutineVar( SymbolTable::GlobalScope, &quot;__result&quot;, 0, tk_type );
++    }
++    (declaracao_constantes | declaracao_variaveis[true])*
+     bloco_codigo
++    { asmPrg-&gt;finishSubroutine( subroutine ); }
+   ;
+ 
+ declaracao_procedimento
+   //: &quot;procedimento&quot; T_IDENTIFICADOR &quot;(&quot; (lista_parametros)? &quot;)&quot;
+-  : &quot;procedimento&quot; T_IDENTIFICADOR &quot;(&quot; &quot;)&quot;
+-    (declaracao_constantes | declaracao_variaveis)*
++  : &quot;procedimento&quot; tk_id:T_IDENTIFICADOR
++    { subroutine = asmPrg-&gt;initSubroutine( tk_id-&gt;getText( ) ); }
++    T_ABREP (lista_parametros)? T_FECHAP
++    (declaracao_constantes | declaracao_variaveis[true])*
+     bloco_codigo
++    { asmPrg-&gt;finishSubroutine( subroutine ); }
+   ;
+ 
+-//lista_parametros
+-//  : ( (&quot;constante&quot;)? &quot;ref&quot;)? T_IDENTIFICADOR T_COLON tipo (T_COMMA lista_parametros)*
+-//  ;
++lista_parametros
++  : parametro (T_COMMA parametro)*
++  ;
+ 
++parametro
++{
++  int type;
++}
++  : ((&quot;constante&quot;)? (&quot;ref&quot;))? tk_id:T_IDENTIFICADOR T_COLON type=tipo
++  {
++    declareParameter( tk_id-&gt;getText( ), 0, type );
++  }
++  ;
+ 
+ /****************************************************************************/
+ bloco_codigo
+@@ -222,17 +300,23 @@
+   ;
+ 
+ enunciado
+-  : (lvalue T_ATTR)=&gt; en_atribuicao
+-  | en_retorne
+-  | en_se
+-  | en_enquanto
+-//  | en_repita
+-  | en_para
+-  | en_caso
+-  | en_asm
+-  | expr
+-  | &quot;sair&quot; T_SEMICOL
+-  | T_SEMICOL
++  :
++  ( (lvalue T_ATTR)=&gt; en_atribuicao
++    | en_retorne
++    | en_se
++    | en_enquanto
++    | en_repita
++    | en_para
++    | en_caso
++    | en_asm_code
++    | chamada_procedimento
++//    | expr
++    | &quot;sair&quot; T_SEMICOL
++    | T_SEMICOL
++  )
++// Nao eh tao simples assim de resolver. E se outra temp tiver o mesmo nome mas tipo diferentes ???
++// Uma solucao talvez seja cada temporaria tem baseName formado pelo seu tipo tambem.
++//  { tempVar.setNextValue(1); }
+   ;
+ 
+ en_atribuicao
+@@ -243,19 +327,30 @@
+   : tklvalue=lvalue T_ATTR tkexpret=expr T_SEMICOL
+ //  : tklvalue=lvalue T_ATTR tkexpret=expr T_SEMICOL
+ //  : (lvalue T_ATTR)=&gt; stm_attr {tkexpret=lastToken;} T_SEMICOL
+-    { subroutine-&gt;emitISETMn( tklvalue, tkexpret ); }
++    { subroutine-&gt;emitMnWithPrefix( &quot;set&quot;, tklvalue, tkexpret ); }
+   ;
+ 
+-stm_attr
+-  : lvalue T_ATTR expr
+-  ;
++//stm_attr
++//  : lvalue T_ATTR expr
++//  ;
+ 
+ en_retorne
+-  : &quot;retorne&quot; (expr)? T_SEMICOL
++{
++  string result;
++}
++  : &quot;retorne&quot;
++    (result=expr {subroutine-&gt;emitMnWithPrefix( &quot;set&quot;, &quot;__result&quot;, result ); } )?
++    { subroutine-&gt;emitMn( &quot;ret&quot; ); }
++    T_SEMICOL
+   ;
+ 
+ lvalue returns [string tk_id]
+-  : T_IDENTIFICADOR {tk_id=lastToken-&gt;getText( );} //(T_ABREC expr T_FECHAC)*
++{
++  string ret;
++}
++  : T_IDENTIFICADOR {tk_id=lastToken-&gt;getText( );}
++    (T_ABREC ret=expr T_FECHAC)*
++  | T_IDENTIFICADOR T_DOT T_IDENTIFICADOR
+   ;
+ 
+ en_se
+@@ -264,10 +359,10 @@
+   string elseLabel;
+   string nextLabel;
+ }
+-  : &quot;se&quot; expRet=expr &quot;ent&#227;o&quot; { elseLabel = tempLabel.getNew( ); subroutine-&gt;emitIFNOTMn( expRet, elseLabel ); }
++  : &quot;se&quot; expRet=expr &quot;ent&#227;o&quot; { elseLabel = tempLabel.getNew( ); subroutine-&gt;emitMn( &quot;ifnot&quot;, expRet, elseLabel ); }
+     lista_enunciados
+-    { nextLabel = tempLabel.getNew( ); subroutine-&gt;emitJMPMn( nextLabel ); }
+-    (&quot;sen&#227;o&quot; { subroutine-&gt;emitLabel( elseLabel ); } lista_enunciados)? &quot;fim-se&quot;
++    { nextLabel = tempLabel.getNew( ); subroutine-&gt;emitMn( &quot;jmp&quot;, nextLabel ); subroutine-&gt;emitLabel( elseLabel ); }
++    (&quot;sen&#227;o&quot; lista_enunciados)? &quot;fim-se&quot;
+     { subroutine-&gt;emitLabel( nextLabel ); }
+   ;
+ 
+@@ -285,12 +380,12 @@
+     }
+     expRet=expr &quot;fa&#231;a&quot;
+     {
+-       subroutine-&gt;emitIFNOTMn( expRet, nextCommandLabel );
++       subroutine-&gt;emitMn( &quot;ifnot&quot;, expRet, nextCommandLabel );
+     }
+     lista_enunciados
+     &quot;fim-enquanto&quot;
+     {
+-       subroutine-&gt;emitJMPMn( testLabel );
++       subroutine-&gt;emitMn( &quot;jmp&quot;, testLabel );
+        subroutine-&gt;emitLabel( nextCommandLabel );
+     }
+   ;
+@@ -303,35 +398,64 @@
+   string testLabel;
+   string nextCommandLabel;
+   string testVar;
++  int    step=1;
+ }
+-  : &quot;para&quot; lvalueRet=lvalue &quot;de&quot; exp1=expr &quot;at&#233;&quot; exp2=expr (passo)? &quot;fa&#231;a&quot;
++  : &quot;para&quot; lvalueRet=lvalue &quot;de&quot; exp1=expr &quot;at&#233;&quot; exp2=expr (step=passo)? &quot;fa&#231;a&quot;
+     {
+-       subroutine-&gt;emitISETMn( lvalueRet, exp1 );
++       subroutine-&gt;emitMnWithPrefix( &quot;set&quot;, lvalueRet, exp1 );
+        testLabel = tempLabel.getNew( );
+        nextCommandLabel = tempLabel.getNew( );
+        testVar   = tempVar.getNew( );
++       declareSubroutineVar( SymbolTable::GlobalScope, testVar, 0, T_KW_INTEIRO );
+        subroutine-&gt;emitLabel( testLabel );
+-       subroutine-&gt;emitMn( &quot;ile&quot;, testVar, lvalueRet, exp2 );
+-       subroutine-&gt;emitIFNOTMn( testVar, nextCommandLabel );
++       if (step &gt;= 0) {
++          subroutine-&gt;emitMnWithPrefix( &quot;le&quot;, testVar, lvalueRet, exp2 );
++       } else {
++          subroutine-&gt;emitMnWithPrefix( &quot;ge&quot;, testVar, lvalueRet, exp2 );
++       }
++       subroutine-&gt;emitMn( &quot;ifnot&quot;, testVar, nextCommandLabel );
+     }
+     lista_enunciados
+     &quot;fim-para&quot;
+     {
+-       subroutine-&gt;emitMn( &quot;iinc&quot;, lvalueRet, &quot;1&quot; );
+-       subroutine-&gt;emitJMPMn( testLabel );
++       subroutine-&gt;emitMnWithPrefix( step &gt; 0 ? &quot;inc&quot; : &quot;dec&quot;, lvalueRet, itoa( abs( step ) ) );
++       subroutine-&gt;emitMn( &quot;jmp&quot;, testLabel );
+        subroutine-&gt;emitLabel( nextCommandLabel );
+     }
+   ;
+ 
+-passo
+-  : &quot;passo&quot; (T_MAIS|T_MENOS)? T_INT_LIT
++passo returns [int ret]
++{
++  string signal;
++}
++  : &quot;passo&quot; (T_MAIS|T_MENOS{signal=&quot;-&quot;;})? T_INT_LIT { ret=atoi((signal+lastToken-&gt;getText( )).c_str( )); }
+   ;
+ 
+ //en_repita
+-//  : &quot;repita&quot; lista_enunciados &quot;enquanto&quot; expr
+-//  | &quot;repita&quot; lista_enunciados &quot;at&#233;&quot; expr
++//  : (&quot;repita&quot; lista_enunciados &quot;enquanto&quot;) =&gt; en_repita_enquanto
++//  | (&quot;repita&quot; lista_enunciados &quot;at&#233;&quot;) =&gt; en_repita_ate
+ //  ;
+ 
++en_repita
++{
++  string labelBegin = tempLabel.getNew( );
++  string exp;
++}
++  : &quot;repita&quot;
++    { subroutine-&gt;emitLabel( labelBegin ); }
++    lista_enunciados
++    &quot;at&#233;&quot; exp=expr
++    { subroutine-&gt;emitMn( &quot;ifnot&quot;, exp, labelBegin ); }
++  ;
++
++//en_repita_enquanto
++//  : &quot;repita&quot; lista_enunciados &quot;enquanto&quot; expr T_SEMICOL
++//  ;
++
++//en_repita_ate
++//  : &quot;repita&quot; lista_enunciados &quot;at&#233;&quot; expr T_SEMICOL
++//  ;
++
+ //en_repita
+ //  : &quot;repita&quot; lista_enunciados &quot;at&#233;&quot; expr
+ //  ;
+@@ -346,12 +470,13 @@
+   : &quot;caso&quot; expret=expr &quot;seja&quot; 
+     {
+        varTest = tempVar.getNew( );
+-       subroutine-&gt;emitISETMn( varTest, expret );
++       declareSubroutineVar( SymbolTable::GlobalScope, varTest, 0, T_KW_INTEIRO );
++       subroutine-&gt;emitMnWithPrefix( &quot;set&quot;, varTest, expret );
+        nextCommandLabel = tempLabel.getNew( );
+     }
+     (
+        nextTestLabel=teste_caso[varTest]
+-       {subroutine-&gt;emitJMPMn( nextCommandLabel ); subroutine-&gt;emitLabel( nextTestLabel );}
++       {subroutine-&gt;emitMn( &quot;jmp&quot;, nextCommandLabel ); subroutine-&gt;emitLabel( nextTestLabel );}
+     )+ (&quot;sen&#227;o&quot; lista_enunciados &quot;fim-sen&#227;o&quot;)? &quot;fim-caso&quot; 
+     {
+        subroutine-&gt;emitLabel( nextCommandLabel );
+@@ -364,43 +489,112 @@
+ }
+   : lit=literal &quot;fa&#231;a&quot; 
+     {
+-       subroutine-&gt;emitMn( &quot;ieq&quot;, tempVar.getNew( ), varTest, lit );
++       declareSubroutineVar( SymbolTable::GlobalScope, tempVar.getNew(), 0, getSymbolType( varTest ) );
++       subroutine-&gt;emitMnWithPrefix( &quot;eq&quot;, tempVar.getLast(), varTest, lit );
+        nextTestLabel = tempLabel.getNew( );
+-       subroutine-&gt;emitIFNOTMn( tempVar.getLast( ), nextTestLabel );
++       subroutine-&gt;emitMn( &quot;ifnot&quot;, tempVar.getLast( ), nextTestLabel );
+     }
+     lista_enunciados
+     &quot;fim-fa&#231;a&quot;
+   ;
+ 
+-en_asm
+-  : &quot;asm&quot; (~(&quot;fim-asm&quot;))* &quot;fim-asm&quot;
++en_asm_code
++//  : ASM_CODE { cout &lt;&lt; &quot;ASM=\&quot;&quot; + lastToken-&gt;getText( ) &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl; }
++  : &quot;asm&quot;
++    T_ASM_CODE { subroutine-&gt;emitAsmCode( lastToken-&gt;getText( ) ); }
++    &quot;fim-asm&quot;
++//(
++//       ~(&quot;fim-asm&quot;) { cout &lt;&lt; &quot;ASM=\&quot;&quot; + lastToken-&gt;getText( ) &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl; }
++//    )*
++//    &quot;fim-asm&quot;
+   ;
+ 
++//en_asm_code
++////  : ASM_CODE { cout &lt;&lt; &quot;ASM=\&quot;&quot; + lastToken-&gt;getText( ) &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl; }
++//  : &quot;asm&quot;
++//    (
++//       ~(&quot;fim-asm&quot;) { cout &lt;&lt; &quot;ASM=\&quot;&quot; + lastToken-&gt;getText( ) &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl; }
++//    )*
++//    &quot;fim-asm&quot;
++//  ;
+ 
+ /****************************************************************************/
+-chamada_subrotina
++chamada_procedimento
++{
++   CArguments args;
++}
+   : tk_id:T_IDENTIFICADOR T_ABREP
+-    ( {args.init( subroutine, tk_id-&gt;getText( ) ); } lista_argumentos { args.emitMnsInSubroutineCall( ); })? T_FECHAP
+-    { subroutine-&gt;emitPCALLMn( tk_id-&gt;getText( ) ); }
++    ( {args.init( subroutine, tk_id-&gt;getText( ) ); } lista_argumentos[args] { args.emitMnsInSubroutineCall( ); })? T_FECHAP
++    { subroutine-&gt;emitMn( &quot;pcall&quot;, tk_id-&gt;getText( ) ); }
+   ; 
+ 
+-lista_argumentos
++chamada_funcao returns [string ret]
+ {
+-   RefToken exp;
++   CArguments args;
+ }
+-  : expr { args.push_back( lastToken ); }
+-    (T_COMMA expr { args.push_back( lastToken ); } )*
++  : tk_id:T_IDENTIFICADOR T_ABREP
++    { subroutine-&gt;emitMn( &quot;push_0&quot; ); }
++    ( 
++      { args.init( subroutine, tk_id-&gt;getText( ) ); }
++      lista_argumentos[args]
++      { args.emitMnsInSubroutineCall( ); }
++    )? T_FECHAP
++    {
++      subroutine-&gt;emitMn( &quot;pcall&quot;, tk_id-&gt;getText( ) );
++      ret = tempVar.getNew( );
++      declareSubroutineVar( SymbolTable::GlobalScope, ret, 0, T_KW_INTEIRO );
++      subroutine-&gt;emitMn( &quot;pop&quot;, ret );
++    }
++  ; 
++
++lista_argumentos [CArguments &amp;args]
++{
++  string ret;
++}
++  // TODO: a gente poderia sempre adicionar o token (string) retornado por expr. Na tabela de simbolos
++  // vao existir TODOS os simbolos. Com isso sera facil identificar o tipo (para push_&lt;type&gt;) 
++  // sem necessitar de RefToken.
++  : ret=expr { args.push_back( ret ); }
++    (
++      T_COMMA ret=expr
++      { args.push_back( ret ); }
++    )*
+   ;
+ 
++//lista_argumentos
++//{
++//   RefToken exp;
++//}
++//  : expr { args.push_back( lastToken ); }
++//    (T_COMMA expr { args.push_back( lastToken ); } )*
++//  ;
++
+ literal returns [string ret]
+-  : ( T_STRING_LIT | T_INT_LIT | T_REAL_LITERAL | T_CARAC_LITERAL | &quot;verdadeiro&quot; | &quot;falso&quot; ) {ret=lastToken-&gt;getText( );}
++  : ( 
++        T_STRING_LIT {symbolTable.addConstant( SymbolTable::GlobalScope, lastToken-&gt;getText( ), 0, T_KW_LITERAL );}
++      | T_INT_LIT  {symbolTable.addConstant( SymbolTable::GlobalScope, lastToken-&gt;getText( ), 0, T_KW_INTEIRO );}
++      | T_REAL_LIT  {symbolTable.addConstant( SymbolTable::GlobalScope, lastToken-&gt;getText( ), 0, T_KW_REAL );}
++      | T_CARAC_LIT  {symbolTable.addConstant( SymbolTable::GlobalScope, lastToken-&gt;getText( ), 0, T_KW_CARACTERE );}
++      | &quot;verdadeiro&quot;  {symbolTable.addConstant( SymbolTable::GlobalScope, lastToken-&gt;getText( ), 0, T_KW_LOGICO );} // ???
++      | &quot;falso&quot;  {symbolTable.addConstant( SymbolTable::GlobalScope, lastToken-&gt;getText( ), 0, T_KW_LOGICO );}      // ???
++    ) {ret=lastToken-&gt;getText( );}
+   ;
+ 
+-
+ /* ----------------------------- Expressoes ---------------------------------- */
+ 
+ expr returns [string ret]
+-  : ret=expr_e (T_KW_OU expr_e)*
++{
++  string op2;
++}
++  : ret=expr_e 
++    (
++      T_KW_OU op2=expr_e 
++      {
++         subroutine-&gt;emitMn( &quot;or&quot;, tempVar.getNew( ), ret, op2 );
++         ret=tempVar.getLast( );
++         declareSubroutineVar( SymbolTable::GlobalScope, ret, 0, getSymbolType( op2 ) );
++      }
++    )*
+   ;
+   
+ expr_e  returns [string ret]
+@@ -410,35 +604,92 @@
+ {
+   string op2;
+ }
+-  : ret=expr_bit_ou (T_KW_E op2=expr_bit_ou {subroutine-&gt;emitMn( &quot;and&quot;, tempVar.getNew( ), ret, op2 ); ret=tempVar.getLast( ); } )*
++  : ret=expr_bit_ou
++    (
++      T_KW_E op2=expr_bit_ou
++      {
++         subroutine-&gt;emitMn( &quot;and&quot;, tempVar.getNew( ), ret, op2 );
++         ret=tempVar.getLast( );
++         declareSubroutineVar( SymbolTable::GlobalScope, ret, 0, getSymbolType( op2 ) );
++      }
++    )*
+   ;
+ 
+ expr_bit_ou returns [string ret]
+ options {
+   defaultErrorHandler=false; //noviable should be caught on expr
+ }
+-  : ret=expr_bit_xou (T_BIT_OU expr_bit_xou)*
++{
++  string op2;
++}
++  : ret=expr_bit_xou
++    (
++      T_BIT_OU op2=expr_bit_xou
++      {
++         subroutine-&gt;emitMn( &quot;bor&quot;, tempVar.getNew( ), ret, op2 );
++         ret=tempVar.getLast( );
++         declareSubroutineVar( SymbolTable::GlobalScope, ret, 0, getSymbolType( op2 ) );
++      }
++    )*
+   ;
+ 
+ expr_bit_xou  returns [string ret]
+ options {
+   defaultErrorHandler=false; //noviable should be caught on expr
+ }
+-  : ret=expr_bit_e (T_BIT_XOU expr_bit_e)*
++{
++  string op2;
++}
++  : ret=expr_bit_e 
++    (
++      T_BIT_XOU op2=expr_bit_e
++      {
++         subroutine-&gt;emitMn( &quot;bxor&quot;, tempVar.getNew( ), ret, op2 );
++         ret=tempVar.getLast( );
++         declareSubroutineVar( SymbolTable::GlobalScope, ret, 0, getSymbolType( op2 ) );
++      }
++    )*
+   ;
+ 
+ expr_bit_e returns [string ret]
+ options {
+   defaultErrorHandler=false; //noviable should be caught on expr
+ }
+-  : ret=expr_igual (T_BIT_E expr_igual)*
++{
++  string op2;
++}
++  : ret=expr_igual
++    (
++      T_BIT_E op2=expr_igual
++      {
++         subroutine-&gt;emitMn( &quot;band&quot;, tempVar.getNew( ), ret, op2 );
++         ret=tempVar.getLast( );
++         declareSubroutineVar( SymbolTable::GlobalScope, ret, 0, getSymbolType( op2 ) );
++      }
++    )*
+   ;
+   
+ expr_igual returns [string ret]
+ options {
+   defaultErrorHandler=false; //noviable should be caught on expr
+ }
+-  : ret=expr_relacional (T_IGUAL expr_relacional|T_DIFERENTE expr_relacional)*
++{
++  string op2;
++  string mn;
++}
++  : ret=expr_relacional
++    (
++      ( T_IGUAL {mn=&quot;eq&quot;;} | T_DIFERENTE {mn=&quot;ne&quot;;} )
++      op2=expr_relacional
++      {
++//         subroutine-&gt;emitMnWithPrefix( mn, tempVar.getNew( ), ret, op2 );
++//         ret=tempVar.getLast( );
++//         declareSubroutineVar( SymbolTable::GlobalScope, ret, 0, getSymbolType( op2 ) );
++         declareSubroutineVar( SymbolTable::GlobalScope, tempVar.getNew( ), 0, getSymbolType( op2 ) );
++         subroutine-&gt;emitMnWithPrefix( mn, tempVar.getLast( ), ret, op2 );
++         ret=tempVar.getLast( );
++      }
++    )*
+   ;
+         
+ expr_relacional returns [string ret]
+@@ -447,9 +698,21 @@
+ }
+ {
+   string op2;
++  string mn;
+ }
+-  : ret=expr_ad ((T_MAIOR| T_MAIOR_EQ| T_MENOR| T_MENOR_EQ)
+-    op2=expr_ad {subroutine-&gt;emitIGEMn( tempVar.getNew( ), ret, op2 ); ret=tempVar.getLast( ); } )*
++  : ret=expr_ad 
++    (
++      ( T_MAIOR {mn=&quot;gt&quot;;} | T_MAIOR_EQ {mn=&quot;ge&quot;;} | T_MENOR {mn=&quot;lt&quot;;} | T_MENOR_EQ {mn=&quot;le&quot;;} )
++      op2=expr_ad
++      {
++         //subroutine-&gt;emitMnWithPrefix( mn, tempVar.getNew( ), ret, op2 );
++         //ret=tempVar.getLast( );
++         //declareSubroutineVar( SymbolTable::GlobalScope, ret, 0, getSymbolType( op2 ) );
++         declareSubroutineVar( SymbolTable::GlobalScope, tempVar.getNew( ), 0, getSymbolType( op2 ) );
++         subroutine-&gt;emitMnWithPrefix( mn, tempVar.getLast( ), ret, op2 );
++         ret=tempVar.getLast( );
++      }
++    )*
+   ;
+ 
+ expr_ad returns [string ret]
+@@ -458,28 +721,52 @@
+ }
+ {
+    string op2;
++   string mn;
+ }
+-  : ret=expr_multip (T_MAIS op2=expr_multip {subroutine-&gt;emitISUMMn( tempVar.getNew( ), ret, op2 ); ret=tempVar.getLast( ); }
+-                    | T_MENOS expr_multip)*
++  : ret=expr_multip 
++    (
++      ( T_MAIS {mn=&quot;sum&quot;;} | T_MENOS {mn=&quot;sub&quot;;} )
++      op2=expr_multip
++      {
++         //subroutine-&gt;emitMnWithPrefix( mn, tempVar.getNew( ), ret, op2 );
++         //ret=tempVar.getLast( );
++         //declareSubroutineVar( SymbolTable::GlobalScope, ret, 0, getSymbolType( op2 ) );
++         declareSubroutineVar( SymbolTable::GlobalScope, tempVar.getNew( ), 0, getSymbolType( op2 ) );
++         subroutine-&gt;emitMnWithPrefix( mn, tempVar.getLast( ), ret, op2 );
++         ret=tempVar.getLast( );
++      }
++    )*
+   ;
+ 
+-expr_multip returns [string op1]
++expr_multip returns [string ret]
+ options {
+   defaultErrorHandler=false; //noviable should be caught on expr
+ }
+ {
+   string op2;
+-  RefToken op;
++  string mn;
+ }
+-  : op1=expr_unario
+-    (( T_DIV | T_MULTIP | T_MOD ) {op=lastToken;} op2=expr_unario {subroutine-&gt;emitIMULMn( tempVar.getNew( ), op1, op2 ); op1=tempVar.getLast( ); } )*
++  : ret=expr_unario
++    (
++      ( T_DIV {mn=&quot;div&quot;;} | T_MULTIP {mn=&quot;mul&quot;;} | T_MOD {mn=&quot;mod&quot;;} )
++      op2=expr_unario
++      {
++         //subroutine-&gt;emitMnWithPrefix( mn, tempVar.getNew( ), ret, op2 );
++         //ret=tempVar.getLast( );
++         //declareSubroutineVar( SymbolTable::GlobalScope, ret, 0, getSymbolType(op2) );
++         declareSubroutineVar( SymbolTable::GlobalScope, tempVar.getNew( ), 0, getSymbolType( op2 ) );
++         subroutine-&gt;emitMnWithPrefix( mn, tempVar.getLast( ), ret, op2 );
++         ret=tempVar.getLast( );
++      } 
++    )*
+   ;
+ 
+ expr_unario returns [string ret]
+ options {
+   defaultErrorHandler=false; //noviable should be caught on expr
+ }
+-  : op_unario ret=expr_elemento
++  //: op_unario ret=expr_elemento
++  : ret=expr_elemento
+   ;
+ 
+ op_unario
+@@ -492,7 +779,7 @@
+   ; 
+ 
+ expr_elemento returns [string ret]
+-  : (T_IDENTIFICADOR T_ABREP)=&gt; chamada_subrotina // ret= ???
++  : (T_IDENTIFICADOR T_ABREP)=&gt; ret=chamada_funcao
+   | ret=lvalue
+   | ret=literal
+   | t:T_ABREP ret=expr T_FECHAP 
+
+Added: trunk/gpt2/test/check.sh
+===================================================================
+--- trunk/gpt2/test/check.sh	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/check.sh	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,92 @@
++function exist_file( )
++{
++	if [ -z &quot;$1&quot; ]                    # Checks if parameter #1 is zero length.
++	then
++		echo &quot;-Parameter #1 is zero length.&quot;
++		return 1
++	fi
++
++	if [ &quot;$2&quot; ] # verifica se o parametro existe
++	then
++		echo &quot;-Parameter #2 is \&quot;$2\&quot;.-&quot;
++	fi
++					  
++	if [[ ! -a $1 ]]
++	then
++		echo &quot;Erro: Arquivo $1 nao existe !!!&quot;
++		return 1
++	fi
++
++	return 0
++}
++
++echo &quot;Realizando o teste regressivo no arquivo $1.gpt&quot;
++
++exist_file $1.gpt
++if [ $? -ne 0 ]
++then
++	exit 2
++fi
++
++exist_file checked/$1.gpt
++if [ $? -ne 0 ]
++then
++	exit 2
++fi
++
++exist_file checked/$1.gasm
++if [ $? -ne 0 ]
++then
++	exit 2
++fi
++
++#exist_file checked/$1.stdout
++#if [ $? -ne 0 ]
++#then
++#	exit 2
++#fi
++
++diff $1.gpt checked/$1.gpt &gt;/dev/null 2&gt;&amp;1
++if [ $? -ne 0 ]
++then
++	echo &quot;Erro: Os arquivos $1.gpt e checked/$1.gpt sao diferentes. Nao eh possivel realizar o teste regressivo !&quot;
++	exit 2
++fi
++
++./comp.sh $1
++if [ $? -ne 0 ]
++then
++	echo &quot;Erro: Arquivo $1.gpt nao foi compilado corretamente&quot;
++	exit 2
++fi
++
++diff $1.gasm checked/$1.gasm &gt;/dev/null 2&gt;&amp;1
++if [ $? -ne 0 ]
++then
++	echo &quot;Erro: Teste regressivo falhou. Os arquivos $1.gasm e checked/$1.gasm sao diferentes !!!&quot;
++	vimdiff $1.gasm checked/$1.gasm
++	exit 1
++fi
++
++#diff $1.gvm checked/$1.gvm &gt;/dev/null 2&gt;&amp;1
++#if [ $? -ne 0 ]
++#then
++#	echo &quot;Erro: Teste regressivo falhou. Os arquivos $1.gvm e checked/$1.gvm sao diferentes !!!&quot;
++#	gdumpasm -D$1
++#	gdumpasm -Dchecked/$1
++#	vimdiff $1.dump checked/$1.dump
++#	exit 1
++#fi
++
++#diff $1.stdout checked/$1.stdout &gt;/dev/null 2&gt;&amp;1
++#if [ $? -ne 0 ]
++#then
++#	echo &quot;Erro: Teste regressivo falhou. Os arquivos $1.stdout e checked/$1.stdout sao diferentes !!!&quot;
++#	vimdiff $1.stdout checked/$1.stdout
++#	exit 1
++#fi
++
++echo &quot;Ok: Teste regressivo ok para $1.gpt&quot;
++
++exit 0
++
+
+
+Property changes on: trunk/gpt2/test/check.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/test/check_all.sh
+===================================================================
+--- trunk/gpt2/test/check_all.sh	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/check_all.sh	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,15 @@
++echo &quot;Realizando o teste regressivo em todos os arquivos .gpt do diretorio&quot;
++
++rm *.gasm 1&gt;/dev/null 2&gt;&amp;1
++#rm *.gvm 1&gt;/dev/null 2&gt;&amp;1
++#rm *.stdout 1&gt;/dev/null 2&gt;&amp;1
++
++for i in `ls *.gpt -1 | sed s/&quot;\.gpt&quot;//g`
++do
++	./check.sh $i 
++	echo &quot;&quot;
++#	if [ $? -ne 0 ]
++#	then
++#		echo &quot;Falha no teste regressivo do arquivo $i&quot;;
++#	fi
++done
+
+
+Property changes on: trunk/gpt2/test/check_all.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/test/comp.sh
+===================================================================
+--- trunk/gpt2/test/comp.sh	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/comp.sh	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,32 @@
++rm $1.gasm 1&gt;/dev/null 2&gt;&amp;1
++#rm $1.gvm 1&gt;/dev/null 2&gt;&amp;1
++#rm $1.stdout 1&gt;/dev/null 2&gt;&amp;1
++
++../../src/gpt $1.gpt
++if [ $? -ne 0 ]
++then
++	echo &quot;Erro: nao foi possivel compilar $1.gpt&quot;
++	exit 1
++fi
++#echo &quot;&quot;
++
++#./gptasm $1
++#if [ $? -ne 0 ]
++#then
++#	echo &quot;Erro: nao foi possivel assemblar $1.gasm&quot;
++#	exit 1
++#fi
++#echo &quot;&quot;
++
++#./gvm $1 &gt; $1.stdout
++#if [ $? -ne 0 ]
++#then
++#	echo &quot;Erro: nao foi possivel executar $1.gvm&quot;
++#	exit 1
++#fi
++#echo &quot;&quot;
++
++#cat $1.stdout
++
++#cat $1.gasm
++
+
+
+Property changes on: trunk/gpt2/test/comp.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/test/comp_all.sh
+===================================================================
+--- trunk/gpt2/test/comp_all.sh	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/comp_all.sh	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,11 @@
++echo &quot;Compilando todos os arquivos .gpt do diretorio&quot;
++
++rm *.gasm
++#rm *.gvm
++#rm *.stdout
++
++for i in `ls *.gpt -1 | sed s/&quot;\.gpt&quot;//g`
++do
++	./comp.sh $i 
++	echo &quot;&quot;
++done
+
+
+Property changes on: trunk/gpt2/test/comp_all.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/test/gpt
+===================================================================
+--- trunk/gpt2/test/gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1 @@
++link ../src/gpt
+\ No newline at end of file
+
+
+Property changes on: trunk/gpt2/test/gpt
+___________________________________________________________________
+Name: svn:special
+   + *
+
+Added: trunk/gpt2/test/prep_tests.sh
+===================================================================
+--- trunk/gpt2/test/prep_tests.sh	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/prep_tests.sh	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,12 @@
++cd wikki/
++
++ln -s ../check_all.sh     check_all.sh
++ln -s ../check.sh         check.sh
++ln -s ../comp_all.sh      comp_all.sh
++ln -s ../comp.sh          comp.sh
++ln -s ../show_and_comp.sh show_and_comp.sh
++ln -s ../test_ok_all.sh   test_ok_all.sh
++ln -s ../test_ok.sh       test_ok.sh
++
++cd ..
++
+
+
+Property changes on: trunk/gpt2/test/prep_tests.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/test/show_and_comp.sh
+===================================================================
+--- trunk/gpt2/test/show_and_comp.sh	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/show_and_comp.sh	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,17 @@
++echo &quot;ARQUIVO $1.gpt&quot;
++cat $1.gpt
++
++./comp.sh $1
++if [ $? -ne 0 ]
++then
++	exit 1
++fi
++
++echo &quot;&quot;
++
++echo &quot;ARQUIVO $1.gasm&quot;
++cat $1.gasm
++
++#echo &quot;ARQUIVO $1.stdout&quot;
++#cat $1.stdout
++
+
+
+Property changes on: trunk/gpt2/test/show_and_comp.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/test/test_ok.sh
+===================================================================
+--- trunk/gpt2/test/test_ok.sh	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/test_ok.sh	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,59 @@
++function exist_file( )
++{
++	if [ -z &quot;$1&quot; ]                    # Checks if parameter #1 is zero length.
++	then
++		echo &quot;-Parameter #1 is zero length.&quot;
++		return 1
++	fi
++
++	if [ &quot;$2&quot; ] # verifica se o parametro existe
++	then
++		echo &quot;-Parameter #2 is \&quot;$2\&quot;.-&quot;
++	fi
++					  
++	if [[ ! -a $1 ]]
++	then
++		echo &quot;Erro: Arquivo $1 nao existe !!!&quot;
++		return 1
++	fi
++
++	return 0
++}
++
++
++exist_file $1.gpt
++if [ $? -ne 0 ]
++then
++	exit 2
++fi
++
++exist_file $1.gasm
++if [ $? -ne 0 ]
++then
++	exit 2
++fi
++
++#exist_file $1.gvm
++#if [ $? -ne 0 ]
++#then
++#	exit 2
++#fi
++
++#exist_file $1.stdout
++#if [ $? -ne 0 ]
++#then
++#	exit 2
++#fi
++
++echo &quot;Copiando o arquivo $1.gpt p/ o diretorio checked&quot;
++cp $1.gpt checked/
++
++echo &quot;Copiando o arquivo $1.gasm p/ o diretorio checked&quot;
++cp $1.gasm checked/
++
++#echo &quot;Copiando o arquivo $1.gvm p/ o diretorio checked&quot;
++#cp $1.gvm  checked/
++
++#echo &quot;Copiando o arquivo $1.stdout p/ o diretorio checked&quot;
++#cp $1.stdout  checked/
++
+
+
+Property changes on: trunk/gpt2/test/test_ok.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/test/test_ok_all.sh
+===================================================================
+--- trunk/gpt2/test/test_ok_all.sh	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/test_ok_all.sh	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,7 @@
++echo &quot;Executando test ok para todos os arquivos .gpt do diretorio&quot;
++
++for i in `ls *.gpt -1 | sed s/&quot;\.gpt&quot;//g`
++do
++	./test_ok.sh $i 
++	echo &quot;&quot;
++done
+
+
+Property changes on: trunk/gpt2/test/test_ok_all.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/test/teste_chamada_subrotinas.gpt
+===================================================================
+--- trunk/gpt2/test/teste_chamada_subrotinas.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/teste_chamada_subrotinas.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,9 @@
++algoritmo teste ;
++
++in&#237;cio
++    v := 2;
++    imprima( 1 );
++    imprima( &quot;Hello world !!!&quot; );
++    subrotina1( &quot;aaa&quot;, 2 );
++fim
++
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_condicionais_1.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_condicionais_1.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_condicionais_1.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,24 @@
++// Programa estruturas_condicionais_1.gasm gerado a partir de estruturas_condicionais_1.gpt
++program estruturas_condicionais_1
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	iset x, 10
++	ige __temp_1, x, 20
++	ifnot __temp_1, __label_1
++	iset x, 2
++	jmp __label_2
++	__label_1:
++	iset x, 1
++	__label_2:
++	push x
++	push_int
++	push 1
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_condicionais_1.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_condicionais_1.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_condicionais_1.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,13 @@
++algoritmo exemplo;
++
++vari&#225;vel x : inteiro;
++
++in&#237;cio
++    x := 10;
++    se x &gt;= 20 ent&#227;o
++        x := 2;
++    sen&#227;o
++        x := 1;
++    fim-se
++    imprima( x );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_condicionais_2.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_condicionais_2.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_condicionais_2.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,36 @@
++// Programa estruturas_condicionais_2.gasm gerado a partir de estruturas_condicionais_2.gpt
++program estruturas_condicionais_2
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	var __temp_2 int
++	iset x, 20
++	ige __temp_1, x, 0
++	ifnot __temp_1, __label_1
++	igt __temp_2, x, 40
++	ifnot __temp_2, __label_2
++	push &quot;x&gt;40&quot;
++	push_string
++	push 1
++	pcall imprima
++	jmp __label_3
++	__label_2:
++	push &quot;x&lt;=40&quot;
++	push_string
++	push 1
++	pcall imprima
++	__label_3:
++	jmp __label_4
++	__label_1:
++	push &quot;x eh negativo !!!&quot;
++	push_string
++	push 1
++	pcall imprima
++	__label_4:
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_condicionais_2.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_condicionais_2.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_condicionais_2.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,16 @@
++algoritmo exemplo;
++
++vari&#225;vel x: inteiro;
++
++in&#237;cio
++    x := 20;
++    se x &gt;= 0 ent&#227;o
++        se x &gt; 40 ent&#227;o
++            imprima( &quot;x&gt;40&quot; );
++        sen&#227;o
++            imprima( &quot;x&lt;=40&quot; );
++        fim-se
++    sen&#227;o
++        imprima( &quot;x eh negativo !!!&quot; );
++    fim-se
++fim
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_condicionais_3.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_condicionais_3.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_condicionais_3.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,30 @@
++// Programa estruturas_condicionais_3.gasm gerado a partir de estruturas_condicionais_3.gpt
++program estruturas_condicionais_3
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	var __temp_2 int
++	var __temp_3 int
++	iset x, 1
++	ige __temp_1, x, 1
++	ile __temp_2, x, 10
++	and __temp_3, __temp_1, __temp_2
++	ifnot __temp_3, __label_1
++	push &quot;x entre 1 e 10&quot;
++	push_string
++	push 1
++	pcall imprima
++	jmp __label_2
++	__label_1:
++	push &quot;x n&#227;o est&#225; entre 1 e 10&quot;
++	push_string
++	push 1
++	pcall imprima
++	__label_2:
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_condicionais_3.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_condicionais_3.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_condicionais_3.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,12 @@
++algoritmo exemplo;
++
++vari&#225;vel x: inteiro;
++
++in&#237;cio
++    x := 1;
++    se x &gt;= 1 e x &lt;= 10 ent&#227;o
++        imprima( &quot;x entre 1 e 10&quot; );
++    sen&#227;o
++        imprima( &quot;x n&#227;o est&#225; entre 1 e 10&quot; );
++    fim-se
++fim
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_condicionais_4.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_condicionais_4.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_condicionais_4.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,41 @@
++// Programa estruturas_condicionais_4.gasm gerado a partir de estruturas_condicionais_4.gpt
++program estruturas_condicionais_4
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	var __temp_2 int
++	var __temp_3 int
++	var __temp_4 int
++	push_0
++	pcall leia
++	pop __temp_1
++	iset x, __temp_1
++	iset __temp_2, x
++	ieq __temp_3, __temp_2, 1
++	ifnot __temp_3, __label_2
++	push &quot;x = um&quot;
++	push_string
++	push 1
++	pcall imprima
++	jmp __label_1
++	__label_2:
++	ieq __temp_4, __temp_2, 2
++	ifnot __temp_4, __label_3
++	push &quot;x = dois&quot;
++	push_string
++	push 1
++	pcall imprima
++	jmp __label_1
++	__label_3:
++	push &quot;x diferente de um e dois&quot;
++	push_string
++	push 1
++	pcall imprima
++	__label_1:
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_condicionais_4.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_condicionais_4.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_condicionais_4.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,18 @@
++algoritmo exemplo;
++
++vari&#225;vel x: inteiro;
++
++in&#237;cio
++    x := leia( );
++    caso x seja
++    1 fa&#231;a
++        imprima( &quot;x = um&quot; );
++    fim-fa&#231;a
++    2 fa&#231;a
++        imprima( &quot;x = dois&quot; );
++    fim-fa&#231;a
++    sen&#227;o
++        imprima( &quot;x diferente de um e dois&quot; );
++    fim-sen&#227;o
++    fim-caso
++fim
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_condicionais_5.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_condicionais_5.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_condicionais_5.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,23 @@
++// Programa estruturas_condicionais_5.gasm gerado a partir de estruturas_condicionais_5.gpt
++program estruturas_condicionais_5
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	iset x, 10
++	ige __temp_1, x, 20
++	ifnot __temp_1, __label_1
++	iset x, 2
++	jmp __label_2
++	__label_1:
++	__label_2:
++	push x
++	push_int
++	push 1
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_condicionais_5.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_condicionais_5.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_condicionais_5.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,11 @@
++algoritmo exemplo;
++
++vari&#225;vel x : inteiro;
++
++in&#237;cio
++    x := 10;
++    se x &gt;= 20 ent&#227;o
++        x := 2;
++    fim-se
++    imprima( x );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_repeticao_1.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_repeticao_1.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_repeticao_1.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,23 @@
++// Programa estruturas_repeticao_1.gasm gerado a partir de estruturas_repeticao_1.gpt
++program estruturas_repeticao_1
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	iset x, 1
++	__label_1:
++	ile __temp_1, x, 10
++	ifnot __temp_1, __label_2
++	push x
++	push_int
++	push 1
++	pcall imprima
++	iinc x, 1
++	jmp __label_1
++	__label_2:
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_repeticao_1.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_repeticao_1.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_repeticao_1.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,9 @@
++algoritmo exemplo;
++
++vari&#225;vel x: inteiro;
++
++in&#237;cio
++    para x de 1 at&#233; 10 fa&#231;a
++        imprima( x );
++    fim-para
++fim
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_repeticao_2.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_repeticao_2.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_repeticao_2.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,23 @@
++// Programa estruturas_repeticao_2.gasm gerado a partir de estruturas_repeticao_2.gpt
++program estruturas_repeticao_2
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	iset x, 100
++	__label_1:
++	ige __temp_1, x, 0
++	ifnot __temp_1, __label_2
++	push x
++	push_int
++	push 1
++	pcall imprima
++	idec x, 2
++	jmp __label_1
++	__label_2:
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_repeticao_2.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_repeticao_2.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_repeticao_2.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,9 @@
++algoritmo exemplo;
++
++vari&#225;vel x: inteiro;
++
++in&#237;cio
++    para x de 100 at&#233; 0 passo -2 fa&#231;a
++        imprima( x );
++    fim-para
++fim
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_repeticao_3.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_repeticao_3.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_repeticao_3.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,25 @@
++// Programa estruturas_repeticao_3.gasm gerado a partir de estruturas_repeticao_3.gpt
++program estruturas_repeticao_3
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	var __temp_2 int
++	iset x, 1
++	__label_1:
++	ile __temp_1, x, 10
++	ifnot __temp_1, __label_2
++	push x
++	push_int
++	push 1
++	pcall imprima
++	isum __temp_2, x, 1
++	iset x, __temp_2
++	jmp __label_1
++	__label_2:
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_repeticao_3.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_repeticao_3.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_repeticao_3.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,11 @@
++algoritmo exemplo;
++
++vari&#225;vel x: inteiro;
++
++in&#237;cio
++    x := 1;
++    enquanto x &lt;= 10 fa&#231;a
++        imprima( x );
++        x := x + 1;
++    fim-enquanto
++fim
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_repeticao_4.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_repeticao_4.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_repeticao_4.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,23 @@
++// Programa estruturas_repeticao_4.gasm gerado a partir de estruturas_repeticao_4.gpt
++program estruturas_repeticao_4
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	var __temp_2 int
++	iset x, 1
++	__label_1:
++	push x
++	push_int
++	push 1
++	pcall imprima
++	isum __temp_1, x, 1
++	iset x, __temp_1
++	igt __temp_2, x, 10
++	ifnot __temp_2, __label_1
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/estruturas_repeticao_4.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/estruturas_repeticao_4.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/estruturas_repeticao_4.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,11 @@
++algoritmo exemplo;
++
++vari&#225;vel x: inteiro;
++
++in&#237;cio
++    x := 1;
++    repita
++        imprima( x );
++        x := x + 1;
++    at&#233; x &gt; 10
++fim
+
+Added: trunk/gpt2/test/wikki/checked/expressoes_matematicas_1.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/expressoes_matematicas_1.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/expressoes_matematicas_1.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,38 @@
++// Programa expressoes_matematicas_1.gasm gerado a partir de expressoes_matematicas_1.gpt
++program expressoes_matematicas_1
++
++var t1 int
++var t2 int
++// Procedure main
++proc main
++	var __temp_1 int
++	var __temp_2 int
++	var __temp_3 int
++	var __temp_4 int
++	var __temp_5 int
++	isum __temp_1, 1, 2
++	iset t1, __temp_1
++	imul __temp_2, 5, 3
++	iset t1, __temp_2
++	isum __temp_3, 2, t1
++	iset t2, __temp_3
++	push t2
++	push_int
++	push &quot;2+5*3=&quot;
++	push_string
++	push 2
++	pcall imprima
++	imul __temp_4, 5, 3
++	isum __temp_5, 2, __temp_4
++	iset t1, __temp_5
++	push t1
++	push_int
++	push &quot;2+5*3=&quot;
++	push_string
++	push 2
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/expressoes_matematicas_1.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/expressoes_matematicas_1.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/expressoes_matematicas_1.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,13 @@
++algoritmo exemplo;
++
++vari&#225;vel t1: inteiro;
++vari&#225;vel t2: inteiro;
++
++in&#237;cio
++    t1 := 1+2;
++    t1 := 5*3;
++    t2 := 2+t1;
++    imprima( &quot;2+5*3=&quot;, t2 );
++    t1 := 2+5*3;
++    imprima( &quot;2+5*3=&quot;, t1 );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/expressoes_matematicas_2.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/expressoes_matematicas_2.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/expressoes_matematicas_2.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,20 @@
++// Programa expressoes_matematicas_2.gasm gerado a partir de expressoes_matematicas_2.gpt
++program expressoes_matematicas_2
++
++// Procedure main
++proc main
++	var __temp_1 int
++	var __temp_2 int
++	imul __temp_1, 5, 3
++	isum __temp_2, 2, __temp_1
++	push __temp_2
++	push_int
++	push &quot;2+5*3=&quot;
++	push_string
++	push 2
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/expressoes_matematicas_2.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/expressoes_matematicas_2.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/expressoes_matematicas_2.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,5 @@
++algoritmo exemplo;
++
++in&#237;cio
++    imprima( &quot;2+5*3=&quot;, 2+5*3 );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_1.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_1.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,34 @@
++// Programa funcoes_definidas_usuario_1.gasm gerado a partir de funcoes_definidas_usuario_1.gpt
++program funcoes_definidas_usuario_1
++
++// Procedure main
++proc main
++	var __temp_1 int
++	push_0
++	push 7
++	push 2
++	pcall soma
++	pop __temp_1
++	push __temp_1
++	push_int
++	push &quot;A soma &#233;: &quot;
++	push_string
++	push 2
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++// Procedure soma
++proc soma
++	par x int
++	par y int
++	var __result int
++	var __temp_2 int
++	isum __temp_2, x, y
++	iset __result, __temp_2
++	ret
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_1.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_1.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_1.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,11 @@
++// Fun&#231;&#245;es n&#227;o recursivas
++algoritmo exemplo;
++
++in&#237;cio
++    imprima( &quot;A soma &#233;: &quot;, soma( 2, 7 ) );
++fim
++
++fun&#231;&#227;o soma( x: inteiro, y: inteiro ) : inteiro
++in&#237;cio
++    retorne( x + y );
++fim	
+
+Added: trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_2.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_2.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_2.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,61 @@
++// Programa funcoes_definidas_usuario_2.gasm gerado a partir de funcoes_definidas_usuario_2.gpt
++program funcoes_definidas_usuario_2
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	var __temp_2 int
++	push &quot;Digite um n&#250;mero:&quot;
++	push_string
++	push 1
++	pcall imprima
++	push_0
++	pcall leia
++	pop __temp_1
++	iset x, __temp_1
++	push_0
++	push x
++	pcall fatorial
++	pop __temp_2
++	push __temp_2
++	push_int
++	push &quot;&#233; &quot;
++	push_string
++	push x
++	push_int
++	push &quot;Fatorial de &quot;
++	push_string
++	push 4
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++// Procedure fatorial
++proc fatorial
++	par z int
++	var __result int
++	var __temp_3 int
++	var __temp_4 int
++	var __temp_5 int
++	var __temp_6 int
++	ieq __temp_3, z, 1
++	ifnot __temp_3, __label_1
++	iset __result, 1
++	ret
++	jmp __label_2
++	__label_1:
++	push_0
++	isub __temp_4, z, 1
++	push __temp_4
++	pcall fatorial
++	pop __temp_5
++	imul __temp_6, z, __temp_5
++	iset __result, __temp_6
++	ret
++	__label_2:
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_2.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_2.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/funcoes_definidas_usuario_2.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,20 @@
++// Fun&#231;&#245;es recursivas
++
++algoritmo fatorial_recursivo;
++
++vari&#225;vel x: inteiro;
++
++in&#237;cio
++    imprima( &quot;Digite um n&#250;mero:&quot; );
++    x := leia( );
++    imprima( &quot;Fatorial de &quot;, x, &quot;&#233; &quot;, fatorial( x ) );
++fim
++
++fun&#231;&#227;o fatorial( z: inteiro ) : inteiro
++in&#237;cio
++    se z = 1 ent&#227;o
++        retorne 1;
++    sen&#227;o
++        retorne z * fatorial( z - 1 );
++    fim-se
++fim	
+
+Added: trunk/gpt2/test/wikki/checked/inline_codigo_gptassembly.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/inline_codigo_gptassembly.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/inline_codigo_gptassembly.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,28 @@
++// Programa inline_codigo_gptassembly.gasm gerado a partir de inline_codigo_gptassembly.gpt
++program inline_codigo_gptassembly
++
++var x int
++// Procedure main
++proc main
++	iset x, 10
++	push x
++	push_int
++	push 1
++	pcall imprima
++
++	// asm-begin
++	
++        iset x, 20
++        isum x, x, 80
++    
++	// asm-end
++
++	push x
++	push_int
++	push 1
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/inline_codigo_gptassembly.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/inline_codigo_gptassembly.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/inline_codigo_gptassembly.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,15 @@
++algoritmo exemplo;
++
++vari&#225;vel x: inteiro;
++
++in&#237;cio
++    x := 10;
++    imprima( x );
++    asm
++    {
++        iset x, 20
++        isum x, x, 80
++    }
++    fim-asm
++    imprima( x );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_1.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_1.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_1.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,14 @@
++// Programa invocando_subrotinas_linguagem_1.gasm gerado a partir de invocando_subrotinas_linguagem_1.gpt
++program invocando_subrotinas_linguagem_1
++
++// Procedure main
++proc main
++	push &quot;Ol&#225; mundo !!!&quot;
++	push_string
++	push 1
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_1.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_1.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_1.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,5 @@
++algoritmo exemplo;
++
++in&#237;cio
++    imprima( &quot;Ol&#225; mundo !!!&quot; );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_2.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_2.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_2.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,26 @@
++// Programa invocando_subrotinas_linguagem_2.gasm gerado a partir de invocando_subrotinas_linguagem_2.gpt
++program invocando_subrotinas_linguagem_2
++
++var x int
++// Procedure main
++proc main
++	var __temp_1 int
++	push &quot;Digite um n&#250;mero: &quot;
++	push_string
++	push 1
++	pcall imprima
++	push_0
++	pcall leia
++	pop __temp_1
++	iset x, __temp_1
++	push x
++	push_int
++	push &quot;O n&#250;mero digitado foi &quot;
++	push_string
++	push 2
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_2.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_2.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/invocando_subrotinas_linguagem_2.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,9 @@
++algoritmo exemplo;
++
++vari&#225;vel x: inteiro;
++
++in&#237;cio
++    imprima( &quot;Digite um n&#250;mero: &quot; );
++    x := leia( );
++    imprima( &quot;O n&#250;mero digitado foi &quot;, x );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_1.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_1.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,24 @@
++// Programa procedimentos_definidos_usuario_1.gasm gerado a partir de procedimentos_definidos_usuario_1.gpt
++program procedimentos_definidos_usuario_1
++
++// Procedure main
++proc main
++	pcall soma
++	exit_0
++end-proc
++// Fim da procedure
++
++// Procedure soma
++proc soma
++	var __temp_1 int
++	isum __temp_1, 2, 7
++	push __temp_1
++	push_int
++	push &quot;A soma de 2 + 7 &#233;: &quot;
++	push_string
++	push 2
++	pcall imprima
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_1.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_1.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_1.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,11 @@
++// Procedimento sem passagem de par&#226;metros
++algoritmo exemplo;
++
++in&#237;cio
++    soma( );
++fim
++
++procedimento soma( )
++in&#237;cio
++    imprima( &quot;A soma de 2 + 7 &#233;: &quot;, 2 + 7 );
++fim	
+
+Added: trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_2.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_2.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_2.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,28 @@
++// Programa procedimentos_definidos_usuario_2.gasm gerado a partir de procedimentos_definidos_usuario_2.gpt
++program procedimentos_definidos_usuario_2
++
++// Procedure main
++proc main
++	push 7
++	push 2
++	pcall soma
++	exit_0
++end-proc
++// Fim da procedure
++
++// Procedure soma
++proc soma
++	par x int
++	par y int
++	var __temp_1 int
++	isum __temp_1, x, y
++	push __temp_1
++	push_int
++	push &quot;A soma &#233;: &quot;
++	push_string
++	push 2
++	pcall imprima
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_2.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_2.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_2.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,11 @@
++// Procedimento com passagem de par&#226;metros por valor
++algoritmo exemplo;
++
++in&#237;cio
++    soma( 2, 7 );
++fim
++
++procedimento soma( x: inteiro, y: inteiro )
++in&#237;cio
++    imprima( &quot;A soma &#233;: &quot;, x + y );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_3.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_3.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_3.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,42 @@
++// Programa procedimentos_definidos_usuario_3.gasm gerado a partir de procedimentos_definidos_usuario_3.gpt
++program procedimentos_definidos_usuario_3
++
++var g int
++// Procedure main
++proc main
++	iset g, 0
++	iset g, g
++	push 10
++	push g
++	pcall roda
++	exit_0
++end-proc
++// Fim da procedure
++
++// Procedure roda
++proc roda
++	par p1 int
++	par p2 int
++	var l1 int
++	var l2 int
++	iset l1, 0
++	iset l1, l2
++	iset l1, g
++	iset g, l1
++	iset p1, p2
++	iset l1, p1
++	iset p1, l1
++	iset p1, g
++	iset g, p1
++	push l1
++	push_int
++	push p1
++	push_int
++	push g
++	push_int
++	push 3
++	pcall imprima
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_3.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_3.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_3.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,26 @@
++// Procedimento com passagem de par&#226;metros por valor
++algoritmo exemplo;
++
++vari&#225;vel g: inteiro;
++
++in&#237;cio
++    g := 0;
++    g := g;
++    roda( g, 10 );
++fim
++
++procedimento roda( p1: inteiro, p2: inteiro )
++vari&#225;vel l1: inteiro;
++vari&#225;vel l2: inteiro;
++in&#237;cio
++    l1 := 0;
++    l1 := l2;
++    l1 := g;
++    g := l1;
++    p1 := p2;
++    l1 := p1;
++    p1 := l1;
++    p1 := g;
++    g := p1;
++    imprima( g, p1, l1 );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_4.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_4.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_4.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,34 @@
++// Programa procedimentos_definidos_usuario_4.gasm gerado a partir de procedimentos_definidos_usuario_4.gpt
++program procedimentos_definidos_usuario_4
++
++var x int
++var y int
++// Procedure main
++proc main
++	iset x, 10
++	iset y, 20
++	push 30
++	pcall soma
++	exit_0
++end-proc
++// Fim da procedure
++
++// Procedure soma
++proc soma
++	par z int
++	var s int
++	var __temp_1 int
++	var __temp_2 int
++	isum __temp_1, x, y
++	isum __temp_2, __temp_1, z
++	iset s, __temp_2
++	push s
++	push_int
++	push &quot;A soma de x, y e z &#233;: &quot;
++	push_string
++	push 2
++	pcall imprima
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_4.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_4.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/procedimentos_definidos_usuario_4.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,20 @@
++// Vari&#225;veis globais sendo acessadas em um procedimento com par&#226;metros
++algoritmo exemplo;
++
++vari&#225;veis
++    x: inteiro;
++    y: inteiro;
++fim-vari&#225;veis
++
++in&#237;cio
++    x := 10;
++    y := 20;
++    soma( 30 );
++fim
++
++procedimento soma( z: inteiro )
++vari&#225;vel s: inteiro;
++in&#237;cio
++    s := x + y + z;
++    imprima( &quot;A soma de x, y e z &#233;: &quot;, s );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_1.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_1.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_1.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,24 @@
++// Programa variaveis_1.gasm gerado a partir de variaveis_1.gpt
++program variaveis_1
++
++var x int
++var y int
++// Procedure main
++proc main
++	var __temp_1 int
++	var __temp_2 int
++	iset x, 10
++	iset y, 20
++	imul __temp_1, x, y
++	isum __temp_2, __temp_1, 4
++	push __temp_2
++	push_int
++	push &quot;x*y+4=&quot;
++	push_string
++	push 2
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_1.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_1.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_1.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,12 @@
++algoritmo exemplo;
++
++vari&#225;veis
++    x: inteiro;
++    y: inteiro;
++fim-vari&#225;veis
++
++in&#237;cio
++    x := 10;
++    y := 20;
++    imprima( &quot;x*y+4=&quot;, x*y+4 );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_2.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_2.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_2.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,33 @@
++// Programa variaveis_2.gasm gerado a partir de variaveis_2.gpt
++program variaveis_2
++
++var v int
++// Procedure main
++proc main
++	var __temp_1 int
++	var __temp_2 int
++	var __temp_3 int
++	var __temp_4 int
++	iset v, 10
++	iset v, v
++	isum __temp_1, 10, 20
++	iset v, __temp_1
++	isum __temp_2, v, 20
++	iset v, __temp_2
++	isum __temp_3, 30, v
++	iset v, __temp_3
++	isum __temp_4, v, v
++	iset v, __temp_4
++	push 10
++	push_int
++	push 1
++	pcall imprima
++	push v
++	push_int
++	push 1
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_2.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_2.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_2.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,15 @@
++algoritmo exemplo;
++
++vari&#225;vel v: inteiro;
++
++in&#237;cio
++    // testes com inteiro
++    v := 10;
++    v := v;
++    v := 10 + 20;
++    v := v + 20;
++    v := 30 + v;
++    v := v + v;
++    imprima( 10 );
++    imprima( v );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_3.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_3.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_3.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,33 @@
++// Programa variaveis_3.gasm gerado a partir de variaveis_3.gpt
++program variaveis_3
++
++var v real
++// Procedure main
++proc main
++	var __temp_1 real
++	var __temp_2 real
++	var __temp_3 real
++	var __temp_4 real
++	rset v, 10.0
++	rset v, v
++	rsum __temp_1, 10.0, 20.0
++	rset v, __temp_1
++	rsum __temp_2, v, 20.0
++	rset v, __temp_2
++	rsum __temp_3, 30.0, v
++	rset v, __temp_3
++	rsum __temp_4, v, v
++	rset v, __temp_4
++	push 10.0
++	push_real
++	push 1
++	pcall imprima
++	push v
++	push_real
++	push 1
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_3.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_3.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_3.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,15 @@
++algoritmo exemplo;
++
++vari&#225;vel v: real;
++
++in&#237;cio
++    // testes com real
++    v := 10.0;
++    v := v;
++    v := 10.0 + 20.0;
++    v := v + 20.0;
++    v := 30.0 + v;
++    v := v + v;
++    imprima( 10.0 );
++    imprima( v );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_4.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_4.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_4.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,33 @@
++// Programa variaveis_4.gasm gerado a partir de variaveis_4.gpt
++program variaveis_4
++
++var v char
++// Procedure main
++proc main
++	var __temp_1 char
++	var __temp_2 char
++	var __temp_3 char
++	var __temp_4 char
++	iset v, 'a'
++	iset v, v
++	isum __temp_1, 'a', 'b'
++	iset v, __temp_1
++	isum __temp_2, v, 'b'
++	iset v, __temp_2
++	isum __temp_3, 'c', v
++	iset v, __temp_3
++	isum __temp_4, v, v
++	iset v, __temp_4
++	push 'a'
++	push_char
++	push 1
++	pcall imprima
++	push v
++	push_char
++	push 1
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_4.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_4.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_4.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,15 @@
++algoritmo exemplo;
++
++vari&#225;vel v: caractere;
++
++in&#237;cio
++    // testes com caractere
++    v := 'a';
++    v := v;
++    v := 'a' + 'b';
++    v := v + 'b';
++    v := 'c' + v;
++    v := v + v;
++    imprima( 'a' );
++    imprima( v );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_5.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_5.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_5.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,33 @@
++// Programa variaveis_5.gasm gerado a partir de variaveis_5.gpt
++program variaveis_5
++
++var v string
++// Procedure main
++proc main
++	var __temp_1 string
++	var __temp_2 string
++	var __temp_3 string
++	var __temp_4 string
++	sset v, &quot;a&quot;
++	sset v, v
++	ssum __temp_1, &quot;a&quot;, &quot;b&quot;
++	sset v, __temp_1
++	ssum __temp_2, v, &quot;b&quot;
++	sset v, __temp_2
++	ssum __temp_3, &quot;c&quot;, v
++	sset v, __temp_3
++	ssum __temp_4, v, v
++	sset v, __temp_4
++	push &quot;aa&quot;
++	push_string
++	push 1
++	pcall imprima
++	push v
++	push_string
++	push 1
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_5.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_5.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_5.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,15 @@
++algoritmo exemplo;
++
++vari&#225;vel v: literal;
++
++in&#237;cio
++    // testes com literal
++    v := &quot;a&quot;;
++    v := v;
++    v := &quot;a&quot; + &quot;b&quot;;
++    v := v + &quot;b&quot;;
++    v := &quot;c&quot; + v;
++    v := v + v;
++    imprima( &quot;aa&quot; );
++    imprima( v );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_6.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_6.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_6.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,26 @@
++// Programa variaveis_6.gasm gerado a partir de variaveis_6.gpt
++program variaveis_6
++
++var v bool
++// Procedure main
++proc main
++	iset v, verdadeiro
++	iset v, falso
++	iset v, v
++	push verdadeiro
++	push_bool
++	push 1
++	pcall imprima
++	push falso
++	push_bool
++	push 1
++	pcall imprima
++	push v
++	push_bool
++	push 1
++	pcall imprima
++	exit_0
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_6.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_6.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_6.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,13 @@
++algoritmo exemplo;
++
++vari&#225;vel v: l&#243;gico;
++
++in&#237;cio
++    // testes com l&#243;gico
++    v := verdadeiro;
++    v := falso;
++    v := v;
++    imprima( verdadeiro );
++    imprima( falso );
++    imprima( v );
++fim
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_7.gasm
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_7.gasm	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_7.gasm	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,26 @@
++// Programa variaveis_7.gasm gerado a partir de variaveis_7.gpt
++program variaveis_7
++
++// Procedure main
++proc main
++	pcall mostra
++	exit_0
++end-proc
++// Fim da procedure
++
++// Procedure mostra
++proc mostra
++	var resultado int
++	var __temp_1 int
++	isum __temp_1, 4, 5
++	iset resultado, __temp_1
++	push resultado
++	push_int
++	push &quot;soma de 4 e 5 &#233;: &quot;
++	push_string
++	push 2
++	pcall imprima
++end-proc
++// Fim da procedure
++
++end-program
+
+Added: trunk/gpt2/test/wikki/checked/variaveis_7.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/checked/variaveis_7.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/checked/variaveis_7.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,12 @@
++algoritmo variavel_local;
++
++in&#237;cio
++    mostra( );
++fim
++
++procedimento mostra( )
++vari&#225;vel resultado: inteiro;
++in&#237;cio
++    resultado := 4 + 5;
++    imprima( &quot;soma de 4 e 5 &#233;: &quot;, resultado );
++fim
+
+Modified: trunk/gpt2/test/wikki/constantes_1.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/constantes_1.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/constantes_1.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -1,6 +1,6 @@
+ algoritmo exemplo;
+ 
+-constante total: inteiro = 100;
++constante total: inteiro := 100;
+ 
+ vari&#225;vel i: inteiro;
+ 
+
+Added: trunk/gpt2/test/wikki/estruturas_condicionais_5.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/estruturas_condicionais_5.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/estruturas_condicionais_5.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,11 @@
++algoritmo exemplo;
++
++vari&#225;vel x : inteiro;
++
++in&#237;cio
++    x := 10;
++    se x &gt;= 20 ent&#227;o
++        x := 2;
++    fim-se
++    imprima( x );
++fim
+
+Modified: trunk/gpt2/test/wikki/estruturas_repeticao_4.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/estruturas_repeticao_4.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/estruturas_repeticao_4.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -7,5 +7,5 @@
+     repita
+         imprima( x );
+         x := x + 1;
+-    enquanto x &lt;= 10
++    at&#233; x &gt; 10
+ fim
+
+Modified: trunk/gpt2/test/wikki/expressoes_matematicas_1.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/expressoes_matematicas_1.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/expressoes_matematicas_1.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -1,6 +1,7 @@
+ algoritmo exemplo;
+ 
+ vari&#225;vel t1: inteiro;
++vari&#225;vel t2: inteiro;
+ 
+ in&#237;cio
+     t1 := 1+2;
+
+Added: trunk/gpt2/test/wikki/expressoes_matematicas_2.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/expressoes_matematicas_2.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/expressoes_matematicas_2.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -0,0 +1,5 @@
++algoritmo exemplo;
++
++in&#237;cio
++    imprima( &quot;2+5*3=&quot;, 2+5*3 );
++fim
+
+Modified: trunk/gpt2/test/wikki/inline_codigo_gptassembly.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/inline_codigo_gptassembly.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/inline_codigo_gptassembly.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -6,8 +6,10 @@
+     x := 10;
+     imprima( x );
+     asm
++    {
+         iset x, 20
+         isum x, x, 80
++    }
+     fim-asm
+     imprima( x );
+ fim
+
+Modified: trunk/gpt2/test/wikki/matrizes_3.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/matrizes_3.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/matrizes_3.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -5,7 +5,7 @@
+ fim
+ 
+ procedimento mostra( )
+-vari&#225;vel resultado: matriz[3] de inteiros;
++vari&#225;vel resultado: matriz[3] do tipo inteiro;
+ in&#237;cio
+     resultado[0] := 10;
+     resultado[1] := 20;
+
+Modified: trunk/gpt2/test/wikki/variaveis_4.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/variaveis_4.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/variaveis_4.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -4,12 +4,12 @@
+ 
+ in&#237;cio
+     // testes com caractere
+-    v3 := 'a';
+-    v3 := v3;
+-    v3 := 'a' + 'b';
+-    v3 := v3 + 'b';
+-    v3 := 'c' + v3;
+-    v3 := v3 + v3;
++    v := 'a';
++    v := v;
++    v := 'a' + 'b';
++    v := v + 'b';
++    v := 'c' + v;
++    v := v + v;
+     imprima( 'a' );
+-    imprima( v3 );
++    imprima( v );
+ fim
+
+Modified: trunk/gpt2/test/wikki/variaveis_7.gpt
+===================================================================
+--- trunk/gpt2/test/wikki/variaveis_7.gpt	2007-11-01 13:42:58 UTC (rev 334)
++++ trunk/gpt2/test/wikki/variaveis_7.gpt	2007-11-05 16:07:40 UTC (rev 335)
+@@ -1,4 +1,4 @@
+-algoritmo vari&#225;vel_local;
++algoritmo variavel_local;
+ 
+ in&#237;cio
+     mostra( );
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000009.html">[gpt-commit] r334 - trunk/gpt2/src/modules/parser
+</A></li>
+	<LI>Next message: <A HREF="000011.html">[gpt-commit] r336 - trunk/gpt2/src/modules/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#10">[ date ]</a>
+              <a href="thread.html#10">[ thread ]</a>
+              <a href="subject.html#10">[ subject ]</a>
+              <a href="author.html#10">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

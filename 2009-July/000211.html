@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r538 - in trunk/gpt: src/modules/c_translator	src/modules/interpreter test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r538%20-%20in%20trunk/gpt%3A%20src/modules/c_translator%0A%09src/modules/interpreter%20test&In-Reply-To=%3C200907112312.n6BNCmO3019403%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000210.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r538 - in trunk/gpt: src/modules/c_translator	src/modules/interpreter test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r538%20-%20in%20trunk/gpt%3A%20src/modules/c_translator%0A%09src/modules/interpreter%20test&In-Reply-To=%3C200907112312.n6BNCmO3019403%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r538 - in trunk/gpt: src/modules/c_translator	src/modules/interpreter test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Sun Jul 12 01:12:48 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000210.html">[gpt-commit] r537 - in trunk/gpt: src/modules/parser	src/modules/x86 test
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#211">[ date ]</a>
+              <a href="thread.html#211">[ thread ]</a>
+              <a href="subject.html#211">[ subject ]</a>
+              <a href="author.html#211">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: adorilson
+Date: 2009-07-12 01:12:35 +0200 (Sun, 12 Jul 2009)
+New Revision: 538
+
+Modified:
+   trunk/gpt/src/modules/c_translator/pt2c.g
+   trunk/gpt/src/modules/interpreter/interpreter.g
+   trunk/gpt/test/tester.gpt
+Log:
+- Implemetacao da estrutura repita nos modulos tradutor para C e interpretador
+
+
+Modified: trunk/gpt/src/modules/c_translator/pt2c.g
+===================================================================
+--- trunk/gpt/src/modules/c_translator/pt2c.g	2009-07-11 01:32:56 UTC (rev 537)
++++ trunk/gpt/src/modules/c_translator/pt2c.g	2009-07-11 23:12:35 UTC (rev 538)
+@@ -639,6 +639,7 @@
+   | stm_ret
+   | stm_se
+   | stm_enquanto
++  | stm_repita
+   | stm_para
+   ;
+ 
+@@ -782,6 +783,28 @@
+     )
+   ;
+ 
++stm_repita
++{
++  production e;
++  stringstream str;
++}
++  :#(T_KW_REPITA
++      {
++        str &lt;&lt; &quot;do{&quot;;
++        writeln(str);
++        indent();
++      }
++      (stm)*
++      e=expr[TIPO_LOGICO]
++      {
++        unindent();
++        str.str(&quot;&quot;); 
++        str &lt;&lt; &quot;}while (! &quot;  &lt;&lt; e.expr.second &lt;&lt; &quot;);&quot;;
++        writeln(str);
++      }
++    )
++  ;
++
+ stm_para
+ {
+   bool haspasso = false;
+
+Modified: trunk/gpt/src/modules/interpreter/interpreter.g
+===================================================================
+--- trunk/gpt/src/modules/interpreter/interpreter.g	2009-07-11 01:32:56 UTC (rev 537)
++++ trunk/gpt/src/modules/interpreter/interpreter.g	2009-07-11 23:12:35 UTC (rev 538)
+@@ -186,6 +186,7 @@
+   | stm_ret
+   | stm_se
+   | stm_enquanto
++  | stm_repita
+   | stm_para
+   ;
+ 
+@@ -303,11 +304,32 @@
+           exec = expr(exprNode).ifTrue();
+           stmNode = first_stm;
+         }
+-        _t = _retTree;
+       }
+     )
+   ;
+ 
++stm_repita
++{
++  ExprValue e;
++  bool exec;
++  RefPortugolAST exprNode, first_stm, stmNode;
++}
++  : #(rep:T_KW_REPITA
++      {
++        stmNode = first_stm = _t;
++        do{
++          while(stmNode-&gt;getNextSibling() != antlr::nullAST) {
++            stm(stmNode);
++		        stmNode = stmNode-&gt;getNextSibling();
++		      }
++          exprNode = stmNode;
++		      exec = expr(exprNode).ifTrue();
++		      stmNode = first_stm;
++        }while(!exec);
++      }
++    )
++  ;
++
+ stm_para
+ {
+   ExprValue de, ate;
+@@ -351,7 +373,6 @@
+           //lv deve ter um valor a mais do que at&#233; (ou a menos, se loop decrescente).
+           //setar o valor de lv para valor de ate
+           interpreter.execAttribution(lv, ate);
+-          _t = _retTree;
+         }
+     )
+   ;
+
+Modified: trunk/gpt/test/tester.gpt
+===================================================================
+--- trunk/gpt/test/tester.gpt	2009-07-11 01:32:56 UTC (rev 537)
++++ trunk/gpt/test/tester.gpt	2009-07-11 23:12:35 UTC (rev 538)
+@@ -66,7 +66,7 @@
+     imprima(&quot;testar_inicializacao: local &lt;&gt; 0&quot;);
+   fim-se
+ 
+-  para local de 0  1 fa&#231;a  
++  para local de 0 at&#233; 1 fa&#231;a  
+     se mat[local] &lt;&gt; 0 ent&#227;o
+       imprima(&quot;testar_inicializacao: mat[&quot;,local,&quot;] &lt;&gt; 0&quot;);
+     fim-se
+@@ -464,6 +464,9 @@
+ 
+   repita
+     z := z + 1;
++    se z&gt;10 ent&#227;o
++      imprima(&quot;testar_repita: z &lt;&gt; 10. la&#231;o infinito&quot;);
++    fim-se  
+   at&#233; z=10;
+ 
+   se z &lt;&gt; 10 ent&#227;o
+@@ -472,10 +475,10 @@
+ 
+   repita
+     z := z - 1;
+-  at&#233; z&lt;5;
++  at&#233; z&lt;=5;
+ 
+-  se z &gt;= 5 ent&#227;o
+-    imprima(&quot;testar_repita: z &gt;= 5&quot;);
++  se z &gt; 5 ent&#227;o
++    imprima(&quot;testar_repita: z &gt; 5&quot;);
+   fim-se
+ 
+   repita
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000210.html">[gpt-commit] r537 - in trunk/gpt: src/modules/parser	src/modules/x86 test
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#211">[ date ]</a>
+              <a href="thread.html#211">[ thread ]</a>
+              <a href="subject.html#211">[ subject ]</a>
+              <a href="author.html#211">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

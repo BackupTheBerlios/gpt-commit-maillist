@@ -1,0 +1,373 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r410 - in trunk/gpt2: gptasm/test/wikki gptvm/src	gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r410%20-%20in%20trunk/gpt2%3A%20gptasm/test/wikki%20gptvm/src%0A%09gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712041410.lB4EAn81001521%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000083.html">
+   <LINK REL="Next"  HREF="000085.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r410 - in trunk/gpt2: gptasm/test/wikki gptvm/src	gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r410%20-%20in%20trunk/gpt2%3A%20gptasm/test/wikki%20gptvm/src%0A%09gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712041410.lB4EAn81001521%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r410 - in trunk/gpt2: gptasm/test/wikki gptvm/src	gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Dec  4 15:10:49 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000083.html">[gpt-commit] r409 - in trunk/gpt2: gptasm/test/wikki gptvm/src
+</A></li>
+        <LI>Next message: <A HREF="000085.html">[gpt-commit] r411 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-04 15:10:49 +0100 (Tue, 04 Dec 2007)
+New Revision: 410
+
+Added:
+   trunk/gpt2/gptasm/test/wikki/matrizes_1.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm
+Modified:
+   trunk/gpt2/gptvm/src/CDataStack.cpp
+   trunk/gpt2/gptvm/src/CDataStack.hpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_1.gvm
+Log:
+DEVNULL:
+* Suporte a matrizes de uma dimensao (vetores) parcialmente implementado
+  - Falta o opcode popmv
+
+
+Added: trunk/gpt2/gptasm/test/wikki/matrizes_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_1.gasm	2007-12-04 11:57:22 UTC (rev 409)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_1.gasm	2007-12-04 14:10:49 UTC (rev 410)
+@@ -0,0 +1,59 @@
++program exemplo
++
++var m matrix
++var i int
++
++proc main
++    var t1 int
++
++    // aloca espa&#231;o para a matriz m
++    // m armazena dados de 4 bytes e tem 10 elementos iniciais
++    m1alloc m, 4, 10
++
++    // para i de 0 at&#233; 9 fa&#231;a
++    iset i, 0
++    teste:
++    ile t1, i, 9
++    ifnot t1, proximo
++
++    // m[i] := i * 10;
++    imul t1, i, 10
++    m1set m, i, t1
++
++    // fim-para
++    iinc i, 1
++    jmp teste
++    proximo:
++
++    // imprima( &quot;Valores armazenados:&quot; );
++    pushsv &quot;Valores armazenados:&quot;
++    pushst
++    push_1
++    lcall imprima
++
++    // para i de 0 at&#233; 9 fa&#231;a
++    iset i, 0
++    teste2:
++    ile t1, i, 9
++    ifnot t1, proximo2
++
++    // imprima( m[i] );
++    m1get t1, m, i
++    pushiv t1
++    pushit
++    push_1
++    lcall imprima
++
++    // fim-para
++    iinc i, 1
++    jmp teste2
++    proximo2:
++
++    // desaloca espa&#231;o da matriz m
++    mfree m
++
++    exit_0
++endproc
++
++endprogram
++
+
+Added: trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm	2007-12-04 11:57:22 UTC (rev 409)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm	2007-12-04 14:10:49 UTC (rev 410)
+@@ -0,0 +1,69 @@
++program exemplo
++
++var m matrix
++var i int
++
++proc main
++    var t1 int
++
++    // aloca espa&#231;o para a matriz m
++    // m armazena dados de 4 bytes e tem 10 elementos iniciais
++    m1alloc m, 4, 10
++
++    // para i de 0 at&#233; 9 fa&#231;a
++    iset i, 0
++    teste:
++    ile t1, i, 9
++    ifnot t1, proximo
++
++    // m[i] := i * 10;
++    imul t1, i, 10
++    m1set m, i, t1
++
++    // fim-para
++    iinc i, 1
++    jmp teste
++    proximo:
++
++    pushmv m
++    pcall mostra
++
++    // desaloca espa&#231;o da matriz m
++    mfree m
++
++    exit_0
++endproc
++
++proc mostra
++    param mat matrix
++    var t1 int
++
++    // imprima( &quot;Valores armazenados:&quot; );
++    pushsv &quot;Valores armazenados:&quot;
++    pushst
++    push_1
++    lcall imprima
++
++    // para i de 0 at&#233; 9 fa&#231;a
++    iset i, 0
++    teste2:
++    ile t1, i, 9
++    ifnot t1, proximo2
++
++    // imprima( mat[i] );
++    m1get t1, mat, i
++    pushiv t1
++    pushit
++    push_1
++    lcall imprima
++
++    // fim-para
++    iinc i, 1
++    jmp teste2
++    proximo2:
++
++    ret
++endproc
++
++endprogram
++
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-04 11:57:22 UTC (rev 409)
++++ trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-04 14:10:49 UTC (rev 410)
+@@ -271,3 +271,14 @@
+       return CBinString::getByte(realAddress(address));
+    }
+ }
++
++
++void *CDataStack::getPointer(const int &amp;address)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      return (void*)(data() + _BS + realAddress(address));
++   } else {
++      return (void*)(data() + realAddress(address));
++   }
++}
++
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-04 11:57:22 UTC (rev 409)
++++ trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-04 14:10:49 UTC (rev 410)
+@@ -35,6 +35,7 @@
+    char getByte(const int &amp;address);
+    void pushByte(const char &amp;value);
+    char popByte();
++   void *getPointer(const int &amp;address);
+ private:
+    int _BS;
+    int _SP; // TODO: SP eh equivalente a size() ???
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-04 11:57:22 UTC (rev 409)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-04 14:10:49 UTC (rev 410)
+@@ -1056,7 +1056,21 @@
+ 
+ void CRunBytecode::popmvOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;popmv opcode&quot;);
++
++   char *matrix    = (char*) _dataStack.getInt(_code.fetchInt());
++
++   char *retMatrix = (char*) _dataStack.popInt();
++   int elementSize = *((int*)(retMatrix+0));
++   int elements    = *((int*)(retMatrix+sizeof(int)));
++
++   int size = sizeof(int) + sizeof(int) + elements*elementSize;
++   if (matrix) {
++      delete []matrix;
++   }
++   matrix = new char[size];
++   memcpy(matrix, retMatrix, size);
++   delete []retMatrix;
+ }
+ 
+ void CRunBytecode::incspOpcode()
+@@ -1201,7 +1215,16 @@
+ 
+ void CRunBytecode::pushmvOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;pushmv opcode&quot;);
++
++   char *matrix    = (char*) _dataStack.getInt(_code.fetchInt());
++   int elementSize = *((int*)(matrix+0));
++   int elements    = *((int*)(matrix+sizeof(int)));
++
++   int size = sizeof(int) + sizeof(int) + elements*elementSize;
++   char *newMatrix = new char[size]; // TODO: memory leak
++   memcpy(newMatrix, matrix, size);
++   _dataStack.pushInt((int)newMatrix);
+ }
+ 
+ void CRunBytecode::pushstOpcode()
+@@ -1340,7 +1363,21 @@
+ 
+ void CRunBytecode::m1allocOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;m1alloc opcode&quot;);
++
++   // Header dos dados de uma matriz de uma linha:
++   // int (tamanho de cada elemento armazenado)
++   // int (numero de elementos)
++   // bytes (area sequencial para armazenar os dados)
++
++   int matrixAddress = _code.fetchInt();
++   int elementSize   = _dataStack.getInt(_code.fetchInt());
++   int elements      = _dataStack.getInt(_code.fetchInt());
++
++   char *matrix = new char[sizeof(int)+sizeof(int)+elementSize*elements];
++   *((int*)(matrix+0))           = elementSize;
++   *((int*)(matrix+sizeof(int))) = elements;
++   _dataStack.setInt(matrixAddress, (int)matrix);
+ }
+ 
+ void CRunBytecode::m2allocOpcode()
+@@ -1350,17 +1387,44 @@
+ 
+ void CRunBytecode::mfreeOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;mfree opcode&quot;);
++
++   int matrixAddress = _code.fetchInt();
++
++   char *matrix = (char*) _dataStack.getInt(matrixAddress);
++
++   delete []matrix;
++   _dataStack.setInt(matrixAddress, 0);
+ }
+ 
+ void CRunBytecode::m1setOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;m1set opcode&quot;);
++
++   char *matrix     = (char*) _dataStack.getInt(_code.fetchInt());
++   int offset       = _dataStack.getInt(_code.fetchInt());
++   int valueAddress = _code.fetchInt();
++
++   int elementSize = *((int*)(matrix+0));
++//   int elements    = *((int*)(matrix+sizeof(int)));
++   char *data      = matrix + sizeof(int) + sizeof(int);
++   data += offset * elementSize;
++   memcpy(data, _dataStack.getPointer(valueAddress), elementSize);
+ }
+ 
+ void CRunBytecode::m1getOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;m1get opcode&quot;);
++
++   int resultAddress = _code.fetchInt();
++   char *matrix      = (char*) _dataStack.getInt(_code.fetchInt());
++   int offset        = _dataStack.getInt(_code.fetchInt());
++
++   int elementSize = *((int*)(matrix+0));
++//   int elements    = *((int*)(matrix+sizeof(int)));
++   char *data      = matrix + sizeof(int) + sizeof(int);
++   data += offset * elementSize;
++   memcpy(_dataStack.getPointer(resultAddress), data, elementSize);
+ }
+ 
+ void CRunBytecode::m2setOpcode()
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_1.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000083.html">[gpt-commit] r409 - in trunk/gpt2: gptasm/test/wikki gptvm/src
+</A></li>
+	<LI>Next message: <A HREF="000085.html">[gpt-commit] r411 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

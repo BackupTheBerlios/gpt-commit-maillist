@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r394 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r394%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711270305.lAR35ZWg001873%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000067.html">
+   <LINK REL="Next"  HREF="000069.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r394 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r394%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711270305.lAR35ZWg001873%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r394 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Nov 27 04:05:35 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000067.html">[gpt-commit] r393 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000069.html">[gpt-commit] r395 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#68">[ date ]</a>
+              <a href="thread.html#68">[ thread ]</a>
+              <a href="subject.html#68">[ subject ]</a>
+              <a href="author.html#68">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-27 04:05:35 +0100 (Tue, 27 Nov 2007)
+New Revision: 394
+
+Modified:
+   trunk/gpt2/gptc/src/Symbol.cpp
+   trunk/gpt2/gptc/src/Symbol.hpp
+Log:
+-Atualizacao de nomes de tipos, de acordo com modificacoes em Types.hpp
+
+Modified: trunk/gpt2/gptc/src/Symbol.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Symbol.cpp	2007-11-27 03:05:16 UTC (rev 393)
++++ trunk/gpt2/gptc/src/Symbol.cpp	2007-11-27 03:05:35 UTC (rev 394)
+@@ -55,8 +55,8 @@
+   return end();
+ }
+ 
+-std::list&lt;StructType::Field&gt; SymbolList::toStructFieldList() const {
+-  std::list&lt;StructType::Field&gt; fields;
++StructType::FieldList SymbolList::toStructFieldList() const {
++  StructType::FieldList fields;
+ 
+   for (const_iterator it = begin(); it != end(); ++it) {
+     fields.push_back(StructType::Field((*it).lexeme(), (*it).type()));
+
+Modified: trunk/gpt2/gptc/src/Symbol.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Symbol.hpp	2007-11-27 03:05:16 UTC (rev 393)
++++ trunk/gpt2/gptc/src/Symbol.hpp	2007-11-27 03:05:35 UTC (rev 394)
+@@ -39,7 +39,7 @@
+ public:
+   const_iterator duplicated() const;
+ 
+-  std::list&lt;StructType::Field&gt; toStructFieldList() const;
++  StructType::FieldList toStructFieldList() const;
+ 
+   TypeList toTypeList() const;
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000067.html">[gpt-commit] r393 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000069.html">[gpt-commit] r395 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#68">[ date ]</a>
+              <a href="thread.html#68">[ thread ]</a>
+              <a href="subject.html#68">[ subject ]</a>
+              <a href="author.html#68">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r480 - trunk/gpt/src/modules/x86
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r480%20-%20trunk/gpt/src/modules/x86&In-Reply-To=%3C200803130413.m2D4DTN6000939%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000152.html">
+   <LINK REL="Next"  HREF="000154.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r480 - trunk/gpt/src/modules/x86</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r480%20-%20trunk/gpt/src/modules/x86&In-Reply-To=%3C200803130413.m2D4DTN6000939%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r480 - trunk/gpt/src/modules/x86">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Mar 13 05:13:29 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000152.html">[gpt-commit] r479 - trunk/gpt/doc/man
+</A></li>
+        <LI>Next message: <A HREF="000154.html">[gpt-commit] r481 - trunk/gpt/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#153">[ date ]</a>
+              <a href="thread.html#153">[ thread ]</a>
+              <a href="subject.html#153">[ subject ]</a>
+              <a href="author.html#153">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-03-13 05:13:28 +0100 (Thu, 13 Mar 2008)
+New Revision: 480
+
+Modified:
+   trunk/gpt/src/modules/x86/asm_lib.h
+Log:
+-Fix label sem ':'
+
+Modified: trunk/gpt/src/modules/x86/asm_lib.h
+===================================================================
+--- trunk/gpt/src/modules/x86/asm_lib.h	2008-03-13 03:44:50 UTC (rev 479)
++++ trunk/gpt/src/modules/x86/asm_lib.h	2008-03-13 04:13:28 UTC (rev 480)
+@@ -38,31 +38,31 @@
+ &quot;    \n&quot;
+ &quot;    jmp .footer\n&quot;
+ &quot;\n&quot;
+-&quot;      .imp_inteiro\n&quot;
++&quot;      .imp_inteiro:\n&quot;
+ &quot;        addarg edx\n&quot;
+ &quot;        call imprima_inteiro\n&quot;
+ &quot;        clargs 1\n&quot;
+ &quot;        jmp .footer\n&quot;
+ &quot;\n&quot;
+-&quot;      .imp_real\n&quot;
++&quot;      .imp_real:\n&quot;
+ &quot;        addarg edx\n&quot;
+ &quot;        call imprima_real\n&quot;
+ &quot;        clargs 1\n&quot;
+ &quot;        jmp .footer\n&quot;
+ &quot;  \n&quot;
+-&quot;      .imp_caractere\n&quot;
++&quot;      .imp_caractere:\n&quot;
+ &quot;        addarg edx\n&quot;
+ &quot;        call imprima_caractere\n&quot;
+ &quot;        clargs 1\n&quot;
+ &quot;        jmp .footer\n&quot;
+ &quot;  \n&quot;
+-&quot;      .imp_literal\n&quot;
++&quot;      .imp_literal:\n&quot;
+ &quot;        addarg edx\n&quot;
+ &quot;        call imprima_literal\n&quot;
+ &quot;        clargs 1\n&quot;
+ &quot;        jmp .footer\n&quot;
+ &quot;  \n&quot;
+-&quot;      .imp_logico\n&quot;
++&quot;      .imp_logico:\n&quot;
+ &quot;        addarg edx\n&quot;
+ &quot;        call imprima_logico\n&quot;
+ &quot;        clargs 1\n&quot;
+@@ -89,7 +89,7 @@
+ &quot;    clargs 1\n&quot;
+ &quot;\n&quot;
+ &quot;\n&quot;
+-&quot;    .end\n&quot;
++&quot;    .end:\n&quot;
+ &quot;      return\n&quot;
+ &quot;    %undef string\n&quot;
+ &quot;\n&quot;
+@@ -212,7 +212,7 @@
+ &quot;\n&quot;
+ &quot;    return\n&quot;
+ &quot;\n&quot;
+-&quot;    .notfound\n&quot;
++&quot;    .notfound:\n&quot;
+ &quot;      mov eax, -1\n&quot;
+ &quot;      return\n&quot;
+ &quot;\n&quot;
+@@ -292,14 +292,14 @@
+ &quot;\n&quot;
+ &quot;    jmp .conv\n&quot;
+ &quot;\n&quot;
+-&quot;    .negative\n&quot;
++&quot;    .negative:\n&quot;
+ &quot;      mov dword [negt], 1\n&quot;
+ &quot;      mov eax, [string]\n&quot;
+ &quot;      inc eax\n&quot;
+ &quot;      mov [string], eax\n&quot;
+ &quot;      jmp .conv\n&quot;
+ &quot;\n&quot;
+-&quot;    .positive\n&quot;
++&quot;    .positive:\n&quot;
+ &quot;      mov dword [negt], 0\n&quot;
+ &quot;      mov eax, [string]\n&quot;
+ &quot;      inc eax\n&quot;
+@@ -371,11 +371,11 @@
+ &quot;    neg eax\n&quot;
+ &quot;    return\n&quot;
+ &quot;   \n&quot;
+-&quot;    .return_pos\n&quot;
++&quot;    .return_pos:\n&quot;
+ &quot;      mov eax, [num]\n&quot;
+ &quot;      return\n&quot;
+ &quot;\n&quot;
+-&quot;    .ret_zero\n&quot;
++&quot;    .ret_zero:\n&quot;
+ &quot;      mov eax, 0\n&quot;
+ &quot;      return\n&quot;
+ &quot;\n&quot;
+@@ -537,7 +537,7 @@
+ &quot;    \n&quot;
+ &quot;    mov ecx, 0\n&quot;
+ &quot;    mov eax, [num] \n&quot;
+-&quot;    .trans\n&quot;
++&quot;    .trans:\n&quot;
+ &quot;      mov ebx, 10\n&quot;
+ &quot;      mov edx, 0\n&quot;
+ &quot;      idiv ebx   \n&quot;
+@@ -557,9 +557,9 @@
+ &quot;      jmp .endif1\n&quot;
+ &quot;    .else1:\n&quot;
+ &quot;      mov edx, 0 \n&quot;
+-&quot;    .endif1\n&quot;
++&quot;    .endif1:\n&quot;
+ &quot;    \n&quot;
+-&quot;    .reorder\n&quot;
++&quot;    .reorder:\n&quot;
+ &quot;      pop eax\n&quot;
+ &quot;      mov ebx, [buffer]\n&quot;
+ &quot;      mov [ebx+edx], eax \n&quot;
+@@ -784,7 +784,7 @@
+ &quot;\n&quot;
+ &quot;    mov [ebx], byte 0\n&quot;
+ &quot;\n&quot;
+-&quot;  .end\n&quot;
++&quot;  .end:\n&quot;
+ &quot;    return\n&quot;
+ &quot;\n&quot;
+ &quot;    %undef BIAS\n&quot;
+@@ -1012,7 +1012,7 @@
+ &quot;    mov eax, 1\n&quot;
+ &quot;    return\n&quot;
+ &quot;\n&quot;
+-&quot;  .false\n&quot;
++&quot;  .false:\n&quot;
+ &quot;    mov eax, 0 \n&quot;
+ &quot;    return\n&quot;
+ &quot;\n&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000152.html">[gpt-commit] r479 - trunk/gpt/doc/man
+</A></li>
+	<LI>Next message: <A HREF="000154.html">[gpt-commit] r481 - trunk/gpt/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#153">[ date ]</a>
+              <a href="thread.html#153">[ thread ]</a>
+              <a href="subject.html#153">[ subject ]</a>
+              <a href="author.html#153">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

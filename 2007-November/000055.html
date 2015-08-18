@@ -1,0 +1,2298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r381 - in trunk/gpt2: common/src gptasm/src	gptasm/test gptasm/test/wikki gptvm/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r381%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test%20gptasm/test/wikki%20gptvm/src&In-Reply-To=%3C200711221545.lAMFjxiw018911%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000054.html">
+   <LINK REL="Next"  HREF="000056.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r381 - in trunk/gpt2: common/src gptasm/src	gptasm/test gptasm/test/wikki gptvm/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r381%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test%20gptasm/test/wikki%20gptvm/src&In-Reply-To=%3C200711221545.lAMFjxiw018911%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r381 - in trunk/gpt2: common/src gptasm/src	gptasm/test gptasm/test/wikki gptvm/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Nov 22 16:45:59 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000054.html">[gpt-commit] r380 - in trunk/gpt2/gptc: . src
+</A></li>
+        <LI>Next message: <A HREF="000056.html">[gpt-commit] r382 - in trunk/gpt2: common/src gptasm/src gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#55">[ date ]</a>
+              <a href="thread.html#55">[ thread ]</a>
+              <a href="subject.html#55">[ subject ]</a>
+              <a href="author.html#55">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-22 16:45:54 +0100 (Thu, 22 Nov 2007)
+New Revision: 381
+
+Added:
+   trunk/gpt2/gptvm/src/CBytecode.cpp
+   trunk/gpt2/gptvm/src/CBytecode.hpp
+Modified:
+   trunk/gpt2/common/src/CBinString.cpp
+   trunk/gpt2/common/src/CBinString.hpp
+   trunk/gpt2/common/src/CCode.cpp
+   trunk/gpt2/common/src/CCode.hpp
+   trunk/gpt2/common/src/CData.cpp
+   trunk/gpt2/common/src/CData.hpp
+   trunk/gpt2/common/src/CSymbol.hpp
+   trunk/gpt2/common/src/CSymbolList.cpp
+   trunk/gpt2/common/src/CSymbolList.hpp
+   trunk/gpt2/common/src/CSymbolTable.cpp
+   trunk/gpt2/common/src/CSymbolTable.hpp
+   trunk/gpt2/common/src/Common.hpp
+   trunk/gpt2/gptasm/src/CGenBytecode.cpp
+   trunk/gpt2/gptasm/src/CGenBytecode.hpp
+   trunk/gpt2/gptasm/src/parser.g
+   trunk/gpt2/gptasm/test/asm.sh
+   trunk/gpt2/gptasm/test/asm_all.sh
+   trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm
+   trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/src/Makefile
+Log:
+DEVNULL
+* Refactoring em varias classes
+* Novos opcodes implementados na VM
+* Funcionando &quot;Hello world !!!&quot;, alguns calculos matematicos e 
+  estruturas de repeticao
+
+
+Modified: trunk/gpt2/common/src/CBinString.cpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.cpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CBinString.cpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -2,7 +2,20 @@
+ 
+ #include &quot;CBinString.hpp&quot;
+ 
++// TODO: versoes BEM mais otimizadas :-)
++//int CData::getInt(const int &amp;address)
++//{
++//   int *ret = (int*)&amp;(_data[address]);
++//   return *ret;
++//}
++//void CData::setInt(const int &amp;address, const int &amp;value)
++//{
++//   int *targetAddress = (int*)&amp;(_data[address]);
++//
++//   *targetAddress = value;
++//}
+ 
++
+ void CBinString::writeInt(const int &amp;value)
+ {
+    char *byte = (char*)&value;
+@@ -67,6 +80,28 @@
+ }
+ 
+ 
++char CBinString::getByte(const int &amp;pos)
++{
++   return (*this)[pos];
++}
++
++void CBinString::getByte(const int &amp;pos, char &amp;value)
++{
++   value = getByte(pos);
++}
++
++int CBinString::getInt(int pos)
++{
++   int result = 0;
++   char *byte = (char*)&result;
++
++   for( size_t i = 0; i &lt; sizeof(int); i++) {
++      *byte++ = (*this)[pos++];
++   }
++   return result;
++}
++
++
+ void CBinString::readString(std::string &amp;value)
+ {
+    int size;
+@@ -77,6 +112,17 @@
+ }
+ 
+ 
++std::string CBinString::readString()
++{
++   std::string result;
++   int size;
++   readInt(size);
++   result=substr(0, size);
++   erase(0, size);
++   return result;
++}
++
++
+ void CBinString::readBool(bool &amp;value)
+ {
+    char byte;
+@@ -87,6 +133,19 @@
+ }
+ 
+ 
++void CBinString::setInt(int pos, const int &amp;value)
++{
++   char *byte = (char*)&value;
++
++   for( size_t i = 0; i &lt; sizeof(int); i++) {
++      (*this)[pos++] = *byte++;
++   }
++   // TODO: BEM mais eficiente...
++   // int *targetAddress = (int*)&amp;(_data[address]);
++   //*targetAddress = value;
++}
++
++
+ bool CBinString::removeIfEqual(const int &amp;value)
+ {
+    // TODO: nao ta correto pq sempre retira...
+
+Modified: trunk/gpt2/common/src/CBinString.hpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.hpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CBinString.hpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -13,11 +13,17 @@
+    void writeBool(const bool &amp;value);
+    void readInt(int &amp;value);
+    void readByte(char &amp;value);
++   char getByte(const int &amp;pos);
++   void getByte(const int &amp;pos, char &amp;value);
++   int getInt(int pos);
+    void readString(std::string &amp;value);
++   std::string readString();
+    void readBool(bool &amp;value);
++   void setInt(int pos, const int &amp;value);
+    bool removeIfEqual(const int &amp;value);
+    bool removeIfEqual(const char &amp;value);
+    bool removeIfEqual(const std::string &amp;value);
++   std::string::find;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/common/src/CCode.cpp
+===================================================================
+--- trunk/gpt2/common/src/CCode.cpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CCode.cpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -1,61 +1,2 @@
+ #include &quot;CCode.hpp&quot;
+ 
+-
+-CCode::CCode()
+-{
+-}
+-
+-
+-CCode::~CCode()
+-{
+-}
+-
+-
+-void CCode::addByte(const char &amp;code)
+-{
+-   _data += code;
+-}
+-
+-
+-void CCode::addInt(const int &amp;code)
+-{
+-   const char *byte = (const char*) &code;
+-
+-   for (size_t i = 0; i &lt; sizeof(int); i++) {
+-      _data += *byte;
+-      byte++;
+-   }
+-}
+-
+-
+-int CCode::size() const
+-{
+-   return _data.size();
+-}
+-
+-
+-CBinString CCode::getBinary() const
+-{
+-   return _data;
+-}
+-
+-
+-bool CCode::readFromBinary(CBinString &amp;bin)
+-{
+-   bin.readString(_data);
+-   return true;
+-}
+-
+-
+-char CCode::getByte(const int &amp;pos)
+-{
+-   return _data[pos];
+-}
+-
+-
+-int CCode::getInt(const int &amp;pos)
+-{
+-   int *ret = (int*)&amp;(_data[pos]);
+-   return *ret;
+-}
+-
+
+Modified: trunk/gpt2/common/src/CCode.hpp
+===================================================================
+--- trunk/gpt2/common/src/CCode.hpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CCode.hpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -7,20 +7,10 @@
+ #include &quot;CBinString.hpp&quot;
+ 
+ 
+-class CCode
++class CCode : public CBinString
+ {
+ public:
+-   CCode();
+-   ~CCode();
+-   void addByte(const char &amp;code);
+-   void addInt(const int &amp;code);
+-   int size() const;
+-   CBinString getBinary() const;
+-   bool readFromBinary(CBinString &amp;bin);
+-   char getByte(const int &amp;pos);
+-   int getInt(const int &amp;pos);
+ private:
+-   CBinString _data;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/common/src/CData.cpp
+===================================================================
+--- trunk/gpt2/common/src/CData.cpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CData.cpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -19,12 +19,6 @@
+ }
+ 
+ 
+-//CSymbol* CData::add(const std::string &amp;name, const int &amp;category, const int &amp;type, const int &amp;address)
+-//{
+-//   return CSymbolList::add( name, category, type, address, 0 ); // TODO: nao eh zero...
+-//}
+-
+-
+ CSymbol* CData::addVariable (const std::string &amp;name, const int &amp;type, const int &amp;address)
+ {
+    CSymbol *symbol = new CSymbol (name, type, CSymbol::VAR, address);
+@@ -34,7 +28,7 @@
+    //_data += symbol-&gt;getBinary();
+    for (int i=0; i &lt; symbol-&gt;getTypeSize(); i++) {
+       // TODO: horrivel :-)
+-      _data.writeByte (' ');
++      writeByte (' ');
+    }
+ 
+    return symbol;
+@@ -49,47 +43,25 @@
+ 
+    //_data += symbol-&gt;getBinary();
+    if (type == CSymbol::STRING) {
+-      _data.writeString(name, false);
++      writeString(name, false);
+    } else if (type == CSymbol::INT) {
+-      _data.writeInt(atoi(name.c_str()));
++      writeInt(atoi(name.c_str()));
+    }
+ 
+    return symbol;
+ }
+ 
+ 
+-bool CData::readFromBinary(CBinString &amp;bin)
+-{
+-   bin.readString(_data);
+-   return true;
+-}
+-
+-
+ std::string CData::getString(const int &amp;address)
+ {
+    int pos = 0;
+ 
+-   pos = _data.find('\0', address);
++   pos = find('\0', address);
+ 
+    if (pos == -1) {
+       abort();
+    }
+ 
+-   return _data.substr(address, pos - address);
++   return substr(address, pos - address);
+ }
+ 
+-
+-int CData::getInt(const int &amp;address)
+-{
+-   int *ret = (int*)&amp;(_data[address]);
+-   return *ret;
+-}
+-
+-
+-void CData::setInt(const int &amp;address, const int &amp;value)
+-{
+-   int *targetAddress = (int*)&amp;(_data[address]);
+-
+-   *targetAddress = value;
+-}
+-
+
+Modified: trunk/gpt2/common/src/CData.hpp
+===================================================================
+--- trunk/gpt2/common/src/CData.hpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CData.hpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -17,8 +17,6 @@
+    CSymbol* addConstant (const std::string &amp;name, const int &amp;type, const int &amp;address);
+    bool readFromBinary(CBinString &amp;bin);
+    std::string getString(const int &amp;address);
+-   int getInt(const int &amp;address);
+-   void setInt(const int &amp;address, const int &amp;value);
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/common/src/CSymbol.hpp
+===================================================================
+--- trunk/gpt2/common/src/CSymbol.hpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CSymbol.hpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -22,7 +22,8 @@
+       CHAR = 'C',
+       BOOL = 'B',
+       REAL = 'R',
+-      MATRIX = 'M'
++      MATRIX = 'M',
++      POINTER = 'P'
+    };
+    CSymbol ();
+    CSymbol (const std::string &amp;name, const char &amp;type, const char &amp;category,
+@@ -35,10 +36,6 @@
+    {
+       return _name;
+    }
+-   CBinString getBinary() const
+-   {
+-      return _data;
+-   }
+    int getTypeSize() const;
+    char getType() const
+    {
+@@ -65,8 +62,6 @@
+    {
+       return _parameters;
+    }
+-protected:
+-   CBinString           _data;
+ private:
+    std::string          _name;
+    char                 _type;
+
+Modified: trunk/gpt2/common/src/CSymbolList.cpp
+===================================================================
+--- trunk/gpt2/common/src/CSymbolList.cpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CSymbolList.cpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -1,7 +1,7 @@
+ #include &quot;CSymbolList.hpp&quot;
+ 
+ 
+-CSymbolList::CSymbolList() //: _size(0)
++CSymbolList::CSymbolList()
+ {
+ }
+ 
+@@ -15,7 +15,10 @@
+ {
+    _symbols.push_back(symbol);
+ 
+-   _data += symbol-&gt;getBinary();
++//   Este metodo esta sendo utilizado durante a leitura do binario. Mas durante a leitura nao eh
++//   mais necessario popular &quot;_data&quot;. Com isso symbol-&gt;getBinary pode ser descartado junto com
++//   varios outros metodos/propriedades
++//   (*this) += symbol-&gt;getBinary();
+    return symbol;
+ }
+ 
+
+Modified: trunk/gpt2/common/src/CSymbolList.hpp
+===================================================================
+--- trunk/gpt2/common/src/CSymbolList.hpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CSymbolList.hpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -8,9 +8,10 @@
+ #include &lt;stdlib.h&gt;
+ 
+ #include &quot;CSymbol.hpp&quot;
++#include &quot;CBinString.hpp&quot;
+ 
+ 
+-class CSymbolList
++class CSymbolList : public CBinString
+ {
+ public:
+    CSymbolList();
+@@ -20,22 +21,18 @@
+    int getAddress( const std::string &amp;name );
+    CSymbol* getSymbol(const std::string &amp;name);
+    std::vector&lt;CSymbol*&gt;::iterator find(const std::string &amp;name);
+-   CBinString getBinary() const
+-   {
+-      return _data;
+-   }
+    int getDataSize() const
+    {
+-      return _data.size();
++      return size();
+    }
+    int getSymbolsCount() const
+    {
+       return _symbols.size();
+    }
+    bool readFromBinary(CBinString &amp;bin);
++   CBinString::find;
+ protected:
+    std::vector&lt;CSymbol*&gt; _symbols;
+-   CBinString _data;
+ private:
+ };
+ 
+
+Modified: trunk/gpt2/common/src/CSymbolTable.cpp
+===================================================================
+--- trunk/gpt2/common/src/CSymbolTable.cpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CSymbolTable.cpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -20,12 +20,12 @@
+    // Endere&#231;o 0123 (code), procedure, sem retorno, nome &quot;p1&quot;,
+    // sem argumentos vari&#225;veis, 2 par&#226;metros fixos, p1 (int) e p2 (string)
+    // 0024: 0123 P N 2 &quot;p1&quot; N 2 I 4 2 &quot;p1&quot; S 30 2 &quot;p2&quot;
+-   _data.writeInt( address );
+-   _data.writeByte( CSymbol::PROC ); // procedure
+-   _data.writeByte( type ); // tipo do retorno // TODO: em asm proc tem retorno ???
+-   _data.writeString( name ); // nome da procedure
+-   _data.writeBool( hasVarArguments );
+-   _data.writeByte( staticParameters );
++   writeInt( address );
++   writeByte( CSymbol::PROC ); // procedure
++   writeByte( type ); // tipo do retorno // TODO: em asm proc tem retorno ???
++   writeString( name ); // nome da procedure
++   writeBool( hasVarArguments );
++   writeByte( staticParameters );
+    // TODO: falta argumentos
+ 
+    return symbol;
+@@ -52,15 +52,32 @@
+ 
+    // Endere&#231;o 0000 (data), constante, string, 8 bytes ???, nome &quot;c1&quot;
+    // 0000: 0000 C S 8??? 2 &quot;c1&quot;
+-   _data.writeInt( address );
+-   _data.writeByte( CSymbol::CONST ); // categoria: constante
+-   _data.writeByte( type );           // tipo
+-   _data.writeString( name );         // nome da constante
++   writeInt( address );
++   writeByte( CSymbol::CONST ); // categoria: constante
++   writeByte( type );           // tipo
++   writeString( name );         // nome da constante
+ 
+    return symbol;
+ }
+ 
+ 
++CSymbol* CSymbolTable::addVariable (const std::string &amp;name, const int &amp;type, const int &amp;address)
++{
++   CSymbol *symbol = new CSymbol( name, type, CSymbol::VAR, address);
++
++   _symbols.push_back(symbol);
++
++   // Endere&#231;o 0000 (data), variavel, string, 8 bytes ???, nome &quot;v1&quot;
++   // 0000: 0000 V S 8??? 2 &quot;v1&quot;
++   writeInt( address );
++   writeByte( CSymbol::VAR ); // categoria: variavel
++   writeByte( type );         // tipo
++   writeString( name );       // nome da variavel
++
++   return symbol;
++}
++
++
+ CSymbol* CSymbolTable::add(CSymbol *symbol)
+ {
+ //   std::cout &lt;&lt; &quot;Adicionando simbolo [&quot; &lt;&lt; symbol-&gt;getName() &lt;&lt; &quot;] type [&quot; &lt;&lt; symbol-&gt;getType() &lt;&lt; &quot;] address [&quot; &lt;&lt; symbol-&gt;getAddress() &lt;&lt; &quot;] a SymbolTable&quot; &lt;&lt; std::endl;
+
+Modified: trunk/gpt2/common/src/CSymbolTable.hpp
+===================================================================
+--- trunk/gpt2/common/src/CSymbolTable.hpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/CSymbolTable.hpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -16,6 +16,7 @@
+    CSymbol* addProcedure (const std::string &amp;name, const int &amp;type, const int &amp;address, const bool &amp;hasVarArguments, const int &amp;staticParameters, std::vector&lt;CSymbol&gt; parameters);
+    CSymbol* addParameter (const std::string &amp;name, const int &amp;type, const int &amp;address);
+    CSymbol* addConstant (const std::string &amp;name, const int &amp;type, const int &amp;address);
++   CSymbol* addVariable (const std::string &amp;name, const int &amp;type, const int &amp;address);
+    CSymbol* add(CSymbol *symbol);
+    bool readFromBinary(CBinString &amp;bin);
+ };
+
+Modified: trunk/gpt2/common/src/Common.hpp
+===================================================================
+--- trunk/gpt2/common/src/Common.hpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/common/src/Common.hpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -109,7 +109,7 @@
+    OP_MCOPY = 104,
+    OP_MGETSIZE1 = 105,
+    OP_MGETSIZE2 = 106,
+-   OPCODE_NUMBER  = 107 // TODO: Isso nao eh seguro...
++   OPCODE_NUMBER  = 107
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -8,6 +8,7 @@
+ 
+ 
+ CGenBytecode::CGenBytecode()
++   : _currentSP(0)
+ {
+    _opcodes[ &quot;isum&quot;        ] = OP_ISUM;
+    _opcodes[ &quot;ssum&quot;        ] = OP_SSUM;
+@@ -138,11 +139,15 @@
+ // Talvez temos q fazer como em C e gerar procedure_name + retorno + parametros (int_procedure_int_real)
+    _symbolTable.addProcedure (procedureName, CSymbol::NO_TYPE, _code.size(), hasVarArguments, staticParameters, parameters);
+    _currentProcedure = procedureName;
++   _currentSP = 0;
++   _unsolvedLabels.clear();
++   _solvedLabels.clear();
+ }
+ 
+ 
+ void CGenBytecode::finishProcedure()
+ {
++   translateLabelsToAddress();
+    _currentProcedure.clear();
+    // TODO: delete na procedure ???
+ }
+@@ -150,48 +155,39 @@
+ 
+ void CGenBytecode::makeVarDefinition(const std::string &amp;lexeme, const int &amp;type)
+ {
+-//   if (_currentProcedure.empty()) { // assumindo que sao dados globais...
+-//      _symbolTable.add(new CVariableDefinition(lexeme, type, _data.getDataSize()));
+-//   }
++   if (_currentProcedure.empty()) { // assumindo que sao dados globais...
++      _symbolTable.addVariable (lexeme, type, _data.getDataSize());
++   }
+    _data.addVariable (lexeme, type, _data.getDataSize());
+ }
+ 
+ 
+ void CGenBytecode::makeParDefinition(const std::string &amp;lexeme, const int &amp;type)
+ {
+-   _symbolTable.addParameter(lexeme, type, 0); // TODO: colocar endereco relativo a SP
++   CSymbol *symbol = _symbolTable.addParameter(lexeme, type, _currentSP);
++   _currentSP += symbol-&gt;getTypeSize();
+ }
+ 
+ 
+ void CGenBytecode::registryLabel(const std::string &amp;labelName)
+ {
++   // TODO
++   if (_solvedLabels.find(labelName) != _solvedLabels.end()) {
++      std::cout &lt;&lt; &quot;Label ja definido: &quot; &lt;&lt; labelName &lt;&lt; std::endl;
++      abort();
++   }
++   _solvedLabels[labelName] = _code.size();
++//   std::cout &lt;&lt; &quot;Registry label: &quot; &lt;&lt; labelName &lt;&lt; &quot; address: &quot; &lt;&lt; _code.size() &lt;&lt; std::endl;
+ }
+ 
+ 
+ void CGenBytecode::addOpcode(const std::string &amp;mn)
+ {
+ //   std::cout &lt;&lt; &quot;Mn=&quot; &lt;&lt; mn &lt;&lt; &quot; opcode: &quot; &lt;&lt; (int)_opcodes[mn] &lt;&lt; std::endl;
+-   _code.addByte(_opcodes[mn]);
++   _code.writeByte(_opcodes[mn]);
+ }
+ 
+ 
+-//void CGenBytecode::addIdReference(const std::string &amp;id)
+-//{
+-//   int ref = _symbolTable.getReference(id);
+-//   _code.add(ref);
+-//}
+-
+-
+-//void CGenBytecode::addReference(const std::string &amp;id, const int &amp;category, const int &amp;type)
+-//{
+-//   int ref = _data.getReference(id);
+-//   if (ref == -1) {
+-//      ref = _data.add(new CConstantData( id, type, _data.size()))-&gt;getAddress();
+-//   }
+-//   _code.addInt(ref);
+-//}
+-
+-
+ void CGenBytecode::addAddress(const std::string &amp;id, const int &amp;category, const int &amp;type)
+ {
+    int ref = _data.getAddress(id);
+@@ -199,30 +195,52 @@
+       //ref = _data.add((new CSymbol())-&gt;setAsConstantData( id, type, _data.getDataSize()))-&gt;getAddress();
+       ref = _data.addConstant (id, type, _data.getDataSize())-&gt;getAddress();
+    }
+-   _code.addInt(ref);
++   _code.writeInt(ref);
+ }
+ 
+ 
+ CBinString CGenBytecode::getBinary()
+ {
+-//   _header.setSizes(_symbolTable.size(), _data.size(), _code.size());
+-
+    CBinString ret;
+ 
+    ret += _header.getBinary();
+ 
+ //   std::cout &lt;&lt; &quot;symbolTable.getSymbolsCount()=&quot; &lt;&lt; _symbolTable.getSymbolsCount() &lt;&lt; std::endl;
+    ret.writeInt(_symbolTable.getSymbolsCount());
+-   ret += _symbolTable.getBinary();
++   ret += _symbolTable;
+ 
+ //   std::cout &lt;&lt; &quot;data.size()=&quot; &lt;&lt; _data.getDataSize() &lt;&lt; std::endl;
+    ret.writeInt(_data.getDataSize());
+-   ret += _data.getBinary();
++   ret += _data;
+ 
+ //   std::cout &lt;&lt; &quot;code.size()=&quot; &lt;&lt; _code.size() &lt;&lt; std::endl;
+    ret.writeInt(_code.size());
+-   ret += _code.getBinary();
++   ret += _code;
+ 
+    return ret;
+ }
+ 
++void CGenBytecode::unsolvedLabel(const std::string &amp;label)
++{
++   _unsolvedLabels.push_back(std::pair&lt;std::string, int&gt;(label, _code.size()));
++//   std::cout &lt;&lt; &quot;Unsolved label: &quot; &lt;&lt; label &lt;&lt; &quot; address: &quot; &lt;&lt; _code.size() &lt;&lt; std::endl;
++   _code.writeInt(0);
++}
++
++
++void CGenBytecode::translateLabelsToAddress()
++{
++   // Varre os labels referenciados
++   for (std::list&lt;std::pair&lt;std::string,int&gt; &gt;::const_iterator unsolvedLabel = _unsolvedLabels.begin();
++         unsolvedLabel != _unsolvedLabels.end(); unsolvedLabel++) {
++      std::map&lt;std::string,int&gt;::const_iterator solvedLabel;
++      solvedLabel = _solvedLabels.find(unsolvedLabel-&gt;first);
++      if (solvedLabel == _solvedLabels.end()) {
++         std::cout &lt;&lt; &quot;Label nao encontrado: &quot; &lt;&lt; unsolvedLabel-&gt;second &lt;&lt; std::endl;
++         abort();
++      }
++      _code.setInt(unsolvedLabel-&gt;second, solvedLabel-&gt;second);
++//      std::cout &lt;&lt; &quot;code[&quot; &lt;&lt; unsolvedLabel-&gt;second &lt;&lt; &quot;]=&quot; &lt;&lt; solvedLabel-&gt;second &lt;&lt; std::endl;
++   }
++}
++
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.hpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptasm/src/CGenBytecode.hpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -3,8 +3,7 @@
+ 
+ #include &lt;map&gt;
+ #include &lt;string&gt;
+-#include &lt;vector&gt;
+-#include &lt;fstream&gt;
++#include &lt;list&gt;
+ 
+ #include &quot;CHeader.hpp&quot;
+ #include &quot;CSymbolTable.hpp&quot;
+@@ -25,13 +24,19 @@
+    void addOpcode(const std::string &amp;mn);
+    void addAddress(const std::string &amp;id, const int &amp;category, const int &amp;type);
+    CBinString getBinary();
++   void unsolvedLabel(const std::string &amp;label);
+ private:
++   void translateLabelsToAddress();
++
+    CHeader                    _header;
+    CSymbolTable               _symbolTable;
+    CData                      _data;
+    CCode                      _code;
+    std::map&lt;std::string,char&gt; _opcodes;
+    std::string                _currentProcedure;
++   int                        _currentSP;
++   std::list&lt;std::pair&lt;std::string, int&gt; &gt; _unsolvedLabels;
++   std::map&lt;std::string, int&gt; _solvedLabels;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptasm/src/parser.g
+===================================================================
+--- trunk/gpt2/gptasm/src/parser.g	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptasm/src/parser.g	2007-11-22 15:45:54 UTC (rev 381)
+@@ -91,13 +91,13 @@
+ //--------------------------------
+   primitive_type returns [char ret]
+ //--------------------------------
+-  : &quot;int&quot;     {ret=CSymbol::INT;}
+-  | &quot;real&quot;    {ret=CSymbol::REAL;}
+-  | &quot;char&quot;    {ret=CSymbol::CHAR;}
+-  | &quot;string&quot;  {ret=CSymbol::STRING;}
+-  | &quot;bool&quot;    {ret=CSymbol::BOOL;}
+-//  | &quot;pointer&quot; {ret=CSymbol::POINTER;}
+-  | &quot;matrix&quot;  {ret=CSymbol::MATRIX;}
++  : &quot;int&quot;     {ret=CSymbol::INT;    }
++  | &quot;real&quot;    {ret=CSymbol::REAL;   }
++  | &quot;char&quot;    {ret=CSymbol::CHAR;   }
++  | &quot;string&quot;  {ret=CSymbol::STRING; }
++  | &quot;bool&quot;    {ret=CSymbol::BOOL;   }
++  | &quot;pointer&quot; {ret=CSymbol::POINTER;}
++  | &quot;matrix&quot;  {ret=CSymbol::MATRIX; }
+   ;
+ 
+ //#################################
+@@ -107,10 +107,13 @@
+ //---------------------
+   procedure_declaration
+ //---------------------
++{
++   std::vector&lt;CSymbol&gt; parameters;
++}
+   : &quot;proc&quot; 
+    tk_id:T_ID
+     { bytecode.initProcedure(tk_id-&gt;getText(), false, 0, std::vector&lt;CSymbol&gt;()); }
+-    (parameter_declaration)*
++    (parameter_declaration[parameters])*
+     (var_declaration)*
+     code_block
+     { bytecode.finishProcedure(); }
+@@ -118,12 +121,14 @@
+   ;
+ 
+ //---------------------
+-  parameter_declaration
++  parameter_declaration [std::vector&lt;CSymbol&gt; &amp;parameters]
+ //---------------------
+ {
+   int tk_type;
+ }
+-  : &quot;param&quot; (&quot;ref&quot;)? tk_id:T_ID tk_type=primitive_type { declareParameter( tk_id-&gt;getText(), tk_type ); }
++  : &quot;param&quot; (&quot;ref&quot;)? tk_id:T_ID tk_type=primitive_type
++    { declareParameter( tk_id-&gt;getText(), tk_type ); }
++    { parameters.push_back(CSymbol(tk_id-&gt;getText(), tk_type, CSymbol::PARAM, 0)); } // TODO: nao eh zero...
+   ;
+ 
+ //#####################
+@@ -163,7 +168,7 @@
+ //-----
+   label
+ //-----
+-   : T_ID
++   : T_ID { bytecode.unsolvedLabel(getLastTokenText()); }
+    ;
+ 
+ //---------------------
+@@ -189,7 +194,7 @@
+ //--------------------
+    :  (&quot;ineg&quot;|&quot;rneg&quot;|&quot;not&quot;|&quot;iinc&quot;|&quot;idec&quot;) 
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA element
++      identifier T_COMMA element
+    ;
+ 
+ //------------------
+@@ -202,7 +207,7 @@
+       | &quot;c2i&quot;|&quot;r2i&quot;|&quot;s2i&quot;|&quot;b2i&quot;
+       )
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA element
++      identifier T_COMMA element
+    ;
+ 
+ //----------------
+@@ -220,23 +225,24 @@
+ //----------------------
+    :  &quot;geta&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA T_ID
++      identifier T_COMMA identifier
+    |  (&quot;igetv&quot;|&quot;sgetv&quot;|&quot;rgetv&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA element T_COLON element
++      identifier T_COMMA element T_COLON element
+    |  (&quot;isetv&quot;|&quot;ssetv&quot;|&quot;rsetv&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COLON element T_COMMA element
++      identifier T_COLON element T_COMMA element
+    ;
+ 
+ //--------
+   mn_salto
+ //--------
+-   :  &quot;jmp&quot; label
++   :  &quot;jmp&quot;
+       {bytecode.addOpcode(getLastTokenText());}
++      label
+    |  (&quot;if&quot;|&quot;ifnot&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA label
++      identifier T_COMMA label
+    ;
+ 
+ //--------------------
+@@ -247,7 +253,7 @@
+       element
+    |  &quot;pop&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID
++      identifier
+    |  (&quot;incsp&quot;|&quot;decsp&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+       T_INT_VALUE
+@@ -273,13 +279,13 @@
+ //----------------------
+    :  ( &quot;salloc&quot;|&quot;sfree&quot; )
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID
++      identifier
+    |  &quot;ssetc&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA element T_COMMA element
++      identifier T_COMMA element T_COMMA element
+    |  &quot;sgetc&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA T_ID T_COMMA element
++      identifier T_COMMA identifier T_COMMA element
+    ;
+ 
+ //-----------------------
+@@ -287,38 +293,44 @@
+ //-----------------------
+    :  &quot;m1alloc&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID
+-      T_COMMA 
++      identifier
++      T_COMMA
+       T_INT_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
+       T_COMMA 
+       T_INT_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
+    |  &quot;m2alloc&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA T_INT_VALUE T_COMMA T_INT_VALUE T_COMMA T_INT_VALUE
++      identifier
++      T_COMMA
++      T_INT_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
++      T_COMMA
++      T_INT_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
++      T_COMMA
++      T_INT_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
+    |  &quot;mfree&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID
++      identifier
+    |  &quot;m1set&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA element T_COMMA element
++      identifier T_COMMA element T_COMMA element
+    |  &quot;m1get&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA T_ID T_COMMA element
++      identifier T_COMMA identifier T_COMMA element
+    |  &quot;m2set&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA element T_COMMA element T_COMMA element
++      identifier T_COMMA element T_COMMA element T_COMMA element
+    |  &quot;m2get&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA T_ID T_COMMA element T_COMMA element
++      identifier T_COMMA identifier T_COMMA element T_COMMA element
+    |  &quot;mcopy&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA T_ID
++      identifier T_COMMA identifier
+    |  &quot;mgetsize1&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA T_ID
++      identifier T_COMMA identifier
+    |  &quot;mgetsize2&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      T_ID T_COMMA T_ID
++      identifier T_COMMA identifier
+    ;
+ 
+ //-----------
+@@ -329,11 +341,11 @@
+       {bytecode.addOpcode(getLastTokenText());}
+    |   &quot;exit&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-       T_INT_VALUE
++       T_INT_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
+   ;
+ 
+ identifier
+-  : id:T_ID { bytecode.addAddress(id-&gt;getText(),CSymbol::VAR, CSymbol::STRING); }
++  : id:T_ID { bytecode.addAddress(id-&gt;getText(), CSymbol::VAR, CSymbol::STRING); }
+   ;
+ 
+ 
+@@ -346,11 +358,11 @@
+ //---------------------------------
+   : ( 
+         T_STRING_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::STRING); }
+-      | T_INT_VALUE    { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
+-      | T_REAL_VALUE   { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::REAL); }
+-      | T_CHAR_VALUE   { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::CHAR); }
+-      | &quot;true&quot;         { bytecode.addAddress(&quot;1&quot;,                CSymbol::CONST, CSymbol::INT); }
+-      | &quot;false&quot;        { bytecode.addAddress(&quot;0&quot;,                CSymbol::CONST, CSymbol::INT); }
++      | T_INT_VALUE    { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT);    }
++      | T_REAL_VALUE   { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::REAL);   }
++      | T_CHAR_VALUE   { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::CHAR);   }
++      | &quot;true&quot;         { bytecode.addAddress(&quot;1&quot;,                CSymbol::CONST, CSymbol::INT);    }
++      | &quot;false&quot;        { bytecode.addAddress(&quot;0&quot;,                CSymbol::CONST, CSymbol::INT);    }
+     ) 
+   ;
+ 
+
+Modified: trunk/gpt2/gptasm/test/asm.sh
+===================================================================
+--- trunk/gpt2/gptasm/test/asm.sh	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptasm/test/asm.sh	2007-11-22 15:45:54 UTC (rev 381)
+@@ -1,7 +1,7 @@
+ rm $1.gvm 1&gt;/dev/null 2&gt;&amp;1
+ #rm $1.stdout 1&gt;/dev/null 2&gt;&amp;1
+ 
+-../../gptasm $1
++../../src/gptasm $1
+ if [ $? -ne 0 ]
+ then
+ 	echo &quot;Erro: nao foi possivel assemblar $1.gasm&quot;
+
+Modified: trunk/gpt2/gptasm/test/asm_all.sh
+===================================================================
+--- trunk/gpt2/gptasm/test/asm_all.sh	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptasm/test/asm_all.sh	2007-11-22 15:45:54 UTC (rev 381)
+@@ -1,6 +1,6 @@
+ echo &quot;Assemblando todos os arquivos .gasm do diretorio&quot;
+ 
+-rm *.gvm
++rm *.gvm &gt; /dev/null 2&gt;&amp;1
+ #rm *.stdout
+ 
+ for i in `ls *.gasm -1 | sed s/&quot;\.gasm&quot;//g`
+
+Modified: trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm	2007-11-22 15:45:54 UTC (rev 381)
+@@ -1,9 +1,10 @@
+ program exemplo
+ 
+ var x int
++var t1 int
+ 
+ proc main
+-    var t1 int
++//    var t1 int
+ 
+     // para x de 1 at&#233; 10 fa&#231;a
+     iset x, 1
+@@ -15,7 +16,7 @@
+     push_sp
+     push x
+     push_int
+-    push_1
++    push 1
+     pcall imprima
+     pop_sp
+ 
+@@ -25,7 +26,7 @@
+ 
+     proximo:
+ 
+-    exit_0
++    exit 0
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm	2007-11-22 15:45:54 UTC (rev 381)
+@@ -4,11 +4,11 @@
+     push_sp
+     push &quot;Ol&#225; mundo !!!&quot;
+     push_string
+-    push_1
++    push 1
+     pcall imprima
+     pop_sp
+ 
+-    exit_0
++    exit 0
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm	2007-11-22 15:45:54 UTC (rev 381)
+@@ -19,13 +19,13 @@
+     isum t2, t1, 4
+     push t2
+     push_int
+-    push &quot;x*y+4&quot;
++    push &quot;x*y+4=&quot;
+     push_string
+-    push_2
++    push 2
+     pcall imprima
+     pop_sp
+ 	
+-    exit_0
++    exit 0
+ endproc
+ 
+ endprogram
+
+Added: trunk/gpt2/gptvm/src/CBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CBytecode.cpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptvm/src/CBytecode.cpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -0,0 +1,34 @@
++#include &quot;CBytecode.hpp&quot;
++
++CBytecode::CBytecode()
++   : _IP(0)
++{
++}
++
++
++CBytecode::~CBytecode()
++{
++}
++
++
++char CBytecode::fetchByte()
++{
++   char result = getByte(_IP);
++   _IP += sizeof(char);
++   return result;
++}
++
++
++int  CBytecode::fetchInt()
++{
++   int result = getInt(_IP);
++   _IP += sizeof(int);
++   return result;
++}
++
++
++void CBytecode::setIP(const int &amp;IP)
++{
++   _IP = IP;
++}
++
+
+Added: trunk/gpt2/gptvm/src/CBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CBytecode.hpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptvm/src/CBytecode.hpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -0,0 +1,22 @@
++#ifndef GPT_BYTECODE_H
++#define GPT_BYTECODE_H
++
++
++#include &quot;CBinString.hpp&quot;
++
++
++class CBytecode : public CBinString
++{
++public:
++   CBytecode();
++  ~CBytecode();
++   char fetchByte();
++   int  fetchInt();
++   void setIP(const int &amp;IP);
++   CBinString::readString;
++private:
++   int _IP;
++};
++
++#endif
++
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -21,141 +21,143 @@
+    CBinString bin;
+    bin.assign(buf.str());
+ 
+-   return _header.readFromBinary(bin) &amp;&amp;
+-          _symbolTable.readFromBinary(bin) &amp;&amp;
+-          _data.readFromBinary(bin) &amp;&amp;
+-          _code.readFromBinary(bin);
++   _header.readFromBinary(bin) &amp;&amp;
++         _symbolTable.readFromBinary(bin);
++
++   bin.readString(_data);
++
++   _code.assign(bin.readString());
++
++   return true;
+ }
+ 
+ void CRunBytecode::initOpcodePointer()
+ {
+    for (int i = 0; i &lt; OPCODE_NUMBER; i++) {
+-      _opcodePointer[i] = &amp;CRunBytecode::invalidOpcode;
++      _opcodePointer[i] = NULL; //&amp;CRunBytecode::invalidOpcode;
+    }
+ 
+-   _opcodePointer[OP_NOP         ] = &amp;CRunBytecode::nopOpcode;
+-   _opcodePointer[OP_PUSH_SP     ] = &amp;CRunBytecode::pushSpOpcode;
+-   _opcodePointer[OP_POP_SP      ] = &amp;CRunBytecode::popSpOpcode;
+-   _opcodePointer[OP_PUSH        ] = &amp;CRunBytecode::pushOpcode;
+-   _opcodePointer[OP_PUSH_STRING ] = &amp;CRunBytecode::pushStringOpcode;
+-//   _opcodePointer[OP_PUSH_1      ] = &amp;CRunBytecode::push1Opcode;
+-   _opcodePointer[OP_PCALL       ] = &amp;CRunBytecode::pcallOpcode;
+-//   _opcodePointer[OP_EXIT_0      ] = &amp;CRunBytecode::exit0Opcode;
+-   _opcodePointer[OP_EXIT        ] = &amp;CRunBytecode::exitOpcode;
++   _opcodePointer[OP_NOP        ] = &amp;CRunBytecode::nopOpcode;
++   _opcodePointer[OP_PUSH_SP    ] = &amp;CRunBytecode::pushSpOpcode;
++   _opcodePointer[OP_POP_SP     ] = &amp;CRunBytecode::popSpOpcode;
++   _opcodePointer[OP_PUSH       ] = &amp;CRunBytecode::pushOpcode;
++   _opcodePointer[OP_PUSH_STRING] = &amp;CRunBytecode::pushStringOpcode;
++//   _opcodePointer[OP_PUSH_1     ] = &amp;CRunBytecode::push1Opcode;
++   _opcodePointer[OP_PCALL      ] = &amp;CRunBytecode::pcallOpcode;
++//   _opcodePointer[OP_EXIT_0     ] = &amp;CRunBytecode::exit0Opcode;
++   _opcodePointer[OP_EXIT       ] = &amp;CRunBytecode::exitOpcode;
+ 
+ //   OP_EXIT_1,
+-// _opcodePointer[OP_HLT         ] = &amp;CRunBytecode::hltOpcode;
++   _opcodePointer[OP_HLT        ] = &amp;CRunBytecode::hltOpcode;
+ 
+-   _opcodePointer[OP_ISUM        ] = &amp;CRunBytecode::isumOpcode;
+-//   _opcodePointer[OP_SSUM        ] = &amp;CRunBytecode::ssumOpcode;
+-//   _opcodePointer[OP_RSUM        ] = &amp;CRunBytecode::rsumOpcode;
+-//   _opcodePointer[OP_ISUB        ] = &amp;CRunBytecode::isubOpcode;
+-//   _opcodePointer[OP_SSUB        ] = &amp;CRunBytecode::ssubOpcode;
+-//   _opcodePointer[OP_RSUB        ] = &amp;CRunBytecode::rsubOpcode;
+-   _opcodePointer[OP_IMUL        ] = &amp;CRunBytecode::imulOpcode;
+-//   _opcodePointer[OP_RMUL        ] = &amp;CRunBytecode::rmulOpcode;
+-/*
+-   OP_IDIV,
+-   OP_RDIV,
+-   OP_IMOD,
+-   OP_RMOD,
+-   OP_IGE,
+-   OP_SGE,
+-   OP_RGE,
+-   OP_ILE,
+-   OP_SLE,
+-   OP_RLE,
+-   OP_INE,
+-   OP_SNE,
+-   OP_RNE,
+-   OP_IGT,
+-   OP_SGT,
+-   OP_RGT,
+-   OP_ILT,
+-   OP_SLT,
+-   OP_RLT,
+-   OP_IEQ,
+-   OP_SEQ,
+-   OP_REQ,
+-   OP_OR,
+-   OP_AND,
+-   OP_XOR,
+-   OP_INEG,
+-   OP_RNEG,
+-   OP_NOT,
+-   OP_IINC,
+-   OP_IDEC,
+-   OP_I2C,
+-   OP_R2C,
+-   OP_S2C,
+-   OP_B2C,
+-   OP_I2R,
+-   OP_C2R,
+-   OP_S2R,
+-   OP_B2R,
+-   OP_I2B,
+-   OP_C2B,
+-   OP_R2B,
+-   OP_S2B,
+-   OP_I2S,
+-   OP_C2S,
+-   OP_R2S,
+-   OP_B2S,
+-   OP_P2S,
+-   OP_C2I,
+-   OP_R2I,
+-   OP_S2I,
+-   OP_B2I,
+-*/
+-   _opcodePointer[OP_ISET        ] = &amp;CRunBytecode::isetOpcode;
+-/*
+-   OP_SSET,
+-   OP_RSET,
+-   OP_GETA,
+-   OP_IGETV,
+-   OP_SGETV,
+-   OP_RGETV,
+-   OP_ISETV,
+-   OP_SSETV,
+-   OP_RSETV,
+-   OP_JMP,
+-   OP_IF,
+-   OP_IFNOT,
+-   OP_POP,
+-   OP_INCSP,
+-   OP_DECSP,
+-   OP_PUSH_0,
+-   OP_PUSH_2,
+-   OP_PUSH_3,
+-   OP_PUSH_4,
+-   OP_PUSH_5,
+-*/
+-   _opcodePointer[OP_PUSH_INT      ] = &amp;CRunBytecode::pushIntOpcode;
+-   _opcodePointer[OP_PUSH_REAL     ] = &amp;CRunBytecode::pushRealOpcode;
+-   _opcodePointer[OP_PUSH_CHAR     ] = &amp;CRunBytecode::pushCharOpcode;
+-   _opcodePointer[OP_PUSH_BOOL     ] = &amp;CRunBytecode::pushBoolOpcode;
+-/*
+-   OP_PUSH_MATRIX,
+-   OP_INCSP_4,
+-   OP_INCSP_8,
+-   OP_DECSP_4,
+-   OP_DECSP_8,
+-   OP_RET,
+-   OP_SALLOC,
+-   OP_SFREE,
+-   OP_SSETC,
+-   OP_SGETC,
+-   OP_M1ALLOC,
+-   OP_M2ALLOC,
+-   OP_MFREE,
+-   OP_M1SET,
+-   OP_M1GET,
+-   OP_M2SET,
+-   OP_M2GET,
+-   OP_MCOPY,
+-   OP_MGETSIZE1,
+-   OP_MGETSIZE2,
+-*/
++   _opcodePointer[OP_ISUM       ] = &amp;CRunBytecode::isumOpcode;
++   _opcodePointer[OP_SSUM       ] = &amp;CRunBytecode::ssumOpcode;
++   _opcodePointer[OP_RSUM       ] = &amp;CRunBytecode::rsumOpcode;
++   _opcodePointer[OP_ISUB       ] = &amp;CRunBytecode::isubOpcode;
++   _opcodePointer[OP_SSUB       ] = &amp;CRunBytecode::ssubOpcode;
++   _opcodePointer[OP_RSUB       ] = &amp;CRunBytecode::rsubOpcode;
++   _opcodePointer[OP_IMUL       ] = &amp;CRunBytecode::imulOpcode;
++   _opcodePointer[OP_RMUL       ] = &amp;CRunBytecode::rmulOpcode;
++   _opcodePointer[OP_IDIV       ] = &amp;CRunBytecode::idivOpcode;
++   _opcodePointer[OP_RDIV       ] = &amp;CRunBytecode::rdivOpcode;
++   _opcodePointer[OP_IMOD       ] = &amp;CRunBytecode::imodOpcode;
++   _opcodePointer[OP_RMOD       ] = &amp;CRunBytecode::rmodOpcode;
++   _opcodePointer[OP_IGE        ] = &amp;CRunBytecode::igeOpcode;
++   _opcodePointer[OP_SGE        ] = &amp;CRunBytecode::sgeOpcode;
++   _opcodePointer[OP_RGE        ] = &amp;CRunBytecode::rgeOpcode;
++   _opcodePointer[OP_ILE        ] = &amp;CRunBytecode::ileOpcode;
++   _opcodePointer[OP_SLE        ] = &amp;CRunBytecode::sleOpcode;
++   _opcodePointer[OP_RLE        ] = &amp;CRunBytecode::rleOpcode;
++   _opcodePointer[OP_INE        ] = &amp;CRunBytecode::ineOpcode;
++   _opcodePointer[OP_SNE        ] = &amp;CRunBytecode::sneOpcode;
++   _opcodePointer[OP_RNE        ] = &amp;CRunBytecode::rneOpcode;
++   _opcodePointer[OP_IGT        ] = &amp;CRunBytecode::igtOpcode;
++   _opcodePointer[OP_SGT        ] = &amp;CRunBytecode::sgtOpcode;
++   _opcodePointer[OP_RGT        ] = &amp;CRunBytecode::rgtOpcode;
++   _opcodePointer[OP_ILT        ] = &amp;CRunBytecode::iltOpcode;
++   _opcodePointer[OP_SLT        ] = &amp;CRunBytecode::sltOpcode;
++   _opcodePointer[OP_RLT        ] = &amp;CRunBytecode::rltOpcode;
++   _opcodePointer[OP_IEQ        ] = &amp;CRunBytecode::ieqOpcode;
++   _opcodePointer[OP_SEQ        ] = &amp;CRunBytecode::seqOpcode;
++   _opcodePointer[OP_REQ        ] = &amp;CRunBytecode::reqOpcode;
++   _opcodePointer[OP_OR         ] = &amp;CRunBytecode::orOpcode;
++   _opcodePointer[OP_AND        ] = &amp;CRunBytecode::andOpcode;
++   _opcodePointer[OP_XOR        ] = &amp;CRunBytecode::xorOpcode;
++   _opcodePointer[OP_INEG       ] = &amp;CRunBytecode::inegOpcode;
++   _opcodePointer[OP_RNEG       ] = &amp;CRunBytecode::rnegOpcode;
++   _opcodePointer[OP_NOT        ] = &amp;CRunBytecode::notOpcode;
++   _opcodePointer[OP_IINC       ] = &amp;CRunBytecode::iincOpcode;
++   _opcodePointer[OP_IDEC       ] = &amp;CRunBytecode::idecOpcode;
++   _opcodePointer[OP_I2C        ] = &amp;CRunBytecode::i2cOpcode;
++   _opcodePointer[OP_R2C        ] = &amp;CRunBytecode::r2cOpcode;
++   _opcodePointer[OP_S2C        ] = &amp;CRunBytecode::s2cOpcode;
++   _opcodePointer[OP_B2C        ] = &amp;CRunBytecode::b2cOpcode;
++   _opcodePointer[OP_I2R        ] = &amp;CRunBytecode::i2rOpcode;
++   _opcodePointer[OP_C2R        ] = &amp;CRunBytecode::c2rOpcode;
++   _opcodePointer[OP_S2R        ] = &amp;CRunBytecode::s2rOpcode;
++   _opcodePointer[OP_B2R        ] = &amp;CRunBytecode::b2rOpcode;
++   _opcodePointer[OP_I2B        ] = &amp;CRunBytecode::i2bOpcode;
++   _opcodePointer[OP_C2B        ] = &amp;CRunBytecode::c2bOpcode;
++   _opcodePointer[OP_R2B        ] = &amp;CRunBytecode::r2bOpcode;
++   _opcodePointer[OP_S2B        ] = &amp;CRunBytecode::s2bOpcode;
++   _opcodePointer[OP_I2S        ] = &amp;CRunBytecode::i2sOpcode;
++   _opcodePointer[OP_C2S        ] = &amp;CRunBytecode::c2sOpcode;
++   _opcodePointer[OP_R2S        ] = &amp;CRunBytecode::r2sOpcode;
++   _opcodePointer[OP_B2S        ] = &amp;CRunBytecode::b2sOpcode;
++   _opcodePointer[OP_P2S        ] = &amp;CRunBytecode::p2sOpcode;
++   _opcodePointer[OP_C2I        ] = &amp;CRunBytecode::c2iOpcode;
++   _opcodePointer[OP_R2I        ] = &amp;CRunBytecode::r2iOpcode;
++   _opcodePointer[OP_S2I        ] = &amp;CRunBytecode::s2iOpcode;
++   _opcodePointer[OP_B2I        ] = &amp;CRunBytecode::b2iOpcode;
++   _opcodePointer[OP_ISET       ] = &amp;CRunBytecode::isetOpcode;
++   _opcodePointer[OP_SSET       ] = &amp;CRunBytecode::ssetOpcode;
++   _opcodePointer[OP_RSET       ] = &amp;CRunBytecode::rsetOpcode;
++   _opcodePointer[OP_GETA       ] = &amp;CRunBytecode::getaOpcode;
++   _opcodePointer[OP_IGETV      ] = &amp;CRunBytecode::igetvOpcode;
++   _opcodePointer[OP_SGETV      ] = &amp;CRunBytecode::sgetvOpcode;
++   _opcodePointer[OP_RGETV      ] = &amp;CRunBytecode::rgetvOpcode;
++   _opcodePointer[OP_ISETV      ] = &amp;CRunBytecode::isetvOpcode;
++   _opcodePointer[OP_SSETV      ] = &amp;CRunBytecode::ssetvOpcode;
++   _opcodePointer[OP_RSETV      ] = &amp;CRunBytecode::rsetvOpcode;
++   _opcodePointer[OP_JMP        ] = &amp;CRunBytecode::jmpOpcode;
++   _opcodePointer[OP_IF         ] = &amp;CRunBytecode::ifOpcode;
++   _opcodePointer[OP_IFNOT      ] = &amp;CRunBytecode::ifnotOpcode;
++   _opcodePointer[OP_POP        ] = &amp;CRunBytecode::popOpcode;
++   _opcodePointer[OP_INCSP      ] = &amp;CRunBytecode::incspOpcode;
++   _opcodePointer[OP_DECSP      ] = &amp;CRunBytecode::decspOpcode;
++
++//   OP_PUSH_0,
++//   OP_PUSH_2,
++//   OP_PUSH_3,
++//   OP_PUSH_4,
++//   OP_PUSH_5,
++
++   _opcodePointer[OP_PUSH_INT   ] = &amp;CRunBytecode::pushIntOpcode;
++   _opcodePointer[OP_PUSH_REAL  ] = &amp;CRunBytecode::pushRealOpcode;
++   _opcodePointer[OP_PUSH_CHAR  ] = &amp;CRunBytecode::pushCharOpcode;
++   _opcodePointer[OP_PUSH_BOOL  ] = &amp;CRunBytecode::pushBoolOpcode;
++   _opcodePointer[OP_PUSH_MATRIX] = &amp;CRunBytecode::pushMatrixOpcode;
++
++//   OP_INCSP_4,
++//   OP_INCSP_8,
++//   OP_DECSP_4,
++//   OP_DECSP_8,
++
++   _opcodePointer[OP_RET        ] = &amp;CRunBytecode::retOpcode;
++   _opcodePointer[OP_SALLOC     ] = &amp;CRunBytecode::sallocOpcode;
++   _opcodePointer[OP_SFREE      ] = &amp;CRunBytecode::sfreeOpcode;
++   _opcodePointer[OP_SSETC      ] = &amp;CRunBytecode::ssetcOpcode;
++   _opcodePointer[OP_SGETC      ] = &amp;CRunBytecode::sgetcOpcode;
++   _opcodePointer[OP_M1ALLOC    ] = &amp;CRunBytecode::m1allocOpcode;
++   _opcodePointer[OP_M2ALLOC    ] = &amp;CRunBytecode::m2allocOpcode;
++   _opcodePointer[OP_MFREE      ] = &amp;CRunBytecode::mfreeOpcode;
++   _opcodePointer[OP_M1SET      ] = &amp;CRunBytecode::m1setOpcode;
++   _opcodePointer[OP_M1GET      ] = &amp;CRunBytecode::m1getOpcode;
++   _opcodePointer[OP_M2SET      ] = &amp;CRunBytecode::m2setOpcode;
++   _opcodePointer[OP_M2GET      ] = &amp;CRunBytecode::m2getOpcode;
++   _opcodePointer[OP_MCOPY      ] = &amp;CRunBytecode::mcopyOpcode;
++   _opcodePointer[OP_MGETSIZE1  ] = &amp;CRunBytecode::mgetSize1Opcode;
++   _opcodePointer[OP_MGETSIZE2  ] = &amp;CRunBytecode::mgetSize2Opcode;
+ }
+ 
+ 
+@@ -164,7 +166,7 @@
+ //   std::cout &lt;&lt; &quot;Code lido: [&quot; &lt;&lt; _code.getBinary() &lt;&lt; &quot;]&quot; &lt;&lt; &quot; size=&quot; &lt;&lt; _code.getBinary().size() &lt;&lt; std::endl;
+ 
+    initOpcodePointer();
+-   _IP = 0;
++   _code.setIP(0); // TODO: pegar o endereco de main
+    _stop = false;
+ 
+    while (!_stop) {
+@@ -174,11 +176,11 @@
+    return true;
+ }
+ 
++
+ void CRunBytecode::step()
+ {
+     char opcode;
+-    opcode = _code.getByte(_IP);
+-    _IP++;
++    opcode = _code.fetchByte();
+ 
+    if (opcode &gt;= OPCODE_NUMBER) {
+       error( &quot;Invalid opcode !!!&quot; );
+@@ -239,15 +241,15 @@
+ 
+ // opcodes
+ 
+-void CRunBytecode::invalidOpcode()
++void CRunBytecode::invalidOpcode(const std::string &amp;opcode)
+ {
+-   error (&quot;Invalid opcode !!!&quot;);
++   error (&quot;Invalid opcode: [&quot; + opcode + &quot;] !!!&quot;);
+ }
+ 
+ void CRunBytecode::nopOpcode()
+ {
+ //   trace (&quot;nop opcode&quot;);
+-   invalidOpcode();
++   invalidOpcode(__FUNCTION__);
+ 
+     //nothing to do
+ }
+@@ -268,8 +270,7 @@
+ {
+    trace (&quot;push opcode&quot;);
+ 
+-   int address = _code.getInt(_IP);
+-   _IP += sizeof(int);
++   int address = _code.fetchInt();
+    _dataStack.push((void*)address);
+ }
+ 
+@@ -280,111 +281,569 @@
+    _dataStack.push((void*)CSymbol::STRING);
+ }
+ 
+-void CRunBytecode::pushIntOpcode()
++
++void CRunBytecode::pcallOpcode()
+ {
+-   trace (&quot;push_int opcode&quot;);
++   trace (&quot;pcall opcode&quot;);
+ 
+-   _dataStack.push((void*)CSymbol::INT);
++   int address = _code.fetchInt();
++
++   std::string temp = _data.getString(address);
++
++   if (_data.getString(address) == &quot;imprima&quot;) {
++      procImprima();
++   }
+ }
+ 
+-void CRunBytecode::pushBoolOpcode()
++
++void CRunBytecode::exitOpcode()
+ {
+-   trace (&quot;push_bool opcode&quot;);
++   trace (&quot;exit opcode&quot;);
+ 
+-   _dataStack.push((void*)CSymbol::BOOL);
++   int returnCode = _code.fetchInt();
++
++   _stop = true;
+ }
+ 
+-void CRunBytecode::pushRealOpcode()
++
++void CRunBytecode::hltOpcode()
+ {
+-   trace (&quot;push_real opcode&quot;);
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   _dataStack.push((void*)CSymbol::REAL);
++void CRunBytecode::isumOpcode()
++{
++   trace (&quot;isum opcode&quot;);
++
++   int varAddress = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) + _data.getInt(val2Address));
+ }
+ 
+-void CRunBytecode::pushCharOpcode()
++void CRunBytecode::ssumOpcode()
+ {
+-   trace (&quot;push_char opcode&quot;);
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   _dataStack.push((void*)CSymbol::CHAR);
++void CRunBytecode::rsumOpcode()
++{
++   invalidOpcode(__FUNCTION__);
+ }
+ 
+-void CRunBytecode::push1Opcode()
++void CRunBytecode::isubOpcode()
+ {
+-   trace (&quot;push_1 opcode&quot;);
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   _dataStack.push((void*)1);
++void CRunBytecode::ssubOpcode()
++{
++   invalidOpcode(__FUNCTION__);
+ }
+ 
+-void CRunBytecode::pcallOpcode()
++void CRunBytecode::rsubOpcode()
+ {
+-   trace (&quot;pcall opcode&quot;);
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   int address = _code.getInt(_IP);
+-   _IP += sizeof(int);
++void CRunBytecode::imulOpcode()
++{
++   trace (&quot;imul opcode&quot;);
+ 
+-   std::string temp = _data.getString(address);
++   int varAddress = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
+ 
+-   if (_data.getString(address) == &quot;imprima&quot;) {
+-      procImprima();
+-   }
++   _data.setInt(varAddress, _data.getInt(val1Address) * _data.getInt(val2Address));
+ }
+ 
++void CRunBytecode::rmulOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-void CRunBytecode::exitOpcode()
++void CRunBytecode::idivOpcode()
+ {
+-   trace (&quot;exit opcode&quot;);
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   int returnCode = _code.getInt(_IP); // TODO
+-   _IP += sizeof(int);
++void CRunBytecode::rdivOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   _stop = true;
++void CRunBytecode::imodOpcode()
++{
++   invalidOpcode(__FUNCTION__);
+ }
+ 
++void CRunBytecode::rmodOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
+ 
++void CRunBytecode::igeOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::sgeOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::rgeOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::ileOpcode()
++{
++   trace (&quot;ile opcode&quot;);
++
++   int varAddress = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(val1Address) &lt;= _data.getInt(val2Address));
++}
++
++void CRunBytecode::sleOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::rleOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::ineOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::sneOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::rneOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::igtOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::sgtOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::rgtOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::iltOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::sltOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::rltOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::ieqOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::seqOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::reqOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::orOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::andOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::xorOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::inegOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::rnegOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::notOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::iincOpcode()
++{
++   trace (&quot;iinc opcode&quot;);
++
++   int varAddress = _code.fetchInt();
++   int valAddress = _code.fetchInt();
++
++   _data.setInt(varAddress, _data.getInt(varAddress)+_data.getInt(valAddress));
++}
++
++void CRunBytecode::idecOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::i2cOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::r2cOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::s2cOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::b2cOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::i2rOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::c2rOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::s2rOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::b2rOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::i2bOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::c2bOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::r2bOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::s2bOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::i2sOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::c2sOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::r2sOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::b2sOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::p2sOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::c2iOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::r2iOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::s2iOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::b2iOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
+ void CRunBytecode::isetOpcode()
+ {
+    trace (&quot;iset opcode&quot;);
+ 
+-   int varAddress = _code.getInt(_IP);
+-   _IP += sizeof(int);
++   int varAddress = _code.fetchInt();
++   int valAddress = _code.fetchInt();
+ 
+-   int valAddress = _code.getInt(_IP);
+-   _IP += sizeof(int);
+-
+    _data.setInt(varAddress, _data.getInt(valAddress));
+ }
+ 
++void CRunBytecode::ssetOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-void CRunBytecode::isumOpcode()
++void CRunBytecode::rsetOpcode()
+ {
+-   trace (&quot;isum opcode&quot;);
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   int varAddress = _code.getInt(_IP);
+-   _IP += sizeof(int);
++void CRunBytecode::getaOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   int val1Address = _code.getInt(_IP);
+-   _IP += sizeof(int);
++void CRunBytecode::igetvOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   int val2Address = _code.getInt(_IP);
+-   _IP += sizeof(int);
++void CRunBytecode::sgetvOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   _data.setInt(varAddress, _data.getInt(val1Address) + _data.getInt(val2Address));
++void CRunBytecode::rgetvOpcode()
++{
++   invalidOpcode(__FUNCTION__);
+ }
+ 
++void CRunBytecode::isetvOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-void CRunBytecode::imulOpcode()
++void CRunBytecode::ssetvOpcode()
+ {
+-   trace (&quot;imul opcode&quot;);
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   int varAddress = _code.getInt(_IP);
+-   _IP += sizeof(int);
++void CRunBytecode::rsetvOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
+ 
+-   int val1Address = _code.getInt(_IP);
+-   _IP += sizeof(int);
++void CRunBytecode::jmpOpcode()
++{
++   trace (&quot;jmp opcode&quot;);
+ 
+-   int val2Address = _code.getInt(_IP);
+-   _IP += sizeof(int);
++   int labelAddress = _code.fetchInt();
+ 
+-   _data.setInt(varAddress, _data.getInt(val1Address) * _data.getInt(val2Address));
++   _code.setIP(labelAddress);
+ }
+ 
++void CRunBytecode::ifOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::ifnotOpcode()
++{
++   trace (&quot;ifnot opcode&quot;);
++
++   int varAddress = _code.fetchInt();
++   int labelAddress = _code.fetchInt();
++
++   if (!_data.getInt(varAddress)) {
++      _code.setIP(labelAddress);
++   }
++}
++
++void CRunBytecode::popOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::incspOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::decspOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++
++//   OP_PUSH_0,
++//   OP_PUSH_2,
++//   OP_PUSH_3,
++//   OP_PUSH_4,
++//   OP_PUSH_5,
++
++void CRunBytecode::pushIntOpcode()
++{
++   trace (&quot;push_int opcode&quot;);
++
++   _dataStack.push((void*)CSymbol::INT);
++}
++
++void CRunBytecode::pushRealOpcode()
++{
++   trace (&quot;push_real opcode&quot;);
++
++   _dataStack.push((void*)CSymbol::REAL);
++}
++
++void CRunBytecode::pushCharOpcode()
++{
++   trace (&quot;push_char opcode&quot;);
++
++   _dataStack.push((void*)CSymbol::CHAR);
++}
++
++void CRunBytecode::pushBoolOpcode()
++{
++   trace (&quot;push_bool opcode&quot;);
++
++   _dataStack.push((void*)CSymbol::BOOL);
++}
++
++void CRunBytecode::pushMatrixOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++
++//   OP_INCSP_4,
++//   OP_INCSP_8,
++//   OP_DECSP_4,
++//   OP_DECSP_8,
++
++void CRunBytecode::retOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::sallocOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::sfreeOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::ssetcOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::sgetcOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::m1allocOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::m2allocOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::mfreeOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::m1setOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::m1getOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::m2setOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::m2getOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::mcopyOpcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::mgetSize1Opcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++void CRunBytecode::mgetSize2Opcode()
++{
++   invalidOpcode(__FUNCTION__);
++}
++
++
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-22 15:45:54 UTC (rev 381)
+@@ -8,7 +8,7 @@
+ #include &quot;CHeader.hpp&quot;
+ #include &quot;CSymbolTable.hpp&quot;
+ #include &quot;CData.hpp&quot;
+-#include &quot;CCode.hpp&quot;
++#include &quot;CBytecode.hpp&quot;
+ #include &quot;Common.hpp&quot;
+ #include &quot;CDataStack.hpp&quot;
+ 
+@@ -31,31 +31,135 @@
+    void step();
+    void procImprima();
+    // opcodes
+-   void invalidOpcode();
++   void invalidOpcode(const std::string &amp;opcode=&quot;&quot;);
+    void nopOpcode();
+    void pushSpOpcode();
+    void popSpOpcode();
+    void pushOpcode();
+    void pushStringOpcode();
+-   void pushIntOpcode();
+-   void pushRealOpcode();
+-   void pushBoolOpcode();
+-   void pushCharOpcode();
+-   void push1Opcode();
++//   void push1Opcode();
+    void pcallOpcode();
+ //   void exit0Opcode();
+    void exitOpcode();
+-   void isetOpcode();
++
++//   OP_EXIT_1,
++   void hltOpcode();
++
+    void isumOpcode();
++   void ssumOpcode();
++   void rsumOpcode();
++   void isubOpcode();
++   void ssubOpcode();
++   void rsubOpcode();
+    void imulOpcode();
++   void rmulOpcode();
++   void idivOpcode();
++   void rdivOpcode();
++   void imodOpcode();
++   void rmodOpcode();
++   void igeOpcode();
++   void sgeOpcode();
++   void rgeOpcode();
++   void ileOpcode();
++   void sleOpcode();
++   void rleOpcode();
++   void ineOpcode();
++   void sneOpcode();
++   void rneOpcode();
++   void igtOpcode();
++   void sgtOpcode();
++   void rgtOpcode();
++   void iltOpcode();
++   void sltOpcode();
++   void rltOpcode();
++   void ieqOpcode();
++   void seqOpcode();
++   void reqOpcode();
++   void orOpcode();
++   void andOpcode();
++   void xorOpcode();
++   void inegOpcode();
++   void rnegOpcode();
++   void notOpcode();
++   void iincOpcode();
++   void idecOpcode();
++   void i2cOpcode();
++   void r2cOpcode();
++   void s2cOpcode();
++   void b2cOpcode();
++   void i2rOpcode();
++   void c2rOpcode();
++   void s2rOpcode();
++   void b2rOpcode();
++   void i2bOpcode();
++   void c2bOpcode();
++   void r2bOpcode();
++   void s2bOpcode();
++   void i2sOpcode();
++   void c2sOpcode();
++   void r2sOpcode();
++   void b2sOpcode();
++   void p2sOpcode();
++   void c2iOpcode();
++   void r2iOpcode();
++   void s2iOpcode();
++   void b2iOpcode();
++   void isetOpcode();
++   void ssetOpcode();
++   void rsetOpcode();
++   void getaOpcode();
++   void igetvOpcode();
++   void sgetvOpcode();
++   void rgetvOpcode();
++   void isetvOpcode();
++   void ssetvOpcode();
++   void rsetvOpcode();
++   void jmpOpcode();
++   void ifOpcode();
++   void ifnotOpcode();
++   void popOpcode();
++   void incspOpcode();
++   void decspOpcode();
+ 
++//   OP_PUSH_0,
++//   OP_PUSH_2,
++//   OP_PUSH_3,
++//   OP_PUSH_4,
++//   OP_PUSH_5,
+ 
++   void pushIntOpcode();
++   void pushRealOpcode();
++   void pushCharOpcode();
++   void pushBoolOpcode();
++   void pushMatrixOpcode();
++
++//   OP_INCSP_4,
++//   OP_INCSP_8,
++//   OP_DECSP_4,
++//   OP_DECSP_8,
++
++   void retOpcode();
++   void sallocOpcode();
++   void sfreeOpcode();
++   void ssetcOpcode();
++   void sgetcOpcode();
++   void m1allocOpcode();
++   void m2allocOpcode();
++   void mfreeOpcode();
++   void m1setOpcode();
++   void m1getOpcode();
++   void m2setOpcode();
++   void m2getOpcode();
++   void mcopyOpcode();
++   void mgetSize1Opcode();
++   void mgetSize2Opcode();
++
++
+    CHeader       _header;
+    CSymbolTable  _symbolTable;
+    CData         _data;
+-   CCode         _code;
++   CBytecode     _code;
+    OpcodePointer _opcodePointer[ OPCODE_NUMBER ];
+-   int           _IP;
+    bool          _stop;
+    CDataStack    _dataStack;
+ };
+
+Modified: trunk/gpt2/gptvm/src/Makefile
+===================================================================
+--- trunk/gpt2/gptvm/src/Makefile	2007-11-21 17:38:00 UTC (rev 380)
++++ trunk/gpt2/gptvm/src/Makefile	2007-11-22 15:45:54 UTC (rev 381)
+@@ -6,7 +6,7 @@
+ 
+ GPTASM=../gptasm/
+ 
+-objects = main.o CGptVm.o CRunBytecode.o CDataStack.o \
++objects = main.o CGptVm.o CRunBytecode.o CDataStack.o CBytecode.o \
+           $(COMMON_DIR)CSymbol.o $(COMMON_DIR)CSymbolTable.o $(COMMON_DIR)CCode.o  \
+           $(COMMON_DIR)CHeader.o $(COMMON_DIR)CData.o       \
+           $(COMMON_DIR)CBinString.o $(COMMON_DIR)CSymbolList.o 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000054.html">[gpt-commit] r380 - in trunk/gpt2/gptc: . src
+</A></li>
+	<LI>Next message: <A HREF="000056.html">[gpt-commit] r382 - in trunk/gpt2: common/src gptasm/src gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#55">[ date ]</a>
+              <a href="thread.html#55">[ thread ]</a>
+              <a href="subject.html#55">[ subject ]</a>
+              <a href="author.html#55">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

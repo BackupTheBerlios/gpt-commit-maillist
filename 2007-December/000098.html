@@ -1,0 +1,1396 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r424 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r424%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051834.lB5IY6FN009963%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000097.html">
+   <LINK REL="Next"  HREF="000099.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r424 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r424%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051834.lB5IY6FN009963%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r424 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec  5 19:34:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000097.html">[gpt-commit] r423 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000099.html">[gpt-commit] r425 - in trunk/gpt2: common/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-05 19:34:04 +0100 (Wed, 05 Dec 2007)
+New Revision: 424
+
+Modified:
+   trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+   trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+   trunk/gpt2/gptc/src/semantic.g
+Log:
+-Elaboracao da reportagem de erro, seguindo as mensagens do javac da Sun
+
+Modified: trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseSemanticWalker.cpp	2007-12-05 18:32:52 UTC (rev 423)
++++ trunk/gpt2/gptc/src/BaseSemanticWalker.cpp	2007-12-05 18:34:04 UTC (rev 424)
+@@ -8,11 +8,8 @@
+ 
+ #include &lt;iostream&gt;
+ #include &lt;sstream&gt;
+-using std::cerr;
+-using std::endl;
++#include &lt;fstream&gt;
+ 
+-
+-
+ bool InitMatrixList::hasUniformDimensions() const {
+   const_iterator it;
+   int d = -1;
+@@ -69,22 +66,35 @@
+ 
+ 
+ 
+-BaseSemanticWalker::BaseSemanticWalker(SymbolTable* symtable)
++BaseSemanticWalker::BaseSemanticWalker(SymbolTable* symtable,
++                                       const std::string&amp; filepath)
+  : antlr::TreeParser(),
+   _symtable(symtable),
+-  _typeBuilder(symtable-&gt;typeBuilder()) {
++  _typeBuilder(symtable-&gt;typeBuilder()),
++  _filepath(filepath) {
++
++  buildSourceLines();
+ }
+ 
++void BaseSemanticWalker::buildSourceLines() {
++  std::ifstream fi(_filepath.c_str());
++  std::string line;
++  while (!fi.eof()) {
++    getline(fi, line);
++    _sourcelines.push_back(line);
++  }
++}
++
+ void BaseSemanticWalker::useLib(const std::string&amp; lib) {
+-  cerr &lt;&lt; &quot;Using &quot; &lt;&lt; lib &lt;&lt; endl;
++  std::cerr &lt;&lt; &quot;Using &quot; &lt;&lt; lib &lt;&lt; std::endl;
+ }
+ 
+ Type* BaseSemanticWalker::getStructType(RefPortugolAST node) {
+   try {
+     return _symtable-&gt;getType(node-&gt;getText());
+   } catch (UndeclaredTypeException e) {
+-    report(node-&gt;getLine(),
+-           std::string(&quot;Undefined type: &quot;) + node-&gt;getText());
++    report(node-&gt;getLine(), node-&gt;getColumn(),
++           std::string(&quot;tipo indefinido: &quot;) + node-&gt;getText());
+     return _typeBuilder-&gt;errorType();
+   }
+ }
+@@ -94,8 +104,8 @@
+     return
+       _symtable-&gt;getSymbol(node-&gt;getText()).type();
+   } catch (UndeclaredSymbolException e) {
+-    report(node-&gt;getLine(),
+-           std::string(&quot;Undeclared symbol: &quot;) + node-&gt;getText());
++    report(node-&gt;getLine(), node-&gt;getColumn(),
++           std::string(&quot;s&#237;mbolo n&#227;o declarado: &quot;) + node-&gt;getText());
+     return _typeBuilder-&gt;errorType();
+   }
+ }
+@@ -107,7 +117,8 @@
+   }
+ 
+   if (!sttype-&gt;isStruct()) {
+-    report(id-&gt;getLine(), parent-&gt;getText() + &quot; n&#227;o &#233; uma estrutura&quot;);
++    report(id-&gt;getLine(), id-&gt;getColumn(), 
++      std::string(&quot;'&quot;) + parent-&gt;getText() + &quot;' n&#227;o &#233; uma estrutura&quot;);
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+@@ -115,8 +126,9 @@
+       sttype-&gt;fields().findFirstByLexeme(id-&gt;getText());
+ 
+   if (it == sttype-&gt;fields().end()) {
+-    report(id-&gt;getLine(),
+-        sttype-&gt;name() + &quot; n&#227;o possui membro &quot; + id-&gt;getText());
++    report(id-&gt;getLine(), id-&gt;getColumn(),
++        std::string(&quot;estrutura '&quot;)  + 
++        sttype-&gt;name() + &quot;' n&#227;o possui membro '&quot; + id-&gt;getText() + &quot;'&quot;);
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+@@ -144,28 +156,42 @@
+     return type-&gt;evalTypeFromSubscript(dimensions);
+   } else if (type-&gt;isMatrix()) {
+     std::stringstream s;
+-    s &lt;&lt; id-&gt;getText() &lt;&lt; &quot; tem &quot; &lt;&lt; type-&gt;dimensions().size() &lt;&lt; &quot; dimens&#245;es&quot;;
+-    report(id-&gt;getLine(), s.str());
++    s &lt;&lt; id-&gt;getText() 
++    &lt;&lt; &quot; tem &quot; &lt;&lt; type-&gt;dimensions().size() 
++    &lt;&lt; &quot; dimens&#245;es&quot;; //dimens&#227;o / dimens&#245;es
++    report(id-&gt;getLine(), id-&gt;getColumn(), s.str());
+   } else {
+-    report(id-&gt;getLine(), id-&gt;getText() + &quot; n&#227;o &#233; uma matriz&quot;);
++    report(id-&gt;getLine(), id-&gt;getColumn(), &quot;'&quot; + id-&gt;getText() + &quot;' n&#227;o &#233; uma matriz&quot;);
+   }
+   return _typeBuilder-&gt;errorType();
+ }
+ 
++void  BaseSemanticWalker::evalMatrixSubscriptType(RefPortugolAST exp,Type* type) {
++  if (type-&gt;isError()) {
++    return;
++  }
++
++  if (!type-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
++    report(exp-&gt;getLine(), exp-&gt;getColumn(), 
++      &quot;subscrito da matriz deve ser do tipo inteiro. Encontrado tipo &quot; + type-&gt;name());
++  }
++}
++
+ void BaseSemanticWalker::declare(const IDList&amp; ids, Type* type) {
+-  try {
+-    IDList::const_iterator it;
+-    for (it = ids.begin(); it != ids.end(); ++it) {
++  IDList::const_iterator it;
++  for (it = ids.begin(); it != ids.end(); ++it) {
++    try {
+       _symtable-&gt;insertSymbol(
+         Symbol((*it)-&gt;getText(),
+               type,
+               _symtable-&gt;currentScope(),
+               _symtable-&gt;unit(),
+-              (*it)-&gt;getLine()));
++              (*it)-&gt;getLine(),
++              (*it)-&gt;getColumn()));
++    } catch (RedeclarationException e) {
++      report((*it)-&gt;getLine(), (*it)-&gt;getColumn(),
++            std::string(&quot;redeclara&#231;&#227;o: &quot;) + e.symbol().lexeme());
+     }
+-  } catch (RedeclarationException e) {
+-    report(ids.back()-&gt;getLine(),
+-           std::string(&quot;Redeclaration: &quot;) + e.symbol().toString());
+   }
+ }
+ 
+@@ -181,7 +207,8 @@
+             type,
+             _symtable-&gt;globalScope(),
+             _symtable-&gt;unit(),
+-            id-&gt;getLine());
++            id-&gt;getLine(),
++            id-&gt;getColumn());
+ 
+   declareProc(s, params);
+ }
+@@ -196,7 +223,8 @@
+             type,
+             _symtable-&gt;globalScope(),
+             _symtable-&gt;unit(),
+-            id-&gt;getLine());
++            id-&gt;getLine(),
++            id-&gt;getColumn());
+ 
+   declareProc(s, params);
+ 
+@@ -207,8 +235,8 @@
+   try {
+     _symtable-&gt;insertSymbol(s);
+   } catch (RedeclarationException e) {
+-    report(e.symbol().line(),
+-           std::string(&quot;Redeclaration: &quot;) + e.symbol().toString());
++    report(e.symbol().line(), e.symbol().column(),
++           std::string(&quot;redeclara&#231;&#227;o: &quot;) + e.symbol().lexeme());
+     _symtable-&gt;setIgnoreScope();
+     return;
+   }  
+@@ -219,8 +247,8 @@
+   try {
+     _symtable-&gt;insertSymbols(params);
+   } catch (RedeclarationException e) {
+-    report(e.symbol().line(),
+-           std::string(&quot;Redeclaration: &quot;) + e.symbol().toString());
++    report(e.symbol().line(), e.symbol().column(),
++           std::string(&quot;redeclara&#231;&#227;o: &quot;) + e.symbol().lexeme());
+   }  
+ }
+ 
+@@ -230,24 +258,14 @@
+   try {
+     _symtable-&gt;insertType(id-&gt;getText(), fieldList, id-&gt;getLine());
+   } catch (RedefinedTypeException e) {
+-    report(id-&gt;getLine(), std::string(&quot;Redefinition: &quot;) + e.typeName());
++    report(id-&gt;getLine(), id-&gt;getColumn(), 
++        std::string(&quot;redefini&#231;&#227;o do tipo '&quot;) + e.typeName() + &quot;'&quot;);
+   } catch (RedeclarationException e) {
+-    report(id-&gt;getLine(), std::string(&quot;Redeclaration: &quot;) + e.symbol().toString());
++    report(e.symbol().line(), e.symbol().column(),
++        std::string(&quot;redeclara&#231;&#227;o: &quot;) + e.symbol().lexeme());
+   }
+ }
+ 
+-// void BaseSemanticWalker::defineStruct(RefPortugolAST id,
+-//                                       const SymbolList&amp; fieldList) {
+-// 
+-//   try {
+-//     _symtable-&gt;insertType(id-&gt;getText(), fieldList, id-&gt;getLine());
+-//   } catch (RedefinedTypeException e) {
+-//     report(id-&gt;getLine(), std::string(&quot;Redefinition: &quot;) + e.typeName());
+-//   } catch (RedeclarationException e) {
+-//     report(id-&gt;getLine(), std::string(&quot;Redeclaration: &quot;) + e.symbol().toString());
+-//   }
+-// }
+-
+ Type* BaseSemanticWalker::evalInitStruct(const InitStructList&amp; stc) {
+   SymbolList flist;
+   InitStructList::const_iterator it;
+@@ -256,17 +274,18 @@
+                     it-&gt;second, 
+                     _symtable-&gt;globalScope(), 
+                     _symtable-&gt;unit(),
+-                    it-&gt;first-&gt;getLine()));
++                    it-&gt;first-&gt;getLine(),
++                    it-&gt;first-&gt;getColumn()));
+   }
+   return _typeBuilder-&gt;structType(flist);
+ }
+ 
+-Type* BaseSemanticWalker::evalInitMatrix(int line,const InitMatrixList&amp; mtx) {
++Type* BaseSemanticWalker::evalInitMatrix(RefPortugolAST node, const InitMatrixList&amp; mtx) {
+   if (!mtx.hasUniformDimensions()) {
+     std::stringstream s;
+-    s &lt;&lt; &quot;Matriz tem valores em dimens&#245;es diferentes&quot;;
++    s &lt;&lt; &quot;valores da matriz n&#227;o podem ter dimens&#245;es diferentes&quot;;
+ 
+-    report(line, s.str());
++    report(node-&gt;getLine(), node-&gt;getColumn(), s.str());
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+@@ -274,7 +293,8 @@
+   Type *ptype = mtx.front().second;
+   Type *dtype;
+   if (dtype = mtx.elementsDivergeFrom(ptype)) {
+-    report(line, std::string(&quot;Matriz heterogenea: &quot;)
++    report(node-&gt;getLine(), node-&gt;getColumn(), 
++                 std::string(&quot;matriz heterogenea: &quot;)
+                  + ptype-&gt;name()
+                  + &quot; e &quot;
+                  + dtype-&gt;name());
+@@ -289,18 +309,32 @@
+ 
+ 
+ 
+-void BaseSemanticWalker::evalAttribution(int line,
++void BaseSemanticWalker::evalAttribution(RefPortugolAST lastId,
+                                          Type* ltype, Type* rtype) {
+   if (ltype-&gt;isError() || rtype-&gt;isError()) {
+     return;
+   }
+ 
+   if (!ltype-&gt;isLValueFor(rtype)) {
+-    report(line, string(&quot;ilegal: &quot;) + ltype-&gt;name() + &quot; := &quot; + rtype-&gt;name());
++    report(lastId-&gt;getLine(), lastId-&gt;getColumn(), 
++            string(&quot;vari&#225;vel do tipo '&quot;) + ltype-&gt;name() 
++            + &quot;' n&#227;o pode receber valor do tipo '&quot; + rtype-&gt;name() + &quot;'&quot;);
+   }
+ }
+ 
++void BaseSemanticWalker::evalAttribution(const ExpressionReturn&amp; l, 
++                                         const ExpressionReturn&amp; r) {
++  if (l.second-&gt;isError() || r.second-&gt;isError()) {
++    return;
++  }
+ 
++  if (!l.second-&gt;isLValueFor(r.second)) {
++    report(r.first-&gt;getLine(), r.first-&gt;getColumn(), 
++            &quot;vari&#225;vel do tipo '&quot; + l.second-&gt;name() 
++            + &quot;' n&#227;o pode receber valor do tipo '&quot; + r.second-&gt;name() + &quot;'&quot;);
++  }
++}
++
+ Type* BaseSemanticWalker::evalCall(RefPortugolAST id,
+                                    const TypeList&amp; paramTypes) {
+   //TODO
+@@ -317,52 +351,62 @@
+     return 
+       _symtable-&gt;getSymbol(id-&gt;getText(), paramTypes).type()-&gt;returnType();
+   } catch (UndeclaredSymbolException e) {
+-    report(id-&gt;getLine(), std::string(&quot;Undeclared '&quot;) + id-&gt;getText());
++    report(id-&gt;getLine(), id-&gt;getColumn(), 
++        &quot;fun&#231;&#227;o n&#227;o encontrada: '&quot; + id-&gt;getText() + &quot;'&quot;);
+     return _typeBuilder-&gt;errorType();
+   } catch (UnmatchedException e) {
+-    report(id-&gt;getLine(),
+-           std::string(&quot;No matching call for '&quot;) + id-&gt;getText() 
+-           + &quot;(&quot; + paramTypes.toString() + &quot;)'&quot;);
++    report(id-&gt;getLine(), id-&gt;getColumn(),
++           &quot;Fun&#231;&#227;o compat&#237;vel com '&quot; + id-&gt;getText() 
++           + &quot;(&quot; + paramTypes.toString() + &quot;)' n&#227;o encontrada&quot;);
+     return _typeBuilder-&gt;errorType();
+   }
+ }
+ 
+-void BaseSemanticWalker::evalRetorne(int line,Type* type) {
++void BaseSemanticWalker::evalRetorne(RefPortugolAST ret,Type* type) {
++  if (type-&gt;isError()) {
++    return;
++  }
++
+   if (_symtable-&gt;isInGlobalScope()) {
+-    report(line, &quot;N&#227;o h&#225; retorno em escopo global&quot;);
++    report(ret-&gt;getLine(), ret-&gt;getColumn(), 
++        &quot;n&#227;o h&#225; retorno em escopo global&quot;);
+   } else if(!_currentScopeSymbol.type()-&gt;returnType()-&gt;isLValueFor(type)) {
+-    report(line, &quot;Tipo de retorno (&quot; 
++    report(ret-&gt;getLine(), ret-&gt;getColumn(), &quot;tipo de retorno (&quot; 
+            + type-&gt;name() + &quot;) incompat&#237;vel com tipo da fun&#231;&#227;o (&quot; 
+            + _currentScopeSymbol.type()-&gt;returnType()-&gt;name() +&quot;)&quot;);
+   }
+ }
+ 
+ 
+-void BaseSemanticWalker::evalCondicional(int line, Type* type) {
+-  if (!type-&gt;equals(PortugolTokenTypes::T_LOGICO)) {
+-    report(line, 
+-      std::string(&quot;Enunciado exige express&#227;o l&#243;gica. Tipo &quot;) 
+-      + type-&gt;name() + &quot; encontrado.&quot;);
++void BaseSemanticWalker::evalCondicional(const ExpressionReturn&amp; ex) {
++  if (ex.second-&gt;isError()) {
++    return;
+   }
++
++  if (!ex.second-&gt;equals(PortugolTokenTypes::T_LOGICO)) {
++    report(ex.first-&gt;getLine(), ex.first-&gt;getColumn(),
++      &quot;enunciado exige express&#227;o l&#243;gica. Tipo '&quot; 
++      + ex.second-&gt;name() + &quot;' encontrado.&quot;);
++  }
+ }
+ 
+ /************************ EXPR ********************************************/
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_OU(int,Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_OU(RefPortugolAST,Type* left, Type* right) {
+   //TODO: refatorar os copy/pastes dos metodos evalExpr
+ 
+   return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+ }
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_E(int,Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_E(RefPortugolAST,Type* left, Type* right) {
+   return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_OU(int line,Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_BIT_OU(RefPortugolAST op,Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -371,7 +415,7 @@
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(), 
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; | &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -379,7 +423,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_OUX(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_BIT_OUX(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -388,7 +432,7 @@
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; ^ &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -396,7 +440,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_E(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_BIT_E(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -405,7 +449,7 @@
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &amp; &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -413,7 +457,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_IGUAL(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_IGUAL(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -421,7 +465,7 @@
+   if (left-&gt;equals(right)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; = &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -429,7 +473,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_DIFERENTE(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_DIFERENTE(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -437,7 +481,7 @@
+   if (left-&gt;equals(right)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt;&gt; &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -445,7 +489,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MAIOR(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MAIOR(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -454,7 +498,7 @@
+       (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &gt; &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -462,7 +506,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MENOR(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MENOR(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -471,7 +515,7 @@
+       (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt; &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -479,7 +523,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MAIOR_EQ(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MAIOR_EQ(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -488,7 +532,7 @@
+       (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &gt;= &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -497,7 +541,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MENOR_EQ(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MENOR_EQ(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -506,7 +550,7 @@
+       (left-&gt;equals(right) || left-&gt;intOrReal(right))) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt;= &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -514,7 +558,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_SHIFT_LEFT(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_BIT_SHIFT_LEFT(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -523,7 +567,7 @@
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &lt;&lt; &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -531,7 +575,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_SHIFT_RIGHT(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_BIT_SHIFT_RIGHT(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -540,7 +584,7 @@
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; &gt;&gt; &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -548,13 +592,13 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MAIS(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MAIS(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+   if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; + &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -565,7 +609,7 @@
+   } else if (ret = left-&gt;caracOrLit(right)) {
+     return ret;
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; + &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -573,13 +617,13 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MENOS(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MENOS(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+   if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; - &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -588,7 +632,7 @@
+   if (ret = left-&gt;intOrReal(right)) {
+     return ret;
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; - &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -596,13 +640,13 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_DIV(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_DIV(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+   if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; / &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -611,7 +655,7 @@
+   if (ret = left-&gt;intOrReal(right)) {
+     return ret;
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; / &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -619,13 +663,13 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MULTIP(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MULTIP(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;isError() || right-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+ 
+   if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; * &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -634,7 +678,7 @@
+   if (ret = left-&gt;intOrReal(right)) {
+     return ret;
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; * &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -642,12 +686,12 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_MOD(int line, Type* left, Type* right) {
++BaseSemanticWalker::evalExpr_MOD(RefPortugolAST op, Type* left, Type* right) {
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO) &amp;&amp;
+       right-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + left-&gt;name() + &quot; % &quot; + right-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -656,7 +700,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_UN_NEGATIVO(int line, Type* left) {
++BaseSemanticWalker::evalExpr_UN_NEGATIVO(RefPortugolAST op, Type* left) {
+   if (left-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -665,7 +709,7 @@
+       left-&gt;equals(PortugolTokenTypes::T_REAL)) {
+     return _typeBuilder-&gt;primitiveType(left-&gt;primitiveType());
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + &quot; - &quot; + left-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -673,7 +717,7 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_UN_POSITIVO(int line, Type* left) {
++BaseSemanticWalker::evalExpr_UN_POSITIVO(RefPortugolAST op, Type* left) {
+   if (left-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -682,7 +726,7 @@
+       left-&gt;equals(PortugolTokenTypes::T_REAL)) {
+     return _typeBuilder-&gt;primitiveType(left-&gt;primitiveType());
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + &quot; + &quot; + left-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -690,13 +734,13 @@
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_NAO(int, Type* left) {
++BaseSemanticWalker::evalExpr_NAO(RefPortugolAST, Type* left) {
+   return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_LOGICO);
+ }
+ 
+ 
+ Type*
+-BaseSemanticWalker::evalExpr_BIT_NAO(int line, Type* left) {
++BaseSemanticWalker::evalExpr_BIT_NAO(RefPortugolAST op, Type* left) {
+   if (left-&gt;isError()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -704,7 +748,7 @@
+   if (left-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+     return _typeBuilder-&gt;primitiveType(PortugolTokenTypes::T_INTEIRO);
+   } else {
+-    report(line, 
++    report(op-&gt;getLine(), op-&gt;getColumn(),
+       std::string(&quot;ilegal: &quot;) + &quot; ~ &quot; + left-&gt;name());
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -714,8 +758,25 @@
+ /********************************************************************/
+ 
+ 
++using std::cerr;
++using std::endl;
+ 
+ 
++void BaseSemanticWalker::report(int line, int col, const std::string&amp; msg) {
++  //&lt;file&gt;:&lt;line&gt;: &lt;message&gt;
++  //.............&lt;source code&gt;
++  //...................^
++
++  std::string space = &quot;                &quot;;
++  std::cerr &lt;&lt; _filepath &lt;&lt; &quot;:&quot; &lt;&lt; line &lt;&lt; &quot;: &quot; &lt;&lt; msg &lt;&lt; std::endl;
++  std::cerr &lt;&lt; space &lt;&lt; _sourcelines.at(line-1) &lt;&lt; std::endl;
++
++  for (unsigned int i = 1; i &lt; col + space.length(); i++) {
++    std::cerr &lt;&lt; &quot; &quot;;
++  }
++  std::cerr &lt;&lt; &quot;^&quot; &lt;&lt; std::endl;
++}
++
+ void BaseSemanticWalker::report(int line, const std::string&amp; s) {
+   cerr &lt;&lt; &quot;linha &quot; &lt;&lt; line &lt;&lt; &quot; - &quot; &lt;&lt; s &lt;&lt; endl;
+ }
+
+Modified: trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseSemanticWalker.hpp	2007-12-05 18:32:52 UTC (rev 423)
++++ trunk/gpt2/gptc/src/BaseSemanticWalker.hpp	2007-12-05 18:34:04 UTC (rev 424)
+@@ -23,6 +23,7 @@
+ 
+ #include &lt;antlr/TreeParser.hpp&gt;
+ #include &lt;list&gt;
++#include &lt;vector&gt;
+ #include &lt;string&gt;
+ 
+ #include &quot;PortugolAST.hpp&quot;
+@@ -38,6 +39,8 @@
+ //list&lt;pair&lt;field, type&gt;&gt;
+ typedef std::list&lt;std::pair&lt;RefPortugolAST,Type*&gt; &gt; InitStructList;
+ 
++typedef std::pair&lt;RefPortugolAST,Type*&gt;  ExpressionReturn;
++
+ //list&lt;pair&lt;dimsize,type&gt;&gt;
+ class InitMatrixList : public std::list&lt;std::pair&lt;int,Type*&gt; &gt; {
+ public:
+@@ -51,7 +54,7 @@
+ class BaseSemanticWalker : public antlr::TreeParser {
+ 
+ public:
+-  BaseSemanticWalker(SymbolTable*);
++  BaseSemanticWalker(SymbolTable*, const std::string&amp;);
+ 
+ protected:
+   void useLib(const std::string&amp;);
+@@ -75,46 +78,54 @@
+ 
+ 
+   Type* evalInitStruct(const InitStructList&amp; stc);
+-  Type* evalInitMatrix(int, const InitMatrixList&amp; mtx);
++  Type* evalInitMatrix(RefPortugolAST, const InitMatrixList&amp; mtx);
+ 
+   Type* evalMatrixSubscript(RefPortugolAST, Type*, int);
++  void  evalMatrixSubscriptType(RefPortugolAST,Type*);
+ 
+-  void evalAttribution(int,Type*, Type*);
++  void evalAttribution(RefPortugolAST,Type*, Type*);
++  void evalAttribution(const ExpressionReturn&amp;, const ExpressionReturn&amp;);
+ 
+   Type* evalCall(RefPortugolAST id, const TypeList&amp; paramTypes);
+ 
+-  void evalRetorne(int,Type*);
++  void evalRetorne(RefPortugolAST,Type*);
+ 
+-  void evalCondicional(int, Type*);
++  void evalCondicional(const ExpressionReturn&amp;);
+ 
+-  Type* evalExpr_OU(int,Type* left, Type* right);
+-  Type* evalExpr_E(int,Type* left, Type* right);
+-  Type* evalExpr_BIT_OU(int,Type* left, Type* right);
+-  Type* evalExpr_BIT_OUX(int,Type* left, Type* right);
+-  Type* evalExpr_BIT_E(int,Type* left, Type* right);
+-  Type* evalExpr_IGUAL(int,Type* left, Type* right);
+-  Type* evalExpr_DIFERENTE(int,Type* left, Type* right);
+-  Type* evalExpr_MAIOR(int,Type* left, Type* right);
+-  Type* evalExpr_MENOR(int,Type* left, Type* right);
+-  Type* evalExpr_MAIOR_EQ(int,Type* left, Type* right);
+-  Type* evalExpr_MENOR_EQ(int,Type* left, Type* right);
+-  Type* evalExpr_BIT_SHIFT_LEFT(int,Type* left, Type* right);
+-  Type* evalExpr_BIT_SHIFT_RIGHT(int,Type* left, Type* right);
+-  Type* evalExpr_MAIS(int,Type* left, Type* right);
+-  Type* evalExpr_MENOS(int,Type* left, Type* right);
+-  Type* evalExpr_DIV(int,Type* left, Type* right);
+-  Type* evalExpr_MULTIP(int,Type* left, Type* right);
+-  Type* evalExpr_MOD(int,Type* left, Type* right);
+-  Type* evalExpr_UN_NEGATIVO(int,Type*);
+-  Type* evalExpr_UN_POSITIVO(int,Type*);
+-  Type* evalExpr_NAO(int,Type*);
+-  Type* evalExpr_BIT_NAO(int,Type*);
++  Type* evalExpr_OU(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_E(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_BIT_OU(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_BIT_OUX(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_BIT_E(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_IGUAL(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_DIFERENTE(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_MAIOR(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_MENOR(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_MAIOR_EQ(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_MENOR_EQ(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_BIT_SHIFT_LEFT(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_BIT_SHIFT_RIGHT(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_MAIS(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_MENOS(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_DIV(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_MULTIP(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_MOD(RefPortugolAST,Type* left, Type* right);
++  Type* evalExpr_UN_NEGATIVO(RefPortugolAST,Type*);
++  Type* evalExpr_UN_POSITIVO(RefPortugolAST,Type*);
++  Type* evalExpr_NAO(RefPortugolAST,Type*);
++  Type* evalExpr_BIT_NAO(RefPortugolAST,Type*);
+ 
++  void buildSourceLines();
++
++  void report(int, int, const std::string&amp;);
+   void report(int, const std::string&amp;);
++  
+ 
+-  SymbolTable* _symtable;
+-  TypeBuilder* _typeBuilder;
+-  Symbol       _currentScopeSymbol;
++  SymbolTable*                 _symtable;
++  TypeBuilder*                 _typeBuilder;
++  std::string                  _filepath;
++  std::vector&lt;std::string&gt;     _sourcelines;
++  Symbol                       _currentScopeSymbol;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptc/src/semantic.g
+===================================================================
+--- trunk/gpt2/gptc/src/semantic.g	2007-12-05 18:32:52 UTC (rev 423)
++++ trunk/gpt2/gptc/src/semantic.g	2007-12-05 18:34:04 UTC (rev 424)
+@@ -39,8 +39,10 @@
+ 
+ {
+ public:
+-  SemanticWalker::SemanticWalker(SymbolTable* stable)
+-	 : BaseSemanticWalker(stable), _analisingInitializationList(false) { }
++  SemanticWalker::SemanticWalker(SymbolTable* symtable, 
++                                 const std::string&amp; filepath)
++	 : BaseSemanticWalker(symtable, filepath), 
++    _analisingInitializationList(false) { }
+ 
+ private:
+   bool _analisingInitializationList;
+@@ -63,7 +65,7 @@
+         EOF
+                                       //analise semantica dos blocos
+                                       {_t = inicio; /*rollback*/}
+-        corpo
++        (corpo)?
+         EOF
+      )
+   ;
+@@ -93,10 +95,9 @@
+         ids=identificadores     {declare(ids, type);}
+ 
+         (
+-          rtype=valor_inicialiacao
++          rtype=v:valor_inicialiacao
+ 
+-                                {evalAttribution(
+-                                    ids.back()-&gt;getLine(), type, rtype);}
++                                {evalAttribution(ids.back(), type, rtype);}
+         )?
+     )
+   ;
+@@ -116,8 +117,7 @@
+                                 {
+                                   type-&gt;setConst(true);
+                                   declare(ids, type);
+-                                  evalAttribution(
+-                                      ids.back()-&gt;getLine(), type, rtype);
++                                  evalAttribution(ids.back(),type, rtype);
+                                 }
+   ;
+ 
+@@ -198,8 +198,7 @@
+             (
+               rtype=valor_inicialiacao
+ 
+-                                {evalAttribution(
+-                                  ids.back()-&gt;getLine(), type, rtype);}
++                                {evalAttribution(ids.back(), type, rtype);}
+ 
+             )?
+     )
+@@ -212,7 +211,8 @@
+                                                     type,
+                                                     _symtable-&gt;currentScope(),
+                                                     _symtable-&gt;unit(),
+-                                                    (*it)-&gt;getLine()));
++                                                    (*it)-&gt;getLine(),
++                                                    (*it)-&gt;getColumn()));
+                                   }
+                                 }
+     )+
+@@ -240,12 +240,12 @@
+                             InitMatrixList         mtx;
+                             InitStructList         stc;
+                           }
+-  : rtype=expressao
++  : rtype=expressao_
+ 
+   | #(m:T_VAL_MATRIZ
+         (valor_matriz[1,mtx])+)
+ 
+-                          {rtype = evalInitMatrix(m-&gt;getLine(), mtx);}
++                          {rtype = evalInitMatrix(m, mtx);}
+ 
+   | #(T_VAL_ESTRUTURA
+       (id:T_IDENTIFICADOR valor_estrutura[id,stc])+)
+@@ -260,7 +260,7 @@
+                                 InitStructList stc;
+                               }
+ 
+-  : type=expressao     {mtx.push_back(std::pair&lt;int,Type*&gt;(dimension, type));}
++  : type=expressao_      {mtx.push_back(std::pair&lt;int,Type*&gt;(dimension, type));}
+ 
+   | #(T_VAL_MATRIZ
+       (valor_matriz[dimension+1, mtx])+)
+@@ -278,7 +278,7 @@
+                                 InitMatrixList mtx;
+                                 InitStructList stc_;
+                               }
+-  : type=expressao
++  : type=expressao_
+                               {
+                                 stc.push_back(
+                                   std::pair&lt;RefPortugolAST,Type*&gt;(
+@@ -289,7 +289,7 @@
+       (valor_matriz[1, mtx])+)
+ 
+                               {
+-                                type = evalInitMatrix(m-&gt;getLine(), mtx);
++                                type = evalInitMatrix(m, mtx);
+                                 stc.push_back(
+                                   std::pair&lt;RefPortugolAST,Type*&gt;(
+                                     field, type));
+@@ -385,7 +385,8 @@
+                                         Symbol(id-&gt;getText(),
+                                           type,
+                                           _symtable-&gt;unit(),
+-                                          id-&gt;getLine());
++                                          id-&gt;getLine(),
++                                          id-&gt;getColumn());
+                                   }
+ 
+   | T_RETICENCIAS idret:T_IDENTIFICADOR
+@@ -394,7 +395,8 @@
+                                     symbol = Symbol(idret-&gt;getText(),
+                                               _typeBuilder-&gt;reticencesType(),
+                                               _symtable-&gt;unit(),
+-                                              idret-&gt;getLine());
++                                              idret-&gt;getLine(),
++                                              idret-&gt;getColumn());
+                                   }
+   ;
+ 
+@@ -402,79 +404,92 @@
+ /* ************************* EXPRESSOES *************************/
+ 
+ 
++expressao returns [ExpressionReturn ret]
+ 
+-expressao returns [Type *type]
++                                {
++                                  Type *type;
++                                }
++
++  : #(e:T_EXPRESSAO type=expr)  {ret.first = e; ret.second = type;}
++  ;
++
++expressao_ returns [Type *type]
++  : #(T_EXPRESSAO type=expr)
++  ;
++
++
++expr returns [Type *type]
+                                       {
+                                         Type *l, *r;
+                                         RefPortugolAST op = _t;
+                                       }
+   : (
+ 
+-      #(T_OU              l=expressao r=expressao)
+-                                      {type = evalExpr_OU(op-&gt;getLine(), l,r);}
++      #(T_OU              l=expr r=expr)
++                                      {type = evalExpr_OU(op, l,r);}
+ 
+-    | #(T_E               l=expressao r=expressao)
+-                                      {type = evalExpr_E(op-&gt;getLine(), l,r);}
++    | #(T_E               l=expr r=expr)
++                                      {type = evalExpr_E(op, l,r);}
+ 
+-    | #(T_BIT_OU          l=expressao r=expressao)
+-                                      {type = evalExpr_BIT_OU(op-&gt;getLine(), l,r);}
++    | #(T_BIT_OU          l=expr r=expr)
++                                      {type = evalExpr_BIT_OU(op, l,r);}
+ 
+-    | #(T_BIT_OUX         l=expressao r=expressao)
+-                                      {type = evalExpr_BIT_OUX(op-&gt;getLine(), l,r);}
++    | #(T_BIT_OUX         l=expr r=expr)
++                                      {type = evalExpr_BIT_OUX(op, l,r);}
+ 
+-    | #(T_BIT_E           l=expressao r=expressao)
+-                                      {type = evalExpr_BIT_E(op-&gt;getLine(), l,r);}
++    | #(T_BIT_E           l=expr r=expr)
++                                      {type = evalExpr_BIT_E(op, l,r);}
+ 
+-    | #(T_IGUAL           l=expressao r=expressao)
+-                                      {type = evalExpr_IGUAL(op-&gt;getLine(), l,r);}
++    | #(T_IGUAL           l=expr r=expr)
++                                      {type = evalExpr_IGUAL(op, l,r);}
+ 
+-    | #(T_DIFERENTE       l=expressao r=expressao)
+-                                      {type = evalExpr_DIFERENTE(op-&gt;getLine(), l,r);}
++    | #(T_DIFERENTE       l=expr r=expr)
++                                      {type = evalExpr_DIFERENTE(op, l,r);}
+ 
+-    | #(T_MAIOR           l=expressao r=expressao)
+-                                      {type = evalExpr_MAIOR(op-&gt;getLine(), l,r);}
++    | #(T_MAIOR           l=expr r=expr)
++                                      {type = evalExpr_MAIOR(op, l,r);}
+ 
+-    | #(T_MENOR           l=expressao r=expressao)
+-                                      {type = evalExpr_MENOR(op-&gt;getLine(), l,r);}
++    | #(T_MENOR           l=expr r=expr)
++                                      {type = evalExpr_MENOR(op, l,r);}
+ 
+-    | #(T_MAIOR_EQ        l=expressao r=expressao)
+-                                      {type = evalExpr_MAIOR_EQ(op-&gt;getLine(), l,r);}
++    | #(T_MAIOR_EQ        l=expr r=expr)
++                                      {type = evalExpr_MAIOR_EQ(op, l,r);}
+ 
+-    | #(T_MENOR_EQ        l=expressao r=expressao)
+-                                      {type = evalExpr_MENOR_EQ(op-&gt;getLine(), l,r);}
++    | #(T_MENOR_EQ        l=expr r=expr)
++                                      {type = evalExpr_MENOR_EQ(op, l,r);}
+ 
+-    | #(T_BIT_SHIFT_LEFT  l=expressao r=expressao)
+-                                      {type = evalExpr_BIT_SHIFT_LEFT(op-&gt;getLine(), l,r);}
++    | #(T_BIT_SHIFT_LEFT  l=expr r=expr)
++                                      {type = evalExpr_BIT_SHIFT_LEFT(op, l,r);}
+ 
+-    | #(T_BIT_SHIFT_RIGHT l=expressao r=expressao)
+-                                      {type = evalExpr_BIT_SHIFT_RIGHT(op-&gt;getLine(), l,r);}
++    | #(T_BIT_SHIFT_RIGHT l=expr r=expr)
++                                      {type = evalExpr_BIT_SHIFT_RIGHT(op, l,r);}
+ 
+-    | #(T_MAIS            l=expressao r=expressao)
+-                                      {type = evalExpr_MAIS(op-&gt;getLine(), l,r);}
++    | #(T_MAIS            l=expr r=expr)
++                                      {type = evalExpr_MAIS(op, l,r);}
+ 
+-    | #(T_MENOS           l=expressao r=expressao)
+-                                      {type = evalExpr_MENOS(op-&gt;getLine(), l,r);}
++    | #(T_MENOS           l=expr r=expr)
++                                      {type = evalExpr_MENOS(op, l,r);}
+ 
+-    | #(T_DIV             l=expressao r=expressao)
+-                                      {type = evalExpr_DIV(op-&gt;getLine(), l,r);}
++    | #(T_DIV             l=expr r=expr)
++                                      {type = evalExpr_DIV(op, l,r);}
+ 
+-    | #(T_MULTIP          l=expressao r=expressao)
+-                                      {type = evalExpr_MULTIP(op-&gt;getLine(), l,r);}
++    | #(T_MULTIP          l=expr r=expr)
++                                      {type = evalExpr_MULTIP(op, l,r);}
+ 
+-    | #(T_MOD             l=expressao r=expressao)
+-                                      {type = evalExpr_MOD(op-&gt;getLine(), l,r);}
++    | #(T_MOD             l=expr r=expr)
++                                      {type = evalExpr_MOD(op, l,r);}
+ 
+     | #(T_UN_NEGATIVO     l=elemento)
+-                                      {type = evalExpr_UN_NEGATIVO(op-&gt;getLine(),l);}
++                                      {type = evalExpr_UN_NEGATIVO(op,l);}
+ 
+     | #(T_UN_POSITIVO     l=elemento)
+-                                      {type = evalExpr_UN_POSITIVO(op-&gt;getLine(),l);}
++                                      {type = evalExpr_UN_POSITIVO(op,l);}
+ 
+     | #(T_NAO             l=elemento)
+-                                      {type = evalExpr_NAO(op-&gt;getLine(),l);}
++                                      {type = evalExpr_NAO(op,l);}
+ 
+     | #(T_BIT_NAO         l=elemento)
+-                                      {type = evalExpr_BIT_NAO(op-&gt;getLine(),l);}
++                                      {type = evalExpr_BIT_NAO(op,l);}
+ 
+     )
+                        {op-&gt;setEvalType(type);}
+@@ -484,10 +499,11 @@
+ 
+ 
+ elemento returns [Type *type]
++                               {ExpressionReturn lv;}
+   : type=literal
+-  | type=lvalue
++  | lv=lvalue                  {type = lv.second;}
+   | type=chamada_subrotina
+-  | #(T_ABRE_PAREN type=expressao)
++  | type=expressao_
+   ;
+ 
+ literal returns [Type *type]
+@@ -500,21 +516,25 @@
+   ;
+ 
+ 
+-lvalue returns [Type *type]
++lvalue returns [ExpressionReturn ret]
+ 
+-                            {int dimensions;}
++                            {
++                              Type *type;
++                              int dimensions;
++                            }
+ 
+   : #(id:T_IDENTIFICADOR    {type = getSymbolType(id);}
+ 
+       (
+         dimensions=lvalue_indices
+ 
+-                           {type = evalMatrixSubscript(id,
+-                                                       type, dimensions);}
++                           {type = evalMatrixSubscript(id, type, dimensions);}
+       )?
+ 
+       (type=lvalue_membro[id,type])?
+     )
++
++      {ret.first = id; ret.second = type;}
+   ;
+ 
+ 
+@@ -525,7 +545,9 @@
+ 
+ lvalue_struct[RefPortugolAST parent, Type *sttype] returns [Type *type]
+ 
+-                             {int dimensions;}
++                              {
++                                int dimensions;
++                              }
+ 
+   : #(id:T_IDENTIFICADOR     {type = getSymbolType(parent,sttype,id);}
+ 
+@@ -543,12 +565,16 @@
+ lvalue_indices returns [int dimensions]
+ 
+                                 {
+-                                  Type *type;
++                                  ExpressionReturn ex;
+                                   dimensions = 0;
+                                 }
+-  : #(T_SUBSCRITO
++  : #(s:T_SUBSCRITO
+       (
+-        type=expressao          {dimensions++;}
++        ex=expressao
++                                {
++                                  dimensions++;
++                                  evalMatrixSubscriptType(ex.first, ex.second);
++                                }
+       )+
+     )
+   ;
+@@ -579,7 +605,7 @@
+ 
+                                    {Type *type;}
+   : (
+-      type=expressao               {list.push_back(type);}
++      type=expressao_                   {list.push_back(type);}
+     )*
+   ;
+ 
+@@ -600,11 +626,13 @@
+   : #(T_FUNCAO   f:T_IDENTIFICADOR
+                  params=lista_parametros {setCurrentScope(f, params);}
+                  T_TIPO_RETORNO
++                 (T_VARIAVEL|T_CONSTANTE)*
+                  bloco_codigo            {_symtable-&gt;setGlobalScope();}
+     )
+ 
+   | #(T_PROCEDIMENTO p:T_IDENTIFICADOR
+                  params=lista_parametros {setCurrentScope(p, params);}
++                 (T_VARIAVEL|T_CONSTANTE)*
+                  bloco_codigo)           {_symtable-&gt;setGlobalScope();}
+   ;
+ 
+@@ -632,55 +660,55 @@
+   ;
+ 
+ en_atribuicao
+-                        {Type *ltype, *rtype;}
++                        {ExpressionReturn lret, rret;}
+ 
+-  : #(at:T_ATRIBUICAO ltype=lvalue rtype=expressao)
++  : #(at:T_ATRIBUICAO lret=lvalue rret=expressao)
+ 
+-                        {evalAttribution(at-&gt;getLine(), ltype, rtype);}
++                        {evalAttribution(at, lret.second, rret.second);}
+   ;
+ 
+ en_retorne
+                         {Type *type;}
+ 
+-  : #(ret:T_RETORNE type=expressao) 
++  : #(ret:T_RETORNE type=expressao_) 
+ 
+-                        {evalRetorne(ret-&gt;getLine(), type);}
++                        {evalRetorne(ret, type);}
+   ;
+ 
+ en_se
+-                        {Type *type;}
++                        {ExpressionReturn ex;}
+ 
+   : #(se:T_SE 
+ 
+-      type=expressao    {evalCondicional(se-&gt;getLine(),type);}
++      ex=expressao    {evalCondicional(ex);}
+       lista_enunciados 
+       (T_SENAO lista_enunciados)?
+     )
+   ;
+ 
+ en_enquanto
+-                        {Type *type;}
++                        {ExpressionReturn ex;}
+   : #(enq:T_ENQUANTO 
+-      type=expressao    {evalCondicional(enq-&gt;getLine(), type);}
++      ex=expressao      {evalCondicional(ex);}
+       lista_enunciados
+     )
+   ;
+ 
+ en_repita
+-                              {Type *type;}
++                              {ExpressionReturn ex;}
+   : #(T_REPITA      
+       lista_enunciados
+-      a:T_ATE type=expressao    {evalCondicional(a-&gt;getLine(), type);}
++      T_ATE ex=expressao      {evalCondicional(ex);}
+     )
+   ;
+ 
+ en_para
+-                              {Type *ltype, *from, *to;}
++                              {ExpressionReturn lv, from, to;}
+ 
+-  : #(p:T_PARA ltype=lvalue 
+-        from=expressao        {evalAttribution(p-&gt;getLine(), ltype, from);}
+-        to=expressao          {evalAttribution(p-&gt;getLine(), ltype, to);}
+-        T_PASSO
++  : #(p:T_PARA lv=lvalue 
++        from=expressao        {evalAttribution(lv, from);}
++        to=expressao          {evalAttribution(lv, to);}
++        (T_PASSO)?
+         lista_enunciados)
+   ;
+ 
+@@ -689,14 +717,15 @@
+ en_caso
+                               {Type *type;}
+ 
+-  : #(c:T_CASO type=expressao (teste_caso[c-&gt;getLine(), type])+ (caso_senao)?)
++  : #(c:T_CASO type=expressao_ (teste_caso[type])+ (caso_senao)?)
+   ;
+ 
+-teste_caso[int line, Type* ltype]
+-                             {Type *rtype;}
++teste_caso[Type *ltype]
+ 
++                               {Type *rtype;}
++
+   : #(T_FACA 
+-      rtype=literal            {evalExpr_IGUAL(line, ltype, rtype);}
++      rtype=lit:literal            {evalExpr_IGUAL(lit, ltype, rtype);}
+       lista_enunciados
+     )
+   ;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000097.html">[gpt-commit] r423 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000099.html">[gpt-commit] r425 - in trunk/gpt2: common/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

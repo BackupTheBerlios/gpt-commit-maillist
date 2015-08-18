@@ -1,0 +1,477 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r368 - trunk/gpt2/gptc/compiler_test/tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r368%20-%20trunk/gpt2/gptc/compiler_test/tests&In-Reply-To=%3C200711141818.lAEIIYcr028785%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000041.html">
+   <LINK REL="Next"  HREF="000043.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r368 - trunk/gpt2/gptc/compiler_test/tests</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r368%20-%20trunk/gpt2/gptc/compiler_test/tests&In-Reply-To=%3C200711141818.lAEIIYcr028785%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r368 - trunk/gpt2/gptc/compiler_test/tests">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Nov 14 19:18:34 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000041.html">[gpt-commit] r367 - trunk/gpt2/gptc/compiler_test
+</A></li>
+        <LI>Next message: <A HREF="000043.html">[gpt-commit] r369 - trunk/gpt2/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#42">[ date ]</a>
+              <a href="thread.html#42">[ thread ]</a>
+              <a href="subject.html#42">[ subject ]</a>
+              <a href="author.html#42">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-14 19:18:33 +0100 (Wed, 14 Nov 2007)
+New Revision: 368
+
+Modified:
+   trunk/gpt2/gptc/compiler_test/tests/ast.test
+Log:
+nomsg
+
+Modified: trunk/gpt2/gptc/compiler_test/tests/ast.test
+===================================================================
+--- trunk/gpt2/gptc/compiler_test/tests/ast.test	2007-11-14 18:18:09 UTC (rev 367)
++++ trunk/gpt2/gptc/compiler_test/tests/ast.test	2007-11-14 18:18:33 UTC (rev 368)
+@@ -1,17 +1,19 @@
+-/*************** testes de prologo ****************************/
+ 
++
++/*************** prologo ****************************/
++
+ teste
+   {}
+ 
+-  ast : ()
++  ast : (T_ALGORITMO)
+ fim
+ 
+ teste
+   {
+-    algoritmo teste;
++    algoritmo ol&#225;;
+   }
+ 
+-  ast : ()
++  ast : (T_ALGORITMO)
+ fim
+ 
+ teste
+@@ -39,7 +41,7 @@
+ 
+ 
+ 
+-/*************** testes de variaveis ****************************/
++/*************** variaveis ****************************/
+ 
+ 
+ 
+@@ -64,7 +66,7 @@
+ 
+ teste
+   {
+-    vari&#225;vel x : literal := 10;
++    vari&#225;vel p&#233; : literal := 10;
+   }
+ 
+   ast: (T_ALGORITMO
+@@ -74,11 +76,12 @@
+ 
+ teste
+   {
+-    vari&#225;vel x : matriz[] do tipo real;
++    vari&#225;vel x : matriz[][][][1] do tipo real;
+   }
+ 
+   ast: (T_ALGORITMO
+-         (T_VARIAVEL (T_MATRIZ T_REAL T_NULO) T_IDENTIFICADOR))
++         (T_VARIAVEL (T_MATRIZ T_REAL T_NULO T_NULO T_NULO T_INTEIRO_LITERAL)
++          T_IDENTIFICADOR))
+ fim
+ 
+ teste
+@@ -95,6 +98,21 @@
+ 
+ teste
+   {
++    vari&#225;vel x : matriz[][] do tipo caractere := [['6','5'],['4','3']];
++  }
++
++  ast: (T_ALGORITMO
++         (T_VARIAVEL (T_MATRIZ T_CARACTERE T_NULO T_NULO) T_IDENTIFICADOR
++           (T_VALOR
++             (T_VAL_MATRIZ
++                (T_VAL_MATRIZ
++                  T_CARACTERE_LITERAL T_CARACTERE_LITERAL)
++                (T_VAL_MATRIZ
++                  T_CARACTERE_LITERAL T_CARACTERE_LITERAL)))))
++fim
++
++teste
++  {
+     vari&#225;vel z : T;
+   }
+ 
+@@ -103,12 +121,14 @@
+ 
+ teste
+   {
+-    vari&#225;vel z : T := {chave := valor\};
++    vari&#225;vel z : T := {chave := valor, i:=2\};
+   }
+ 
+   ast: (T_ALGORITMO
+           (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
+-            (T_VALOR (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR))))
++            (T_VALOR (T_VAL_ESTRUTURA
++                        T_IDENTIFICADOR T_IDENTIFICADOR
++                        T_IDENTIFICADOR T_INTEIRO_LITERAL))))
+ fim
+ 
+ teste
+@@ -125,6 +145,7 @@
+                               T_INTEIRO_LITERAL)))))
+ fim
+ 
++
+ teste
+   {
+     vari&#225;vel z : matriz[1][2] do tipo T
+@@ -166,6 +187,27 @@
+ 
+ teste
+   {
++    vari&#225;vel z : T := {chave := [1,2,3]\};
++    vari&#225;vel x : matriz[] do tipo caractere := ['6','5','4'];
++    vari&#225;vel z : T;
++  }
++
++  ast: (T_ALGORITMO
++          (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
++            (T_VALOR
++              (T_VAL_ESTRUTURA T_IDENTIFICADOR
++                (T_VAL_MATRIZ T_INTEIRO_LITERAL
++                              T_INTEIRO_LITERAL
++                              T_INTEIRO_LITERAL))))
++          (T_VARIAVEL (T_MATRIZ T_CARACTERE T_NULO) T_IDENTIFICADOR
++           (T_VALOR
++             (T_VAL_MATRIZ
++                T_CARACTERE_LITERAL T_CARACTERE_LITERAL T_CARACTERE_LITERAL)))
++          (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR))
++fim
++
++teste
++  {
+     vari&#225;veis
+       z : real;
+     fim-vari&#225;veis
+@@ -213,9 +255,266 @@
+ 
+ teste
+   {
+-    vari&#225;vel z : T;
++    vari&#225;vel x : inteiro;
++    vari&#225;veis
++      P : T;
++      i,j,k : matriz[1][2] do tipo T
++      := [{chave := valor\},
++          {ch:='a'\},
++          {z:=10.2\}];
++    fim-vari&#225;veis
++    vari&#225;vel z : T := {chave := valor\};
+   }
++
++  ast:  (T_ALGORITMO
++           (T_VARIAVEL T_INTEIRO T_IDENTIFICADOR)
++           (T_VARIAVEIS
++              (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR)
++              (T_VARIAVEL
++                  (T_MATRIZ T_IDENTIFICADOR
++                            T_INTEIRO_LITERAL
++                            T_INTEIRO_LITERAL)
++                  T_IDENTIFICADOR T_IDENTIFICADOR T_IDENTIFICADOR
++                  (T_VALOR (T_VAL_MATRIZ
++                        (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
++                        (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
++                        (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL)))))
++           (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
++             (T_VALOR (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR))))
+ fim
+ 
+ 
+-/*************** testes de prologo ****************************/
+\ No newline at end of file
++teste
++  {
++    algoritmo teste;
++    use &quot;bib1&quot;;
++    use &quot;bib2&quot;;
++
++    vari&#225;vel x : inteiro;
++    vari&#225;veis
++      P : T;
++      i,j,k : matriz[1][2] do tipo T
++      := [{chave := valor\},
++          {ch:='a'\},
++          {z:=10.2\}];
++    fim-vari&#225;veis
++    vari&#225;vel z : T := {chave := valor\};
++  }
++
++  ast:  (T_ALGORITMO
++           (T_USE T_TEXTO_LITERAL)
++           (T_USE T_TEXTO_LITERAL)
++           (T_VARIAVEL T_INTEIRO T_IDENTIFICADOR)
++           (T_VARIAVEIS
++              (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR)
++              (T_VARIAVEL
++                  (T_MATRIZ T_IDENTIFICADOR
++                            T_INTEIRO_LITERAL
++                            T_INTEIRO_LITERAL)
++                  T_IDENTIFICADOR T_IDENTIFICADOR T_IDENTIFICADOR
++                  (T_VALOR (T_VAL_MATRIZ
++                        (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
++                        (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
++                        (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL)))))
++           (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
++             (T_VALOR (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR))))
++fim
++
++
++
++/*************** constantes ****************************/
++
++
++
++teste
++  {
++    constante x : inteiro := 10;
++  }
++
++  ast: (T_ALGORITMO
++          (T_CONSTANTE T_INTEIRO T_IDENTIFICADOR
++            (T_VALOR T_INTEIRO_LITERAL)))
++fim
++
++
++teste
++  {
++    constante x : matriz[1] do tipo inteiro := [1,2,3];
++  }
++
++  ast: (T_ALGORITMO
++          (T_CONSTANTE
++            (T_MATRIZ T_INTEIRO T_INTEIRO_LITERAL) T_IDENTIFICADOR
++              (T_VALOR
++                (T_VAL_MATRIZ
++                  T_INTEIRO_LITERAL T_INTEIRO_LITERAL T_INTEIRO_LITERAL))))
++fim
++
++teste
++  {
++    constante x : T := {c:=v,c:=10.3\};
++  }
++
++  ast: (T_ALGORITMO
++          (T_CONSTANTE T_IDENTIFICADOR T_IDENTIFICADOR
++            (T_VALOR
++              (T_VAL_ESTRUTURA
++                T_IDENTIFICADOR T_IDENTIFICADOR
++                T_IDENTIFICADOR T_REAL_LITERAL))))
++fim
++
++teste
++  {
++    constante x : matriz[1] do tipo T := [{c:=1,c:=10.3\},{c:='1',c:=&quot;1&quot;\}];
++  }
++
++  ast: (T_ALGORITMO
++          (T_CONSTANTE
++            (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL) T_IDENTIFICADOR
++              (T_VALOR
++                (T_VAL_MATRIZ
++                  (T_VAL_ESTRUTURA
++                    T_IDENTIFICADOR T_INTEIRO_LITERAL
++                    T_IDENTIFICADOR T_REAL_LITERAL)
++                  (T_VAL_ESTRUTURA
++                    T_IDENTIFICADOR T_CARACTERE_LITERAL
++                    T_IDENTIFICADOR T_TEXTO_LITERAL)))))
++fim
++
++
++teste
++  {
++    constante x : inteiro := 10;
++    constante x : matriz[1] do tipo T := [{c:=1,c:=10.3\},{c:='1',c:=&quot;1&quot;\}];
++  }
++
++  ast: (T_ALGORITMO
++         (T_CONSTANTE T_INTEIRO T_IDENTIFICADOR
++            (T_VALOR T_INTEIRO_LITERAL))
++          (T_CONSTANTE
++            (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL) T_IDENTIFICADOR
++              (T_VALOR
++                (T_VAL_MATRIZ
++                  (T_VAL_ESTRUTURA
++                    T_IDENTIFICADOR T_INTEIRO_LITERAL
++                    T_IDENTIFICADOR T_REAL_LITERAL)
++                  (T_VAL_ESTRUTURA
++                    T_IDENTIFICADOR T_CARACTERE_LITERAL
++                    T_IDENTIFICADOR T_TEXTO_LITERAL)))))
++fim
++
++teste
++  {
++    constantes
++      x : inteiro := 10;
++      i : matriz[1][2] do tipo T :=
++           [{chave := valor\},
++            {ch:='a'\},
++            {z:=10.2\}];
++    fim-constantes
++  }
++
++  ast : (T_ALGORITMO
++          (T_CONSTANTES
++            (T_CONSTANTE T_INTEIRO T_IDENTIFICADOR
++                        (T_VALOR T_INTEIRO_LITERAL))
++          (T_CONSTANTE
++            (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL)
++             T_IDENTIFICADOR
++            (T_VALOR
++              (T_VAL_MATRIZ
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL))))))
++fim
++
++teste
++  {
++    constantes
++      x : inteiro := 10;
++      i : matriz[1][2] do tipo T :=
++           [{chave := valor\},
++            {ch:='a'\},
++            {z:=10.2\}];
++    fim-constantes
++    constante x : T := {c:=v,c:=10.3\};
++  }
++
++  ast : (T_ALGORITMO
++          (T_CONSTANTES
++            (T_CONSTANTE T_INTEIRO T_IDENTIFICADOR
++                        (T_VALOR T_INTEIRO_LITERAL))
++          (T_CONSTANTE
++            (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL)
++             T_IDENTIFICADOR
++            (T_VALOR
++              (T_VAL_MATRIZ
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL)))))
++                    (T_CONSTANTE T_IDENTIFICADOR T_IDENTIFICADOR
++            (T_VALOR
++              (T_VAL_ESTRUTURA
++                T_IDENTIFICADOR T_IDENTIFICADOR
++                T_IDENTIFICADOR T_REAL_LITERAL))))
++fim
++
++
++/*************** subprogramas ****************************/
++
++teste
++  {
++    procedimento p()
++    in&#237;cio
++    fim
++  }
++
++  ast : (T_ALGORITMO
++          (T_PROCEDIMENTO T_IDENTIFICADOR (T_INICIO)))
++fim
++
++teste
++  {
++    procedimento p(i:inteiro, t:T)
++    in&#237;cio
++    fim
++  }
++
++  ast : (T_ALGORITMO
++          (T_PROCEDIMENTO T_IDENTIFICADOR
++              (T_VARIAVEL T_INTEIRO T_IDENTIFICADOR)
++              (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR)
++            (T_INICIO)))
++fim
++
++teste
++  {
++    procedimento p(i:inteiro, t:T, ... resto)
++    in&#237;cio
++    fim
++  }
++
++  ast : (T_ALGORITMO
++          (T_PROCEDIMENTO T_IDENTIFICADOR
++              (T_VARIAVEL T_INTEIRO T_IDENTIFICADOR)
++              (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR)
++              (T_VARIAVEL T_RETICENCIAS T_IDENTIFICADOR)
++            (T_INICIO)))
++fim
++
++
++teste
++  {
++    procedimento p()
++      vari&#225;vel x : inteiro;
++    in&#237;cio
++    fim
++  }
++
++  ast : (T_ALGORITMO
++          (T_PROCEDIMENTO T_IDENTIFICADOR
++              (T_VARIAVEL T_INTEIRO T_IDENTIFICADOR)
++              (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR)
++              (T_VARIAVEL T_RETICENCIAS T_IDENTIFICADOR)
++            (T_INICIO)))
++fim
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000041.html">[gpt-commit] r367 - trunk/gpt2/gptc/compiler_test
+</A></li>
+	<LI>Next message: <A HREF="000043.html">[gpt-commit] r369 - trunk/gpt2/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#42">[ date ]</a>
+              <a href="thread.html#42">[ thread ]</a>
+              <a href="subject.html#42">[ subject ]</a>
+              <a href="author.html#42">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

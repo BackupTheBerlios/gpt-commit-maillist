@@ -1,0 +1,288 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r411 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r411%20-%20in%20trunk/gpt2%3A%20gptasm/src%20gptasm/test/wikki%0A%09gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712041601.lB4G1O9T009993%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000084.html">
+   <LINK REL="Next"  HREF="000086.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r411 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r411%20-%20in%20trunk/gpt2%3A%20gptasm/src%20gptasm/test/wikki%0A%09gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712041601.lB4G1O9T009993%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r411 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Dec  4 17:01:24 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000084.html">[gpt-commit] r410 - in trunk/gpt2: gptasm/test/wikki gptvm/src	gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000086.html">[gpt-commit] r412 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#85">[ date ]</a>
+              <a href="thread.html#85">[ thread ]</a>
+              <a href="subject.html#85">[ subject ]</a>
+              <a href="author.html#85">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-04 17:01:23 +0100 (Tue, 04 Dec 2007)
+New Revision: 411
+
+Added:
+   trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm
+Modified:
+   trunk/gpt2/gptasm/src/CData.cpp
+   trunk/gpt2/gptasm/src/CGenBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_condicionais_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_5.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+Log:
+DEVNULL:
+* Secao Data deveria ser inicializada com 0, mas estava sendo inicializada
+  com ' '
+* Implementacao correta de pushmv e popmv
+  - pushmv esta gerando um memory leak que sera resolvido posteriormente
+
+
+Modified: trunk/gpt2/gptasm/src/CData.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CData.cpp	2007-12-04 14:10:49 UTC (rev 410)
++++ trunk/gpt2/gptasm/src/CData.cpp	2007-12-04 16:01:23 UTC (rev 411)
+@@ -38,7 +38,7 @@
+    //_data += symbol-&gt;getBinary();
+    for (int i=0; i &lt; symbol-&gt;getTypeSize(); i++) {
+       // TODO: horrivel :-)
+-      writeByte (' ');
++      writeByte ('\0');
+    }
+ 
+    return symbol;
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-12-04 14:10:49 UTC (rev 410)
++++ trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-12-04 16:01:23 UTC (rev 411)
+@@ -297,7 +297,7 @@
+       std::map&lt;std::string,int&gt;::const_iterator solvedLabel;
+       solvedLabel = _solvedLabels.find(unsolvedLabel-&gt;first);
+       if (solvedLabel == _solvedLabels.end()) {
+-         std::cout &lt;&lt; &quot;Label nao encontrado: &quot; &lt;&lt; unsolvedLabel-&gt;second &lt;&lt; std::endl;
++         std::cout &lt;&lt; &quot;Label nao encontrado: &quot; &lt;&lt; unsolvedLabel-&gt;first &lt;&lt; std::endl;
+          abort();
+       }
+       _code.setInt(unsolvedLabel-&gt;second, solvedLabel-&gt;second);
+
+Added: trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm	2007-12-04 14:10:49 UTC (rev 410)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm	2007-12-04 16:01:23 UTC (rev 411)
+@@ -0,0 +1,81 @@
++program exemplo
++
++var m matrix
++var i int
++var t1 int
++
++proc main
++    push_0 // funciona pq sizeof(int) e de matrix sao iguais... mas e para real ???
++    pcall insere_dados
++    popmv m
++
++    pushmv m
++    pcall mostra_dados
++
++    // desaloca espa&#231;o da matriz m
++    mfree m
++
++    exit_0
++endproc
++
++proc insere_dados
++    param d1 matrix
++//    var t1 int
++
++    // aloca espa&#231;o para a matriz d1
++    // d1 armazena dados de 4 bytes e tem 10 elementos iniciais
++    m1alloc d1, 4, 10
++
++    // para i de 0 at&#233; 9 fa&#231;a
++    iset i, 0
++    teste:
++    ile t1, i, 9
++    ifnot t1, proximo
++
++    // d1[i] := i * 10;
++    imul t1, i, 10
++    m1set d1, i, t1
++
++    // fim-para
++    iinc i, 1
++    jmp teste
++    proximo:
++
++//    decsp_4
++    ret
++endproc
++
++proc mostra_dados
++    param d2 matrix
++//    var t1 int
++
++    // imprima( &quot;Valores armazenados:&quot; );
++    pushsv &quot;Valores armazenados:&quot;
++    pushst
++    push_1
++    lcall imprima
++
++    // para i de 0 at&#233; 9 fa&#231;a
++    iset i, 0
++    teste2:
++    ile t1, i, 9
++    ifnot t1, proximo2
++
++    // imprima( d2[i] );
++    m1get t1, d2, i
++    pushiv t1
++    pushit
++    push_1
++    lcall imprima
++
++    // fim-para
++    iinc i, 1
++    jmp teste2
++    proximo2:
++
++    decsp_4
++    ret
++endproc
++
++endprogram
++
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-04 14:10:49 UTC (rev 410)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-04 16:01:23 UTC (rev 411)
+@@ -1058,19 +1058,22 @@
+ {
+    trace (&quot;popmv opcode&quot;);
+ 
+-   char *matrix    = (char*) _dataStack.getInt(_code.fetchInt());
++   int matrixAddress = _code.fetchInt();
+ 
+    char *retMatrix = (char*) _dataStack.popInt();
+    int elementSize = *((int*)(retMatrix+0));
+    int elements    = *((int*)(retMatrix+sizeof(int)));
+ 
+    int size = sizeof(int) + sizeof(int) + elements*elementSize;
++   char *matrix = (char*) _dataStack.getInt(matrixAddress);
++
+    if (matrix) {
+       delete []matrix;
+    }
+    matrix = new char[size];
+    memcpy(matrix, retMatrix, size);
+    delete []retMatrix;
++   _dataStack.setInt(matrixAddress, (int)matrix);
+ }
+ 
+ void CRunBytecode::incspOpcode()
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_condicionais_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_5.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000084.html">[gpt-commit] r410 - in trunk/gpt2: gptasm/test/wikki gptvm/src	gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000086.html">[gpt-commit] r412 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#85">[ date ]</a>
+              <a href="thread.html#85">[ thread ]</a>
+              <a href="subject.html#85">[ subject ]</a>
+              <a href="author.html#85">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

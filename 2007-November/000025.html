@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r351 - trunk/gpt2/src/gptc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r351%20-%20trunk/gpt2/src/gptc&In-Reply-To=%3C200711090456.lA94ukw1032298%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000024.html">
+   <LINK REL="Next"  HREF="000026.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r351 - trunk/gpt2/src/gptc</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r351%20-%20trunk/gpt2/src/gptc&In-Reply-To=%3C200711090456.lA94ukw1032298%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r351 - trunk/gpt2/src/gptc">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Nov  9 05:56:46 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000024.html">[gpt-commit] r350 - trunk/gpt2/src/gptc
+</A></li>
+        <LI>Next message: <A HREF="000026.html">[gpt-commit] r352 - trunk/gpt2/src/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#25">[ date ]</a>
+              <a href="thread.html#25">[ thread ]</a>
+              <a href="subject.html#25">[ subject ]</a>
+              <a href="author.html#25">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-09 05:56:42 +0100 (Fri, 09 Nov 2007)
+New Revision: 351
+
+Added:
+   trunk/gpt2/src/gptc/BaseSemanticWalker.cpp
+   trunk/gpt2/src/gptc/BaseSemanticWalker.hpp
+Modified:
+   trunk/gpt2/src/gptc/Makefile
+   trunk/gpt2/src/gptc/semantic.g
+Log:
+-Adicionando classe base para o SemanticWalker
+
+Added: trunk/gpt2/src/gptc/BaseSemanticWalker.cpp
+===================================================================
+--- trunk/gpt2/src/gptc/BaseSemanticWalker.cpp	2007-11-09 04:32:06 UTC (rev 350)
++++ trunk/gpt2/src/gptc/BaseSemanticWalker.cpp	2007-11-09 04:56:42 UTC (rev 351)
+@@ -0,0 +1,3 @@
++#include &quot;BaseSemanticWalker.hpp&quot;
++
++
+
+Added: trunk/gpt2/src/gptc/BaseSemanticWalker.hpp
+===================================================================
+--- trunk/gpt2/src/gptc/BaseSemanticWalker.hpp	2007-11-09 04:32:06 UTC (rev 350)
++++ trunk/gpt2/src/gptc/BaseSemanticWalker.hpp	2007-11-09 04:56:42 UTC (rev 351)
+@@ -0,0 +1,32 @@
++/***************************************************************************
++ *   Copyright (C) 2003-2006 by Thiago Silva                               *
++ *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>                                               *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU General Public License     *
++ *   along with this program; if not, write to the                         *
++ *   Free Software Foundation, Inc.,                                       *
++ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
++ ***************************************************************************/
++
++#ifndef BASESEMANTICWALKER_H
++#define BASESEMANTICWALKER_H
++
++#include &lt;antlr/TreeParser.hpp&gt;
++
++class BaseSemanticWalker : public antlr::TreeParser {
++
++public:
++  BaseSemanticWalker() : antlr::TreeParser() {}
++};
++
++#endif
+
+Modified: trunk/gpt2/src/gptc/Makefile
+===================================================================
+--- trunk/gpt2/src/gptc/Makefile	2007-11-09 04:32:06 UTC (rev 350)
++++ trunk/gpt2/src/gptc/Makefile	2007-11-09 04:56:42 UTC (rev 351)
+@@ -1,27 +1,33 @@
+ output = ./obj
+ 
+ objects = $(output)/PortugolLexer.o $(output)/PortugolParser.o \
+-					$(output)/SemanticWalker.o $(output)/teste.o \
+-					$(output)/MismatchedUnicodeCharException.o
++					$(output)/BaseSemanticWalker.o $(output)/SemanticWalker.o \
++					$(output)/teste.o $(output)/MismatchedUnicodeCharException.o
+ 
+ 
+ cpp = g++ -I$(output) -I.
+ 
+-teste: bin $(objects)
++all: $(output) $(objects) $(output)/teste
++
++$(output)/teste:
+ 	$(cpp) -o $(output)/teste $(objects) /usr/local/lib/libantlr.a
+ 
+-bin:
++$(output):
+ 	mkdir -p $(output)
+ 
+-$(output)/PortugolLexer.o: $(output)/PortugolLexer.hpp $(output)/PortugolLexer.cpp
++$(output)/PortugolLexer.o: $(output)/PortugolLexer.hpp
+ 	$(cpp) -c $(output)/PortugolLexer.cpp -o $(output)/PortugolLexer.o
+ 
+-$(output)/PortugolParser.o: $(output)/PortugolParser.hpp $(output)/PortugolParser.cpp
++$(output)/PortugolParser.o: $(output)/PortugolParser.hpp
+ 	$(cpp) -c $(output)/PortugolParser.cpp -o $(output)/PortugolParser.o
+ 
+-$(output)/SemanticWalker.o: $(output)/SemanticWalker.hpp $(output)/SemanticWalker.cpp
++$(output)/SemanticWalker.o: $(output)/BaseSemanticWalker.o \
++		$(output)/SemanticWalker.hpp
+ 	$(cpp) -c $(output)/SemanticWalker.cpp -o $(output)/SemanticWalker.o
+ 
++$(output)/BaseSemanticWalker.o: BaseSemanticWalker.hpp BaseSemanticWalker.cpp
++	$(cpp) -c BaseSemanticWalker.cpp -o $(output)/BaseSemanticWalker.o
++
+ $(output)/MismatchedUnicodeCharException.o:
+ 	$(cpp) -c MismatchedUnicodeCharException.cpp \
+ 	-o $(output)/MismatchedUnicodeCharException.o
+@@ -49,9 +55,3 @@
+ clean:
+ 	rm -rf $(output)
+ 
+-cleanold:
+-	rm -f *.o PortugolLexer.cpp PortugolLexer.hpp PortugolTokenTypes.hpp \
+-	PortugolTokenTypes.txt PortugolParser.cpp PortugolParser.hpp teste \
+-	PortugolParserTokenTypes.hpp PortugolParserTokenTypes.txt table.hpp \
+-	SemanticWalkerTokenTypes.txt SemanticWalkerTokenTypes.hpp \
+-	SemanticWalker.hpp SemanticWalker.cpp
+
+Modified: trunk/gpt2/src/gptc/semantic.g
+===================================================================
+--- trunk/gpt2/src/gptc/semantic.g	2007-11-09 04:32:06 UTC (rev 350)
++++ trunk/gpt2/src/gptc/semantic.g	2007-11-09 04:56:42 UTC (rev 351)
+@@ -18,17 +18,29 @@
+  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             */
+ 
+ 
++header {
++  #include &quot;BaseSemanticWalker.hpp&quot;
++}
++
++
+ options {
+   language=&quot;Cpp&quot;;
+ }
+ 
+-class SemanticWalker extends TreeParser;
++class SemanticWalker extends TreeParser(&quot;BaseSemanticWalker&quot;);
+ options {
+-  importVocab   = Portugol;
+-  genHashLines  = false;
++  importVocab    = Portugol;
++  noConstructors = true;
++  genHashLines   = false;
+ }
+ 
++{
++public:
++  SemanticWalker::SemanticWalker()
++	 : BaseSemanticWalker() { }
++}
+ 
++
+ programa
+   : (importacao)*
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000024.html">[gpt-commit] r350 - trunk/gpt2/src/gptc
+</A></li>
+	<LI>Next message: <A HREF="000026.html">[gpt-commit] r352 - trunk/gpt2/src/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#25">[ date ]</a>
+              <a href="thread.html#25">[ thread ]</a>
+              <a href="subject.html#25">[ subject ]</a>
+              <a href="author.html#25">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

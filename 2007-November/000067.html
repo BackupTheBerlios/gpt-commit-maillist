@@ -1,0 +1,273 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r393 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r393%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711270305.lAR35GVR001841%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000066.html">
+   <LINK REL="Next"  HREF="000068.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r393 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r393%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711270305.lAR35GVR001841%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r393 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Nov 27 04:05:16 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000066.html">[gpt-commit] r392 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000068.html">[gpt-commit] r394 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#67">[ date ]</a>
+              <a href="thread.html#67">[ thread ]</a>
+              <a href="subject.html#67">[ subject ]</a>
+              <a href="author.html#67">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-27 04:05:16 +0100 (Tue, 27 Nov 2007)
+New Revision: 393
+
+Modified:
+   trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+   trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+Log:
+-Aperfeicoamento na deteccao de matrizes com tipos heterogeneos
+-Checando se os tipos sao primitivos em diversas operacoes
+
+Modified: trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseSemanticWalker.cpp	2007-11-26 12:50:51 UTC (rev 392)
++++ trunk/gpt2/gptc/src/BaseSemanticWalker.cpp	2007-11-27 03:05:16 UTC (rev 393)
+@@ -106,28 +106,31 @@
+   //TODO
+   //-proibicao de consts como lvalues em expressoes
+ 
+-void BaseSemanticWalker::evalAttribution(Type* ltype, Type* rtype) {
++Type* BaseSemanticWalker::evalAttribution(Type* ltype, Type* rtype) {
+   if (!ltype-&gt;isLValueFor(rtype)) {
+     std::cerr &lt;&lt; &quot;ilegal: &quot;
+               &lt;&lt; ltype-&gt;name() &lt;&lt; &quot; := &quot; &lt;&lt; rtype-&gt;name() &lt;&lt; endl;
+   }
++  return rtype;
+ }
+ 
+-void BaseSemanticWalker::evalAttribution(Type* ltype, const InitMatrixList&amp; mtx) {
++Type* BaseSemanticWalker::evalAttribution(Type* ltype, const InitMatrixList&amp; mtx) {
+   Type* rtype = evalHomogeneity(mtx);
+   if (!ltype-&gt;isLValueFor(rtype)) {
+     std::cerr &lt;&lt; &quot;ilegal: &quot;
+               &lt;&lt; ltype-&gt;name() &lt;&lt; &quot; := &quot; &lt;&lt; rtype-&gt;name() &lt;&lt; endl;
+   }
++  return ltype;
+ }
+ 
+-void BaseSemanticWalker::evalAttribution(Type* ltype, const InitStructList&amp; stc) {
++Type* BaseSemanticWalker::evalAttribution(Type* ltype, const InitStructList&amp; stc) {
+   StructType* rtype = createAnonymousStructFor(stc);
+ 
+   if (!ltype-&gt;isLValueFor(rtype)) {
+     std::cerr &lt;&lt; &quot;ilegal: &quot;
+               &lt;&lt; ltype-&gt;name() &lt;&lt; &quot; := &quot; &lt;&lt; rtype-&gt;name() &lt;&lt; endl;
+   }
++  return ltype;
+ }
+ 
+ StructType* BaseSemanticWalker::createAnonymousStructFor(const InitStructList&amp; stc) {
+@@ -142,25 +145,28 @@
+ 
+ Type* BaseSemanticWalker::evalHomogeneity(const InitMatrixList&amp; mtx) {
+   InitMatrixList::const_iterator it;
++
++  Type *rtype = 0;
++  Type *tmptype = 0;
+   int dim = 0;
+-  Type* type = 0;
++
+   for (it = mtx.begin(); it != mtx.end(); ++it) {
+     if (dim == 0) {
+       dim = it-&gt;first;
+     } else if (dim != it-&gt;first) {
+-      std::cerr &lt;&lt; &quot;err: Numero variavel de dimensoes na matriz!\n&quot;;
++      std::cerr &lt;&lt; &quot;ilegal: Numero variavel de dimensoes na matriz!\n&quot;;
+     }
+ 
+-    if (type == 0) {
+-      type = it-&gt;second;
+-    } else if (!type-&gt;equals(it-&gt;second)) {
+-      std::cerr &lt;&lt; &quot;err: Numero variavel de tipos na matriz!\n&quot;;
++    if (rtype == 0) {
++      rtype = it-&gt;second;
++    } else if (!rtype-&gt;compatible(it-&gt;second)) {
++      std::cerr &lt;&lt; &quot;ilegal: Matriz heterogenea\n&quot;;
+     }
+   }
+-  return _symtable-&gt;retrieveMatrixType(type, dim);
++
++  return _symtable-&gt;retrieveMatrixType(rtype, dim);
+ }
+ 
+-
+ Type*
+ BaseSemanticWalker::evalExpr_OU(Type* left, Type* right) {
+   return _symtable-&gt;getType(PortugolTokenTypes::T_LOGICO);
+@@ -316,6 +322,12 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MAIS(Type* left, Type* right) {
++  if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
++    std::cerr &lt;&lt; &quot;ilegal: &quot;
++              &lt;&lt; left-&gt;name() &lt;&lt; &quot; + &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
++    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++  }
++
+   Type* ret;
+   if (ret = left-&gt;numPromotionWith(right)) {
+     return ret;
+@@ -331,6 +343,12 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MENOS(Type* left, Type* right) {
++  if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
++    std::cerr &lt;&lt; &quot;ilegal: &quot;
++              &lt;&lt; left-&gt;name() &lt;&lt; &quot; + &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
++    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++  }
++
+   Type* ret;
+   if (ret = left-&gt;numPromotionWith(right)) {
+     return ret;
+@@ -344,6 +362,12 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_DIV(Type* left, Type* right) {
++  if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
++    std::cerr &lt;&lt; &quot;ilegal: &quot;
++              &lt;&lt; left-&gt;name() &lt;&lt; &quot; + &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
++    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++  }
++
+   Type* ret;
+   if (ret = left-&gt;numPromotionWith(right)) {
+     return ret;
+@@ -357,6 +381,12 @@
+ 
+ Type*
+ BaseSemanticWalker::evalExpr_MULTIP(Type* left, Type* right) {
++  if (!left-&gt;isPrimitive() || !right-&gt;isPrimitive()) {
++    std::cerr &lt;&lt; &quot;ilegal: &quot;
++              &lt;&lt; left-&gt;name() &lt;&lt; &quot; + &quot; &lt;&lt; right-&gt;name() &lt;&lt; std::endl;
++    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++  }
++
+   Type* ret;
+   if (ret = left-&gt;numPromotionWith(right)) {
+     return ret;
+
+Modified: trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseSemanticWalker.hpp	2007-11-26 12:50:51 UTC (rev 392)
++++ trunk/gpt2/gptc/src/BaseSemanticWalker.hpp	2007-11-27 03:05:16 UTC (rev 393)
+@@ -38,48 +38,6 @@
+ typedef std::list&lt;std::pair&lt;std::string,Type*&gt; &gt; InitStructList;
+ typedef std::list&lt;std::pair&lt;int,Type*&gt; &gt;         InitMatrixList;
+ 
+-/*struct InitValue {
+-  enum { PRIMITIVE, MATRIX, STRUCT };
+-  int id;
+-  Type* primtype;
+-  std::list&lt;InitValue&gt; mvalues;
+-  std::list&lt;pair&lt;std::string, InitValue&gt; &gt; svalues;
+-*/
+-//   Type* calculatedType(const SymbolTable&amp; symtable) {
+-//     std::list&lt;InitValue&gt;::iterator it;
+-//     Type *type = 0;
+-//
+-//     switch (id) {
+-//       case PRIMITIVE:
+-//         return primtype;
+-//       case MATRIX:
+-//         for (it = list.begin(); it != list.end(); ++it) {
+-//           if (!type) {
+-//             type = (*it).calculatedType(symtable);
+-//           } else {
+-//             type = type;
+-//           }
+-//         }
+-//     }
+-//
+-//     TypeList types;
+-//     Type *ret;
+-//     std::list&lt;InitValue&gt;::iterator it;
+-//     for (it = list.begin(); it != list.end(); ++it) {
+-//       switch ((*it).id) {
+-//         case PRIMITIVE:
+-//           types.push_back((*it).primtype);
+-//           break;
+-//         case MATRIX:
+-//           types.push_back(
+-//       }
+-//     }
+-//   }
+-// };
+-
+-
+-
+-
+ class BaseSemanticWalker : public antlr::TreeParser {
+ 
+ public:
+@@ -105,13 +63,13 @@
+ 
+   void evalMatrixSubscript(Type*);
+ 
+-  void evalAttribution(Type*, Type*);
+-  void evalAttribution(Type*, const InitMatrixList&amp;);
+-  void evalAttribution(Type*, const InitStructList&amp;);
++  Type* evalAttribution(Type*, Type*);
++  Type* evalAttribution(Type*, const InitMatrixList&amp;);
++  Type* evalAttribution(Type*, const InitStructList&amp;);
+ 
+   StructType* createAnonymousStructFor(const InitStructList&amp;);
+ 
+-  Type* evalHomogeneity(const InitMatrixList&amp;);
++  Type* evalHomogeneity(const InitMatrixList&amp; mtx);
+ 
+   Type* evalExpr_OU(Type* left, Type* right);
+   Type* evalExpr_E(Type* left, Type* right);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000066.html">[gpt-commit] r392 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000068.html">[gpt-commit] r394 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#67">[ date ]</a>
+              <a href="thread.html#67">[ thread ]</a>
+              <a href="subject.html#67">[ subject ]</a>
+              <a href="author.html#67">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

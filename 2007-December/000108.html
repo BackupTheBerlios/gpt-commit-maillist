@@ -1,0 +1,962 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r434 - in trunk/gpt2: . bindings bindings/gptbind	bindings/gptbind/src bindings/gptbind/test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r434%20-%20in%20trunk/gpt2%3A%20.%20bindings%20bindings/gptbind%0A%09bindings/gptbind/src%20bindings/gptbind/test&In-Reply-To=%3C200712181753.lBIHrNva025094%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000107.html">
+   <LINK REL="Next"  HREF="000109.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r434 - in trunk/gpt2: . bindings bindings/gptbind	bindings/gptbind/src bindings/gptbind/test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r434%20-%20in%20trunk/gpt2%3A%20.%20bindings%20bindings/gptbind%0A%09bindings/gptbind/src%20bindings/gptbind/test&In-Reply-To=%3C200712181753.lBIHrNva025094%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r434 - in trunk/gpt2: . bindings bindings/gptbind	bindings/gptbind/src bindings/gptbind/test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Dec 18 18:53:23 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000107.html">[gpt-commit] r433 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000109.html">[gpt-commit] r435 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-18 18:53:16 +0100 (Tue, 18 Dec 2007)
+New Revision: 434
+
+Added:
+   trunk/gpt2/bindings/
+   trunk/gpt2/bindings/gptbind/
+   trunk/gpt2/bindings/gptbind/src/
+   trunk/gpt2/bindings/gptbind/src/CBindSources.cpp
+   trunk/gpt2/bindings/gptbind/src/CBindSources.hpp
+   trunk/gpt2/bindings/gptbind/src/CGptBind.cpp
+   trunk/gpt2/bindings/gptbind/src/CGptBind.hpp
+   trunk/gpt2/bindings/gptbind/src/Makefile
+   trunk/gpt2/bindings/gptbind/src/lexer.g
+   trunk/gpt2/bindings/gptbind/src/main.cpp
+   trunk/gpt2/bindings/gptbind/src/parser.g
+   trunk/gpt2/bindings/gptbind/test/
+   trunk/gpt2/bindings/gptbind/test/test.sld
+Log:
+DEVNULL:
+* Inicio do gerador de bindings
+
+
+Added: trunk/gpt2/bindings/gptbind/src/CBindSources.cpp
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/CBindSources.cpp	2007-12-17 18:56:47 UTC (rev 433)
++++ trunk/gpt2/bindings/gptbind/src/CBindSources.cpp	2007-12-18 17:53:16 UTC (rev 434)
+@@ -0,0 +1,85 @@
++#include &quot;CBindSources.hpp&quot;
++
++
++#include &lt;map&gt;
++
++
++CBindSources::CBindSources(const std::string &amp;filename, const std::string &amp;prefix)
++      : _filename(filename)
++      , _prefix(prefix)
++{
++}
++
++
++void CBindSources::writeHeaders()
++{
++   hppSource.writeln( &quot;#ifndef GPTBIND_&quot; + _filename + &quot;_HPP&quot; );
++   hppSource.writeln( &quot;#define GPTBIND_&quot; + _filename + &quot;_HPP&quot; );
++   hppSource.writeln();
++   hppSource.writeln( &quot;extern \&quot;C\&quot; {&quot; );
++   hppSource.incTab();
++
++   cppSource.writeln( &quot;#include \&quot;&quot; + _filename + &quot;.hpp\&quot;&quot; );
++   cppSource.writeln();
++   cppSource.writeln( &quot;#include \&quot;CDataStack.hpp\&quot;&quot; );
++   cppSource.writeln( &quot;#include \&quot;CSymbol.hpp\&quot;&quot; );
++   cppSource.writeln();
++}
++
++
++void CBindSources::addProcedureBind(
++      const std::string &amp;name, 
++      std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; parameters,
++      const std::string &amp;functionBind,
++      std::vector&lt;std::string&gt; arguments )
++{
++   hppSource.writeln( &quot;void &quot; + _prefix + name + &quot;( CDataStack &amp;dataStack );&quot; );
++
++   cppSource.writeln();
++   cppSource.writeln( &quot;void &quot; + _prefix + name + &quot;( CDataStack &amp;dataStack )&quot; );
++   cppSource.writeln( &quot;{&quot; );
++   cppSource.incTab();
++   for(std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt;::iterator param = parameters.begin(); param != parameters.end(); param++) {
++      cppSource.writeln (sourceToGetParameter (param-&gt;first, param-&gt;second));
++   }
++   cppSource.write(functionBind + &quot;(&quot;);
++   for(std::vector&lt;std::string&gt;::iterator arg = arguments.begin(); arg != arguments.end(); arg++) {
++      if (arg != arguments.begin()) {
++         cppSource.write(&quot;, &quot;);
++      }
++      if ((*arg)[0] != '&quot;') {
++         cppSource.write(&quot;c&quot; + *arg);
++      } else {
++         cppSource.write(*arg);
++      }
++   }
++   cppSource.writeln(&quot;);&quot;);
++   cppSource.decTab();
++   cppSource.writeln( &quot;}&quot; );
++}
++
++
++std::string CBindSources::sourceToGetParameter(const std::string &amp;name, const std::string &amp;type)
++{
++   std::string result;
++
++   std::map&lt;std::string, std::string&gt; mapType;
++   mapType[&quot;string&quot;] = &quot;const char *&quot;;
++
++   std::map&lt;std::string, std::string&gt; mapPop;
++   mapPop[&quot;string&quot;] = &quot;dataStack.popString().c_str()&quot;;
++
++   result = mapType[type] + &quot; c&quot; + name + &quot;=&quot; + mapPop[type] + &quot;;&quot;;
++
++   return result;
++}
++
++
++void CBindSources::writeFooters()
++{
++   hppSource.decTab();
++   hppSource.writeln(&quot;}&quot;);
++   hppSource.writeln();
++   hppSource.writeln( &quot;#endif&quot; );
++}
++
+
+Added: trunk/gpt2/bindings/gptbind/src/CBindSources.hpp
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/CBindSources.hpp	2007-12-17 18:56:47 UTC (rev 433)
++++ trunk/gpt2/bindings/gptbind/src/CBindSources.hpp	2007-12-18 17:53:16 UTC (rev 434)
+@@ -0,0 +1,43 @@
++#ifndef GPT_CBIND_SOURCES_HPP
++#define GPT_CBIND_SOURCES_HPP
++
++#include &quot;CTextFile.hpp&quot;
++
++#include &lt;string&gt;
++#include &lt;vector&gt;
++
++class CBindSources
++{
++public:
++   CBindSources(const std::string &amp;filename, const std::string &amp;prefix);
++   void writeHeaders();
++   void addProcedureBind(
++         const std::string &amp;name, 
++         std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; parameters,
++         const std::string &amp;functionBind,
++         std::vector&lt;std::string&gt; arguments
++   );
++   void writeFooters();
++   std::string getHppSource()
++   {
++      return hppSource.getText();
++   }
++   std::string getCppSource()
++   {
++      return cppSource.getText();
++   }
++   std::string getMakefileSource()
++   {
++      return makefileSource.getText();
++   }
++   std::string sourceToGetParameter(const std::string &amp;name, const std::string &amp;type);
++private:
++   std::string _filename;
++   std::string _prefix;
++   CTextFile hppSource;
++   CTextFile cppSource;
++   CTextFile makefileSource;
++};
++
++#endif
++
+
+Added: trunk/gpt2/bindings/gptbind/src/CGptBind.cpp
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/CGptBind.cpp	2007-12-17 18:56:47 UTC (rev 433)
++++ trunk/gpt2/bindings/gptbind/src/CGptBind.cpp	2007-12-18 17:53:16 UTC (rev 434)
+@@ -0,0 +1,45 @@
++#include &lt;fstream&gt;
++
++
++#include &quot;CGptBind.hpp&quot;
++#include &quot;GptBindLexer.hpp&quot;
++#include &quot;GptBindParser.hpp&quot;
++
++
++CGptBind::CGptBind( COptions *options ) : _options( options )
++{
++}
++
++
++bool CGptBind::run( )
++{
++   ifstream in(_options-&gt;sourcefile.c_str());
++   GptBindLexer lexer(in);
++   GptBindParser parser(lexer);
++
++//   string asmProgram = parser.program(_options-&gt;sourcefile);
++   parser.sld_grammar();
++
++   string cppOutput = parser.getCpp();
++   string hppOutput = parser.getHpp();
++   string makefileOutput = parser.getMakefile();
++
++   ofstream cppFile((_options-&gt;destfile + &quot;.cpp&quot;).c_str(), ios_base::out);
++   if (!cppFile) {
++      cout &lt;&lt; &quot;ERRO: n&#227;o foi poss&#237;vel abrir o arquivo: \&quot;&quot; &lt;&lt; _options-&gt;destfile &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl;
++      return false;
++   }
++
++   cppFile &lt;&lt; cppOutput;
++
++   ofstream hppFile((_options-&gt;destfile + &quot;.hpp&quot;).c_str(), ios_base::out);
++   if (!hppFile) {
++      cout &lt;&lt; &quot;ERRO: n&#227;o foi poss&#237;vel abrir o arquivo: \&quot;&quot; &lt;&lt; _options-&gt;destfile &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl;
++      return false;
++   }
++
++   hppFile &lt;&lt; hppOutput;
++
++   return true;
++}
++
+
+Added: trunk/gpt2/bindings/gptbind/src/CGptBind.hpp
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/CGptBind.hpp	2007-12-17 18:56:47 UTC (rev 433)
++++ trunk/gpt2/bindings/gptbind/src/CGptBind.hpp	2007-12-18 17:53:16 UTC (rev 434)
+@@ -0,0 +1,16 @@
++#ifndef GPT_CGPTBIND_H
++#define GPT_CGPTBIND_H
++
++#include &quot;COptions.hpp&quot;
++
++class CGptBind
++{
++public:
++   CGptBind( COptions *options );
++   bool run( );
++private:
++   COptions *_options;
++};
++
++#endif
++
+
+Added: trunk/gpt2/bindings/gptbind/src/Makefile
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/Makefile	2007-12-17 18:56:47 UTC (rev 433)
++++ trunk/gpt2/bindings/gptbind/src/Makefile	2007-12-18 17:53:16 UTC (rev 434)
+@@ -0,0 +1,30 @@
++COMMON_DIR=../../../common/src/
++
++INCLUDE_DIR=-I/usr/include/antlr/ -I$(COMMON_DIR)
++CC=g++
++CCFLAGS=-g -Wall
++
++objects = GptBindLexer.o GptBindParser.o main.o CGptBind.o CBindSources.o \
++          $(COMMON_DIR)/CTextFile.o
++
++all: $(objects)
++	g++ -o gptbind $(objects) /usr/local/lib/libantlr.a
++
++GptBindLexer.hpp GptBindLexer.cpp: lexer.g
++	antlr lexer.g
++
++GptBindParser.hpp GptBindParser.cpp: parser.g
++	antlr parser.g
++
++
++%.o: %.cpp %.hpp
++	$(CC) $(CCFLAGS) -c $(INCLUDE_DIR) $&lt; -o $@
++
++%.o: %.cpp
++	$(CC) $(CCFLAGS) -c $(INCLUDE_DIR) $&lt; -o $@
++
++
++clean:
++	rm -f *.o $(COMMON_DIR)*.o GptBindLexer.cpp GptBindLexer.hpp GptBindLexerTokenTypes.hpp \
++	GptBindLexerTokenTypes.txt GptBindParser.cpp GptBindParser.hpp gptbind \
++	GptBindParserTokenTypes.hpp GptBindParserTokenTypes.txt 
+
+Added: trunk/gpt2/bindings/gptbind/src/lexer.g
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/lexer.g	2007-12-17 18:56:47 UTC (rev 433)
++++ trunk/gpt2/bindings/gptbind/src/lexer.g	2007-12-18 17:53:16 UTC (rev 434)
+@@ -0,0 +1,269 @@
++header {
++   #include &lt;string&gt;
++   #include &lt;sstream&gt;
++}
++
++
++options {
++   language=&quot;Cpp&quot;;  
++}
++
++
++class GptBindLexer extends Lexer;
++
++
++options {
++   k=2;
++   charVocabulary='\0'..'\377';
++   exportVocab=GptBindLexer;
++  testLiterals = true;
++//  testLiterals = false;
++//  filter=T_INVALID;
++//  genHashLines=false;//no #line
++}
++
++
++tokens {
++   T_KW_OPTIONS=&quot;options&quot;;
++   T_KW_HEADERS=&quot;headers&quot;;
++   T_KW_PROCEDURE=&quot;procedure&quot;;
++   T_KW_FUNCTION=&quot;function&quot;;
++   T_KW_INT=&quot;int&quot;;
++   T_KW_REAL=&quot;real&quot;;
++   T_KW_CHAR=&quot;char&quot;;
++   T_KW_STRING=&quot;string&quot;;
++   T_KW_BOOL=&quot;bool&quot;;
++   T_KW_POINTER=&quot;pointer&quot;;
++   T_KW_MATRIX=&quot;matrix&quot;;
++   T_KW_DATA=&quot;data&quot;;
++   T_KW_LIBNAME=&quot;libname&quot;;
++   T_KW_FUNCTIONPREFIX=&quot;functionprefix&quot;;
++   T_KW_LINKERLIB=&quot;linkerlib&quot;;
++   T_REAL_VALUE=&quot;n&#250;mero real&quot;; //nondeterminism T_INT_LIT &amp; T_REAL_LIT
++}
++
++
++{
++public:  
++
++private:
++}
++
++
++/******************* Constant literals ***********************/
++
++T_INT_VALUE
++options {
++   paraphrase = &quot;int number&quot;;
++}
++   : ('0' ('c'|'C') )=&gt; T_OCTAL_VALUE
++   | ('0' ('x'|'X') )=&gt; T_HEX_VALUE
++   | ('0' ('b'|'B') )=&gt; T_BIN_VALUE
++   | T_INTEGER_VALUE
++      (
++         '.' (T_DIGIT)+
++         {$setType(T_REAL_VALUE);}
++      )?
++   ;
++
++protected
++T_INTEGER_VALUE
++   : (T_DIGIT)+
++   ;
++
++protected
++T_OCTAL_VALUE
++   : '0' ('c'|'C')
++      {
++         //convert to base 10
++         std::string str = $getText;
++         int base10;
++         str = str.substr(2);//0c
++         base10 = strtoul(str.c_str(), NULL, 8);
++
++         std::stringstream s;
++         s &lt;&lt; base10;        
++         std::string res = s.str();
++         $setText(res);
++      }
++   ;
++
++protected
++T_HEX_VALUE
++   : '0' ('x'|'X')
++      {
++         //convert to base 10
++         std::string str = $getText;
++         int base10;
++         base10 = strtoul(str.c_str(), NULL, 16);
++  
++         std::stringstream s;
++         s &lt;&lt; base10;
++         std::string res = s.str();
++         $setText(res);      
++      }
++   ;
++
++protected
++T_BIN_VALUE
++   : '0' ('b'|'B')
++      {
++         //convert to base 10
++         int base10;
++         std::string str = $getText.substr(2);
++         base10 = strtoul(str.c_str(), NULL, 2);//0b
++
++         std::stringstream s;
++         s &lt;&lt; base10;
++         std::string res = s.str();
++         $setText(res);
++      }
++   ;
++
++T_CHAR_VALUE
++options {
++   paraphrase = &quot;char&quot;;
++}
++   : '\'' ( ~( '\'' | '\\' ) | ESC )? '\''
++   ;
++
++T_STRING_VALUE
++options {
++   paraphrase = &quot;string&quot;;
++}
++   : '&quot;' ( ~( '&quot;' | '\\' | '\n' | '\r') | ESC)* '&quot;'
++   ;
++
++protected
++ESC
++   : '\\' . //permite &quot;\a&quot; (possibilida ser avaliado posteriormente como &quot;a&quot;)
++   ;
++
++
++T_COLON
++options {
++   paraphrase = &quot;':'&quot;;
++}
++   : ':'
++   ;
++  
++T_COMMA
++options {
++   paraphrase = &quot;','&quot;;
++}
++   : ','
++   ;
++
++T_MAPINTO
++options {
++   paraphrase = &quot;::=&quot;;
++}
++   : &quot;::=&quot;
++   ;
++
++T_ABREC
++options {
++  paraphrase = &quot;'{'&quot;;
++}
++  : '{'
++  ;
++
++T_FECHAC
++options {
++  paraphrase = &quot;'}'&quot;;
++}
++  : '}'
++  ;
++
++T_ABREP
++options {
++  paraphrase = &quot;'('&quot;;
++}
++  : '('
++  ;
++
++T_FECHAP
++options {
++  paraphrase = &quot;')'&quot;;
++}
++  : ')'
++  ;
++
++
++T_EQUAL
++options {
++  paraphrase = &quot;'='&quot;;
++}
++  : '='
++  ;
++
++
++T_SEMICOLON
++options {
++  paraphrase = &quot;';'&quot;;
++}
++  : ';'
++  ;
++
++
++T_WS_ : (' '
++   | '\t'
++   | '\n' { newline(); }
++   | '\r')
++      { $setType(antlr::Token::SKIP); }
++   ;
++
++SL_COMMENT
++   : &quot;//&quot; (~('\n'))* ('\n')?
++      { 
++         newline();
++         $setType(antlr::Token::SKIP);
++      }
++   ;
++
++ML_COMMENT
++{int line = getLine();}
++   : &quot;/*&quot; 
++      ( 
++         options { generateAmbigWarnings=false; } :  
++         '\n'                     {newline();}
++         | ('\r' '\n')=&gt; '\r' '\n'  {newline();}
++         | '\r'                     {newline();}
++         |~('*'|'\n'|'\r')
++         | ('*' ~'/' )=&gt; '*' 
++      )* 
++      &quot;*/&quot;
++      {$setType(antlr::Token::SKIP);}
++   ;
++
++exception
++catch[antlr::RecognitionException] {  
++   std::stringstream s;
++   s &lt;&lt; &quot;AVISO: coment&#225;rio iniciado na linha &quot; &lt;&lt; line &lt;&lt; &quot; n&#227;o termina com \&quot;*/\&quot;.&quot;;
++
++   _ttype = antlr::Token::SKIP;
++}
++
++T_ID
++   : (T_LETTER | '_') (T_LETTER | T_DIGIT | '_')*
++   ;
++
++protected
++T_DIGIT
++   : '0'..'9'
++   ;
++
++protected
++T_LETTER
++   : 'a'..'z'|'A'..'Z' | '\u00C0'..'\u00FF' /* latim-1 */
++   ;
++
++
++protected
++T_INVALID
++   : . 
++      {
++         printf(&quot;INVALID %d == '%x' -&gt; '%c'\n&quot;, $getText.c_str()[0], $getText.c_str()[0], $getText.c_str()[0]);
++      }
++   ;
++
+
+Added: trunk/gpt2/bindings/gptbind/src/main.cpp
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/main.cpp	2007-12-17 18:56:47 UTC (rev 433)
++++ trunk/gpt2/bindings/gptbind/src/main.cpp	2007-12-18 17:53:16 UTC (rev 434)
+@@ -0,0 +1,68 @@
++#include &lt;iostream&gt;
++#include &lt;string&gt;
++
++using namespace std;
++
++
++#include &quot;COptions.hpp&quot;
++#include &quot;CGptBind.hpp&quot;
++
++
++void showSyntax();
++
++
++int main (int argc, char *argv[])
++{
++   int i;
++   COptions options;
++
++   cout &lt;&lt; &quot;GptBind - Release 0.1.0 (GEPETO)&quot; &lt;&lt; endl;
++
++   while ((i = getopt(argc, argv, &quot;h&quot;)) != -1) {
++      switch (i) {
++         case 'h':
++            showSyntax();
++            return EXIT_SUCCESS;
++            break;
++         default:
++            break;
++      }
++   }
++
++   argc -= optind;
++   argv += optind;
++
++   if (argc &lt; 1) {
++      showSyntax();
++      return EXIT_FAILURE;
++   }
++
++   options.sourcefile = string(argv[0]) + &quot;.sld&quot;;
++   options.destfile   = string(argv[0]) + &quot;.gvm&quot;;
++
++   cout &lt;&lt; &quot;Binding &quot; &lt;&lt; options.sourcefile &lt;&lt; &quot;...&quot; &lt;&lt; endl;
++
++   CGptBind gptbind( &amp;options );
++
++   if (gptbind.run()) {
++      cout &lt;&lt; &quot;Program &quot; &lt;&lt; options.sourcefile &lt;&lt; &quot; ok !!!&quot; &lt;&lt; endl &lt;&lt; endl;
++   } else {
++      cout &lt;&lt; &quot;Program &quot; &lt;&lt; options.sourcefile &lt;&lt; &quot; has errors...&quot; &lt;&lt; endl &lt;&lt; endl;
++      exit( EXIT_FAILURE );
++   }
++
++   return EXIT_SUCCESS;
++}
++
++
++void showSyntax() {
++   cout &lt;&lt; endl 
++        &lt;&lt; &quot;Desenvolvido por XXX, YYY e ZZZ&quot; &lt;&lt; endl 
++        &lt;&lt; &quot;Dezembro, 2007&quot; &lt;&lt; endl 
++        &lt;&lt; endl 
++        &lt;&lt; &quot;Syntax: gptbind [options] file&quot; &lt;&lt; endl 
++        &lt;&lt; &quot;Options:&quot; &lt;&lt; endl 
++        &lt;&lt; &quot;         -h help&quot; &lt;&lt; endl 
++        &lt;&lt; endl;
++}
++
+
+Added: trunk/gpt2/bindings/gptbind/src/parser.g
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/parser.g	2007-12-17 18:56:47 UTC (rev 433)
++++ trunk/gpt2/bindings/gptbind/src/parser.g	2007-12-18 17:53:16 UTC (rev 434)
+@@ -0,0 +1,246 @@
++header {
++   #include &lt;string&gt;
++//   #include &lt;antlr/config.hpp&gt;
++//   #include &lt;antlr/TokenStream.hpp&gt;
++//   #include &lt;antlr/TokenBuffer.hpp&gt;
++//   #include &lt;antlr/LLkParser.hpp&gt;
++   #include &quot;CSymbol.hpp&quot;
++   #include &quot;CBindSources.hpp&quot;
++}
++
++options {
++  language=&quot;Cpp&quot;;  
++}
++
++{
++}
++
++class GptBindParser extends Parser;
++
++options {
++  importVocab=GptBindLexer;  // use vocab generated by lexer
++//  genHashLines=false;//no #line
++//  k=2;
++}
++
++{  
++   public:
++//      CGenBytecode bytecode;
++      void init()
++      {
++         sources = new CBindSources( &quot;teste&quot;, &quot;gptbind_&quot; );
++      }
++      antlr::RefToken getLastToken()
++      {
++         return LT(0);
++      }
++      std::string getLastTokenText()
++      {
++         return LT(0)-&gt;getText();
++      }
++      std::string getCpp()
++      {
++         return sources-&gt;getCppSource();
++      }
++      std::string getHpp()
++      {
++         return sources-&gt;getHppSource();
++      }
++      std::string getMakefile()
++      {
++         return sources-&gt;getMakefileSource();
++      }
++   private:
++      CBindSources *sources;
++}
++
++
++//####################################################################
++//####################### In&#237;cio da gram&#225;tica ########################
++//####################################################################
++
++//###############
++//## GRAMATICA ##
++//###############
++
++//-----------
++  sld_grammar
++//-----------
++   : { init(); }
++     (optionsdef)?
++     (headersdef)?
++     {
++        sources-&gt;writeHeaders();
++     }
++     (bindingdef)*
++     {
++        sources-&gt;writeFooters();
++     }
++     EOF
++     ;
++
++//#############
++//## Options ##
++//#############
++
++//-------
++  optionsdef
++//-------
++   : &quot;options&quot; T_ABREC (optiondef)+ T_FECHAC
++   ;
++
++//------
++  optiondef
++//------
++   : optionname T_EQUAL T_STRING_VALUE T_SEMICOLON
++   ;
++
++///----------
++   optionname
++///----------
++   : &quot;libname&quot; | &quot;functionprefix&quot; | &quot;linkerlib&quot;
++   ;
++
++//#############
++//## Headers ##
++//#############
++
++//-------
++  headersdef
++//-------
++   : &quot;headers&quot; T_ABREC (headerdef)+ T_FECHAC
++   ;
++
++//------
++  headerdef
++//------
++   : T_STRING_VALUE T_SEMICOLON
++   ;
++
++//#############
++//## Binding ##
++//#############
++
++//-------
++  bindingdef
++//-------
++   : procedure_bind
++   | function_bind
++   ;
++
++//--------------
++  procedure_bind
++//--------------
++{
++   std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; parameters;
++   std::vector&lt;std::string&gt; arguments;
++//   std::vector&lt;std::pair&lt;std::string, int&gt; &gt; arguments;
++}
++   : &quot;procedure&quot; tk_procname:T_ID (parameters_declaration[parameters])
++     T_MAPINTO
++     tk_mapname:T_ID (arguments_declaration[arguments])? T_SEMICOLON
++     {
++        sources-&gt;addProcedureBind(tk_procname-&gt;getText(), parameters, tk_mapname-&gt;getText(), arguments);
++     }
++   ;
++
++//-------------
++  function_bind
++//-------------
++{
++   std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; parameters;
++   std::vector&lt;std::string&gt; arguments;
++//   std::vector&lt;std::pair&lt;std::string, int&gt; &gt; arguments;
++}
++   : &quot;function&quot; T_ID (parameters_declaration[parameters]) T_COLON type
++     T_MAPINTO
++     T_ID (arguments_declaration[arguments])? T_SEMICOLON
++   ;
++
++///----------------------
++   parameters_declaration[std::vector&lt;std::pair&lt;std::string, std::string&gt; &gt; &amp;parameters]
++///----------------------
++{
++   std::string typeValue;
++}
++   : T_ABREP
++     (
++        type {typeValue = getLastTokenText();} tk_id:T_ID
++        {parameters.push_back(std::pair&lt;std::string, std::string&gt;(tk_id-&gt;getText(), typeValue));} 
++        (
++           T_COMMA type {typeValue = getLastTokenText();} tk_id2:T_ID
++           {parameters.push_back(std::pair&lt;std::string, std::string&gt;(tk_id2-&gt;getText(), typeValue));} 
++        )*
++     )?
++     T_FECHAP
++   ;
++
++///---------------------
++   arguments_declaration[std::vector&lt;std::string&gt; &amp;arguments]
++///---------------------
++   : T_ABREP
++     (
++        (literal|T_ID) {arguments.push_back(getLastTokenText());}
++        (
++           T_COMMA (literal|T_ID) {arguments.push_back(getLastTokenText());}
++        )* 
++     )? 
++     T_FECHAP
++   ;
++
++/////---------------------
++//   arguments_declaration[std::vector&lt;std::pair&lt;std::string, int&gt; &gt; &amp;arguments]
++/////---------------------
++//{
++//   std::string value;
++//}
++//   : T_ABREP
++//     (
++//        literal|T_ID {value=getLastTokenText();}
++//        (
++//           T_COMMA literal|T_ID {value=getLastTokenText();}
++//        )* 
++//     )? 
++//     T_FECHAP
++//   ;
++
++
++//-------
++  literal
++//-------
++  : ( 
++        T_STRING_VALUE
++      | T_INT_VALUE
++      | T_REAL_VALUE
++      | T_CHAR_VALUE
++      | &quot;true&quot;
++      | &quot;false&quot;
++    ) 
++  ;
++
++///----
++   type
++///----
++   : &quot;int&quot;
++   | &quot;real&quot;
++   | &quot;char&quot;
++   | &quot;string&quot;
++   | &quot;bool&quot;
++   | &quot;pointer&quot;
++   | &quot;matrix&quot;
++   | &quot;data&quot;
++   ;
++
++/////----
++//   type returns [int ret]
++/////----
++//   : &quot;int&quot;     { ret=CSymbol::INT; }
++//   | &quot;real&quot;    { ret=CSymbol::REAL; }
++//   | &quot;char&quot;    { ret=CSymbol::CHAR; }
++//   | &quot;string&quot;  { ret=CSymbol::STRING; }
++//   | &quot;bool&quot;    { ret=CSymbol::BOOL; }
++//   | &quot;pointer&quot; { ret=CSymbol::POINTER; }
++//   | &quot;matrix&quot;  { ret=CSymbol::MATRIX; }
++//   | &quot;data&quot;    { ret=CSymbol::DATA; }
++//   ;
++
+
+Added: trunk/gpt2/bindings/gptbind/test/test.sld
+===================================================================
+--- trunk/gpt2/bindings/gptbind/test/test.sld	2007-12-17 18:56:47 UTC (rev 433)
++++ trunk/gpt2/bindings/gptbind/test/test.sld	2007-12-18 17:53:16 UTC (rev 434)
+@@ -0,0 +1,22 @@
++options {
++   libname        = &quot;math&quot;;
++   functionprefix = &quot;math_&quot;; // poderia ser libname + &quot;_&quot;
++   linkerlib      = &quot;math&quot;;
++}
++
++headers {
++   &quot;stdlib.h&quot;;
++   &quot;math.h&quot;;
++   &quot;iostream&quot;;
++}
++
++procedure mensagem_padrao() ::= puts(&quot;Hello !!!&quot;);
++
++procedure mensagem_personalizada(string msg) ::= puts(msg);
++
++// Acho que esse formato eh o foto da versao .1 do gerador
++procedure outra_mensagem_personalizada(string msg) ::= puts(msg);
++
++function sqrt(real value) : real ::= puts(msg);
++
++function exponencial(real valor) : real ::= exp(valor);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000107.html">[gpt-commit] r433 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000109.html">[gpt-commit] r435 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

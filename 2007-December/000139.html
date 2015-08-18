@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r465 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test gptasm/src gptvm/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r465%20-%20in%20trunk/gpt2%3A%20bindings/gptbind/src%0A%09bindings/gptbind/test%20gptasm/src%20gptvm/src&In-Reply-To=%3C200712211738.lBLHcGid016662%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000138.html">
+   <LINK REL="Next"  HREF="000140.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r465 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test gptasm/src gptvm/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r465%20-%20in%20trunk/gpt2%3A%20bindings/gptbind/src%0A%09bindings/gptbind/test%20gptasm/src%20gptvm/src&In-Reply-To=%3C200712211738.lBLHcGid016662%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r465 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test gptasm/src gptvm/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Dec 21 18:38:16 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000138.html">[gpt-commit] r464 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm/test/wikki
+</A></li>
+        <LI>Next message: <A HREF="000140.html">[gpt-commit] r466 - trunk/gpt/exemplos
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#139">[ date ]</a>
+              <a href="thread.html#139">[ thread ]</a>
+              <a href="subject.html#139">[ subject ]</a>
+              <a href="author.html#139">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-21 18:38:15 +0100 (Fri, 21 Dec 2007)
+New Revision: 465
+
+Modified:
+   trunk/gpt2/bindings/gptbind/src/CBindSources.cpp
+   trunk/gpt2/bindings/gptbind/src/lexer.g
+   trunk/gpt2/bindings/gptbind/src/parser.g
+   trunk/gpt2/bindings/gptbind/test/file.sld
+   trunk/gpt2/gptasm/src/CData.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+Log:
+DEVNULL:
+BUG:
+* Geracao do gvm estava errada quando utilizada o tipo BOOL
+* Troca no formato do .sld
+  - pointer[TIPO]
+
+
+Modified: trunk/gpt2/bindings/gptbind/src/CBindSources.cpp
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/CBindSources.cpp	2007-12-20 19:21:36 UTC (rev 464)
++++ trunk/gpt2/bindings/gptbind/src/CBindSources.cpp	2007-12-21 17:38:15 UTC (rev 465)
+@@ -4,11 +4,11 @@
+ CBindSources::CBindSources(const std::string &amp;filename)
+       : _filename(filename)
+ {
+-   _mapGptToCppType[&quot;string&quot; ] = &quot;const char *&quot;;
+-   _mapGptToCppType[&quot;real&quot;   ] = &quot;double&quot;;
+-   _mapGptToCppType[&quot;int&quot;    ] = &quot;int&quot;;
+-   _mapGptToCppType[&quot;char&quot;   ] = &quot;char&quot;;
+-   _mapGptToCppType[&quot;bool&quot;   ] = &quot;boolean&quot;;
++   _mapGptToCppType[&quot;string&quot;] = &quot;const char*&quot;;
++   _mapGptToCppType[&quot;real&quot;  ] = &quot;double&quot;;
++   _mapGptToCppType[&quot;int&quot;   ] = &quot;int&quot;;
++   _mapGptToCppType[&quot;char&quot;  ] = &quot;char&quot;;
++   _mapGptToCppType[&quot;bool&quot;  ] = &quot;boolean&quot;;
+ }
+ 
+ 
+@@ -102,7 +102,7 @@
+    result = getMapGptToCppType(type) + &quot; c&quot; + name + &quot;=&quot;;
+ 
+    if (type.first == &quot;pointer&quot;) {
+-      result += &quot;(&quot; + type.second + &quot;)&quot; + mapPop[&quot;int&quot;];
++      result += &quot;(&quot; + type.second + &quot;*)&quot; + mapPop[&quot;int&quot;];
+    } else {
+       result += mapPop[type.first];
+    }
+@@ -182,7 +182,7 @@
+ std::string CBindSources::getMapGptToCppType(const std::pair&lt;std::string,std::string&gt; &amp;type)
+ {
+    if (type.first == &quot;pointer&quot;) {
+-      return type.second;
++      return type.second + &quot;*&quot;;
+    } else {
+       return _mapGptToCppType[type.first];
+    }
+
+Modified: trunk/gpt2/bindings/gptbind/src/lexer.g
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/lexer.g	2007-12-20 19:21:36 UTC (rev 464)
++++ trunk/gpt2/bindings/gptbind/src/lexer.g	2007-12-21 17:38:15 UTC (rev 465)
+@@ -174,7 +174,21 @@
+   : '}'
+   ;
+ 
++T_ABRECO
++options {
++  paraphrase = &quot;'['&quot;;
++}
++  : '['
++  ;
+ 
++T_FECHACO
++options {
++  paraphrase = &quot;']'&quot;;
++}
++  : ']'
++  ;
++
++
+ T_ABREP
+ options {
+   paraphrase = &quot;'('&quot;;
+
+Modified: trunk/gpt2/bindings/gptbind/src/parser.g
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/parser.g	2007-12-20 19:21:36 UTC (rev 464)
++++ trunk/gpt2/bindings/gptbind/src/parser.g	2007-12-21 17:38:15 UTC (rev 465)
+@@ -229,11 +229,10 @@
+    | &quot;char&quot; {result.first = getLastTokenText();}
+    | &quot;string&quot; {result.first = getLastTokenText();}
+    | &quot;bool&quot; {result.first = getLastTokenText();}
+-   | ( &quot;pointer&quot; T_STRING_VALUE
++   | ( &quot;pointer&quot; T_ABRECO tkid:T_ID T_FECHACO
+       {
+          result.first = &quot;pointer&quot;;
+-         result.second = getLastTokenText();
+-         result.second = result.second.substr(1, result.second.length()-2);
++         result.second = tkid-&gt;getText();
+       } )
+    | &quot;matrix&quot; {result.first = getLastTokenText();}
+    | &quot;data&quot; {result.first = getLastTokenText();}
+
+Modified: trunk/gpt2/bindings/gptbind/test/file.sld
+===================================================================
+--- trunk/gpt2/bindings/gptbind/test/file.sld	2007-12-20 19:21:36 UTC (rev 464)
++++ trunk/gpt2/bindings/gptbind/test/file.sld	2007-12-21 17:38:15 UTC (rev 465)
+@@ -5,9 +5,9 @@
+    &quot;stdio.h&quot;;
+ }
+ 
+-function fopen(string name, string mode) : pointer &quot;FILE*&quot; ::= fopen(name, mode);
++function fopen(string name, string mode) : pointer[FILE] ::= fopen(name, mode);
+ 
+-function fputs(string text, pointer &quot;FILE*&quot; file) : int ::= fputs(text, file);
++function fputs(string text, pointer[FILE] file) : int ::= fputs(text, file);
+ 
+-function fclose(pointer &quot;FILE*&quot; file) : int ::= fclose(file);
++function fclose(pointer[FILE] file) : int ::= fclose(file);
+ 
+
+Modified: trunk/gpt2/gptasm/src/CData.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CData.cpp	2007-12-20 19:21:36 UTC (rev 464)
++++ trunk/gpt2/gptasm/src/CData.cpp	2007-12-21 17:38:15 UTC (rev 465)
+@@ -63,10 +63,15 @@
+       writeString(name, false);
+    } else if (type == CSymbol::INT) {
+       writeInt(atoi(name.c_str()));
++   } else if (type == CSymbol::BOOL) {
++      writeInt(atoi(name.c_str()));
+    } else if (type == CSymbol::REAL) {
+       writeReal(atof(name.c_str()));
+    } else if (type == CSymbol::CHAR) {
+       writeInt(toUTF8Char(name));
++   } else {
++     std::cout &lt;&lt; &quot;Ta faltando algum tipo ???&quot; &lt;&lt; endl;
++     abort();
+    }
+ 
+    return symbol;
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-20 19:21:36 UTC (rev 464)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-21 17:38:15 UTC (rev 465)
+@@ -396,7 +396,7 @@
+ 
+    if (ithandler == syslibHandlerList.end()) {
+       // TODO: path absoluto ??? nem pensar :-)
+-      dlhandler = dlopen((&quot;../../../bindings/gptbind/test/lib&quot; + libname + &quot;.so&quot;).c_str(), RTLD_LAZY);
++      dlhandler = dlopen((&quot;../../bindings/gptbind/test/lib&quot; + libname + &quot;.so&quot;).c_str(), RTLD_LAZY);
+       if (!dlhandler) {
+          fprintf (stderr, &quot;%s\n&quot;, dlerror());
+          exit(1);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000138.html">[gpt-commit] r464 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm/test/wikki
+</A></li>
+	<LI>Next message: <A HREF="000140.html">[gpt-commit] r466 - trunk/gpt/exemplos
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#139">[ date ]</a>
+              <a href="thread.html#139">[ thread ]</a>
+              <a href="subject.html#139">[ subject ]</a>
+              <a href="author.html#139">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

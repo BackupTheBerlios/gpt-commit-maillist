@@ -1,0 +1,615 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r412 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r412%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712041903.lB4J3QW4011666%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000085.html">
+   <LINK REL="Next"  HREF="000087.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r412 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r412%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712041903.lB4J3QW4011666%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r412 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Dec  4 20:03:26 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000085.html">[gpt-commit] r411 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000087.html">[gpt-commit] r413 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#86">[ date ]</a>
+              <a href="thread.html#86">[ thread ]</a>
+              <a href="subject.html#86">[ subject ]</a>
+              <a href="author.html#86">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-04 20:03:24 +0100 (Tue, 04 Dec 2007)
+New Revision: 412
+
+Added:
+   trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm
+Modified:
+   trunk/gpt2/common/src/Common.hpp
+   trunk/gpt2/common/src/Tools.cpp
+   trunk/gpt2/gptasm/src/CGenBytecode.cpp
+   trunk/gpt2/gptasm/src/lexer.g
+   trunk/gpt2/gptasm/src/parser.g
+   trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm
+   trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm
+   trunk/gpt2/gptvm/src/CDataStack.cpp
+   trunk/gpt2/gptvm/src/CDataStack.hpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_3.gvm
+Log:
+DEVNULL:
+* Novos opcodes para empilhar retorno da funcao conforme o tipo de dado
+  - pushir (push int result), pushrr (push real result), ...
+
+
+Modified: trunk/gpt2/common/src/Common.hpp
+===================================================================
+--- trunk/gpt2/common/src/Common.hpp	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/common/src/Common.hpp	2007-12-04 19:03:24 UTC (rev 412)
+@@ -147,7 +147,12 @@
+    OP_PUSH_5      = 119,
+    OP_EXIT_0      = 120,
+    OP_EXIT_1      = 121,
+-   OPCODE_NUMBER  = 121
++   OP_PUSHIR      = 122,
++   OP_PUSHSR      = 123,
++   OP_PUSHRR      = 124,
++   OP_PUSHDR      = 125,
++   OP_PUSHMR      = 126,
++   OPCODE_NUMBER  = 126
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/common/src/Tools.cpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.cpp	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/common/src/Tools.cpp	2007-12-04 19:03:24 UTC (rev 412)
+@@ -290,6 +290,7 @@
+ 
+ int sumAddress(int address, int value)
+ {
++// TODO: ao somar dados em address os limites deveriam ser testados
+    bool localAddress = false;
+    bool negAddress = false;
+ 
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-12-04 19:03:24 UTC (rev 412)
+@@ -101,6 +101,11 @@
+    _opcodes[ &quot;pushrv&quot;      ] = OP_PUSHRV;
+    _opcodes[ &quot;pushdv&quot;      ] = OP_PUSHDV;
+    _opcodes[ &quot;pushmv&quot;      ] = OP_PUSHMV;
++   _opcodes[ &quot;pushir&quot;      ] = OP_PUSHIR;
++   _opcodes[ &quot;pushsr&quot;      ] = OP_PUSHSR;
++   _opcodes[ &quot;pushrr&quot;      ] = OP_PUSHRR;
++   _opcodes[ &quot;pushdr&quot;      ] = OP_PUSHDR;
++   _opcodes[ &quot;pushmr&quot;      ] = OP_PUSHMR;
+    _opcodes[ &quot;pushit&quot;      ] = OP_PUSHIT;
+    _opcodes[ &quot;pushst&quot;      ] = OP_PUSHST;
+    _opcodes[ &quot;pushrt&quot;      ] = OP_PUSHRT;
+
+Modified: trunk/gpt2/gptasm/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptasm/src/lexer.g	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptasm/src/lexer.g	2007-12-04 19:03:24 UTC (rev 412)
+@@ -136,6 +136,11 @@
+    T_KW_PUSHBT=&quot;pushbt&quot;;
+    T_KW_PUSHDT=&quot;pushdt&quot;;
+    T_KW_PUSHMT=&quot;pushmt&quot;;
++   T_KW_PUSHIR=&quot;pushir&quot;;
++   T_KW_PUSHRR=&quot;pushrr&quot;;
++   T_KW_PUSHSR=&quot;pushsr&quot;;
++   T_KW_PUSHDR=&quot;pushdr&quot;;
++   T_KW_PUSHMR=&quot;pushmr&quot;;
+    T_KW_INCSP_4=&quot;incsp_4&quot;;
+    T_KW_INCSP_8=&quot;incsp_8&quot;;
+    T_KW_DECSP_4=&quot;decsp_4&quot;;
+
+Modified: trunk/gpt2/gptasm/src/parser.g
+===================================================================
+--- trunk/gpt2/gptasm/src/parser.g	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptasm/src/parser.g	2007-12-04 19:03:24 UTC (rev 412)
+@@ -251,6 +251,8 @@
+       T_INT_VALUE
+       { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
+       // TODO: muitos opcodes poderiam ter o valor inteiro diretamente ao inves de um enderecamento...
++   |  (&quot;pushir&quot;|&quot;pushsr&quot;|&quot;pushrr&quot;|&quot;pushdr&quot;|&quot;pushmr&quot;)
++      {bytecode.addOpcode(getLastTokenText());}
+    |  (&quot;pushit&quot;|&quot;pushst&quot;|&quot;pushrt&quot;|&quot;pushct&quot;|&quot;pushbt&quot;|&quot;pushdt&quot;|&quot;pushmt&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+    |  (&quot;popiv&quot;|&quot;popsv&quot;|&quot;poprv&quot;|&quot;popmv&quot;)
+
+Modified: trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm	2007-12-04 19:03:24 UTC (rev 412)
+@@ -3,7 +3,7 @@
+ proc main
+     var t1 int
+     // imprima( &quot;A soma &#233;: &quot;, soma( 2, 7 ) );
+-    push_0 // resultado da fun&#231;&#227;o
++    pushir // resultado da fun&#231;&#227;o
+     pushiv 7 // empilha 7
+     pushiv 2 // empilha 2
+     pcall soma
+
+Modified: trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm	2007-12-04 19:03:24 UTC (rev 412)
+@@ -15,7 +15,7 @@
+     popiv x
+ 
+     // imprima( &quot;Fatorial de &quot;, x, &quot; &#233; &quot;, fatorial( x ) );
+-    push_0 // retorno da fun&#231;&#227;o
++    pushir // retorno da fun&#231;&#227;o
+     pushiv x
+     pcall fatorial
+     pushit
+@@ -50,7 +50,7 @@
+     senao:
+         // retorne z * fatorial( z - 1 );
+         isub t1, z, 1
+-        push_0 // retorno da fun&#231;&#227;o
++        pushir // retorno da fun&#231;&#227;o
+         pushiv t1
+         pcall fatorial
+         popiv t1
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm	2007-12-04 19:03:24 UTC (rev 412)
+@@ -5,7 +5,7 @@
+ var t1 int
+ 
+ proc main
+-    push_0 // funciona pq sizeof(int) e de matrix sao iguais... mas e para real ???
++    pushmr
+     pcall insere_dados
+     popmv m
+ 
+
+Added: trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm	2007-12-04 19:03:24 UTC (rev 412)
+@@ -0,0 +1,32 @@
++program exemplo
++
++var v string
++
++proc main
++//    var v string
++
++//    salloc v
++    pushsr
++    pcall ajusta
++    popsv v
++
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
++    sfree v
++
++    exit 0
++endproc
++
++proc ajusta
++    param __result string
++
++    salloc __result
++    sset __result, &quot;Hello !!!&quot;
++    ret
++endproc
++
++endprogram
++
+
+Added: trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm	2007-12-04 19:03:24 UTC (rev 412)
+@@ -0,0 +1,30 @@
++program exemplo
++
++proc main
++    var v string
++
++//    salloc v
++    pushsr
++    pcall ajusta
++    popsv v
++
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
++    sfree v
++
++    exit 0
++endproc
++
++proc ajusta
++    param __result string
++
++    salloc __result
++    sset __result, &quot;Hello !!!&quot;
++    ret
++endproc
++
++endprogram
++
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-04 19:03:24 UTC (rev 412)
+@@ -282,3 +282,16 @@
+    }
+ }
+ 
++
++void CDataStack::pushBytes(const void* data, const int &amp;size)
++{
++   const char* bytes = (const char*) data;
++   for(int i=0; i&lt;size; i++) {
++      CBinString::pushByte(*bytes);
++      bytes++;
++   }
++
++   _SP+=size;
++}
++
++
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-04 19:03:24 UTC (rev 412)
+@@ -36,6 +36,7 @@
+    void pushByte(const char &amp;value);
+    char popByte();
+    void *getPointer(const int &amp;address);
++   void pushBytes(const void* data, const int &amp;size);
+ private:
+    int _BS;
+    int _SP; // TODO: SP eh equivalente a size() ???
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-04 19:03:24 UTC (rev 412)
+@@ -5,10 +5,50 @@
+ 
+ #include &quot;Tools.hpp&quot;
+ 
+-
+-// TODO: ao somar dados em address os limites deveriam ser testados
+ // TODO: Armazenar todas as strings em memoria com o tamanho na frente ???
+ 
++struct SStringType {
++   char _type;
++   union UStringTypeValue {
++      std::string *_strValue;
++      int         _addressValue;
++   };
++   UStringTypeValue _value;
++   SStringType()
++   : _type(0)
++   {
++      _value._addressValue = 0;
++   }
++};
++
++struct SMatrixType {
++   int _elementSize;
++   int _elements;
++   char* _data;
++   SMatrixType()
++   : _elementSize(0)
++   , _elements(0)
++   , _data(NULL)
++   { }
++};
++
++struct SIntType {
++   int _value;
++
++   SIntType()
++   : _value(0)
++   { }
++};
++
++struct SRealType {
++   double _value;
++
++   SRealType()
++   : _value(0)
++   { }
++};
++
++
+ CRunBytecode::CRunBytecode()
+    : _returnCode(0)
+ {
+@@ -144,6 +184,12 @@
+    _opcodePointer[OP_PUSHDV     ] = &amp;CRunBytecode::pushdvOpcode;
+    _opcodePointer[OP_PUSHMV     ] = &amp;CRunBytecode::pushmvOpcode;
+ 
++   _opcodePointer[OP_PUSHSR     ] = &amp;CRunBytecode::pushsrOpcode;
++   _opcodePointer[OP_PUSHIR     ] = &amp;CRunBytecode::pushirOpcode;
++   _opcodePointer[OP_PUSHRR     ] = &amp;CRunBytecode::pushrrOpcode;
++   _opcodePointer[OP_PUSHDR     ] = &amp;CRunBytecode::pushdrOpcode;
++   _opcodePointer[OP_PUSHMR     ] = &amp;CRunBytecode::pushmrOpcode;
++
+    _opcodePointer[OP_PUSHST     ] = &amp;CRunBytecode::pushstOpcode;
+    _opcodePointer[OP_PUSHIT     ] = &amp;CRunBytecode::pushitOpcode;
+    _opcodePointer[OP_PUSHRT     ] = &amp;CRunBytecode::pushrtOpcode;
+@@ -152,10 +198,10 @@
+    _opcodePointer[OP_PUSHDT     ] = &amp;CRunBytecode::pushdtOpcode;
+    _opcodePointer[OP_PUSHMT     ] = &amp;CRunBytecode::pushmtOpcode;
+ 
+-   _opcodePointer[OP_INCSP_4     ] = &amp;CRunBytecode::incsp_4Opcode;
+-   _opcodePointer[OP_INCSP_8     ] = &amp;CRunBytecode::incsp_8Opcode;
+-   _opcodePointer[OP_DECSP_4     ] = &amp;CRunBytecode::decsp_4Opcode;
+-   _opcodePointer[OP_DECSP_8     ] = &amp;CRunBytecode::decsp_8Opcode;
++   _opcodePointer[OP_INCSP_4    ] = &amp;CRunBytecode::incsp_4Opcode;
++   _opcodePointer[OP_INCSP_8    ] = &amp;CRunBytecode::incsp_8Opcode;
++   _opcodePointer[OP_DECSP_4    ] = &amp;CRunBytecode::decsp_4Opcode;
++   _opcodePointer[OP_DECSP_8    ] = &amp;CRunBytecode::decsp_8Opcode;
+ 
+    _opcodePointer[OP_RET        ] = &amp;CRunBytecode::retOpcode;
+    _opcodePointer[OP_SALLOC     ] = &amp;CRunBytecode::sallocOpcode;
+@@ -346,7 +392,7 @@
+       error( &quot;Endereco para lcall deve conter uma string constante !!!&quot; );
+    }
+ 
+-   address=sumAddress(address,1);
++   address=sumAddress(address, 1);
+ 
+    if (_dataStack.getCString(address) == &quot;imprima&quot;) {
+       procImprima();
+@@ -392,18 +438,18 @@
+ {
+    trace (&quot;hlt opcode&quot;);
+ 
+-   exit(0);
++   exit(1);
+ }
+ 
+ void CRunBytecode::isumOpcode()
+ {
+    trace (&quot;isum opcode&quot;);
+ 
+-   int varAddress  = _code.fetchInt();
+-   int val1Address = _code.fetchInt();
+-   int val2Address = _code.fetchInt();
++   int varAddress = _code.fetchInt();
++   int val1       = _dataStack.getInt(_code.fetchInt());
++   int val2       = _dataStack.getInt(_code.fetchInt());
+ 
+-   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) + _dataStack.getInt(val2Address));
++   _dataStack.setInt(varAddress, val1 + val2);
+ }
+ 
+ void CRunBytecode::ssumOpcode()
+@@ -1023,7 +1069,30 @@
+ 
+ void CRunBytecode::popsvOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;popsv opcode&quot;);
++
++   int address = _code.fetchInt();
++
++//   if (_dataStack.getByte(address) != CSymbol::VAR) {
++//      error( &quot;popsvOpcode apenas com variaveis !!!&quot; );
++//   }
++
++   std::string* result = (std::string*) _dataStack.getInt(sumAddress(address,1));
++   if (result == NULL) {
++      _dataStack.setByte(address, CSymbol::VAR);
++      result = new std::string;
++      _dataStack.setInt(sumAddress(address,1), (int) result);
++   }
++
++   int value = _dataStack.popInt();
++   char type = _dataStack.popByte();
++
++   if (type == CSymbol::VAR) {
++      std::string* retValue = (std::string*) value;
++      *result = *retValue;
++   } else {
++      *result = _dataStack.getCString(value);
++   }
+ }
+ 
+ void CRunBytecode::popivOpcode()
+@@ -1081,7 +1150,7 @@
+    trace (&quot;incsp opcode&quot;);
+ 
+    int valAddress = _code.fetchInt();
+-   int size = _dataStack.getInt(valAddress);
++   int size       = _dataStack.getInt(valAddress);
+ 
+    _dataStack.pushBytes(size);
+ }
+@@ -1144,19 +1213,25 @@
+ }
+ 
+ 
+-
+ void CRunBytecode::pushsvOpcode()
+ {
+    trace (&quot;pushsv opcode&quot;);
+ 
+    int address = _code.fetchInt();
+ 
++   std::string *value = new std::string(); // TODO: quando eh desalocado ??? No popsv ?
++   *value = _dataStack.getString(address);
++
++   SStringType type;
++   type._type                = CSymbol::VAR;
++   type._value._addressValue = (int)value;
++
++//   std::cout &lt;&lt; &quot;sizeof(type)=&quot; &lt;&lt; sizeof(type) &lt;&lt; std::endl;
++//   _dataStack.pushBytes(&amp;type, sizeof(type));
++//   TODO: problemas de alinhamento nas estruturas... nao consegui desativar com pragmas...
++
+    _dataStack.pushByte(CSymbol::VAR);
+-
+-   std::string *value = new std::string(); // TODO: quando eh desalocado ??? 
+    _dataStack.pushInt((int)value);
+-
+-   *value = _dataStack.getString(address);
+ }
+ 
+ 
+@@ -1191,10 +1266,10 @@
+ {
+    trace (&quot;pushiv opcode&quot;);
+ 
+-   int address = _code.fetchInt();
++   int value = _dataStack.getInt(_code.fetchInt());
+ 
+    // Empilha o conteudo para que o formato dos dados globais e locais sejam o mesmo
+-   _dataStack.pushInt(_dataStack.getInt(address));
++   _dataStack.pushInt(value);
+ }
+ 
+ void CRunBytecode::pushrvOpcode()
+@@ -1230,6 +1305,50 @@
+    _dataStack.pushInt((int)newMatrix);
+ }
+ 
++
++void CRunBytecode::pushsrOpcode()
++{
++   trace (&quot;pushsr opcode&quot;);
++
++   SStringType type;
++
++   _dataStack.pushBytes((char*)&amp;type, sizeof(type));
++}
++
++
++void CRunBytecode::pushirOpcode()
++{
++   trace (&quot;pushir opcode&quot;);
++
++   _dataStack.pushInt(0);
++}
++
++void CRunBytecode::pushrrOpcode()
++{
++   trace (&quot;pushrr opcode&quot;);
++
++   _dataStack.pushReal(0);
++}
++
++void CRunBytecode::pushdrOpcode()
++{
++   trace (&quot;pushdr opcode&quot;);
++
++   int size = _dataStack.getInt(_code.fetchInt());
++
++   _dataStack.pushBytes(size);
++}
++
++void CRunBytecode::pushmrOpcode()
++{
++   trace (&quot;pushmr opcode&quot;);
++
++   SMatrixType type;
++
++   _dataStack.pushBytes((char*)&amp;type, sizeof(type));
++}
++
++
+ void CRunBytecode::pushstOpcode()
+ {
+    trace (&quot;pushst opcode&quot;);
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-04 16:01:23 UTC (rev 411)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-04 19:03:24 UTC (rev 412)
+@@ -138,6 +138,12 @@
+    void pushdvOpcode();
+    void pushmvOpcode();
+ 
++   void pushsrOpcode();
++   void pushirOpcode();
++   void pushrrOpcode();
++   void pushdrOpcode();
++   void pushmrOpcode();
++
+    void pushstOpcode();
+    void pushitOpcode();
+    void pushrtOpcode();
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_3.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000085.html">[gpt-commit] r411 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000087.html">[gpt-commit] r413 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#86">[ date ]</a>
+              <a href="thread.html#86">[ thread ]</a>
+              <a href="subject.html#86">[ subject ]</a>
+              <a href="author.html#86">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

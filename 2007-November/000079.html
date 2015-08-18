@@ -1,0 +1,575 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r405 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r405%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200711301858.lAUIwnLO001476%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000078.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r405 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r405%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200711301858.lAUIwnLO001476%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r405 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Nov 30 19:58:49 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000078.html">[gpt-commit] r404 - trunk/gpt2/common/src
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-30 19:58:48 +0100 (Fri, 30 Nov 2007)
+New Revision: 405
+
+Modified:
+   trunk/gpt2/common/src/Tools.cpp
+   trunk/gpt2/gptasm/src/CData.cpp
+   trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_condicionais_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/expressoes_matematicas_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_5.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+Log:
+DEVNULL:
+* Suporte a variaveis do tipo string
+
+
+Modified: trunk/gpt2/common/src/Tools.cpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.cpp	2007-11-30 16:04:36 UTC (rev 404)
++++ trunk/gpt2/common/src/Tools.cpp	2007-11-30 18:58:48 UTC (rev 405)
+@@ -290,6 +290,7 @@
+    case CSymbol::REAL:
+       return sizeof(double);
+    case CSymbol::STRING:
++      return sizeof(char)+sizeof(void*);
+    case CSymbol::MATRIX:
+       return sizeof(void*);
+    }
+
+Modified: trunk/gpt2/gptasm/src/CData.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CData.cpp	2007-11-30 16:04:36 UTC (rev 404)
++++ trunk/gpt2/gptasm/src/CData.cpp	2007-11-30 18:58:48 UTC (rev 405)
+@@ -25,6 +25,11 @@
+ 
+    _symbols.push_back(symbol);
+ 
++   if (type == CSymbol::STRING) {
++      // Para strings constantes e variaveis eh necessario indicar a categoria
++      writeByte(CSymbol::VAR);
++   }
++
+    //_data += symbol-&gt;getBinary();
+    for (int i=0; i &lt; symbol-&gt;getTypeSize(); i++) {
+       // TODO: horrivel :-)
+@@ -43,6 +48,9 @@
+ 
+    //_data += symbol-&gt;getBinary();
+    if (type == CSymbol::STRING) {
++      // Para strings constantes e variaveis eh necessario indicar a categoria
++      std::cout &lt;&lt; &quot;String constante [&quot; &lt;&lt; name &lt;&lt; &quot;] indicado o tipo...&quot; &lt;&lt; std::endl;
++      writeByte(CSymbol::CONST);
+       writeString(name, false);
+    } else if (type == CSymbol::INT) {
+       writeInt(atoi(name.c_str()));
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm	2007-11-30 16:04:36 UTC (rev 404)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm	2007-11-30 18:58:48 UTC (rev 405)
+@@ -6,12 +6,36 @@
+     salloc v
+ 
+     sset v, &quot;0&quot;
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
+     sset v, v
+-    ssum v, &quot;10&quot;, &quot;10&quot;
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
++    ssum v, &quot;12&quot;, &quot;34&quot;
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
+     ssum v, v, v
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
+     ssum v, v, &quot;10&quot;
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
+     ssum v, &quot;10&quot;, v
+-
+     pushsv v
+     pushst
+     pushiv 1
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-30 16:04:36 UTC (rev 404)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-30 18:58:48 UTC (rev 405)
+@@ -371,10 +371,21 @@
+ void CRunBytecode::setStringData(const int &amp;address, const std::string &amp;value)
+ {
+    if (IS_LOCAL_ADDRESS(address)) {
+-      _dataStack.setCString(address, value);
++      char type = _dataStack.getByte(address);
++
++      if (type == CSymbol::CONST) {
++         _dataStack.setCString(address+1, value);
++      } else {
++         *((std::string*)_dataStack.getInt(address+1)) = value;
++      }
+    } else {
+-//      std::cout &lt;&lt; &quot;setCStringData global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-      _globalData.setCString(address, value);
++      char type = _globalData.getByte(address);
++
++      if (type == CSymbol::CONST) {
++         _globalData.setCString(address+1, value);
++      } else {
++         *((std::string*)_globalData.getInt(address+1)) = value;
++      }
+    }
+ }
+ 
+@@ -382,14 +393,35 @@
+ std::string CRunBytecode::getStringData(const int &amp;address)
+ {
+    if (IS_LOCAL_ADDRESS(address)) {
+-      return _dataStack.getCString(address);
++      char type = _dataStack.getByte(address);
++
++      if (type == CSymbol::CONST) {
++         return _dataStack.getCString(address+1);
++      } else {
++         return *((std::string*)_dataStack.getInt(address+1));
++      }
+    } else {
+-//      std::cout &lt;&lt; &quot;global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-      return _globalData.getCString(address);
++      char type = _globalData.getByte(address);
++
++      if (type == CSymbol::CONST) {
++         return _globalData.getCString(address+1);
++      } else {
++         return *((std::string*)_globalData.getInt(address+1));
++      }
+    }
+ }
+ 
++//std::string CRunBytecode::getStringData(const int &amp;address)
++//{
++//   if (IS_LOCAL_ADDRESS(address)) {
++//      return _dataStack.getCString(address);
++//   } else {
++////      std::cout &lt;&lt; &quot;global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++//      return _globalData.getCString(address);
++//   }
++//}
+ 
++
+ /////////////
+ // opcodes //
+ /////////////
+@@ -432,6 +464,12 @@
+ 
+    int address = _code.fetchInt();
+ 
++   if (_globalData[address] != CSymbol::CONST) {
++      error( &quot;Endereco para lcall deve conter uma string constante !!!&quot; );
++   }
++
++   address++;
++
+    if (_globalData.getCString(address) == &quot;imprima&quot;) {
+       procImprima();
+    } else if (_globalData.getCString(address) == &quot;leia&quot;) {
+@@ -492,7 +530,13 @@
+ 
+ void CRunBytecode::ssumOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;ssum opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setStringData(varAddress, getStringData(val1Address) + getStringData(val2Address));
+ }
+ 
+ void CRunBytecode::rsumOpcode()
+@@ -602,7 +646,13 @@
+ 
+ void CRunBytecode::sgeOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;sge opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setIntData(varAddress, getStringData(val1Address) &gt;= getStringData(val2Address));
+ }
+ 
+ void CRunBytecode::rgeOpcode()
+@@ -613,7 +663,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(val1Address) &gt;= getRealData(val2Address));
++   setIntData(varAddress, getRealData(val1Address) &gt;= getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::ileOpcode()
+@@ -629,7 +679,13 @@
+ 
+ void CRunBytecode::sleOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;ile opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setIntData(varAddress, getStringData(val1Address) &lt;= getStringData(val2Address));
+ }
+ 
+ void CRunBytecode::rleOpcode()
+@@ -640,7 +696,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(val1Address) &lt;= getRealData(val2Address));
++   setIntData(varAddress, getRealData(val1Address) &lt;= getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::ineOpcode()
+@@ -656,7 +712,13 @@
+ 
+ void CRunBytecode::sneOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;sne opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setIntData(varAddress, getStringData(val1Address) != getStringData(val2Address));
+ }
+ 
+ void CRunBytecode::rneOpcode()
+@@ -667,7 +729,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(val1Address) != getRealData(val2Address));
++   setIntData(varAddress, getRealData(val1Address) != getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::igtOpcode()
+@@ -683,7 +745,13 @@
+ 
+ void CRunBytecode::sgtOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;sgt opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setIntData(varAddress, getStringData(val1Address) &gt; getStringData(val2Address));
+ }
+ 
+ void CRunBytecode::rgtOpcode()
+@@ -694,7 +762,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(val1Address) &gt; getRealData(val2Address));
++   setIntData(varAddress, getRealData(val1Address) &gt; getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::iltOpcode()
+@@ -710,7 +778,13 @@
+ 
+ void CRunBytecode::sltOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;slt opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setIntData(varAddress, getStringData(val1Address) &lt; getStringData(val2Address));
+ }
+ 
+ void CRunBytecode::rltOpcode()
+@@ -721,7 +795,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(val1Address) &lt; getRealData(val2Address));
++   setIntData(varAddress, getRealData(val1Address) &lt; getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::ieqOpcode()
+@@ -737,7 +811,13 @@
+ 
+ void CRunBytecode::seqOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;seq opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setIntData(varAddress, getStringData(val1Address) == getStringData(val2Address));
+ }
+ 
+ void CRunBytecode::reqOpcode()
+@@ -748,7 +828,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(val1Address) == getRealData(val2Address));
++   setIntData(varAddress, getRealData(val1Address) == getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::orOpcode()
+@@ -941,7 +1021,12 @@
+ 
+ void CRunBytecode::ssetOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;sset opcode&quot;);
++
++   int varAddress = _code.fetchInt();
++   int valAddress = _code.fetchInt();
++
++   setStringData(varAddress, getStringData(valAddress));
+ }
+ 
+ void CRunBytecode::rsetOpcode()
+@@ -1239,14 +1324,80 @@
+ //   _dataStack.resize(_dataStack.getSP());
+ }
+ 
++// TODO: ao inves de termos global e local, quem sabe as globais nao poderiam estar no inicio do que hj sao as locais ?
++// Isso simplificaria e muito a implementacao...
++
+ void CRunBytecode::sallocOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;salloc opcode&quot;);
++
++   int address = _code.fetchInt();
++
++   if (IS_LOCAL_ADDRESS(address)) {
++      char type = _dataStack.getByte(address);
++
++      if (type != CSymbol::VAR) {
++         error( &quot;salloc apenas com variaveis !!!&quot; );
++      }
++
++//      std::string *vvv = new std::string();
++      std::string *value = new std::string();
++      _dataStack.setInt(address+1, (int)value);
++
++
++//      (std::string*)(_dataStack.data()+address+1) = &quot;aaa&quot;;
++//      (std::string*)(_dataStack.data()+address+1) = new std::string;
++//      value =  (std::string*)_dataStack.data()+address+1;
++//      *value = &quot;aaa&quot;;
++//      *value = new std::string;
++//
++//
++//      std::string *v = new std::string;
++
++//      int x = 1;
++//      (std::string*)x = v;
++//      *(std::string*)(_dataStack.getInt(address+1)) = v;
++//      *((std::string*)_dataStack.getInt(address+1)) = new std::string(&quot;&quot;);
++   } else {
++      char type = _globalData.getByte(address);
++
++      if (type != CSymbol::VAR) {
++         error( &quot;salloc apenas com variaveis !!!&quot; );
++      }
++
++      std::string *value = new std::string();
++      _globalData.setInt(address+1, (int)value);
++      //*((std::string*)_globalData.getInt(address+1)) = new std::string(&quot;&quot;);
++   }
+ }
+ 
+ void CRunBytecode::sfreeOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;sfree opcode&quot;);
++
++   int address = _code.fetchInt();
++
++   if (IS_LOCAL_ADDRESS(address)) {
++      char type = _dataStack.getByte(address);
++
++      if (type != CSymbol::VAR) {
++         error( &quot;sfree apenas com variaveis !!!&quot; );
++      }
++
++      std::string *value = (std::string*)_dataStack.getInt(address+1);
++      delete value;
++      _dataStack.setInt(address+1, 0);
++   } else {
++      char type = _globalData.getByte(address);
++
++      if (type != CSymbol::VAR) {
++         error( &quot;sfree apenas com variaveis !!!&quot; );
++      }
++
++      std::string *value = (std::string*)_globalData.getInt(address+1);
++      delete value;
++      _globalData.setInt(address+1, 0);
++   }
+ }
+ 
+ void CRunBytecode::ssetcOpcode()
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_condicionais_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/expressoes_matematicas_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_5.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000078.html">[gpt-commit] r404 - trunk/gpt2/common/src
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

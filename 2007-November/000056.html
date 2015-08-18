@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r382 - in trunk/gpt2: common/src gptasm/src gptvm/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r382%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%20gptvm/src&In-Reply-To=%3C200711221601.lAMG1MM4020037%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000055.html">
+   <LINK REL="Next"  HREF="000057.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r382 - in trunk/gpt2: common/src gptasm/src gptvm/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r382%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%20gptvm/src&In-Reply-To=%3C200711221601.lAMG1MM4020037%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r382 - in trunk/gpt2: common/src gptasm/src gptvm/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Nov 22 17:01:22 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000055.html">[gpt-commit] r381 - in trunk/gpt2: common/src gptasm/src	gptasm/test gptasm/test/wikki gptvm/src
+</A></li>
+        <LI>Next message: <A HREF="000057.html">[gpt-commit] r383 - in trunk/gpt2: common/src gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#56">[ date ]</a>
+              <a href="thread.html#56">[ thread ]</a>
+              <a href="subject.html#56">[ subject ]</a>
+              <a href="author.html#56">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-22 17:01:21 +0100 (Thu, 22 Nov 2007)
+New Revision: 382
+
+Added:
+   trunk/gpt2/gptasm/src/CCode.cpp
+   trunk/gpt2/gptasm/src/CCode.hpp
+Removed:
+   trunk/gpt2/common/src/CCode.cpp
+   trunk/gpt2/common/src/CCode.hpp
+Modified:
+   trunk/gpt2/gptasm/src/Makefile
+   trunk/gpt2/gptvm/src/Makefile
+Log:
+DEVNULL
+* Transferindo a classe CCode para o diretorio do GptASM
+
+
+Deleted: trunk/gpt2/common/src/CCode.cpp
+===================================================================
+--- trunk/gpt2/common/src/CCode.cpp	2007-11-22 15:45:54 UTC (rev 381)
++++ trunk/gpt2/common/src/CCode.cpp	2007-11-22 16:01:21 UTC (rev 382)
+@@ -1,2 +0,0 @@
+-#include &quot;CCode.hpp&quot;
+-
+
+Deleted: trunk/gpt2/common/src/CCode.hpp
+===================================================================
+--- trunk/gpt2/common/src/CCode.hpp	2007-11-22 15:45:54 UTC (rev 381)
++++ trunk/gpt2/common/src/CCode.hpp	2007-11-22 16:01:21 UTC (rev 382)
+@@ -1,17 +0,0 @@
+-#ifndef GPT_CODE_H
+-#define GPT_CODE_H
+-
+-
+-#include &lt;string&gt;
+-
+-#include &quot;CBinString.hpp&quot;
+-
+-
+-class CCode : public CBinString
+-{
+-public:
+-private:
+-};
+-
+-#endif
+-
+
+Copied: trunk/gpt2/gptasm/src/CCode.cpp (from rev 381, trunk/gpt2/common/src/CCode.cpp)
+
+Copied: trunk/gpt2/gptasm/src/CCode.hpp (from rev 381, trunk/gpt2/common/src/CCode.hpp)
+
+Modified: trunk/gpt2/gptasm/src/Makefile
+===================================================================
+--- trunk/gpt2/gptasm/src/Makefile	2007-11-22 15:45:54 UTC (rev 381)
++++ trunk/gpt2/gptasm/src/Makefile	2007-11-22 16:01:21 UTC (rev 382)
+@@ -5,7 +5,7 @@
+ CCFLAGS=-g -Wall
+ 
+ objects = GptAssemblyLexer.o GptAssemblyParser.o main.o CGptAsm.o CGenBytecode.o \
+-	$(COMMON_DIR)CSymbol.o $(COMMON_DIR)CSymbolTable.o $(COMMON_DIR)CCode.o $(COMMON_DIR)CHeader.o \
++	$(COMMON_DIR)CSymbol.o $(COMMON_DIR)CSymbolTable.o CCode.o $(COMMON_DIR)CHeader.o \
+         $(COMMON_DIR)CData.o $(COMMON_DIR)CBinString.o $(COMMON_DIR)CSymbolList.o
+ 
+ all: $(objects)
+
+Modified: trunk/gpt2/gptvm/src/Makefile
+===================================================================
+--- trunk/gpt2/gptvm/src/Makefile	2007-11-22 15:45:54 UTC (rev 381)
++++ trunk/gpt2/gptvm/src/Makefile	2007-11-22 16:01:21 UTC (rev 382)
+@@ -7,7 +7,7 @@
+ GPTASM=../gptasm/
+ 
+ objects = main.o CGptVm.o CRunBytecode.o CDataStack.o CBytecode.o \
+-          $(COMMON_DIR)CSymbol.o $(COMMON_DIR)CSymbolTable.o $(COMMON_DIR)CCode.o  \
++          $(COMMON_DIR)CSymbol.o $(COMMON_DIR)CSymbolTable.o \
+           $(COMMON_DIR)CHeader.o $(COMMON_DIR)CData.o       \
+           $(COMMON_DIR)CBinString.o $(COMMON_DIR)CSymbolList.o 
+           
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000055.html">[gpt-commit] r381 - in trunk/gpt2: common/src gptasm/src	gptasm/test gptasm/test/wikki gptvm/src
+</A></li>
+	<LI>Next message: <A HREF="000057.html">[gpt-commit] r383 - in trunk/gpt2: common/src gptvm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#56">[ date ]</a>
+              <a href="thread.html#56">[ thread ]</a>
+              <a href="subject.html#56">[ subject ]</a>
+              <a href="author.html#56">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

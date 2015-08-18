@@ -1,0 +1,230 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r456 - trunk/gpt2/gptc/src/symboltable
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r456%20-%20trunk/gpt2/gptc/src/symboltable&In-Reply-To=%3C200712192216.lBJMG225026293%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000129.html">
+   <LINK REL="Next"  HREF="000131.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r456 - trunk/gpt2/gptc/src/symboltable</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r456%20-%20trunk/gpt2/gptc/src/symboltable&In-Reply-To=%3C200712192216.lBJMG225026293%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r456 - trunk/gpt2/gptc/src/symboltable">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 23:16:02 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000129.html">[gpt-commit] r455 - in trunk/gpt2: common/src gptasm/test	gptvm/test gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000131.html">[gpt-commit] r457 - trunk/gpt2/gptc/src/symboltable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#130">[ date ]</a>
+              <a href="thread.html#130">[ thread ]</a>
+              <a href="subject.html#130">[ subject ]</a>
+              <a href="author.html#130">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 23:16:01 +0100 (Wed, 19 Dec 2007)
+New Revision: 456
+
+Modified:
+   trunk/gpt2/gptc/src/symboltable/Types.cpp
+   trunk/gpt2/gptc/src/symboltable/Types.hpp
+Log:
+-Adicionado flag para o tipo 'reticencias'
+-Melhorado retorno de name()
+
+Modified: trunk/gpt2/gptc/src/symboltable/Types.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/symboltable/Types.cpp	2007-12-19 21:09:41 UTC (rev 455)
++++ trunk/gpt2/gptc/src/symboltable/Types.cpp	2007-12-19 22:16:01 UTC (rev 456)
+@@ -23,6 +23,14 @@
+   return _isRef;
+ }
+ 
++void Type::setReticences(bool c) {
++  _isReticences = c;
++}
++
++bool Type::isReticences() const {
++  return _isReticences;
++}
++
+ bool Type::isError() const {
+   if (_typeId == ERROR) {
+     return true;
+@@ -59,10 +67,23 @@
+   return _typeId == SUBPROGRAM;
+ }
+ 
+-const std::string&amp; Type::name() const {
+-  return _name;
++void Type::setName(const std::string&amp; name) {
++  _name = name;
+ }
+ 
++std::string Type::name() const {
++  std::stringstream ret;
++  if (isRef()) {
++    ret &lt;&lt; &quot;ref &quot;;
++  }
++
++  if (isConst()) {
++    ret &lt;&lt; &quot;constante &quot;;
++  }
++  ret &lt;&lt; _name;
++  return ret.str();
++}
++
+ std::string Type::asmName(bool complete) const {
+   std::stringstream stream;
+ 
+@@ -386,13 +407,13 @@
+     _name(name), _identifier(name), _anonymous(false), _fields(fields),
+     _unit(unit), _line(line) {
+ 
+-  _name = _name + &quot;:{&quot;;
+-  std::string v = &quot;&quot;;
+-  for (SymbolList::const_iterator it = fields.begin(); it != fields.end(); ++it) {
+-    _name += v + (*it).lexeme() + &quot;:&quot; + (*it).type()-&gt;name();
+-    v = &quot;,&quot;;
+-  }
+-  _name += &quot;}&quot;;
++//   _name = _name + &quot;:{&quot;;
++//   std::string v = &quot;&quot;;
++//   for (SymbolList::const_iterator it = fields.begin(); it != fields.end(); ++it) {
++//     _name += v + (*it).lexeme() + &quot;:&quot; + (*it).type()-&gt;name();
++//     v = &quot;,&quot;;
++//   }
++//   _name += &quot;}&quot;;
+ }
+ 
+ 
+@@ -402,13 +423,13 @@
+     _anonymous(true), _fields(fields),
+     _unit(&quot;&lt;interno&gt;&quot;), _line(-1) {
+ 
+-  _name += &quot;:{&quot;;
+-  std::string v = &quot;&quot;;
+-  for (SymbolList::const_iterator it = fields.begin(); it != fields.end(); ++it) {
+-    _name += v + (*it).lexeme() + &quot;:&quot; + (*it).type()-&gt;name();
+-    v = &quot;,&quot;;
+-  }
+-  _name += &quot;}&quot;;
++//   _name += &quot;:{&quot;;
++//   std::string v = &quot;&quot;;
++//   for (SymbolList::const_iterator it = fields.begin(); it != fields.end(); ++it) {
++//     _name += v + (*it).lexeme() + &quot;:&quot; + (*it).type()-&gt;name();
++//     v = &quot;,&quot;;
++//   }
++//   _name += &quot;}&quot;;
+ }
+ 
+ const SymbolList&amp; Type::fields() const {
+@@ -501,19 +522,12 @@
+   : _typeId(SUBPROGRAM), _builder(builder), _isConst(false), _isRef(false),
+     _paramTypes(paramTypes), _returnType(returnType) {
+ 
+-  if (!_returnType) {
+-    _name = &quot;proc(&quot;;
+-  } else {
+-    _name = &quot;func(&quot;;
+-  }
++  _name = &quot;(&quot; + _paramTypes.toString() + &quot;)&quot;;
+ 
+-  _name += _paramTypes.toString();
+-  _name += &quot;)&quot;;
+-
+   _identifier = _paramTypes.toIdentifier();
+ 
+-  if (_returnType) {
+-    _name       += &quot; : &quot; + _returnType-&gt;name();
++  if (_returnType &amp;&amp; _returnType-&gt;name() != g_tokenLabels[PortugolTokenTypes::T_NULO]) {
++    _name += &quot; : &quot; + _returnType-&gt;name();
+   }
+ }
+ 
+@@ -704,8 +718,12 @@
+   fields.push_back(Symbol(&quot;valor&quot;,
+     primitiveType(PortugolTokenTypes::T_CORINGA)));
+ 
+-  return matrixType(
+-    structType(&quot;Par&#226;metro&quot;, fields, &quot;&lt;interno&gt;&quot;,-1), std::list&lt;int&gt;(1));
++  Type *ret = matrixType(
++      structType(&quot;Par&#226;metro&quot;, fields, &quot;&lt;interno&gt;&quot;,-1), std::list&lt;int&gt;(1));
++
++  ret-&gt;setName(&quot;...&quot;);
++  ret-&gt;setReticences(true);
++  return ret;
+ }
+ 
+ Type*
+
+Modified: trunk/gpt2/gptc/src/symboltable/Types.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/symboltable/Types.hpp	2007-12-19 21:09:41 UTC (rev 455)
++++ trunk/gpt2/gptc/src/symboltable/Types.hpp	2007-12-19 22:16:01 UTC (rev 456)
+@@ -80,13 +80,17 @@
+   bool isConst() const;
+   bool isRef()   const;
+ 
++  void setReticences(bool);
++  bool isReticences() const;
++
+   bool isError() const;
+   bool isPrimitive() const;
+   bool isMatrix() const;
+   bool isStruct() const;
+   bool isSubprogram() const;
+ 
+-  const std::string&amp; name() const;
++  void setName(const std::string&amp;);
++  std::string name() const;
+   std::string asmName(bool = false) const;
+   const std::string&amp; identifier() const;
+ 
+@@ -127,6 +131,7 @@
+ 
+   bool         _isConst;
+   bool         _isRef;
++  bool         _isReticences;
+ 
+   std::string  _name;
+   std::string  _identifier;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000129.html">[gpt-commit] r455 - in trunk/gpt2: common/src gptasm/test	gptvm/test gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000131.html">[gpt-commit] r457 - trunk/gpt2/gptc/src/symboltable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#130">[ date ]</a>
+              <a href="thread.html#130">[ thread ]</a>
+              <a href="subject.html#130">[ subject ]</a>
+              <a href="author.html#130">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

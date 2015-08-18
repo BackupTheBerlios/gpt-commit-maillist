@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r540 - trunk/gpt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r540%20-%20trunk/gpt&In-Reply-To=%3C201005241829.o4OITMZV021304%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000212.html">
+   <LINK REL="Next"  HREF="000214.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r540 - trunk/gpt</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r540%20-%20trunk/gpt&In-Reply-To=%3C201005241829.o4OITMZV021304%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r540 - trunk/gpt">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon May 24 20:29:22 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000212.html">[gpt-commit] r539 - trunk/gpt/src/modules/x86
+</A></li>
+        <LI>Next message: <A HREF="000214.html">[gpt-commit] r541 - trunk/gpt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#213">[ date ]</a>
+              <a href="thread.html#213">[ thread ]</a>
+              <a href="subject.html#213">[ subject ]</a>
+              <a href="author.html#213">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2010-05-24 20:29:22 +0200 (Mon, 24 May 2010)
+New Revision: 540
+
+Modified:
+   trunk/gpt/ChangeLog
+   trunk/gpt/NEWS
+   trunk/gpt/THANKS
+Log:
+congelando versao 1.1
+
+Modified: trunk/gpt/ChangeLog
+===================================================================
+--- trunk/gpt/ChangeLog	2010-05-24 15:49:58 UTC (rev 539)
++++ trunk/gpt/ChangeLog	2010-05-24 18:29:22 UTC (rev 540)
+@@ -1,3 +1,32 @@
++2009-07-11
++
++	* /trunk/gpt/src/modules/c_translator/pt2c.g:
++	* /trunk/gpt/src/modules/interpreter/interpreter.g:
++	* /trunk/gpt/test/tester.gpt:
++
++	- Implemetacao da estrutura repita nos modulos tradutor para
++	C e interpretador
++
++	* /trunk/gpt/src/modules/parser/semantic.g:
++	* /trunk/gpt/src/modules/parser/BasePortugolParser.hpp:
++	* /trunk/gpt/src/modules/parser/parser.g:
++	* /trunk/gpt/src/modules/x86/x86.g:
++	* /trunk/gpt/test/tester.gpt:
++	* /trunk/gpt/src/modules/parser/BasePortugolParser.cpp:
++	* /trunk/gpt/src/modules/parser/lexer.g:
++
++	- Implemetacao da estrutura repita no modulo x86
++
++2009-07-06
++
++	* /trunk/gpt/HACKING:
++	* /trunk/gpt/src/modules/x86/X86.cpp:
++	* /trunk/gpt/test/run_test.sh:
++	* /trunk/gpt/doc/manual/manual.tex:
++
++	- Corre&#231;&#227;o de bug referente a impressao de literal com
++	aspas simples (') no modo compilado
++
+ 2009-05-29
+ 
+ 	* /trunk/gpt/src/modules/interpreter/InterpreterEval.hpp:
+
+Modified: trunk/gpt/NEWS
+===================================================================
+--- trunk/gpt/NEWS	2010-05-24 15:49:58 UTC (rev 539)
++++ trunk/gpt/NEWS	2010-05-24 18:29:22 UTC (rev 540)
+@@ -1,8 +1,12 @@
+ Sum&#225;rio de mudan&#231;as
+ -------------------
+ 
+-10 de junho de 2009 * gpt 1.1
+-  
++24 de Mar&#231;o de 2010 * gpt 1.1
++
++  * Implemeta&#231;&#227;o da estrutura repita nos modulos tradutor para
++  * Adicionado suporte a retorne no bloco principal
++  * Corre&#231;&#227;o do bug #83 (ver mantis)
++  * Corre&#231;&#227;o de bug na impress&#227;o de valores l&#243;gicos
+   * O bloco principal agora tem suporte para instru&#231;&#227;o &quot;retorne&quot;
+   * Corre&#231;&#227;o de bugs relacionados a impress&#227;o de valores nulos 
+ 
+
+Modified: trunk/gpt/THANKS
+===================================================================
+--- trunk/gpt/THANKS	2010-05-24 15:49:58 UTC (rev 539)
++++ trunk/gpt/THANKS	2010-05-24 18:29:22 UTC (rev 540)
+@@ -2,3 +2,4 @@
+ Alex Garz&#227;o &lt;alexgarzao [a] gmail com&gt;
+ Everson Santos Araujo &lt;everson [a] por com br&gt;
+ Marcelo Jorge Vieira (metal) &lt;metal [a] alucinados com&gt;
++Lincoln Souza &lt;lincoln [a] comum org&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000212.html">[gpt-commit] r539 - trunk/gpt/src/modules/x86
+</A></li>
+	<LI>Next message: <A HREF="000214.html">[gpt-commit] r541 - trunk/gpt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#213">[ date ]</a>
+              <a href="thread.html#213">[ thread ]</a>
+              <a href="subject.html#213">[ subject ]</a>
+              <a href="author.html#213">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

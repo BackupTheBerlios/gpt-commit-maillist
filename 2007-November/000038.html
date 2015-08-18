@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r364 - in trunk/gpt2/gptc/compiler_test: . tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r364%20-%20in%20trunk/gpt2/gptc/compiler_test%3A%20.%20tests&In-Reply-To=%3C200711141652.lAEGqP5b017746%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000037.html">
+   <LINK REL="Next"  HREF="000039.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r364 - in trunk/gpt2/gptc/compiler_test: . tests</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r364%20-%20in%20trunk/gpt2/gptc/compiler_test%3A%20.%20tests&In-Reply-To=%3C200711141652.lAEGqP5b017746%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r364 - in trunk/gpt2/gptc/compiler_test: . tests">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Nov 14 17:52:25 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000037.html">[gpt-commit] r363 - trunk/gpt2/gptc
+</A></li>
+        <LI>Next message: <A HREF="000039.html">[gpt-commit] r365 - trunk/gpt2/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#38">[ date ]</a>
+              <a href="thread.html#38">[ thread ]</a>
+              <a href="subject.html#38">[ subject ]</a>
+              <a href="author.html#38">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-14 17:52:24 +0100 (Wed, 14 Nov 2007)
+New Revision: 364
+
+Modified:
+   trunk/gpt2/gptc/compiler_test/Makefile
+   trunk/gpt2/gptc/compiler_test/compiler_test.g
+   trunk/gpt2/gptc/compiler_test/tests/ast.test
+Log:
+DEVNULL:
+-Fix na gramatica para parsear a AST
+-Tentativa de melhorar a reportagem de erros
+-Criacao do teste ast.test
+
+
+Modified: trunk/gpt2/gptc/compiler_test/Makefile
+===================================================================
+--- trunk/gpt2/gptc/compiler_test/Makefile	2007-11-14 16:48:14 UTC (rev 363)
++++ trunk/gpt2/gptc/compiler_test/Makefile	2007-11-14 16:52:24 UTC (rev 364)
+@@ -6,7 +6,7 @@
+ other = ../obj/PortugolLexer.o ../obj/PortugolParser.o \
+ 				../obj/MismatchedUnicodeCharException.o
+ 
+-cpp = g++ -g3 -I$(output) -I. -I../ -I../obj
++cpp = g++ -I$(output) -I. -I../ -I../obj
+ 
+ $(output)/tester: $(output) $(objects)
+ 	$(cpp) -o $(output)/tester $(objects) $(other) /usr/local/lib/libantlr.a
+
+Modified: trunk/gpt2/gptc/compiler_test/compiler_test.g
+===================================================================
+--- trunk/gpt2/gptc/compiler_test/compiler_test.g	2007-11-14 16:48:14 UTC (rev 363)
++++ trunk/gpt2/gptc/compiler_test/compiler_test.g	2007-11-14 16:52:24 UTC (rev 364)
+@@ -83,6 +83,7 @@
+     (
+         options { generateAmbigWarnings=false; } :
+         '\n'                     {newline();}
++      | '\\'! '}'
+       | ~('}')
+     )*
+ 
+@@ -174,7 +175,7 @@
+     {
+       stringstream fi(codigo-&gt;getText());
+       PortugolLexer lexer(fi, true);
+-      PortugolParser parser(lexer,false);
++      PortugolParser parser(lexer, false);
+ 
+       ASTFactory ast_factory(antlr::CommonAST::TYPE_NAME,
+                                       &amp;antlr::CommonAST::factory);
+@@ -184,7 +185,7 @@
+       parser.programa();
+ 
+       if (parser.hasErorrs()) {
+-        cerr &lt;&lt; &quot;Parser has errors!!\n&quot;;
++        cerr &lt;&lt; &quot;++++ Parser has errors+++++\n&quot;;
+       }
+ 
+       RefAST root = parser.getAST();
+@@ -213,13 +214,13 @@
+ 
+ 
+ ast[RefAST gptRoot]
+-  : tline:&quot;ast&quot;! T_DOIS_PONTOS! lista
++  : tline:&quot;ast&quot;! T_DOIS_PONTOS! (lista)?
+     {
+       int line = tline-&gt;getLine();
+       TestAST* tast = 0;
+       tast = RefTestAST(currentAST.root).get();
+ 
+-      if (!tast-&gt;equalsList(gptRoot)) {
++      if (tast &amp;&amp; !tast-&gt;equalsList(gptRoot)) {
+         cerr &lt;&lt; &quot;-Erro na AST da linha [&quot; &lt;&lt; line &lt;&lt; &quot;]\n&quot;;
+         cerr &lt;&lt; &quot;Esperando: \n-----\n&quot; &lt;&lt; tast-&gt;toStringList() &lt;&lt; endl;
+         cerr &lt;&lt; &quot;-----\nEncontrado: \n-----\n&quot; &lt;&lt; gptRoot-&gt;toStringList() &lt;&lt; endl;
+@@ -233,7 +234,7 @@
+ lista
+ 
+   : T_ABRE_PAREN!
+-    T_TOKEN_NAME^  (cdr)*
++    (T_TOKEN_NAME^  (cdr)*)?
+     T_FECHA_PAREN!
+   ;
+ 
+
+Modified: trunk/gpt2/gptc/compiler_test/tests/ast.test
+===================================================================
+--- trunk/gpt2/gptc/compiler_test/tests/ast.test	2007-11-14 16:48:14 UTC (rev 363)
++++ trunk/gpt2/gptc/compiler_test/tests/ast.test	2007-11-14 16:52:24 UTC (rev 364)
+@@ -1,6 +1,221 @@
++/*************** testes de prologo ****************************/
++
+ teste
+   {}
+ 
+-  ast :
++  ast : ()
+ fim
+ 
++teste
++  {
++    algoritmo teste;
++  }
++
++  ast : ()
++fim
++
++teste
++  {
++    use &quot;bib1&quot;;
++  }
++
++  ast: (T_ALGORITMO (T_USE T_TEXTO_LITERAL))
++fim
++
++teste
++  {
++    use &quot;bib1&quot;;
++    use &quot;bib2&quot;;
++    use &quot;bib3&quot;;
++  }
++
++  ast: (T_ALGORITMO
++        (T_USE T_TEXTO_LITERAL)
++        (T_USE T_TEXTO_LITERAL)
++        (T_USE T_TEXTO_LITERAL))
++fim
++
++
++
++
++
++/*************** testes de variaveis ****************************/
++
++
++
++teste
++  {
++    vari&#225;vel x : inteiro;
++  }
++
++  ast: (T_ALGORITMO
++           (T_VARIAVEL T_INTEIRO T_IDENTIFICADOR))
++fim
++
++teste
++  {
++    vari&#225;vel x : T;
++  }
++
++  ast: (T_ALGORITMO
++           (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR))
++
++fim
++
++teste
++  {
++    vari&#225;vel x : literal := 10;
++  }
++
++  ast: (T_ALGORITMO
++         (T_VARIAVEL T_LITERAL T_IDENTIFICADOR
++           (T_VALOR T_INTEIRO_LITERAL)))
++fim
++
++teste
++  {
++    vari&#225;vel x : matriz[] do tipo real;
++  }
++
++  ast: (T_ALGORITMO
++         (T_VARIAVEL (T_MATRIZ T_REAL T_NULO) T_IDENTIFICADOR))
++fim
++
++teste
++  {
++    vari&#225;vel x : matriz[] do tipo caractere := ['6','5','4'];
++  }
++
++  ast: (T_ALGORITMO
++         (T_VARIAVEL (T_MATRIZ T_CARACTERE T_NULO) T_IDENTIFICADOR
++           (T_VALOR
++             (T_VAL_MATRIZ
++                T_CARACTERE_LITERAL T_CARACTERE_LITERAL T_CARACTERE_LITERAL))))
++fim
++
++teste
++  {
++    vari&#225;vel z : T;
++  }
++
++  ast: (T_ALGORITMO (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR))
++fim
++
++teste
++  {
++    vari&#225;vel z : T := {chave := valor\};
++  }
++
++  ast: (T_ALGORITMO
++          (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
++            (T_VALOR (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR))))
++fim
++
++teste
++  {
++    vari&#225;vel z : T := {chave := [1,2,3]\};
++  }
++
++  ast: (T_ALGORITMO
++          (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
++            (T_VALOR
++              (T_VAL_ESTRUTURA T_IDENTIFICADOR
++                (T_VAL_MATRIZ T_INTEIRO_LITERAL
++                              T_INTEIRO_LITERAL
++                              T_INTEIRO_LITERAL)))))
++fim
++
++teste
++  {
++    vari&#225;vel z : matriz[1][2] do tipo T
++      := [{chave := valor\},
++          {ch:=&quot;valor&quot;\},
++          {z:=verdadeiro\}];
++  }
++
++  ast: (T_ALGORITMO
++          (T_VARIAVEL
++            (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL)
++            T_IDENTIFICADOR
++            (T_VALOR
++              (T_VAL_MATRIZ
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_TEXTO_LITERAL)
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_VERDADEIRO)))))
++fim
++
++
++teste
++  {
++    vari&#225;vel z : matriz[1][2] do tipo T
++      := [{chave := valor\},
++          {ch:=&quot;valor&quot;\},
++          {z:=verdadeiro\}];
++  }
++
++  ast: (T_ALGORITMO
++          (T_VARIAVEL
++            (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL)
++            T_IDENTIFICADOR
++            (T_VALOR
++              (T_VAL_MATRIZ
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_TEXTO_LITERAL)
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_VERDADEIRO)))))
++fim
++
++teste
++  {
++    vari&#225;veis
++      z : real;
++    fim-vari&#225;veis
++  }
++
++  ast: (T_ALGORITMO (T_VARIAVEIS
++          (T_VARIAVEL T_REAL T_IDENTIFICADOR)))
++fim
++
++teste
++  {
++    vari&#225;veis
++      z,K : real;
++    fim-vari&#225;veis
++  }
++
++  ast: (T_ALGORITMO (T_VARIAVEIS
++          (T_VARIAVEL T_REAL T_IDENTIFICADOR T_IDENTIFICADOR)))
++fim
++
++teste
++  {
++    vari&#225;veis
++      P : T;
++      i,j,k : matriz[1][2] do tipo T
++      := [{chave := valor\},
++          {ch:='a'\},
++          {z:=10.2\}];
++    fim-vari&#225;veis
++  }
++
++  ast: (T_ALGORITMO
++        (T_VARIAVEIS
++          (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR)
++          (T_VARIAVEL
++            (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL)
++            T_IDENTIFICADOR T_IDENTIFICADOR T_IDENTIFICADOR
++            (T_VALOR
++              (T_VAL_MATRIZ
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL))))))
++fim
++
++
++teste
++  {
++    vari&#225;vel z : T;
++  }
++fim
++
++
++/*************** testes de prologo ****************************/
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000037.html">[gpt-commit] r363 - trunk/gpt2/gptc
+</A></li>
+	<LI>Next message: <A HREF="000039.html">[gpt-commit] r365 - trunk/gpt2/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#38">[ date ]</a>
+              <a href="thread.html#38">[ thread ]</a>
+              <a href="subject.html#38">[ subject ]</a>
+              <a href="author.html#38">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r350 - trunk/gpt2/src/gptc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r350%20-%20trunk/gpt2/src/gptc&In-Reply-To=%3C200711090432.lA94W7GO031663%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000023.html">
+   <LINK REL="Next"  HREF="000025.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r350 - trunk/gpt2/src/gptc</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r350%20-%20trunk/gpt2/src/gptc&In-Reply-To=%3C200711090432.lA94W7GO031663%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r350 - trunk/gpt2/src/gptc">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Nov  9 05:32:07 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000023.html">[gpt-commit] r349 - trunk/gpt2/src/gptc
+</A></li>
+        <LI>Next message: <A HREF="000025.html">[gpt-commit] r351 - trunk/gpt2/src/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#24">[ date ]</a>
+              <a href="thread.html#24">[ thread ]</a>
+              <a href="subject.html#24">[ subject ]</a>
+              <a href="author.html#24">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-09 05:32:06 +0100 (Fri, 09 Nov 2007)
+New Revision: 350
+
+Added:
+   trunk/gpt2/src/gptc/semantic.g
+Log:
+-Adicionando o SemanticWalker, responsavel pela analise semantica
+
+Added: trunk/gpt2/src/gptc/semantic.g
+===================================================================
+--- trunk/gpt2/src/gptc/semantic.g	2007-11-09 04:31:13 UTC (rev 349)
++++ trunk/gpt2/src/gptc/semantic.g	2007-11-09 04:32:06 UTC (rev 350)
+@@ -0,0 +1,136 @@
++/*
++ *   Copyright (C) 2003-2006 by Thiago Silva                               *
++ *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>                                               *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU General Public License as published by  *
++ *   the Free Software Foundation; either version 2 of the License, or     *
++ *   (at your option) any later version.                                   *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU General Public License     *
++ *   along with this program; if not, write to the                         *
++ *   Free Software Foundation, Inc.,                                       *
++ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             */
++
++
++options {
++  language=&quot;Cpp&quot;;
++}
++
++class SemanticWalker extends TreeParser;
++options {
++  importVocab   = Portugol;
++  genHashLines  = false;
++}
++
++
++programa
++  : (importacao)*
++
++    (   declaracao_variaveis
++//       | declaracao_constantes
++//       | bloco_declaracao_estrutura
++    )*
++  ;
++
++importacao
++  : #(T_USE T_TEXTO_LITERAL)
++    //TODO: carregar a symboltable das bibliotecas especificadas
++  ;
++
++declaracao_variaveis
++  : #(T_VARIAVEIS (declaracao_variavel)+)
++  | declaracao_variavel
++  ;
++
++declaracao_variavel
++  : #(T_VARIAVEL tipo lista_identificadores (lista_inicializacao)?)
++  ;
++
++lista_identificadores
++  : (T_IDENTIFICADOR)+
++  ;
++
++tipo
++  : tipo_primitivo
++  | tipo_matriz
++  | T_IDENTIFICADOR
++  ;
++
++lista_inicializacao
++  : #(T_VALOR valor_inicializacao)
++  ;
++
++valor_inicializacao
++  : (matriz_literal | estrutura_literal | expressao)
++  ;
++
++matriz_literal
++  : #(T_VAL_MATRIZ (valor_inicializacao)+)
++  ;
++
++estrutura_literal
++  : #(T_VAL_ESTRUTURA (T_IDENTIFICADOR valor_inicializacao)+)
++  ;
++
++tipo_primitivo
++  : T_INTEIRO
++  | T_REAL
++  | T_CARACTERE
++  | T_LITERAL
++  | T_LOGICO
++  | T_CORINGA
++  ;
++
++tipo_matriz
++  : #(T_MATRIZ tipo_da_matriz (T_INTEIRO_LITERAL|T_NULO)+)
++  ;
++
++tipo_da_matriz
++  : tipo_primitivo | T_IDENTIFICADOR
++  ;
++
++
++expressao
++  : expr_elemento
++  ;
++
++expr_elemento
++  : literal
++  ;
++
++literal
++  : T_TEXTO_LITERAL
++  | T_INTEIRO_LITERAL
++  | T_REAL_LITERAL
++  | T_CARACTERE_LITERAL
++  | T_VERDADEIRO
++  | T_FALSO
++  | T_NULO
++  ;
++
++//   T_OU
++//   : expr_bit_ou (T_E^ expr_bit_ou)*
++//   : expr_bit_oux (T_BIT_OU^ expr_bit_oux)*
++//   : expr_bit_e (T_BIT_OUX^ expr_bit_e)*
++//   : expr_igual (T_BIT_E^ expr_igual)*
++//   : expr_relacional (T_IGUAL^ expr_relacional | T_DIFERENTE^ expr_relacional)*
++//   : expr_ad ((T_MAIOR^ | T_MAIOR_EQ^ | T_MENOR^ | T_MENOR_EQ^) expr_ad)*
++//   : expr_multip (T_MAIS^ expr_multip | T_MENOS^ expr_multip)*
++//   : expr_unario ((T_DIV^ | T_MULTIP^ | T_MOD^) expr_unario)*
++//   : ( T_MENOS      {#op_unario = #[T_UN_NEGATIVO,&quot;&amp;negat&quot;];}
++//     | T_MAIS       {#op_unario = #[T_UN_POSITIVO,&quot;&amp;pos&quot;];}
++//     | n:T_NAO      {#op_unario = #[T_NAO        ,&quot;nega&#231;&quot;];}
++//     | bn:T_BIT_NAO {#op_unario = #[T_BIT_NAO    ,&quot;&amp;negb&quot;];}
++
++// expr_elemento
++//   :  (T_IDENTIFICADOR T_ABRE_PAREN)=&gt; chamada_subrotina
++//   |  lvalue
++//   |  literal
++//   | T_ABRE_PAREN! expressao T_FECHA_PAREN!
++//   ;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000023.html">[gpt-commit] r349 - trunk/gpt2/src/gptc
+</A></li>
+	<LI>Next message: <A HREF="000025.html">[gpt-commit] r351 - trunk/gpt2/src/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#24">[ date ]</a>
+              <a href="thread.html#24">[ thread ]</a>
+              <a href="subject.html#24">[ subject ]</a>
+              <a href="author.html#24">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

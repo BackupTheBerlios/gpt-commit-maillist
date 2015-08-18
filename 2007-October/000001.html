@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r326 - trunk/gpt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r326%20-%20trunk/gpt&In-Reply-To=%3C200710150155.l9F1tuhQ029740%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000000.html">
+   <LINK REL="Next"  HREF="000002.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r326 - trunk/gpt</H1>
+    <B>gpt-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r326%20-%20trunk/gpt&In-Reply-To=%3C200710150155.l9F1tuhQ029740%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r326 - trunk/gpt">gpt-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon Oct 15 03:55:56 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000000.html">[gpt-commit] r325 - in trunk/gpt: . src/modules/parser
+</A></li>
+        <LI>Next message: <A HREF="000002.html">[gpt-commit] r327 - trunk/gpt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-10-15 03:55:55 +0200 (Mon, 15 Oct 2007)
+New Revision: 326
+
+Removed:
+   trunk/gpt/gpt.kno
+Log:
+nomsg
+
+Deleted: trunk/gpt/gpt.kno
+===================================================================
+--- trunk/gpt/gpt.kno	2007-10-15 01:37:27 UTC (rev 325)
++++ trunk/gpt/gpt.kno	2007-10-15 01:55:55 UTC (rev 326)
+@@ -1,118 +0,0 @@
+-\NewEntry 0 devel
+-
+-\CurrentEntry 1 NOW
+-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot;font-size:11pt;font-family:Bitstream Vera Sans&quot;&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;-Lan&#231;ar vers&#227;o 1.0&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;fix: windows: compilacao nao cria &quot;algoritmo.exe&quot;, e sim &quot;algoritmo&quot;&lt;/li&gt;&lt;/ul&gt;
+-&lt;li&gt;-fazer video apresentando GPT_INCLUDE e multiplefiles breakpoint&lt;/li&gt;&lt;/ul&gt;
+-&lt;/body&gt;&lt;/html&gt;
+-
+-
+-\NewEntry 1 TODO
+-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot;font-size:11pt;font-family:Bitstream Vera Sans&quot;&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;div&gt;&lt;/div&gt;
+-&lt;li&gt;GPT&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;pt2c:&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Uniformizar ponto flutuante (uso de double! (usar float gera warnings na traducao de C)&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Mas em x86, float eh usado....&lt;/li&gt;&lt;/ul&gt;&lt;/ul&gt;
+-&lt;li&gt;interpreter: &lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;(se for usar double)atof -&gt; &quot;a2double&quot;, (ou o que quer que seja str2double)&lt;br /&gt;&lt;/li&gt;&lt;/ul&gt;
+-&lt;li&gt;gpt: mover o exemplos/highlight.gpt para gpteditor&lt;/li&gt;&lt;/ul&gt;
+-&lt;div&gt;&lt;/div&gt;
+-&lt;li&gt;Win x86:&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;pcre static link&lt;br /&gt;&lt;/li&gt;&lt;/ul&gt;
+-&lt;li&gt;overflow de floats, nos 3 modulos divergem (verificar,testar e documentar)&lt;/li&gt;
+-&lt;li&gt;ao pressionar &quot;enter&quot; na funcao &quot;leia()&quot; x86 e interpreter assimilam o valor nulo. Em C, a funcao persiste&lt;br /&gt;nas tentativas&lt;br /&gt;&lt;br /&gt;&lt;/li&gt;
+-&lt;li&gt;Atualizar &quot;INSTALL&quot;  e &quot;README&quot;&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Documentar passos para desenvolver no windows (mingw, pcre, antlr...)&lt;/li&gt;
+-&lt;li&gt;Sobre compilacao (nasm/32)&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;tamanho dos tipos (32 real,inteiro,logico, 8 literal)&lt;/li&gt;
+-&lt;li&gt;Overflow aritmetico&lt;br /&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/ul&gt;
+-&lt;li&gt;GPTEditor&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Settings:&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Remover &quot;argumentos&quot;&lt;/li&gt;&lt;/ul&gt;&lt;/ul&gt;&lt;/ul&gt;
+-&lt;/body&gt;&lt;/html&gt;
+-
+-\NewEntry 1 Notas ideias etc
+-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot;font-size:11pt;font-family:Bitstream Vera Sans&quot;&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;GPTEditor&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;watches&lt;/li&gt;
+-&lt;li&gt;Colocar links nas mensagens de erro para Help que contenha detalhes e exemplos sobre o erro.&lt;/li&gt;&lt;/ul&gt;
+-&lt;div&gt;&lt;/div&gt;
+-&lt;li&gt;GPT&lt;/li&gt;
+-&lt;li&gt;leia()&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;enquanto leia() : leia() deve ser avaliado como express&#227;o numerica.&lt;/li&gt;
+-&lt;li&gt;permitir que leia() seja termo em express&#245;es com N termos.&lt;/li&gt;&lt;/ul&gt;
+-&lt;li&gt;Adicionar &quot;coluna&quot; no error reporting?&lt;/li&gt;
+-&lt;li&gt;Criar esquema de exibicao de erros baseado em Java&lt;/li&gt;
+-&lt;li&gt;Mostra trecho do codigo e aponta com uma seta onde esta o erro. (console)&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;underline vermelho no termo incorreto (gpteditor)&lt;/li&gt;&lt;/ul&gt;
+-&lt;li&gt;Novos features:&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;-fa&#231;a/enquanto();&lt;/li&gt;
+-&lt;li&gt;-switch (escolha)&lt;/li&gt;
+-&lt;li&gt;-Fazer verifica&#231;&#227;o de uso de variaveis?&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;&quot;Aviso: variavel &quot;w&quot; nao esta sendo usada&quot;&lt;br /&gt;&lt;/li&gt;&lt;/ul&gt;
+-&lt;li&gt;Ter mecanismos de gramaticas dinamicas ou sublinguagens&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Remodelagem de estruturas, palavras-chaves, etc.&lt;/li&gt;
+-&lt;li&gt;Estilos gramaticais ou sublinguagens:&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Pascal-like: se utiliza de &quot;inicio&quot;,&quot;fim&quot;, &quot;:=&quot;, &quot;escreva&quot;&lt;/li&gt;
+-&lt;li&gt;C-Like: se utiliza de &quot;{ }&quot;, &quot;==&quot;, &quot;imprima&quot;, &quot;()&quot; entre as expr de estruturas, etc.&lt;/li&gt;
+-&lt;li&gt;Indenter: n&#227;o utiliza marcadores de bloco, indenta&#231;&#227;o faz parte das estruturas.&lt;/li&gt;&lt;/ul&gt;
+-&lt;li&gt;Talvez, criar um compiler para uma gramatica que pode ser escrita por professores (ver StringTemplates, talvez?)&lt;/li&gt;&lt;/ul&gt;&lt;/ul&gt;&lt;/ul&gt;
+-&lt;li&gt;&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Error codes: (switch -e)&lt;/li&gt;
+-&lt;li&gt;Se usar com front-end, pode linkar a uma pagina# explicando a natureza do erro.&lt;br /&gt;&lt;/li&gt;
+-&lt;li&gt;Manipulacao de matrizes (passagem param)&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;matriz[2][3] de inteiros; &lt;/li&gt;
+-&lt;li&gt;f(mat[0]);&lt;/li&gt;
+-&lt;li&gt;fun&#231;&#227;o f(matriz[3] de inteiros);&lt;/li&gt;&lt;/ul&gt;&lt;/ul&gt;
+-&lt;/body&gt;&lt;/html&gt;
+-
+-\NewEntry 1 Bugs
+-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot;font-size:11pt;font-family:Bitstream Vera Sans&quot;&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Compilando test/tester.gpt e examinando com valgrind, existem invalid read memories.&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;o codigo da leitura eh, ao que parece, uma leitura de variavel global. Ao mover a funcao&lt;br /&gt;para perto do entry point, no inicio do arquivo, o valgrind nao reclama mais.&lt;/li&gt;
+-&lt;li&gt;PS: nao gera segfault (ate agora)&lt;/li&gt;
+-&lt;li&gt;PS2: acontece utilizando tanto nasm -fbin quanto nasm -felf&lt;/li&gt;&lt;/ul&gt;&lt;/ul&gt;
+-&lt;/body&gt;&lt;/html&gt;
+-
+-\NewEntry 1 latex2html
+-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot;font-size:11pt;font-family:Bitstream Vera Sans&quot;&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Remover o preambulo quase todo (deixar simples), inclusive o renewcommand{\maketitle}&lt;/li&gt;
+-&lt;li&gt;latex2html nao reconhece \cap&#237;tulo. :/ tem que fazer um s/capitulo/chapter&lt;/li&gt;&lt;/ul&gt;
+-&lt;/body&gt;&lt;/html&gt;
+-
+-\NewEntry 1 Projeto GPT++
+-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot;font-size:11pt;font-family:Bitstream Vera Sans&quot;&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Linguagem baseada em portugol (ou extens&#227;o da linguagem portugol....)&lt;/li&gt;
+-&lt;li&gt;Utiliza abstra&#231;&#245;es para manipula&#231;&#227;o de dispositivos de entrada (mouse, teclado) e manipula&#231;&#227;o de imagens e gr&#225;ficos.&lt;br /&gt;&lt;br /&gt;&lt;/li&gt;
+-&lt;li&gt;Motiva&#231;&#227;o&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Aprender algoritmos com constru&#231;&#245;es primitivas nem sempre permite que alunos expressem sua criatividade e sejam motivados a estudar. A id&#233;ia de possibilitar &quot;eye-candy&quot;'s e jogos de forma f&#225;cil e simples pode trazer bons resultados no ensino de programa&#231;&#227;o. &lt;/li&gt;&lt;/ul&gt;
+-&lt;li&gt;Refer&#234;ncias&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Portugol/Plus&lt;/li&gt;
+-&lt;li&gt;Macromedia Flash&lt;br /&gt;&lt;br /&gt;&lt;/li&gt;&lt;/ul&gt;
+-&lt;li&gt;Vers&#227;o para programa&#231;&#227;o estruturada.&lt;/li&gt;
+-&lt;li&gt;Vers&#227;o para orienta&#231;&#227;o a objeto (Smalltalk/portugol)&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;/li&gt;
+-&lt;li&gt;&lt;/li&gt;&lt;/ul&gt;
+-&lt;/body&gt;&lt;/html&gt;
+-
+-\NewEntry 1 assembly blocks
+-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot;font-size:11pt;font-family:Bitstream Vera Sans&quot;&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Notas sobre permitir assembly em blocos parecido com C (asm {})&lt;br /&gt;&lt;/li&gt;
+-&lt;li&gt;A proposta para permitir esses blocos consiste em permitir expandir a linguagem.&lt;br /&gt;Entretanto, traria dificuldades para a interpreta&#231;&#227;o de codigo, que exigiria um interpretador ASM, e isso n&#227;o &#233; vi&#225;vel.&lt;/li&gt;
+-&lt;li&gt;A pr&#243;xima sugest&#227;o seria ter apenas uma fun&#231;&#227;o interna do g-portugol: _syscall(...)&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;essa fun&#231;&#227;o permitiria acesso aos recursos do sistema, que &#233; o objetivo de permitir blocos asm{}.&lt;br /&gt;&lt;br /&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/ul&gt;
+-&lt;/body&gt;&lt;/html&gt;
+-
+-\NewEntry 0 release
+-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body style=&quot;font-size:11pt;font-family:Bitstream Vera Sans&quot;&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;Test current CVS version on other distro/KDE versions&lt;/li&gt;
+-&lt;li&gt;Change version on kdevelop file, configure.in/configure.in.in&lt;/li&gt;
+-&lt;li&gt;Create NEWS file&lt;/li&gt;
+-&lt;li&gt;Create ChangeLog file&lt;/li&gt;
+-&lt;ul type=&quot;disc&quot;&gt;&lt;li&gt;~/bin/svn2cl.sh --group-by-day -i&lt;/li&gt;&lt;/ul&gt;
+-&lt;li&gt;Update README version&lt;/li&gt;
+-&lt;li&gt;TAG current CVS version&lt;/li&gt;
+-&lt;li&gt;Update site&lt;/li&gt;&lt;/ul&gt;
+-&lt;/body&gt;&lt;/html&gt;
+-
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000000.html">[gpt-commit] r325 - in trunk/gpt: . src/modules/parser
+</A></li>
+	<LI>Next message: <A HREF="000002.html">[gpt-commit] r327 - trunk/gpt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

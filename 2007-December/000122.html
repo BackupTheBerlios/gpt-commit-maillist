@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r449 - in trunk/gpt2: gptasm gptasm/src gptc gptc/src	gptvm gptvm/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r449%20-%20in%20trunk/gpt2%3A%20gptasm%20gptasm/src%20gptc%20gptc/src%0A%09gptvm%20gptvm/src&In-Reply-To=%3C200712191508.lBJF8hNn017348%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000123.html">
+   <LINK REL="Next"  HREF="000124.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r449 - in trunk/gpt2: gptasm gptasm/src gptc gptc/src	gptvm gptvm/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r449%20-%20in%20trunk/gpt2%3A%20gptasm%20gptasm/src%20gptc%20gptc/src%0A%09gptvm%20gptvm/src&In-Reply-To=%3C200712191508.lBJF8hNn017348%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r449 - in trunk/gpt2: gptasm gptasm/src gptc gptc/src	gptvm gptvm/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 16:08:43 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000123.html">[gpt-commit] r448 - trunk/gpt2/common/src
+</A></li>
+        <LI>Next message: <A HREF="000124.html">[gpt-commit] r450 - trunk/gpt2/gptasm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#122">[ date ]</a>
+              <a href="thread.html#122">[ thread ]</a>
+              <a href="subject.html#122">[ subject ]</a>
+              <a href="author.html#122">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 16:08:42 +0100 (Wed, 19 Dec 2007)
+New Revision: 449
+
+Modified:
+   trunk/gpt2/gptasm/configure.ac
+   trunk/gpt2/gptasm/src/Makefile.am
+   trunk/gpt2/gptc/Makefile.am
+   trunk/gpt2/gptc/configure.ac
+   trunk/gpt2/gptc/src/Makefile.am
+   trunk/gpt2/gptvm/configure.ac
+   trunk/gpt2/gptvm/src/Makefile.am
+Log:
+-Adicionado --with-common aos scripts 'configure'
+
+Modified: trunk/gpt2/gptasm/configure.ac
+===================================================================
+--- trunk/gpt2/gptasm/configure.ac	2007-12-19 15:07:36 UTC (rev 448)
++++ trunk/gpt2/gptasm/configure.ac	2007-12-19 15:08:42 UTC (rev 449)
+@@ -63,7 +63,7 @@
+   AC_MSG_ERROR(
+   [
+     O programa &quot;antlr&quot; (ou runantlr) n&#227;o foi encontrado no seu sistema (PATH).
+-    GPT precisa do ANTLR (vers&#227;o &gt;= 2.6) instalado.
++    GPT precisa do ANTLR (vers&#227;o 2) instalado.
+     Baixe em: <A HREF="http://www.antlr.org">http://www.antlr.org</A>
+   ])
+ fi
+@@ -73,7 +73,7 @@
+   AC_MSG_ERROR(
+   [
+     O programa &quot;antlr-config&quot; n&#227;o foi encontrado no seu sistema (PATH).
+-    GPT precisa do ANTLR (vers&#227;o &gt;= 2.6) instalado.
++    GPT precisa do ANTLR (vers&#227;o 2) instalado.
+     Baixe em: <A HREF="http://www.antlr.org">http://www.antlr.org</A>
+   ])
+ fi
+@@ -85,8 +85,21 @@
+ AC_SUBST(ANTLR_INC)
+ AC_SUBST(ANTLR_LIB)
+ 
++#------------------------------
++# Common lib
++#------------------------------
+ 
++AC_ARG_WITH(common,
++        AC_HELP_STRING([--with-common],[libgptcommon.la path]),
++[
++  COMMON_LIB=`pwd`/$withval
++],[
++  COMMON_LIB=&quot;../../common/src/libgptcommon.la&quot;
++])
+ 
++AC_SUBST(COMMON_LIB)
++
++
+ AC_CONFIG_FILES([Makefile
+                  src/Makefile])
+ AC_OUTPUT
+
+Modified: trunk/gpt2/gptasm/src/Makefile.am
+===================================================================
+--- trunk/gpt2/gptasm/src/Makefile.am	2007-12-19 15:07:36 UTC (rev 448)
++++ trunk/gpt2/gptasm/src/Makefile.am	2007-12-19 15:08:42 UTC (rev 449)
+@@ -1,12 +1,10 @@
+ COMMON_IDIR = ../../../common/src
+-COMMON_LDIR = ../../common/src
+ 
+-
+ INCLUDES = -I$(top_srcdir)/.  -I$(COMMON_IDIR)
+ 
+ bin_PROGRAMS = gptasm
+ 
+-gptasm_LDADD = $(COMMON_LDIR)/libgptcommon.la $(ANTLR_LIB)
++gptasm_LDADD = $(COMMON_LIB) $(ANTLR_LIB)
+ 
+ 
+ BUILT_SOURCES = GptAssemblyLexer.hpp \
+@@ -15,7 +13,7 @@
+                 GptAssemblyParser.cpp 
+ 
+ gptasm_SOURCES = CData.cpp  CData.hpp  CGenBytecode.cpp  CGenBytecode.hpp  CGptAsm.cpp  \
+-                  CGptAsm.hpp  main.cpp $(BUILT_SOURCES)
++                 CGptAsm.hpp  main.cpp $(BUILT_SOURCES)
+ 
+ EXTRA_DIST = lexer.g parser.g
+ 
+
+Modified: trunk/gpt2/gptc/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/Makefile.am	2007-12-19 15:07:36 UTC (rev 448)
++++ trunk/gpt2/gptc/Makefile.am	2007-12-19 15:08:42 UTC (rev 449)
+@@ -1 +1 @@
+-SUBDIRS = src test
+\ No newline at end of file
++SUBDIRS = src 
+\ No newline at end of file
+
+Modified: trunk/gpt2/gptc/configure.ac
+===================================================================
+--- trunk/gpt2/gptc/configure.ac	2007-12-19 15:07:36 UTC (rev 448)
++++ trunk/gpt2/gptc/configure.ac	2007-12-19 15:08:42 UTC (rev 449)
+@@ -63,8 +63,8 @@
+ if test &quot;x${ANTLR_BIN}&quot; = &quot;x&quot;; then
+   AC_MSG_ERROR(
+   [
+-    O programa &quot;antlr&quot; (ou runantlr) n&#195;&#163;o foi encontrado no seu sistema (PATH).
+-    GPT precisa do ANTLR (vers&#195;&#163;o &gt;= 2.6) instalado.
++    O programa &quot;antlr&quot; (ou runantlr) n&#195;&#131;&#194;&#163;o foi encontrado no seu sistema (PATH).
++    GPT precisa do ANTLR (vers&#195;&#131;&#194;&#163;o 2) instalado.
+     Baixe em: <A HREF="http://www.antlr.org">http://www.antlr.org</A>
+   ])
+ fi
+@@ -73,8 +73,8 @@
+ if test &quot;x${ANTLR_CFG}&quot; = &quot;x&quot;; then
+   AC_MSG_ERROR(
+   [
+-    O programa &quot;antlr-config&quot; n&#195;&#163;o foi encontrado no seu sistema (PATH).
+-    GPT precisa do ANTLR (vers&#195;&#163;o &gt;= 2.6) instalado.
++    O programa &quot;antlr-config&quot; n&#195;&#131;&#194;&#163;o foi encontrado no seu sistema (PATH).
++    GPT precisa do ANTLR (vers&#195;&#131;&#194;&#163;o 2) instalado.
+     Baixe em: <A HREF="http://www.antlr.org">http://www.antlr.org</A>
+   ])
+ fi
+@@ -86,7 +86,21 @@
+ AC_SUBST(ANTLR_INC)
+ AC_SUBST(ANTLR_LIB)
+ 
++#------------------------------
++# Common lib
++#------------------------------
+ 
++AC_ARG_WITH(common,
++        AC_HELP_STRING([--with-common],[libgptcommon.la path]),
++[
++  COMMON_LIB=`pwd`/$withval
++],[
++  COMMON_LIB=&quot;../../common/src/libgptcommon.la&quot;
++])
++
++AC_SUBST(COMMON_LIB)
++
++
+ AC_CONFIG_FILES([Makefile
+                  src/Makefile
+                  src/common/Makefile
+
+Modified: trunk/gpt2/gptc/src/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/src/Makefile.am	2007-12-19 15:07:36 UTC (rev 448)
++++ trunk/gpt2/gptc/src/Makefile.am	2007-12-19 15:08:42 UTC (rev 449)
+@@ -1,7 +1,6 @@
+ SUBDIRS = parser common semantic symboltable gptasm_target
+ 
+ COMMON_IDIR = ../../../common/src
+-COMMON_LDIR = ../../common/src
+ 
+ INCLUDES = -I$(top_srcdir)/. -I$(top_srcdir)/src -I$(top_srcdir)/src/parser \
+ 	-I$(top_srcdir)/src/common -I$(top_srcdir)/src/semantic -I$(top_srcdir)/src/symboltable \
+@@ -15,4 +14,4 @@
+ gptc_LDADD = $(top_builddir)/src/symboltable/libsymboltable.la \
+ 	$(top_builddir)/src/common/libcommon.la $(top_builddir)/src/gptasm_target/libgptasm.la \
+ 	$(top_builddir)/src/semantic/libsemantic.la $(top_builddir)/src/parser/libparser.la \
+-  $(COMMON_LDIR)/libgptcommon.la $(ANTLR_LIB)
++  $(COMMON_LIB) $(ANTLR_LIB)
+
+Modified: trunk/gpt2/gptvm/configure.ac
+===================================================================
+--- trunk/gpt2/gptvm/configure.ac	2007-12-19 15:07:36 UTC (rev 448)
++++ trunk/gpt2/gptvm/configure.ac	2007-12-19 15:08:42 UTC (rev 449)
+@@ -49,7 +49,22 @@
+   CXXFLAGS=&quot;-DDEBUG $CXXFLAGS&quot;
+ fi
+ 
++#------------------------------
++# Common lib
++#------------------------------
+ 
++AC_ARG_WITH(common,
++        AC_HELP_STRING([--with-common],[libgptcommon.la path]),
++[
++  COMMON_LIB=`pwd`/$withval
++],[
++  COMMON_LIB=&quot;../../common/src/libgptcommon.la&quot;
++])
++
++AC_SUBST(COMMON_LIB)
++
++
++
+ AC_CONFIG_FILES([Makefile
+                  src/Makefile])
+ AC_OUTPUT
+
+Modified: trunk/gpt2/gptvm/src/Makefile.am
+===================================================================
+--- trunk/gpt2/gptvm/src/Makefile.am	2007-12-19 15:07:36 UTC (rev 448)
++++ trunk/gpt2/gptvm/src/Makefile.am	2007-12-19 15:08:42 UTC (rev 449)
+@@ -1,5 +1,4 @@
+ COMMON_IDIR = ../../../common/src
+-COMMON_LDIR = ../../common/src
+ 
+ INCLUDES = -I$(top_srcdir)/.  -I$(COMMON_IDIR)
+ 
+@@ -8,4 +7,4 @@
+ gptvm_SOURCES = CBytecode.cpp  CDataStack.cpp  CGptVm.cpp  CRunBytecode.cpp  main.cpp \
+ 						  CBytecode.hpp  CDataStack.hpp  CGptVm.hpp  CRunBytecode.hpp  
+ 
+-gptvm_LDADD = $(COMMON_LDIR)/libgptcommon.la -ldl
+\ No newline at end of file
++gptvm_LDADD = $(COMMON_LIB) -ldl
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000123.html">[gpt-commit] r448 - trunk/gpt2/common/src
+</A></li>
+	<LI>Next message: <A HREF="000124.html">[gpt-commit] r450 - trunk/gpt2/gptasm/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#122">[ date ]</a>
+              <a href="thread.html#122">[ thread ]</a>
+              <a href="subject.html#122">[ subject ]</a>
+              <a href="author.html#122">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

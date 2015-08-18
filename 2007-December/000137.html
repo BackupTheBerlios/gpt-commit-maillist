@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r463 - trunk/gpt2/gptc/src/semantic
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r463%20-%20trunk/gpt2/gptc/src/semantic&In-Reply-To=%3C200712192221.lBJMLdv9026934%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000136.html">
+   <LINK REL="Next"  HREF="000138.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r463 - trunk/gpt2/gptc/src/semantic</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r463%20-%20trunk/gpt2/gptc/src/semantic&In-Reply-To=%3C200712192221.lBJMLdv9026934%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r463 - trunk/gpt2/gptc/src/semantic">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 23:21:39 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000136.html">[gpt-commit] r462 - trunk/gpt2/gptc/src/gptasm_target
+</A></li>
+        <LI>Next message: <A HREF="000138.html">[gpt-commit] r464 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm/test/wikki
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#137">[ date ]</a>
+              <a href="thread.html#137">[ thread ]</a>
+              <a href="subject.html#137">[ subject ]</a>
+              <a href="author.html#137">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 23:21:39 +0100 (Wed, 19 Dec 2007)
+New Revision: 463
+
+Modified:
+   trunk/gpt2/gptc/src/semantic/BaseSemanticWalker.cpp
+Log:
+-Checando por declaracoes ambiguas de subprogramas
+-getSymbol -&gt; getFirstSymbol
+
+
+Modified: trunk/gpt2/gptc/src/semantic/BaseSemanticWalker.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/semantic/BaseSemanticWalker.cpp	2007-12-19 22:21:03 UTC (rev 462)
++++ trunk/gpt2/gptc/src/semantic/BaseSemanticWalker.cpp	2007-12-19 22:21:39 UTC (rev 463)
+@@ -102,7 +102,7 @@
+ Type* BaseSemanticWalker::getSymbolType(RefPortugolAST node) {
+   try {
+     return
+-      _symtable-&gt;getSymbol(node-&gt;getText()).type();
++      _symtable-&gt;getFirstSymbol(node-&gt;getText()).type();
+   } catch (UndeclaredSymbolException e) {
+     report(node-&gt;getLine(), node-&gt;getColumn(),
+            std::string(&quot;s&#237;mbolo n&#227;o declarado: &quot;) + node-&gt;getText());
+@@ -251,6 +251,11 @@
+ 
+ void BaseSemanticWalker::declareProc(const Symbol&amp; s, 
+                                      SymbolList&amp; params) {
++//checar ambiguidades:
++//  f(a : inteiro)
++//  f(b : inteiro, ... resto)
++//  -&gt; declaracao ambigua
++
+   try {
+     _symtable-&gt;insertSymbol(s);
+   } catch (RedeclarationException e) {
+@@ -258,8 +263,12 @@
+            std::string(&quot;redeclara&#231;&#227;o: &quot;) + e.symbol().lexeme());
+     _symtable-&gt;setIgnoreScope();
+     return;
+-  }  
+-
++  } catch (AmbiguousDeclarationException e) {
++    report(e.symbol().line(), e.symbol().column(),
++           &quot;declara&#231;&#227;o amb&#237;gua com: &quot; + e.otherSymbol().name());
++    _symtable-&gt;setIgnoreScope();
++    return;
++  }
+   _symtable-&gt;setScope(s);
+   params.setScope(s.identifier());
+ 
+@@ -356,12 +365,24 @@
+ 
+ Type* BaseSemanticWalker::evalCall(RefPortugolAST id,
+                                    const TypeList&amp; paramTypes) {
++
+   //TODO
+   //-proibicao de consts passados para parametros &quot;ref&quot; sem constness
+ 
+ // - Testar avaliacao de chamada de subprogramas (com e sem reticencias)
+ //   -Avaliacao de qtd e tipos de parametros
+ 
++//checar: 
++//  f(a : inteiro)
++//  f(b : inteiro, ... resto)
++//  f(a) //ambiguo
++
++//checar:
++//  f(a : inteiro)
++//  f(b : real)
++//  f(2); //primeira vers&#227;o, sempre!
++
++
+   if (paramTypes.hasErrorType()) {
+     return _typeBuilder-&gt;errorType();
+   }
+@@ -370,12 +391,12 @@
+     return 
+       _symtable-&gt;getSymbol(id-&gt;getText(), paramTypes).type()-&gt;returnType();
+   } catch (UndeclaredSymbolException e) {
+-    report(id-&gt;getLine(), id-&gt;getColumn(), 
++    report(id-&gt;getLine(), id-&gt;getColumn(),
+         &quot;fun&#231;&#227;o n&#227;o encontrada: '&quot; + id-&gt;getText() + &quot;'&quot;);
+     return _typeBuilder-&gt;errorType();
+   } catch (UnmatchedException e) {
+     report(id-&gt;getLine(), id-&gt;getColumn(),
+-           &quot;Fun&#231;&#227;o compat&#237;vel com '&quot; + id-&gt;getText() 
++           &quot;Fun&#231;&#227;o compat&#237;vel com '&quot; + id-&gt;getText()
+            + &quot;(&quot; + paramTypes.toString() + &quot;)' n&#227;o encontrada&quot;);
+     return _typeBuilder-&gt;errorType();
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000136.html">[gpt-commit] r462 - trunk/gpt2/gptc/src/gptasm_target
+</A></li>
+	<LI>Next message: <A HREF="000138.html">[gpt-commit] r464 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm/test/wikki
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#137">[ date ]</a>
+              <a href="thread.html#137">[ thread ]</a>
+              <a href="subject.html#137">[ subject ]</a>
+              <a href="author.html#137">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1723 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r378 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r378%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711211732.lALHWHHZ029319%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000051.html">
+   <LINK REL="Next"  HREF="000053.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r378 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r378%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711211732.lALHWHHZ029319%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r378 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Nov 21 18:32:17 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000051.html">[gpt-commit] r377 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000053.html">[gpt-commit] r379 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#52">[ date ]</a>
+              <a href="thread.html#52">[ thread ]</a>
+              <a href="subject.html#52">[ subject ]</a>
+              <a href="author.html#52">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-21 18:32:12 +0100 (Wed, 21 Nov 2007)
+New Revision: 378
+
+Added:
+   trunk/gpt2/gptc/src/CompilerError.cpp
+   trunk/gpt2/gptc/src/CompilerError.hpp
+   trunk/gpt2/gptc/src/Symbol.cpp
+   trunk/gpt2/gptc/src/Symbol.hpp
+   trunk/gpt2/gptc/src/SymbolTable.cpp
+   trunk/gpt2/gptc/src/SymbolTable.hpp
+   trunk/gpt2/gptc/src/SymbolTableExceptions.cpp
+   trunk/gpt2/gptc/src/SymbolTableExceptions.hpp
+   trunk/gpt2/gptc/src/Types.cpp
+   trunk/gpt2/gptc/src/Types.hpp
+Modified:
+   trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+   trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+   trunk/gpt2/gptc/src/semantic.g
+Log:
+Infra-estrutura da tabela de simbolos e codigos de registro de ID e tipos.
+-Esqueleto de codigo para analise semantica
+
+Modified: trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseSemanticWalker.cpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/BaseSemanticWalker.cpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -1,3 +1,290 @@
++
+ #include &quot;BaseSemanticWalker.hpp&quot;
++#include &quot;PortugolTokenTypes.hpp&quot;
++#include &quot;SymbolTable.hpp&quot;
++#include &quot;Symbol.hpp&quot;
++#include &quot;Types.hpp&quot;
++#include &quot;PortugolAST.hpp&quot;
++#include &quot;SymbolTableExceptions.hpp&quot;
+ 
++#include &lt;iostream&gt;
+ 
++BaseSemanticWalker::BaseSemanticWalker(SymbolTable* symtable)
++ : antlr::TreeParser(), _symtable(symtable) {}
++
++void BaseSemanticWalker::useLib(const  std::string&amp; lib) {
++  //TODO: sanitize lib: &quot;bla\ bla&quot; -&gt; &quot;bla bla&quot;
++
++  std::cerr &lt;&lt; &quot;Using lib:&quot; &lt;&lt; lib &lt;&lt; std::endl;
++}
++
++void BaseSemanticWalker::declare(const IDList&amp; idlist,
++                                 Type* type,
++                                 bool isConst) {
++
++  try {
++    IDList::const_iterator it;
++    for (it = idlist.begin(); it != idlist.end(); ++it) {
++      _symtable-&gt;declare(_symtable-&gt;newSymbol(
++            (*it)-&gt;getText(), type, (*it)-&gt;getLine(), isConst));
++    }
++  } catch (RedeclarationException e) {
++    cerr &lt;&lt; &quot;catched! Redeclaration: &quot; &lt;&lt; e.symbol().toString() &lt;&lt;&quot;\n&quot;;
++  }
++}
++
++void BaseSemanticWalker::defineStruct(const std::string&amp; name,
++                                      const SymbolList&amp; fieldList,
++                                      int line) {
++
++  try {
++    _symtable-&gt;defineStruct(name, fieldList, line);
++  } catch (RedefinedTypeException e) {
++    cerr &lt;&lt; &quot;catched! Redeclared type: &quot; &lt;&lt; e.typeName() &lt;&lt; &quot;\n&quot;;
++  } catch (RedeclarationException e) {
++    cerr &lt;&lt; &quot;catched! Redeclaration: &quot; &lt;&lt; e.symbol().toString() &lt;&lt; &quot;\n&quot;;
++  }
++}
++
++void BaseSemanticWalker::declareProc(const std::string&amp; name,
++                                     const SymbolList&amp; params,
++                                     int line,
++                                     Type* ret) {
++
++  SubprogramType* type = new SubprogramType(
++        params.toTypeList(),
++        (ret == 0) ? _symtable-&gt;getType(PortugolTokenTypes::T_NULO) : ret);
++
++  try {
++    _symtable-&gt;declare(_symtable-&gt;newSymbol(name, type,line));
++    _symtable-&gt;declare(params, name);
++  } catch (RedeclarationException e) {
++    cerr &lt;&lt; &quot;catched! Redeclaration: &quot; &lt;&lt; e.symbol().toString() &lt;&lt; std::endl;
++    delete type;
++  }
++}
++
++Type* BaseSemanticWalker::getType(const std::string&amp; name) {
++  try {
++    return _symtable-&gt;getType(name);
++  } catch (UndeclaredTypeException e) {
++    std::cerr &lt;&lt; &quot;catched! Undeclared type: &quot; &lt;&lt; e.typeName() &lt;&lt; std::endl;
++    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++  }
++}
++
++Type* BaseSemanticWalker::getType(int id) {
++  try {
++    return _symtable-&gt;getType(id);
++  } catch (UndeclaredTypeException e) {
++    std::cerr &lt;&lt; &quot;catched! Undeclared type: &quot; &lt;&lt; id &lt;&lt; std::endl;
++    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++  }
++}
++
++Type* BaseSemanticWalker::getSymbolType(const std::string&amp; name) {
++  try {
++    return _symtable-&gt;getSymbol(name).type();
++  } catch (UndeclaredSymbolException e) {
++    std::cerr &lt;&lt; &quot;catched! Undeclared symbol: &quot; &lt;&lt; e.lexeme() &lt;&lt; std::endl;
++    return _symtable-&gt;getType(PortugolTokenTypes::T_NULO);
++  }
++}
++
++void BaseSemanticWalker::evalFCall(const std::string&amp; fname,
++                                   const TypeList&amp; paramTypes) {
++  //TODO
++  //-proibicao de consts passados para parametros &quot;ref&quot; sem constness
++
++// - Testar avaliacao de chamada de subprogramas (com e sem reticencias)
++//   -Avaliacao de qtd e tipos de parametros
++}
++
++void BaseSemanticWalker::evalMatrixSubscript(Type* type) {
++}
++
++void BaseSemanticWalker::evalAttribution(Type*, Type*) {
++  //-proibicao de consts como lvalues
++}
++
++
++template&lt;int&gt;
++Type* BaseSemanticWalker::evalExpr(Type*, Type*) {
++  //nao deve ser chamado!
++  throw;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_OU&gt;(Type* left,
++                                                       Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; OU &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_E&gt;(Type* left,
++                                                      Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; E &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_BIT_OU&gt;(Type* left,
++                                                           Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; | &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_BIT_OUX&gt;(Type* left,
++                                                            Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; ^ &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_BIT_E&gt;(Type* left,
++                                                          Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; &amp; &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_IGUAL&gt;(Type* left,
++                                                          Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; = &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_DIFERENTE&gt;(Type* left,
++                                                              Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; = &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_MAIOR&gt;(Type* left,
++                                                          Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; &gt; &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_MENOR&gt;(Type* left,
++                                                          Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; &lt; &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_MAIOR_EQ&gt;(Type* left,
++                                                             Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; &gt;= &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_MENOR_EQ&gt;(Type* left,
++                                                             Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; &lt;= &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_BIT_SHIFT_LEFT&gt;(
++                                                    Type* left, Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; &lt;&lt; &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_BIT_SHIFT_RIGHT&gt;(
++                                                    Type* left, Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; &gt;&gt; &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_MAIS&gt;(Type* left,
++                                                         Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; + &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_MENOS&gt;(Type* left,
++                                                          Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; - &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_DIV&gt;(Type* left,
++                                                        Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; / &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_MULTIP&gt;(Type* left,
++                                                           Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; * &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_MOD&gt;(Type* left,
++                                                        Type* right) {
++  std::cerr &lt;&lt;  left-&gt;name() &lt;&lt; &quot; % &quot; &lt;&lt; right-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_UN_NEGATIVO&gt;(Type* left) {
++  std::cerr &lt;&lt;  &quot; - &quot; &lt;&lt; left-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_UN_POSITIVO&gt;(Type* left) {
++  std::cerr &lt;&lt;  &quot; + &quot; &lt;&lt; left-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_NAO&gt;(Type* left) {
++  std::cerr &lt;&lt;  &quot; n&#227;o &quot; &lt;&lt; left-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
++template&lt;&gt;
++Type*
++BaseSemanticWalker::evalExpr&lt;PortugolTokenTypes::T_BIT_NAO&gt;(Type* left) {
++  std::cerr &lt;&lt;  &quot; ~ &quot; &lt;&lt; left-&gt;name() &lt;&lt; endl;
++  return left;
++}
++
+
+Modified: trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseSemanticWalker.hpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/BaseSemanticWalker.hpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -22,11 +22,49 @@
+ #define BASESEMANTICWALKER_H
+ 
+ #include &lt;antlr/TreeParser.hpp&gt;
++#include &lt;list&gt;
++#include &lt;string&gt;
+ 
++class PortugolAST;
++class SymbolTable;
++class SymbolList;
++class Type;
++class TypeList;
++
++typedef std::list&lt;PortugolAST*&gt; IDList;
++
+ class BaseSemanticWalker : public antlr::TreeParser {
+ 
+ public:
+-  BaseSemanticWalker() : antlr::TreeParser() {}
++  BaseSemanticWalker(SymbolTable*);
++
++protected:
++  void useLib(const std::string&amp;);
++
++  void declare(const IDList&amp;, Type*, bool);
++
++  void defineStruct(const std::string&amp;, const SymbolList&amp;, int);
++
++  void declareProc(const std::string&amp;, const SymbolList&amp;, int, Type* = 0);
++
++  Type* getType(const std::string&amp;);
++  Type* getType(int);
++
++  Type* getSymbolType(const std::string&amp;);
++
++  void evalFCall(const std::string&amp;, const TypeList&amp;);
++
++  void evalMatrixSubscript(Type*);
++
++  void evalAttribution(Type*, Type*);
++
++  template&lt;int&gt;
++  Type* evalExpr(Type*, Type*);
++
++  template&lt;int&gt;
++  Type* evalExpr(Type*);
++
++  SymbolTable* _symtable;
+ };
+ 
+ #endif
+
+Added: trunk/gpt2/gptc/src/CompilerError.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/CompilerError.cpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/CompilerError.cpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -0,0 +1 @@
++ 
+
+Added: trunk/gpt2/gptc/src/CompilerError.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/CompilerError.hpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/CompilerError.hpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -0,0 +1,15 @@
++
++/*
++  Cada gramatica deve ter sua ErrorList
++*/
++
++class ErrorList {
++
++};
++
++class CompilerError {
++  void addError(unit, line, errorCode, message);
++  //tips
++  //verbose, etc
++  std::string toString();
++};
+
+Added: trunk/gpt2/gptc/src/Symbol.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Symbol.cpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/Symbol.cpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -0,0 +1,103 @@
++#include &quot;Symbol.hpp&quot;
++
++Symbol::Symbol()
++  : _type(0) {
++}
++
++Symbol::Symbol(const std::string&amp; lexeme, Type* type, int line,
++         const std::string&amp; unit, const std::string&amp; scope,
++         bool isConst, bool isRef)
++    : _lexeme(lexeme), _type(type), _isConst(isConst), _isRef(isRef),
++      _unit(unit), _scope(scope), _line(line) {
++}
++
++const std::string&amp; Symbol::lexeme() const {
++  return _lexeme;
++}
++
++Type* Symbol::type() const {
++  return _type;
++}
++
++bool Symbol::isConst() const {
++  return _isConst;
++}
++
++bool Symbol::isRef() const {
++  return _isRef;
++}
++
++std::string Symbol::toString() const {
++  std::string ret = _unit + &quot;(&quot; + _scope + &quot;) - &quot; + lexeme() + &quot; : &quot;;
++  if (_type) {
++    ret += _type-&gt;name();
++  }
++  ret += &quot; {&quot;;
++  if (_isConst) {
++    ret += &quot;c&quot;;
++  }
++  if (_isRef) {
++    ret += &quot;r&quot;;
++  }
++  ret += &quot;}&quot;;
++  return ret;
++}
++
++
++//-------------------------------------------------------
++
++
++SymbolList::const_iterator SymbolList::duplicated() const {
++  for (SymbolList::const_iterator it = begin(); it != end(); ++it) {
++    if (count((*it).lexeme()) &gt; 1) {
++      return it;
++    }
++  }
++  return end();
++}
++
++std::list&lt;StructType::Field&gt; SymbolList::toStructFieldList() const {
++  std::list&lt;StructType::Field&gt; fields;
++
++  for (SymbolList::const_iterator it = begin(); it != end(); ++it) {
++    fields.push_back(StructType::Field((*it).lexeme(), (*it).type()));
++  }
++  return fields;
++}
++
++TypeList SymbolList::toTypeList() const {
++  TypeList list;
++
++  for (SymbolList::const_iterator it = begin(); it != end(); ++it) {
++    list.push_back((*it).type());
++  }
++  return list;
++}
++
++int SymbolList::count(const std::string&amp; lexeme) const {
++  int ret = 0;
++  for (SymbolList::const_iterator it = begin(); it != end(); ++it) {
++    if ((*it).lexeme() == lexeme) {
++      ret++;
++    }
++  }
++  return ret;
++}
++
++SymbolList::const_iterator SymbolList::find(const std::string&amp; lexeme) const {
++  for (SymbolList::const_iterator it = begin(); it != end(); ++it) {
++    if ((*it).lexeme() == lexeme) {
++      return it;
++    }
++  }
++  return end();
++}
++
++std::string SymbolList::toString() const {
++  std::string ret = &quot;&quot;;
++  for (SymbolList::const_iterator it = begin(); it != end(); ++it) {
++    ret += (*it).toString() + &quot;\n&quot;;
++  }
++  return ret;
++}
++
+
+Added: trunk/gpt2/gptc/src/Symbol.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Symbol.hpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/Symbol.hpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -0,0 +1,53 @@
++#ifndef SYMBOL_HPP
++#define SYMBOL_HPP
++
++#include &quot;Types.hpp&quot;
++
++#include &lt;string&gt;
++
++class Symbol {
++public:
++  Symbol();
++
++  Symbol(const std::string&amp; lexeme, Type* type, int line,
++         const std::string&amp; unit, const std::string&amp; scope,
++         bool isConst = false, bool isRef = false);
++
++  const std::string&amp; lexeme() const;
++
++  Type* type() const;
++
++  bool isConst() const;
++
++  bool isRef() const;
++
++  std::string toString() const;
++
++private:
++  std::string      _lexeme;
++  Type*            _type;
++  bool             _isConst;
++  bool             _isRef;
++
++  std::string _unit;
++  std::string _scope;
++  int         _line;
++};
++
++
++class SymbolList : public std::list&lt;Symbol&gt; {
++public:
++  const_iterator duplicated() const;
++
++  std::list&lt;StructType::Field&gt; toStructFieldList() const;
++
++  TypeList toTypeList() const;
++
++  int count(const std::string&amp; lexeme) const;
++
++  const_iterator find(const std::string&amp; lexeme) const;
++
++  std::string toString() const;
++};
++
++#endif
+
+Added: trunk/gpt2/gptc/src/SymbolTable.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/SymbolTable.cpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/SymbolTable.cpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -0,0 +1,142 @@
++#include &quot;SymbolTable.hpp&quot;
++
++#include &quot;Types.hpp&quot;
++#include &quot;PortugolTokenTypes.hpp&quot;
++#include &quot;Symbol.hpp&quot;
++#include &quot;SymbolTableExceptions.hpp&quot;
++
++#include &lt;iostream&gt;
++
++void SymbolTable::setScope(const std::string&amp; scope) {
++  _scope = scope;
++}
++void SymbolTable::setGlobalScope() {
++  _scope = &quot;@global&quot;;
++}
++
++Type* SymbolTable::getType(const std::string&amp; name) {
++  Type* ret = _types.find(name);
++
++  if (ret == 0) {
++    throw UndeclaredTypeException(name);
++  }
++
++  return ret;
++}
++
++Type* SymbolTable::getType(int id) {
++  Type* ret = _types.find(id);
++
++  if (ret == 0) {
++    throw UndeclaredTypeException(id);
++  }
++
++  return ret;
++}
++
++Type* SymbolTable::retrieveMatrixType(Type *ofType, int dimensions) {
++  Type* t = _types.find(ofType, dimensions);
++  if (t == 0) {
++    t = new MatrixType(ofType, dimensions);
++    _types.push_back(t);
++  }
++  return t;
++}
++
++Symbol SymbolTable::newSymbol(const std::string&amp; name, Type* type,
++                int line, const std::string&amp; scope,
++                bool isConst, bool isRef) {
++  return Symbol(name, type, line, _unit, scope, isConst, isRef);
++}
++
++Symbol SymbolTable::newSymbol(const std::string&amp; name, Type* type,
++                int line, bool isConst, bool isRef) {
++  return Symbol(name, type, line, _unit, _scope, isConst, isRef);
++}
++
++void SymbolTable::defineStruct(const std::string&amp; name,
++                               const SymbolList&amp; symbolList,
++                               int line) {
++  SymbolList::const_iterator dup = symbolList.duplicated();
++  if (dup != symbolList.end()) {
++    throw RedeclarationException(*dup);
++  }
++
++  if (_types.find(name) != 0) {
++    throw RedefinedTypeException(name);
++  }
++  _types.push_back(new StructType(name,
++      symbolList.toStructFieldList(), _unit, line));
++}
++
++bool SymbolTable::declared(const Symbol&amp; s) {
++  return _table[_scope].count(s.lexeme()) &gt;= 1;
++}
++
++void SymbolTable::declare(const Symbol&amp; symbol) {
++  if (declared(symbol)) {
++    throw RedeclarationException(symbol);
++  }
++  _table[_scope].push_back(symbol);
++}
++
++void SymbolTable::declare(const SymbolList&amp; params,
++                          const std::string&amp; scope) {
++  try {
++    setScope(scope);
++    for (SymbolList::const_iterator it = params.begin(); it != params.end(); ++it) {
++      declare(*it);
++    }
++  } catch( ... ) {
++    setGlobalScope();
++    throw;
++  }
++}
++
++
++const Symbol&amp; SymbolTable::getSymbol(const std::string&amp; lexeme) {
++  SymbolList::const_iterator it = _table[_scope].find(lexeme);
++  if (it == _table[_scope].end()) {
++    throw UndeclaredSymbolException(lexeme);
++  }
++  return (*it);
++}
++
++
++SymbolTable* SymbolTable::create(const std::string&amp; unit) {
++  SymbolTable* s = new SymbolTable(unit);
++  s-&gt;initialize();
++  return s;
++}
++
++void SymbolTable::dump() {
++
++  std::cerr &lt;&lt; &quot;Ids...\n&quot;;
++  std::map&lt;std::string, SymbolList&gt;::iterator it;
++  for (it = _table.begin(); it != _table.end(); ++it) {
++    std::cerr &lt;&lt; it-&gt;second.toString() &lt;&lt; std::endl;
++  }
++  std::cerr &lt;&lt; &quot;Types ... &quot; &lt;&lt; std::endl;
++  std::cerr &lt;&lt; _types.toString() &lt;&lt; std::endl;
++}
++
++
++SymbolTable::SymbolTable(const std::string&amp; unit)
++  : _unit(unit) {
++  setGlobalScope();
++}
++
++SymbolTable::~SymbolTable() {
++  //TODO: delete tables, types, etc...
++}
++
++void SymbolTable::initialize() {
++  _types.push_back(new PrimitiveType(PortugolTokenTypes::T_INTEIRO,&quot;inteiro&quot;));
++  _types.push_back(new PrimitiveType(PortugolTokenTypes::T_REAL,&quot;real&quot;));
++  _types.push_back(new PrimitiveType(PortugolTokenTypes::T_CARACTERE,&quot;caractere&quot;));
++  _types.push_back(new PrimitiveType(PortugolTokenTypes::T_LITERAL,&quot;literal&quot;));
++  _types.push_back(new PrimitiveType(PortugolTokenTypes::T_LOGICO,&quot;l&#243;gico&quot;));
++  _types.push_back(new PrimitiveType(PortugolTokenTypes::T_NULO,&quot;nulo&quot;));
++  _types.push_back(new PrimitiveType(PortugolTokenTypes::T_CORINGA,&quot;coringa&quot;));
++  _types.push_back(new PrimitiveType(PortugolTokenTypes::T_RETICENCIAS,&quot;retic&#234;ncias&quot;));
++}
+
+Added: trunk/gpt2/gptc/src/SymbolTable.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/SymbolTable.hpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/SymbolTable.hpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -0,0 +1,64 @@
++#ifndef SYMBOLTABLE_HPP
++#define SYMBOLTABLE_HPP
++
++#include &lt;string&gt;
++#include &lt;list&gt;
++#include &lt;map&gt;
++
++#include &quot;Types.hpp&quot;
++
++class Symbol;
++class SymbolList;
++
++class SymbolTable {
++public:
++  //void setCurrentUnit(string file)
++  //void loadSymbolTable(other) //load stable from other units
++
++  void setScope(const std::string&amp; scope);
++  void setGlobalScope();
++
++  Type* getType(const std::string&amp; name);
++
++  Type* getType(int id);
++
++  Type* retrieveMatrixType(Type *ofType, int dimensions);
++
++  Symbol newSymbol(const std::string&amp; name, Type* type,
++                   int line, const std::string&amp; scope,
++                   bool isConst = false, bool isRef = false);
++
++  Symbol newSymbol(const std::string&amp; name, Type* type,
++                   int line, bool isConst = false, bool isRef = false);
++
++  void defineStruct(const std::string&amp; name,
++                   const SymbolList&amp; symbolList,
++                   int line);
++
++  bool declared(const Symbol&amp; s);
++
++  void declare(const Symbol&amp; symbol);
++
++  void declare(const SymbolList&amp; params, const std::string&amp; scope);
++
++  const Symbol&amp; getSymbol(const std::string&amp; lexeme);
++
++
++  static SymbolTable* create(const std::string&amp; unit);
++
++  void dump();
++
++private:
++  SymbolTable(const std::string&amp; unit);
++  ~SymbolTable();
++
++  void initialize();
++
++  std::string                        _scope;
++  std::string                        _unit;
++
++  std::map&lt;std::string, SymbolList&gt;  _table;
++  TypeList                           _types;
++};
++
++#endif
+
+Added: trunk/gpt2/gptc/src/SymbolTableExceptions.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/SymbolTableExceptions.cpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/SymbolTableExceptions.cpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -0,0 +1,51 @@
++#include &quot;SymbolTableExceptions.hpp&quot;
++#include &quot;TokenNames.hpp&quot;
++
++UndeclaredTypeException::UndeclaredTypeException(const std::string&amp; name)
++  : _id(-1), _name(name) {
++}
++
++UndeclaredTypeException::UndeclaredTypeException(int id)
++  : _id(id) {
++}
++
++std::string UndeclaredTypeException::typeName() const {
++  if (_id == -1) {
++    return _name;
++  } else {
++    return g_tokenNames[_id];
++  }
++}
++
++//--------------------------------------------------------
++
++RedefinedTypeException::RedefinedTypeException(const std::string&amp; name)
++  : _name(name) {
++}
++
++const std::string&amp; RedefinedTypeException::typeName() const {
++  return _name;
++}
++
++
++//--------------------------------------------------------
++
++UndeclaredSymbolException::UndeclaredSymbolException(const std::string&amp; lexeme)
++  : _lexeme(lexeme) {
++}
++
++std::string UndeclaredSymbolException::lexeme() const {
++  return _lexeme;
++}
++
++
++//--------------------------------------------------------
++
++
++RedeclarationException::RedeclarationException(const Symbol&amp; s)
++  : _symbol(s) {
++}
++
++const Symbol&amp; RedeclarationException::symbol() const {
++  return _symbol;
++}
+
+Added: trunk/gpt2/gptc/src/SymbolTableExceptions.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/SymbolTableExceptions.hpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/SymbolTableExceptions.hpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -0,0 +1,49 @@
++#ifndef SYMBOLTABLEEXCEPTIONS_HPP
++#define SYMBOLTABLEEXCEPTIONS_HPP
++
++#include &quot;Symbol.hpp&quot;
++
++#include &lt;string&gt;
++
++
++class UndeclaredTypeException {
++public:
++  UndeclaredTypeException(const std::string&amp; name);
++  UndeclaredTypeException(int id);
++
++  std::string typeName() const;
++
++private:
++  int _id;
++  std::string _name;
++};
++
++class RedefinedTypeException {
++public:
++  RedefinedTypeException(const std::string&amp; name);
++
++  const std::string&amp; typeName() const;
++private:
++  std::string _name;
++};
++
++class UndeclaredSymbolException {
++public:
++  UndeclaredSymbolException(const std::string&amp; lexeme);
++
++  std::string lexeme() const;
++
++private:
++  std::string _lexeme;
++};
++
++class RedeclarationException {
++public:
++  RedeclarationException(const Symbol&amp; s);
++
++  const Symbol&amp; symbol() const;
++private:
++  Symbol _symbol;
++};
++
++#endif
+
+Added: trunk/gpt2/gptc/src/Types.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Types.cpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/Types.cpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -0,0 +1,148 @@
++#include &quot;Types.hpp&quot;
++#include &quot;PortugolTokenTypes.hpp&quot;
++
++Type::~Type() {}
++
++
++//------------------------------------------------------------------
++
++
++Type* TypeList::find(const std::string&amp; lexeme) const {
++  const_iterator it;
++
++  for (it = begin(); it != end(); ++it) {
++    if ((*it)-&gt;name() == lexeme) {
++      return *it;
++    }
++  }
++  return 0;
++}
++
++Type* TypeList::find(Type* ofType, int dimensions) const {
++  const_iterator it;
++
++  for (it = begin(); it != end(); ++it) {
++    if ((*it)-&gt;equals(ofType, dimensions)) {
++      return *it;
++    }
++  }
++  return 0;
++}
++
++Type* TypeList::find(int id) const {
++  const_iterator it;
++
++  for (it = begin(); it != end(); ++it) {
++    if ((*it)-&gt;equals(id)) {
++      return *it;
++    }
++  }
++  return 0;
++}
++
++std::string TypeList::toString() const {
++  std::string ret = &quot;&quot;;
++  const_iterator it;
++  for (it = begin(); it != end(); ++it) {
++    ret += (*it)-&gt;name() + &quot;,&quot;;
++  }
++  return ret;
++}
++
++
++//------------------------------------------------------------------
++
++
++PrimitiveType::PrimitiveType(int id, const std::string&amp; name)
++  : _id(id), _name(name) {
++}
++
++std::string PrimitiveType::name() const {
++  return _name;
++}
++
++bool PrimitiveType::equals(Type* ofType, int dimensions) const {
++  return false;
++}
++
++bool PrimitiveType::equals(int id) const {
++  return _id == id;
++}
++
++//------------------------------------------------------------------
++
++
++MatrixType::MatrixType(Type* type, int dimensions)
++  : _ofType(type), _dimensions(dimensions) {
++}
++
++std::string MatrixType::name() const {
++  std::string ret;
++  ret = &quot;matriz&quot;;
++  for (int i = 0; i &lt; _dimensions; i++) {
++    ret += &quot;[]&quot;;
++  }
++  ret += &quot; do tipo &quot; + _ofType-&gt;name();
++  return ret;
++}
++
++bool MatrixType::equals(Type* ofType, int dimensions) const {
++  return (ofType == _ofType) &amp;&amp; (dimensions == _dimensions);
++}
++
++bool MatrixType::equals(int id) const {
++  return false;
++}
++
++//------------------------------------------------------------------
++
++
++StructType::StructType(const std::string&amp; name, const std::list&lt;Field&gt;&amp; fields,
++                       const std::string&amp; unit, int line)
++  : _name(name), _fields(fields), _unit(unit), _line(line) {
++}
++
++
++const std::list&lt;StructType::Field&gt;&amp; StructType::fields() {
++  return _fields;
++}
++
++std::string StructType::name() const {
++  return _name;
++}
++
++bool StructType::equals(Type* ofType, int dimensions) const {
++  return false;
++}
++
++bool StructType::equals(int id) const {
++  return false;
++}
++//------------------------------------------------------------------
++
++
++SubprogramType::SubprogramType(const TypeList&amp; paramTypes,
++                               Type* returnType)
++  : _paramTypes(paramTypes), _returnType(returnType) {
++}
++
++std::string SubprogramType::name() const {
++  std::string ret;
++  if (_returnType-&gt;equals(PortugolTokenTypes::T_NULO)) {
++    ret = &quot;proc(&quot;;
++  } else {
++    ret = &quot;func(&quot;;
++  }
++  ret += _paramTypes.toString();
++  ret += &quot;)&quot;;
++  ret += &quot; : &quot; + _returnType-&gt;name();
++  return ret;
++}
++
++bool SubprogramType::equals(Type* ofType, int dimensions) const {
++  return false;
++}
++
++bool SubprogramType::equals(int id) const {
++  return false;
++}
+
+Added: trunk/gpt2/gptc/src/Types.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Types.hpp	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/Types.hpp	2007-11-21 17:32:12 UTC (rev 378)
+@@ -0,0 +1,112 @@
++#ifndef TYPES_HPP
++#define TYPES_HPP
++
++#include &lt;string&gt;
++#include &lt;list&gt;
++
++class Type {
++public:
++  virtual ~Type();
++  virtual std::string name() const = 0;
++
++  virtual bool equals(Type* ofType, int dimensions) const = 0;
++  virtual bool equals(int id) const = 0;
++};
++
++
++
++class TypeList : public std::list&lt;Type*&gt; {
++public:
++
++  Type* find(const std::string&amp; lexeme) const;
++
++  Type* find(Type* ofType, int dimensions) const;
++
++  Type* find(int id) const;
++
++  std::string toString() const;
++};
++
++
++
++class PrimitiveType : public Type {
++public:
++  PrimitiveType(int id, const std::string&amp; name);
++
++  int id();
++  virtual std::string name() const;
++
++  virtual bool equals(Type* ofType, int dimensions) const;
++  virtual bool equals(int id) const;
++
++private:
++  int         _id;
++  std::string _name;
++};
++
++
++
++
++class MatrixType : public Type {
++public:
++  MatrixType(Type* ofType, int dimensions);
++
++  const Type*         ofType();
++  int                 dimensions();
++
++  virtual std::string name() const;
++
++  virtual bool equals(Type* ofType, int dimensions) const;
++  virtual bool equals(int id) const;
++private:
++  Type          *_ofType;
++  int           _dimensions;
++};
++
++
++class StructType : public Type {
++public:
++  class Field {
++    public:
++    Field(const std::string&amp; n, Type* t)
++      : name(n), type(t) {}
++
++    std::string name;
++    Type* type;
++  };
++
++  StructType(const std::string&amp; name, const std::list&lt;Field&gt;&amp; fields,
++             const std::string&amp; unit, int line);
++
++  const std::list&lt;Field&gt;&amp; fields();
++
++  virtual std::string name() const;
++
++  virtual bool equals(Type* ofType, int dimensions) const;
++  virtual bool equals(int id) const;
++
++private:
++  std::string      _name;
++  std::list&lt;Field&gt; _fields;
++  std::string      _unit;
++  int              _line;
++};
++
++
++class SubprogramType : public Type {
++public:
++  SubprogramType(const TypeList&amp; paramTypes, Type* returnType);
++
++  virtual std::string name() const;
++
++
++  virtual bool equals(Type* ofType, int dimensions) const;
++  virtual bool equals(int id) const;
++
++private:
++  TypeList         _paramTypes;
++  Type*            _returnType;
++};
++
++
++#endif
+
+Modified: trunk/gpt2/gptc/src/semantic.g
+===================================================================
+--- trunk/gpt2/gptc/src/semantic.g	2007-11-21 17:29:23 UTC (rev 377)
++++ trunk/gpt2/gptc/src/semantic.g	2007-11-21 17:32:12 UTC (rev 378)
+@@ -20,6 +20,9 @@
+ 
+ header {
+   #include &quot;BaseSemanticWalker.hpp&quot;
++  #include &quot;PortugolAST.hpp&quot;
++  #include &quot;Symbol.hpp&quot;
++  #include &quot;SymbolTable.hpp&quot;
+ }
+ 
+ 
+@@ -32,117 +35,404 @@
+   importVocab    = Portugol;
+   noConstructors = true;
+   genHashLines   = false;
++  ASTLabelType   = &quot;RefPortugolAST&quot;;
++//   defaultErrorHandler=false;
+ }
+ 
+ {
+ public:
+-  SemanticWalker::SemanticWalker()
+-	 : BaseSemanticWalker() { }
++  SemanticWalker::SemanticWalker(SymbolTable* stable)
++	 : BaseSemanticWalker(stable) { }
+ }
+ 
+ 
+ programa
+-  : (importacao)*
++                                      {RefPortugolAST inicio;}
++  : #(T_ALGORITMO
+ 
+-    (   declaracao_variaveis
+-//       | declaracao_constantes
+-//       | bloco_declaracao_estrutura
+-    )*
++        (importacao)*
++
++        declaracoes_globais
++                                      //recuperando declaracoes globais e
++                                      //de subprogramas para a symtable
++                                      {inicio = _t; /*backup da posicao*/}
++        definicoes_subprogramas
++
++        EOF
++                                      //analise semantica do codigo
++                                      {_t = inicio; /*rollback*/}
++        corpo
++        EOF
++     )
+   ;
+ 
+ importacao
+-  : #(T_USE T_TEXTO_LITERAL)
+-    //TODO: carregar a symboltable das bibliotecas especificadas
++  : #(T_USE lib:T_TEXTO_LITERAL)                  {useLib(lib-&gt;getText());}
+   ;
+ 
+-declaracao_variaveis
+-  : #(T_VARIAVEIS (declaracao_variavel)+)
+-  | declaracao_variavel
++//TODO: checar inicializa&#231;&#227;o:
++//      ex: vari&#225;vel z : inteiro := f(); //erro!
++
++declaracoes_globais
++  : declaracao_variavel  (declaracoes_globais)?
++  | declaracao_constante (declaracoes_globais)?
++  | definicao_estrutura  (declaracoes_globais)?
+   ;
+ 
++definicoes_subprogramas
++  : definicao_subprograma (definicoes_subprogramas)?
++  | T_INICIO (definicoes_subprogramas)?
++  ;
++
+ declaracao_variavel
+-  : #(T_VARIAVEL tipo lista_identificadores (lista_inicializacao)?)
++                                {
++                                  IDList ids;
++                                  Type *type;
++                                }
++
++  : #(T_VARIAVEL type=tipo ids=identificadores (valor_inicialiacao)?)
++
++                                {declare(ids, type, false);}
+   ;
+ 
+-lista_identificadores
+-  : (T_IDENTIFICADOR)+
++identificadores returns [IDList list]
++  : (
++      id:T_IDENTIFICADOR      {list.push_back(id);}
++    )*
+   ;
+ 
+-tipo
+-  : tipo_primitivo
+-  | tipo_matriz
+-  | T_IDENTIFICADOR
++declaracao_constante
++                                {
++                                  IDList ids;
++                                  Type *type;
++                                }
++
++  : #(T_CONSTANTE type=tipo ids=identificadores valor_inicialiacao)
++
++                                {declare(ids, type, true);}
+   ;
+ 
+-lista_inicializacao
+-  : #(T_VALOR valor_inicializacao)
++definicao_estrutura
++                                {SymbolList symbols;}
++
++  : #(T_ESTRUTURA id:T_IDENTIFICADOR symbols=campos_estrutura)
++
++                                {defineStruct(id-&gt;getText(),
++                                    symbols, id-&gt;getLine());}
+   ;
+ 
+-valor_inicializacao
+-  : (matriz_literal | estrutura_literal | expressao)
++campos_estrutura returns [SymbolList symbols]
++
++                                {
++                                  IDList ids;
++                                  Type *type;
++                                }
++
++  : (
++      #(T_VARIAVEL type=tipo ids=identificadores (valor_inicialiacao)?)
++
++                                {
++                                  for (IDList::iterator it = ids.begin();
++                                         it != ids.end(); ++it) {
++                                    symbols.push_back(
++                                      _symtable-&gt;newSymbol(
++                                          (*it)-&gt;getText(), type,
++                                               (*it)-&gt;getLine()));
++                                  }
++                                }
++    )+
+   ;
+ 
+-matriz_literal
+-  : #(T_VAL_MATRIZ (valor_inicializacao)+)
++valor_inicialiacao
++  : #(T_VALOR valor)
+   ;
+ 
+-estrutura_literal
+-  : #(T_VAL_ESTRUTURA (T_IDENTIFICADOR valor_inicializacao)+)
++valor returns [Type *type]
++  : type=expressao
++  | #(T_VAL_MATRIZ    (valor)*)
++  | #(T_VAL_ESTRUTURA (valor)*)
+   ;
+ 
+-tipo_primitivo
+-  : T_INTEIRO
+-  | T_REAL
+-  | T_CARACTERE
+-  | T_LITERAL
+-  | T_LOGICO
+-  | T_CORINGA
++tipo returns [Type *type]
++  : id:T_IDENTIFICADOR       {type = getType(id-&gt;getText());}
++  | type=tipo_primitivo
++  | type=tipo_matriz
+   ;
+ 
+-tipo_matriz
+-  : #(T_MATRIZ tipo_da_matriz (T_INTEIRO_LITERAL|T_NULO)+)
++tipo_primitivo returns [Type *type]
++  : i:T_INTEIRO             {type = getType(i-&gt;getText());}
++  | r:T_REAL                {type = getType(r-&gt;getText());}
++  | ca:T_CARACTERE          {type = getType(ca-&gt;getText());}
++  | li:T_LITERAL            {type = getType(li-&gt;getText());}
++  | lo:T_LOGICO             {type = getType(lo-&gt;getText());}
++  | co:T_CORINGA            {type = getType(co-&gt;getText());}
+   ;
+ 
+-tipo_da_matriz
+-  : tipo_primitivo | T_IDENTIFICADOR
++tipo_matriz returns [Type *type]
++
++                            {
++                              int d = 0;
++                              Type * ofType;
++                            }
++
++  : #(T_MATRIZ ofType=tipo (dimensao {d++;})*)
++
++                            {type = _symtable-&gt;retrieveMatrixType(ofType,d);}
+   ;
+ 
++dimensao
++  : T_INTEIRO_LITERAL
++  | T_NULO
++  ;
+ 
+-expressao
+-  : expr_elemento
++definicao_subprograma
++  : declaracao_funcao
++  | declaracao_procedimento
+   ;
+ 
+-expr_elemento
+-  : literal
++declaracao_procedimento
++                                      {SymbolList params;}
++
++  : #(T_PROCEDIMENTO
++        id:T_IDENTIFICADOR
++        params=lista_parametros[id-&gt;getText()]
++
++                                      {
++                                        declareProc(id-&gt;getText(),
++                                                   params, id-&gt;getLine());
++
++                                        _symtable-&gt;setScope(id-&gt;getText());
++                                      }
++
++    (declaracao_variavel | declaracao_constante)*)
++
++                                      {_symtable-&gt;setGlobalScope();}
+   ;
+ 
+-literal
+-  : T_TEXTO_LITERAL
+-  | T_INTEIRO_LITERAL
+-  | T_REAL_LITERAL
+-  | T_CARACTERE_LITERAL
+-  | T_VERDADEIRO
+-  | T_FALSO
+-  | T_NULO
++declaracao_funcao
++                                      {
++                                        SymbolList params;
++                                        Type * rettype;
++                                      }
++  : #(T_FUNCAO
++        id:T_IDENTIFICADOR
++        params=lista_parametros[id-&gt;getText()]
++        rettype=tipo_retorno
++                                      {
++                                        declareProc(id-&gt;getText(),
++                                            params, id-&gt;getLine(), rettype);
++
++                                        _symtable-&gt;setScope(id-&gt;getText());
++                                      }
++
++    (declaracao_variavel | declaracao_constante)*)
++
++                                      {_symtable-&gt;setGlobalScope();}
+   ;
+ 
+-//   T_OU
+-//   : expr_bit_ou (T_E^ expr_bit_ou)*
+-//   : expr_bit_oux (T_BIT_OU^ expr_bit_oux)*
+-//   : expr_bit_e (T_BIT_OUX^ expr_bit_e)*
+-//   : expr_igual (T_BIT_E^ expr_igual)*
+-//   : expr_relacional (T_IGUAL^ expr_relacional | T_DIFERENTE^ expr_relacional)*
+-//   : expr_ad ((T_MAIOR^ | T_MAIOR_EQ^ | T_MENOR^ | T_MENOR_EQ^) expr_ad)*
+-//   : expr_multip (T_MAIS^ expr_multip | T_MENOS^ expr_multip)*
+-//   : expr_unario ((T_DIV^ | T_MULTIP^ | T_MOD^) expr_unario)*
+-//   : ( T_MENOS      {#op_unario = #[T_UN_NEGATIVO,&quot;&amp;negat&quot;];}
+-//     | T_MAIS       {#op_unario = #[T_UN_POSITIVO,&quot;&amp;pos&quot;];}
+-//     | n:T_NAO      {#op_unario = #[T_NAO        ,&quot;nega&#231;&quot;];}
+-//     | bn:T_BIT_NAO {#op_unario = #[T_BIT_NAO    ,&quot;&amp;negb&quot;];}
++tipo_retorno returns [Type * ret]
++  : #(T_TIPO_RETORNO ret=tipo)
++  ;
+ 
+-// expr_elemento
+-//   :  (T_IDENTIFICADOR T_ABRE_PAREN)=&gt; chamada_subrotina
+-//   |  lvalue
+-//   |  literal
+-//   | T_ABRE_PAREN! expressao T_FECHA_PAREN!
+-//   ;
++lista_parametros[std::string scope] returns [SymbolList list]
++
++                                  {Type *type;}
++  : (
++      #(T_PARAM type=tipo id:T_IDENTIFICADOR (r:T_REF)? (c:T_CONSTANTE)?)
++
++                                  {
++                                    list.push_back(
++                                        _symtable-&gt;newSymbol(
++                                          id-&gt;getText(), type,
++                                          id-&gt;getLine(),
++                                          scope,
++                                          c != antlr::nullAST,
++                                          r != antlr::nullAST));
++
++                                      c = antlr::nullAST;
++                                      r = antlr::nullAST;
++                                  }
++    )*
++  ;
++
++
++corpo
++  :  corpo_subprograma      (corpo)?
++  |  bloco_codigo           (corpo_subprograma)*
++  ;
++
++
++corpo_subprograma
++  : #(T_FUNCAO   f:T_IDENTIFICADOR     {_symtable-&gt;setScope(f-&gt;getText());}
++                 (~(T_INICIO))*
++                 bloco_codigo          {_symtable-&gt;setGlobalScope();}
++    )
++  | #(T_PROCEDIMENTO p:T_IDENTIFICADOR {_symtable-&gt;setScope(p-&gt;getText());}
++                 (~(T_INICIO))*
++                 bloco_codigo)         {_symtable-&gt;setGlobalScope();}
++  ;
++
++
++
++bloco_codigo
++  : #(T_INICIO (enunciado)*)
++  ;
++
++enunciado
++  : en_atribuicao
++//   | en_retorne
++//   | en_se
++//   | en_enquanto
++//   | en_repita
++//   | en_para
++//   | en_caso
++//   | en_asm
++//
++//   | T_SAIR
++//   | chamada_subrotina T_PONTO_VIRGULA!
++  ;
++
++en_atribuicao
++                        {Type *ltype, *rtype;}
++
++  : #(T_ATRIBUICAO ltype=lvalue rtype=expressao)
++
++                        {evalAttribution(ltype, rtype);}
++  ;
++
++expressao returns [Type *type]
++                                                 {Type *l, *r;}
++
++  : #(T_OU              l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_OU&gt;(l,r);}
++
++  | #(T_E               l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_E&gt;(l,r);}
++
++  | #(T_BIT_OU          l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_BIT_OU&gt;(l,r);}
++
++  | #(T_BIT_OUX         l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_BIT_OUX&gt;(l,r);}
++
++  | #(T_BIT_E           l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_BIT_E&gt;(l,r);}
++
++  | #(T_IGUAL           l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_IGUAL&gt;(l,r);}
++
++  | #(T_DIFERENTE       l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_DIFERENTE&gt;(l,r);}
++
++  | #(T_MAIOR           l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_MAIOR&gt;(l,r);}
++
++  | #(T_MENOR           l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_MENOR&gt;(l,r);}
++
++  | #(T_MAIOR_EQ        l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_MAIOR_EQ&gt;(l,r);}
++
++  | #(T_MENOR_EQ        l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_MENOR_EQ&gt;(l,r);}
++
++  | #(T_BIT_SHIFT_LEFT  l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_BIT_SHIFT_LEFT&gt;(l,r);}
++
++  | #(T_BIT_SHIFT_RIGHT l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_BIT_SHIFT_RIGHT&gt;(l,r);}
++
++  | #(T_MAIS            l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_MAIS&gt;(l,r);}
++
++  | #(T_MENOS           l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_MENOS&gt;(l,r);}
++
++  | #(T_DIV             l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_DIV&gt;(l,r);}
++
++  | #(T_MULTIP          l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_MULTIP&gt;(l,r);}
++
++  | #(T_MOD             l=expressao r=expressao)
++                                    {type = evalExpr&lt;T_MOD&gt;(l,r);}
++
++  | #(T_UN_NEGATIVO    l=elemento)
++                                    {type = evalExpr&lt;T_UN_NEGATIVO&gt;(l);}
++
++  | #(T_UN_POSITIVO   l=elemento)
++                                    {type = evalExpr&lt;T_UN_POSITIVO&gt;(l);}
++
++  | #(T_NAO            l=elemento)
++                                    {type = evalExpr&lt;T_NAO&gt;(l);}
++
++  | #(T_BIT_NAO        l=elemento)
++                                    {type = evalExpr&lt;T_BIT_NAO&gt;(l);}
++
++  | type=elemento
++  ;
++
++
++elemento returns [Type *type]
++  : type=literal
++  | type=chamada_subrotina
++  | type=lvalue
++  | #(T_ABRE_PAREN type=expressao)
++  ;
++
++lvalue returns [Type *type]
++
++  : #(id:T_IDENTIFICADOR
++
++      (   lvalue_indices         {type = getSymbolType(id-&gt;getText());}
++        | type=lvalue_membro
++        | /*vazio*/              {type = getSymbolType(id-&gt;getText());}
++      )
++    )
++  ;
++
++lvalue_membro returns [Type *type]
++  : #(T_MEMBRO type=lvalue)
++  ;
++
++lvalue_indices
++                                {Type *type;}
++  : #(T_SUBSCRITO
++      (
++        type=expressao          {evalMatrixSubscript(type);}
++      )+
++    )
++  ;
++
++chamada_subrotina returns [Type *type]
++
++                                  {
++                                    TypeList params;
++                                  }
++
++  : #(T_CALL id:T_IDENTIFICADOR params=lista_argumentos)
++
++                                  {
++                                    type = getSymbolType(id-&gt;getText());
++                                    evalFCall(id-&gt;getText(), params);
++                                  }
++  ;
++
++
++lista_argumentos returns [TypeList list]
++
++                                   {Type *type;}
++  : (
++      type=expressao               {list.push_back(type);}
++    )*
++  ;
++
++literal returns [Type *type]
++  : T_TEXTO_LITERAL      {type = getType(T_LITERAL);}
++  | T_INTEIRO_LITERAL    {type = getType(T_INTEIRO);}
++  | T_REAL_LITERAL       {type = getType(T_REAL);}
++  | T_CARACTERE_LITERAL  {type = getType(T_CARACTERE);}
++  | T_VERDADEIRO         {type = getType(T_LOGICO);}
++  | T_FALSO              {type = getType(T_CARACTERE);}
++  | T_NULO               {type = getType(T_NULO);}
++  ;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000051.html">[gpt-commit] r377 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000053.html">[gpt-commit] r379 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#52">[ date ]</a>
+              <a href="thread.html#52">[ thread ]</a>
+              <a href="subject.html#52">[ subject ]</a>
+              <a href="author.html#52">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

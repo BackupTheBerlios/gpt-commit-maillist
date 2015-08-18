@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r507 - in trunk/gpt/doc/man: . pt_BR
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r507%20-%20in%20trunk/gpt/doc/man%3A%20.%20pt_BR&In-Reply-To=%3C200803240338.m2O3ckkl027110%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000179.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r507 - in trunk/gpt/doc/man: . pt_BR</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r507%20-%20in%20trunk/gpt/doc/man%3A%20.%20pt_BR&In-Reply-To=%3C200803240338.m2O3ckkl027110%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r507 - in trunk/gpt/doc/man: . pt_BR">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon Mar 24 04:38:46 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000179.html">[gpt-commit] r506 - trunk/gpt
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#180">[ date ]</a>
+              <a href="thread.html#180">[ thread ]</a>
+              <a href="subject.html#180">[ subject ]</a>
+              <a href="author.html#180">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-03-24 04:38:45 +0100 (Mon, 24 Mar 2008)
+New Revision: 507
+
+Modified:
+   trunk/gpt/doc/man/gpt.1
+   trunk/gpt/doc/man/pt_BR/gpt.1
+Log:
+-Fix na licenca das man pages. Passando pra GPL
+
+Modified: trunk/gpt/doc/man/gpt.1
+===================================================================
+--- trunk/gpt/doc/man/gpt.1	2008-03-18 21:06:19 UTC (rev 506)
++++ trunk/gpt/doc/man/gpt.1	2008-03-24 03:38:45 UTC (rev 507)
+@@ -1,31 +1,23 @@
+-.\&quot; Copyright 2003-2005, Thiago Silva
+-.\&quot; All rights reserved.
++.\&quot;/***************************************************************************
++.\&quot; *   Copyright (C) 2003-2006 by Thiago Silva                               *
++.\&quot; *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">thiago.silva at kdemail.net</A>                                              *
++.\&quot; *                                                                         *
++.\&quot; *   This program is free software; you can redistribute it and/or modify  *
++.\&quot; *   it under the terms of the GNU General Public License as published by  *
++.\&quot; *   the Free Software Foundation; either version 2 of the License, or     *
++.\&quot; *   (at your option) any later version.                                   *
++.\&quot; *                                                                         *
++.\&quot; *   This program is distributed in the hope that it will be useful,       *
++.\&quot; *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++.\&quot; *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++.\&quot; *   GNU General Public License for more details.                          *
++.\&quot; *                                                                         *
++.\&quot; *   You should have received a copy of the GNU General Public License     *
++.\&quot; *   along with this program; if not, write to the                         *
++.\&quot; *   Free Software Foundation, Inc.,                                       *
++.\&quot; *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
++.\&quot; ***************************************************************************/
+ .\&quot;
+-.\&quot; Redistribution and use in source and binary forms, with or without
+-.\&quot; modification, are permitted provided that the following conditions
+-.\&quot; are met:
+-.\&quot; 1. Redistributions of source code must retain the above copyright
+-.\&quot;    notice, this list of conditions and the following disclaimer.
+-.\&quot; 2. Redistributions in binary form must reproduce the above copyright
+-.\&quot;    notice, this list of conditions and the following disclaimer in the
+-.\&quot;    documentation and/or other materials provided with the distribution.
+-.\&quot; 3. Neither the name of Julianne F. Haugh nor the names of its contributors
+-.\&quot;    may be used to endorse or promote products derived from this software
+-.\&quot;    without specific prior written permission.
+-.\&quot;
+-.\&quot; THIS SOFTWARE IS PROVIDED BY THIAGO SILVA AND CONTRIBUTORS
+-.\&quot; ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+-.\&quot; THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-.\&quot; ARE DISCLAIMED.  IN NO EVENT SHALL JULIE HAUGH OR CONTRIBUTORS BE LIABLE
+-.\&quot; FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-.\&quot; DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+-.\&quot; OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+-.\&quot; HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+-.\&quot; LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+-.\&quot; OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+-.\&quot; SUCH DAMAGE.
+-.\&quot;
+-.\&quot;
+ .TH GPT 1
+ .SH NAME
+ gpt \- compiler, interpreter and translator for the G-Portugol programming language
+
+Modified: trunk/gpt/doc/man/pt_BR/gpt.1
+===================================================================
+--- trunk/gpt/doc/man/pt_BR/gpt.1	2008-03-18 21:06:19 UTC (rev 506)
++++ trunk/gpt/doc/man/pt_BR/gpt.1	2008-03-24 03:38:45 UTC (rev 507)
+@@ -1,31 +1,24 @@
+-.\&quot; Copyright 2003-2005, Thiago Silva
+-.\&quot; All rights reserved.
++.\&quot;/***************************************************************************
++.\&quot; *   Copyright (C) 2003-2006 by Thiago Silva                               *
++.\&quot; *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">thiago.silva at kdemail.net</A>                                              *
++.\&quot; *                                                                         *
++.\&quot; *   This program is free software; you can redistribute it and/or modify  *
++.\&quot; *   it under the terms of the GNU General Public License as published by  *
++.\&quot; *   the Free Software Foundation; either version 2 of the License, or     *
++.\&quot; *   (at your option) any later version.                                   *
++.\&quot; *                                                                         *
++.\&quot; *   This program is distributed in the hope that it will be useful,       *
++.\&quot; *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++.\&quot; *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++.\&quot; *   GNU General Public License for more details.                          *
++.\&quot; *                                                                         *
++.\&quot; *   You should have received a copy of the GNU General Public License     *
++.\&quot; *   along with this program; if not, write to the                         *
++.\&quot; *   Free Software Foundation, Inc.,                                       *
++.\&quot; *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
++.\&quot; ***************************************************************************/
+ .\&quot;
+-.\&quot; Redistribution and use in source and binary forms, with or without
+-.\&quot; modification, are permitted provided that the following conditions
+-.\&quot; are met:
+-.\&quot; 1. Redistributions of source code must retain the above copyright
+-.\&quot;    notice, this list of conditions and the following disclaimer.
+-.\&quot; 2. Redistributions in binary form must reproduce the above copyright
+-.\&quot;    notice, this list of conditions and the following disclaimer in the
+-.\&quot;    documentation and/or other materials provided with the distribution.
+-.\&quot; 3. Neither the name of Julianne F. Haugh nor the names of its contributors
+-.\&quot;    may be used to endorse or promote products derived from this software
+-.\&quot;    without specific prior written permission.
+ .\&quot;
+-.\&quot; THIS SOFTWARE IS PROVIDED BY THIAGO SILVA AND CONTRIBUTORS 
+-.\&quot; ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+-.\&quot; THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-.\&quot; ARE DISCLAIMED.  IN NO EVENT SHALL JULIE HAUGH OR CONTRIBUTORS BE LIABLE
+-.\&quot; FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-.\&quot; DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+-.\&quot; OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+-.\&quot; HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+-.\&quot; LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+-.\&quot; OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+-.\&quot; SUCH DAMAGE.
+-.\&quot;
+-.\&quot;
+ .TH GPT 1
+ .SH NOME
+ gpt \- compilador, interpretador e tradutor da linguagem G-Portugol
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000179.html">[gpt-commit] r506 - trunk/gpt
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#180">[ date ]</a>
+              <a href="thread.html#180">[ thread ]</a>
+              <a href="subject.html#180">[ subject ]</a>
+              <a href="author.html#180">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

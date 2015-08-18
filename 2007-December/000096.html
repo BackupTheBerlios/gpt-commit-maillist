@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r422 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r422%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051832.lB5IWAeV009798%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000095.html">
+   <LINK REL="Next"  HREF="000097.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r422 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r422%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051832.lB5IWAeV009798%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r422 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec  5 19:32:10 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000095.html">[gpt-commit] r421 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000097.html">[gpt-commit] r423 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#96">[ date ]</a>
+              <a href="thread.html#96">[ thread ]</a>
+              <a href="subject.html#96">[ subject ]</a>
+              <a href="author.html#96">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-05 19:32:10 +0100 (Wed, 05 Dec 2007)
+New Revision: 422
+
+Modified:
+   trunk/gpt2/gptc/src/lexer.g
+   trunk/gpt2/gptc/src/parser.g
+Log:
+-Utilizando T_EXPRESSAO como raiz das expressoes
+
+Modified: trunk/gpt2/gptc/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptc/src/lexer.g	2007-12-05 18:31:42 UTC (rev 421)
++++ trunk/gpt2/gptc/src/lexer.g	2007-12-05 18:32:10 UTC (rev 422)
+@@ -109,6 +109,8 @@
+   T_VAL_MATRIZ;    //valor da matriz    (literal [])
+   T_VAL_ESTRUTURA; //valor da estrutura (literal {})
+ 
++  T_EXPRESSAO;
++
+ //   T_DIMENSOES;
+   T_SUBSCRITO;
+   T_MEMBRO;
+
+Modified: trunk/gpt2/gptc/src/parser.g
+===================================================================
+--- trunk/gpt2/gptc/src/parser.g	2007-12-05 18:31:42 UTC (rev 421)
++++ trunk/gpt2/gptc/src/parser.g	2007-12-05 18:32:10 UTC (rev 422)
+@@ -451,8 +451,11 @@
+ //##            Express&#245;es          ##
+ //####################################
+ 
++expressao!
++  : ou:expr_ou {#expressao = #([T_EXPRESSAO,&quot;&amp;expr&quot;], ou);}
++  ;
+ 
+-expressao
++expr_ou
+   : expr_e (T_OU^ expr_e)*
+   ;
+ 
+@@ -538,7 +541,7 @@
+   :  (T_IDENTIFICADOR T_ABRE_PAREN)=&gt; chamada_subrotina
+   |  lvalue
+   |  literal
+-  | T_ABRE_PAREN^ expressao T_FECHA_PAREN!
++  | T_ABRE_PAREN! expressao T_FECHA_PAREN!
+   ;
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000095.html">[gpt-commit] r421 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000097.html">[gpt-commit] r423 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#96">[ date ]</a>
+              <a href="thread.html#96">[ thread ]</a>
+              <a href="subject.html#96">[ subject ]</a>
+              <a href="author.html#96">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

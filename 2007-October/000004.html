@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r329 - trunk/gpt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r329%20-%20trunk/gpt&In-Reply-To=%3C200710301305.l9UD5Xn3015740%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000003.html">
+   <LINK REL="Next"  HREF="000005.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r329 - trunk/gpt</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r329%20-%20trunk/gpt&In-Reply-To=%3C200710301305.l9UD5Xn3015740%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r329 - trunk/gpt">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Oct 30 14:05:33 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000003.html">[gpt-commit] r328 - trunk/gpt
+</A></li>
+        <LI>Next message: <A HREF="000005.html">[gpt-commit] r330 - in trunk: . gpt2 gpt2/doc gpt2/doc/man	gpt2/doc/manual gpt2/exemplos gpt2/lib gpt2/src	gpt2/src/modules gpt2/src/modules/parser gpt2/stuff gpt2/test	gpt2/test/asm gpt2/test/asm/win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-10-30 14:05:32 +0100 (Tue, 30 Oct 2007)
+New Revision: 329
+
+Modified:
+   trunk/gpt/HACKING
+Log:
+-Regra para utilizar ASCII nas mensagens de commit
+-Adicao de secao sobre testes automatizados
+
+Modified: trunk/gpt/HACKING
+===================================================================
+--- trunk/gpt/HACKING	2007-10-17 12:22:24 UTC (rev 328)
++++ trunk/gpt/HACKING	2007-10-30 13:05:32 UTC (rev 329)
+@@ -79,8 +79,8 @@
+ 
+   As mensagens de commit devem, idealmente, seguir pequenas conven&#231;&#245;es:
+ 
+-  -Toda mensagem de commit deve ser enviada em UTF-8 (para casos em que a 
+-   mensagem contenha acento)
++  -Toda mensagem de commit deve ser enviada utilizando ASCII, sem acentos.
++   (pelo menos, at&#233; termos os emails em gpt-commit exibidos corretamente)
+ 
+   -Toda descri&#231;&#227;o l&#243;gica deve iniciar em uma nova linha, prefixada por &quot;-&quot;.
+ 
+@@ -168,3 +168,14 @@
+   Al&#233;m do mais, BUGFIX pode ser seguido de um n&#250;mero (ie #1234), que representa
+   o n&#250;mero do bug em um sistema de gerencia de bugs, como bugzilla. Por&#233;m
+   ainda n&#227;o usamos tal sistema.
++
++o Unit Testing
++
++  -Todo c&#243;digo que pode se beneficiar de testes automatizados *devem* ter testes
++  automatizados. Vers&#245;es de n&#243;s mesmos no futuro agradecem.
++  
++  -Mensagens de commit para arquivos de testes n&#227;o s&#227;o t&#227;o obrigat&#243;rios.
++  Use o bom senso para decidir se a descri&#231;&#227;o do commit ajudaria ou n&#227;o.
++  
++
++  TODO: explicar a infraestrutura de testes (quando houver uma)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000003.html">[gpt-commit] r328 - trunk/gpt
+</A></li>
+	<LI>Next message: <A HREF="000005.html">[gpt-commit] r330 - in trunk: . gpt2 gpt2/doc gpt2/doc/man	gpt2/doc/manual gpt2/exemplos gpt2/lib gpt2/src	gpt2/src/modules gpt2/src/modules/parser gpt2/stuff gpt2/test	gpt2/test/asm gpt2/test/asm/win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

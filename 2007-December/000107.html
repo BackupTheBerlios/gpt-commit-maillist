@@ -1,0 +1,1256 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r433 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r433%20-%20in%20trunk/gpt2%3A%20gptasm/src%20gptasm/test/wikki%0A%09gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712171856.lBHIuuox027892%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000106.html">
+   <LINK REL="Next"  HREF="000108.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r433 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r433%20-%20in%20trunk/gpt2%3A%20gptasm/src%20gptasm/test/wikki%0A%09gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712171856.lBHIuuox027892%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r433 - in trunk/gpt2: gptasm/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon Dec 17 19:56:56 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000106.html">[gpt-commit] r432 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000108.html">[gpt-commit] r434 - in trunk/gpt2: . bindings bindings/gptbind	bindings/gptbind/src bindings/gptbind/test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#107">[ date ]</a>
+              <a href="thread.html#107">[ thread ]</a>
+              <a href="subject.html#107">[ subject ]</a>
+              <a href="author.html#107">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-17 19:56:47 +0100 (Mon, 17 Dec 2007)
+New Revision: 433
+
+Added:
+   trunk/gpt2/gptasm/test/wikki/chamada_sistema_1.gasm
+   trunk/gpt2/gptasm/test/wikki/chamada_sistema_2.gasm
+   trunk/gpt2/gptasm/test/wikki/chamada_sistema_3.gasm
+   trunk/gpt2/gptasm/test/wikki/chamada_sistema_4.gasm
+Modified:
+   trunk/gpt2/gptasm/src/parser.g
+   trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm
+   trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm
+   trunk/gpt2/gptasm/test/wikki/enderecamento_3.gasm
+   trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm
+   trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm
+   trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm
+   trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm
+   trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm
+   trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm
+   trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_2.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_1.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_4.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_4_1.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_4_2.gasm
+   trunk/gpt2/gptasm/test/wikki/matrizes_4_3.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_2.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_4_1.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_5.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm
+   trunk/gpt2/gptvm/src/CDataStack.cpp
+   trunk/gpt2/gptvm/src/CDataStack.hpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/src/Makefile
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_condicionais_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/expressoes_matematicas_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_4.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_5.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+Log:
+DEVNULL:
+* No mnemonico lcall agora eh necessario indicar a biblioteca
+* Codigo inicial para carga de libs dinamicas
+* Especializando melhor a gramatica do GptASM
+
+
+Modified: trunk/gpt2/gptasm/src/parser.g
+===================================================================
+--- trunk/gpt2/gptasm/src/parser.g	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/src/parser.g	2007-12-17 18:56:47 UTC (rev 433)
+@@ -241,16 +241,24 @@
+ //--------------------
+   mn_chamada_subrotina
+ //--------------------
+-   :  (&quot;pushiv&quot;|&quot;pushsv&quot;|&quot;pushrv&quot;|&quot;pushmv&quot;)
++// TODO: talvez o ideal seria agrupar os opcodes por tipo de dado que manipulam. Isso deixaria o parser e o tornaria mais consistente.
++   :  &quot;pushiv&quot;
+       {bytecode.addOpcode(getLastTokenText());}
++      intelement
++   |  &quot;pushsv&quot;
++      {bytecode.addOpcode(getLastTokenText());}
++      stringelement
++   |  &quot;pushmv&quot;
++      {bytecode.addOpcode(getLastTokenText());}
+       element
++   |  &quot;pushrv&quot;
++      {bytecode.addOpcode(getLastTokenText());}
++      realelement
+    |  &quot;pushdv&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+       element
+       {bytecode.addSymbolSize(getLastTokenText());}
+       // TODO: muitos opcodes poderiam ter o valor inteiro diretamente ao inves de um enderecamento...
+-//   |  (&quot;pushir&quot;|&quot;pushsr&quot;|&quot;pushrr&quot;|&quot;pushdr&quot;|&quot;pushmr&quot;)
+-//      {bytecode.addOpcode(getLastTokenText());}
+    |  (&quot;pushit&quot;|&quot;pushst&quot;|&quot;pushrt&quot;|&quot;pushct&quot;|&quot;pushbt&quot;|&quot;pushdt&quot;|&quot;pushmt&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+    |  (&quot;popiv&quot;|&quot;popsv&quot;|&quot;poprv&quot;|&quot;popmv&quot;)
+@@ -260,13 +268,8 @@
+       {bytecode.addOpcode(getLastTokenText());}
+       identifier
+       {bytecode.addSymbolSize(getLastTokenText());}
+-//   |  (&quot;incsp&quot;|&quot;decsp&quot;)
+-//      {bytecode.addOpcode(getLastTokenText());}
+-//      intvalue
+    |  (&quot;push_0&quot;|&quot;push_1&quot;|&quot;push_2&quot;|&quot;push_3&quot;|&quot;push_4&quot;|&quot;push_5&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+-//   |  (&quot;incsp_4&quot;|&quot;incsp_8&quot;|&quot;decsp_4&quot;|&quot;decsp_8&quot;)
+-//      {bytecode.addOpcode(getLastTokenText());}
+    |  &quot;pcall&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+       T_ID
+@@ -275,13 +278,13 @@
+       {bytecode.addOpcode(getLastTokenText());}
+       T_ID
+       { bytecode.addAddress(getLastTokenText(),CSymbol::CONST, CSymbol::STRING); }
++      T_COMMA
++      T_ID
++      { bytecode.addAddress(getLastTokenText(),CSymbol::CONST, CSymbol::STRING); }
+    |  &quot;ret&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-//      intvalue
+    |  (&quot;iret&quot;|&quot;rret&quot;|&quot;sret&quot;|&quot;dret&quot;|&quot;mret&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+-//      intvalue
+-//      T_COMMA
+       identifier
+    ;
+ 
+@@ -306,18 +309,18 @@
+       {bytecode.addOpcode(getLastTokenText());}
+       identifier
+       T_COMMA
+-      intvalue
++      intliteral
+       T_COMMA 
+-      intvalue
++      intliteral
+    |  &quot;m2alloc&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+       identifier
+       T_COMMA
+-      intvalue
++      intliteral
+       T_COMMA
+-      intvalue
++      intliteral
+       T_COMMA
+-      intvalue
++      intliteral
+    |  &quot;mfree&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+       identifier
+@@ -351,7 +354,7 @@
+       {bytecode.addOpcode(getLastTokenText());}
+    |   &quot;exit&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-      intvalue
++      intliteral
+   ;
+ 
+ identifier
+@@ -390,6 +393,29 @@
+   | literal
+   ;
+ 
+-intvalue
++intliteral
+   : T_INT_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
++  | T_CHAR_VALUE   { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::CHAR);   }
++  | &quot;true&quot;         { bytecode.addAddress(&quot;1&quot;,                CSymbol::CONST, CSymbol::BOOL);    }
++  | &quot;false&quot;        { bytecode.addAddress(&quot;0&quot;,                CSymbol::CONST, CSymbol::BOOL);    }
+   ;
++
++intelement
++  : identifier
++  | intliteral
++  ;
++realelement
++  : identifier
++  | realliteral
++  ;
++
++realliteral
++  : T_REAL_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::REAL); }
++  | T_INT_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::REAL); }
++  ;
++
++stringelement
++  : identifier
++  | T_STRING_VALUE { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::STRING); }
++  ;
++
+
+Added: trunk/gpt2/gptasm/test/wikki/chamada_sistema_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/chamada_sistema_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/chamada_sistema_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -0,0 +1,15 @@
++program exemplo
++// use io
++
++proc main
++    lcall io, imprime_hello
++
++    lcall io, imprime_hello
++
++    pushsv &quot;Oi !!!!&quot;
++    lcall io, imprime_mensagem
++
++    exit 0
++endproc
++
++endprogram
+
+Added: trunk/gpt2/gptasm/test/wikki/chamada_sistema_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/chamada_sistema_2.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/chamada_sistema_2.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -0,0 +1,20 @@
++program exemplo
++// use io
++
++var t1 int
++
++proc main
++    pushiv 2
++    pushiv 4
++    lcall io, soma
++    popiv t1
++
++    pushiv t1
++    pushit
++    push_1
++    lcall io, imprima
++
++    exit 0
++endproc
++
++endprogram
+
+Added: trunk/gpt2/gptasm/test/wikki/chamada_sistema_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/chamada_sistema_3.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/chamada_sistema_3.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -0,0 +1,20 @@
++program exemplo
++// use io
++
++var t1 real
++
++proc main
++    pushrv 3
++    pushrv 9
++    lcall io, pow
++    poprv t1
++
++    pushrv t1
++    pushrt
++    push_1
++    lcall io, imprima
++
++    exit 0
++endproc
++
++endprogram
+
+Added: trunk/gpt2/gptasm/test/wikki/chamada_sistema_4.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/chamada_sistema_4.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/chamada_sistema_4.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -0,0 +1,19 @@
++program exemplo
++// use io
++
++var t1 real
++
++proc main
++    pushrv 9
++    lcall io, sqrt
++    poprv t1
++
++    pushrv t1
++    pushrt
++    push_1
++    lcall io, imprima
++
++    exit 0
++endproc
++
++endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -18,7 +18,7 @@
+     pushsv &quot;c.x=&quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     // imprima( &quot;c.y=&quot;, c.y );
+     igetv t1, c:4 // t1 := *(c + 4)
+@@ -27,7 +27,7 @@
+     pushsv &quot;c.y=&quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     exit_0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -27,7 +27,7 @@
+     pushsv &quot;est.x=&quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     // imprima( &quot;est.y=&quot;, est.y );
+     igetv t1, est:4 // t1 := *(est + 4)
+@@ -36,7 +36,7 @@
+     pushsv &quot;est.y=&quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     ret
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/enderecamento_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/enderecamento_3.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/enderecamento_3.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -28,7 +28,7 @@
+     pushsv &quot;est.x=&quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     // imprima( &quot;est.y=&quot;, est.y );
+     igetv t2, est:8 // t2 := *(est + 8)
+@@ -37,7 +37,7 @@
+     pushsv &quot;est.y=&quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     ret
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -27,7 +27,7 @@
+     pushiv x
+     pushit
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     exit_0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -15,7 +15,7 @@
+     pushiv x
+     pushit
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // fim-para
+     iinc x, 1
+
+Modified: trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -12,7 +12,7 @@
+     pushsv &quot;2+5*3=&quot;
+     pushst
+     pushiv 2
+-    lcall imprima
++    lcall io, imprima
+ 
+     exit_0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -12,7 +12,7 @@
+     pushsv &quot;A soma &#233;: &quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     exit_0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -7,11 +7,11 @@
+     pushsv &quot;Digite o n&#250;mero para calcular o fatorial:&quot;
+     pushst
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // x := leia( );
+     pushit
+-    lcall leia
++    lcall io, leia
+     popiv x
+ 
+     // imprima( &quot;Fatorial de &quot;, x, &quot; &#233; &quot;, fatorial( x ) );
+@@ -25,7 +25,7 @@
+     pushsv &quot;Fatorial de &quot;
+     pushst
+     push_4
+-    lcall imprima
++    lcall io, imprima
+ 
+     exit_0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -4,7 +4,7 @@
+     pushsv &quot;Ol&#225; mundo !!!&quot;
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_2.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_2.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -7,10 +7,10 @@
+     pushsv &quot;Digite um n&#250;mero: &quot;
+     pushst
+     push_1
+-    lcall imprima
++    lcall io, imprima
+     // x := leia( );
+     pushit
+-    lcall leia
++    lcall io, leia
+     popiv x
+     // imprima( &quot;O n&#250;mero digitado foi &quot;, x );
+     pushiv x
+@@ -18,7 +18,7 @@
+     pushsv &quot;O n&#250;mero digitado foi &quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     exit_0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -29,7 +29,7 @@
+     pushsv &quot;Valores armazenados:&quot;
+     pushst
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // para i de 0 at&#233; 9 fa&#231;a
+     iset i, 0
+@@ -42,7 +42,7 @@
+     pushiv t1
+     pushit
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // fim-para
+     iinc i, 1
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_2.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -42,7 +42,7 @@
+     pushsv &quot;Valores armazenados:&quot;
+     pushst
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // para i de 0 at&#233; 9 fa&#231;a
+     iset i, 0
+@@ -55,7 +55,7 @@
+     pushiv t1
+     pushit
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // fim-para
+     iinc i, 1
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_3.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -51,7 +51,7 @@
+     pushsv &quot;Valores armazenados:&quot;
+     pushst
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // para i de 0 at&#233; 9 fa&#231;a
+     iset i, 0
+@@ -64,7 +64,7 @@
+     pushiv t1
+     pushit
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // fim-para
+     iinc i, 1
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_4.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_4.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_4.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -16,19 +16,19 @@
+     pushsv &quot;Valores armazenados:&quot;
+     pushst
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     m2get t1, m, 0, 0
+     pushiv t1
+     pushit
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     m2get t1, m, 0, 1
+     pushiv t1
+     pushit
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // desaloca espa&#231;o da matriz m
+     mfree m
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_4_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_4_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_4_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -44,7 +44,7 @@
+     pushsv &quot;Valores armazenados:&quot;
+     pushst
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // para i de 0 at&#233; 3 fa&#231;a
+     iset i, 0
+@@ -63,7 +63,7 @@
+     pushiv t1
+     pushit
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // fim-para
+     iinc j, 1
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_4_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_4_2.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_4_2.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -29,7 +29,7 @@
+     pushsv &quot;Valores armazenados:&quot;
+     pushst
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // para i de 0 at&#233; 4 fa&#231;a
+     iset i, 0
+@@ -42,7 +42,7 @@
+     pushiv t1
+     pushit
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     // fim-para
+     iinc i, 1
+
+Modified: trunk/gpt2/gptasm/test/wikki/matrizes_4_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/matrizes_4_3.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/matrizes_4_3.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -19,7 +19,7 @@
+     pushsv &quot;Tamanho de m1 deve ser 100: &quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     mgetsize1 t1, m2
+     pushiv t1
+@@ -27,7 +27,7 @@
+     pushsv &quot;Tamanho de m2 deve ser 1000: &quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     mgetsize2 t1, m3
+     pushiv t1
+@@ -38,7 +38,7 @@
+     pushsv &quot;Tamanho de m3 deve ser 10 e 20: &quot;
+     pushst
+     push_3
+-    lcall imprima
++    lcall io, imprima
+ 
+     mgetsize2 t1, m4
+     pushiv t1
+@@ -49,7 +49,7 @@
+     pushsv &quot;Tamanho de m4 deve ser 15 e 25: &quot;
+     pushst
+     push_3
+-    lcall imprima
++    lcall io, imprima
+ 
+     mfree m1
+     mfree m2
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -25,7 +25,7 @@
+     pushsv &quot;A soma &#233;: &quot;
+     pushst
+     push_2
+-    lcall imprima
++    lcall io, imprima
+ 
+     ret
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -13,7 +13,7 @@
+     pushiv s
+     pushit
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 	
+     exit_0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -6,7 +6,7 @@
+    pushsv &quot;Finalizando...&quot;
+    pushst
+    pushiv 1
+-   lcall imprima
++   lcall io, imprima
+ 
+    exit 0
+ endproc
+@@ -19,7 +19,7 @@
+    pushiv temp
+    pushit
+    pushiv 1
+-   lcall imprima
++   lcall io, imprima
+ 
+    ret
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -21,7 +21,7 @@
+     pushsv &quot;x*y+4=&quot;
+     pushst
+     pushiv 2
+-    lcall imprima
++    lcall io, imprima
+ 	
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_2.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_2.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -13,12 +13,12 @@
+     pushiv v
+     pushit
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 	
+     pushiv 10
+     pushit
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 	
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -13,12 +13,12 @@
+     pushrv v
+     pushrt
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     pushrv 10.8
+     pushrt
+     push_1
+-    lcall imprima
++    lcall io, imprima
+ 
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -9,42 +9,42 @@
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     sset v, v
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     ssum v, &quot;12&quot;, &quot;34&quot;
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     ssum v, v, v
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     ssum v, v, &quot;10&quot;
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     ssum v, &quot;10&quot;, v
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 	
+     pushsv &quot;10&quot;
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 	
+     sfree v
+ 
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_4_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4_1.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4_1.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -9,42 +9,42 @@
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     sset v, v
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     ssum v, &quot;12&quot;, &quot;34&quot;
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     ssum v, v, v
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     ssum v, v, &quot;10&quot;
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     ssum v, &quot;10&quot;, v
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 	
+     pushsv &quot;10&quot;
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 	
+     sfree v
+ 
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4_2.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -11,7 +11,7 @@
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     sfree v
+ 
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4_3.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -9,7 +9,7 @@
+     pushsv v
+     pushst
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     sfree v
+ 
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_5.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_5.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_5.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -13,12 +13,12 @@
+     pushiv v
+     pushct
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     pushiv 'a'
+     pushct
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm	2007-12-17 18:56:47 UTC (rev 433)
+@@ -10,17 +10,17 @@
+     pushiv true
+     pushbt
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     pushiv false
+     pushbt
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     pushiv v
+     pushbt
+     pushiv 1
+-    lcall imprima
++    lcall io, imprima
+ 
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-17 18:56:47 UTC (rev 433)
+@@ -209,6 +209,14 @@
+ }
+ 
+ 
++std::string CDataStack::popString()
++{
++   int dataSize = sizeof(char)+sizeof(std::string*);
++   std::string result = getString(size()-dataSize);
++   CBinString::popBytes(dataSize);
++   return result;
++}
++
+ void CDataStack::pushBytes(const int &amp;number)
+ {
+    CBinString::pushBytes(number);
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-17 18:56:47 UTC (rev 433)
+@@ -31,6 +31,7 @@
+    int getSP() const;
+    void readString(std::string &amp;value);
+    std::string getString(int address);
++   std::string popString();
+    void setString(int address, const std::string &amp;value);
+    void setByte(const int &amp;address, const char &amp;value);
+    char getByte(const int &amp;address);
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-17 18:56:47 UTC (rev 433)
+@@ -2,6 +2,7 @@
+ 
+ #include &lt;sstream&gt;
+ #include &lt;iostream&gt;
++#include &lt;dlfcn.h&gt;
+ 
+ #include &quot;Tools.hpp&quot;
+ 
+@@ -386,6 +387,37 @@
+ }
+ 
+ 
++void CRunBytecode::callSyslib(const std::string &amp;libname, const std::string &amp;procname)
++{
++   std::map&lt;std::string, void*&gt;::iterator ithandler;
++   void *dlhandler = NULL;
++
++   ithandler = syslibHandlerList.find(libname);
++
++   if (ithandler == syslibHandlerList.end()) {
++      // TODO: path absoluto ??? nem pensar :-)
++      dlhandler = dlopen((&quot;../../../syslib/src/lib&quot; + libname + &quot;.so&quot;).c_str(), RTLD_LAZY);
++      if (!dlhandler) {
++         fprintf (stderr, &quot;%s\n&quot;, dlerror());
++         exit(1);
++      }
++      dlerror();    /* Clear any existing error */
++      syslibHandlerList[libname] = dlhandler;
++   } else {
++      dlhandler = ithandler-&gt;second;
++   }
++
++   void (*func)(CDataStack&amp;);
++   func = (void (*)(CDataStack&amp;)) dlsym(dlhandler, (&quot;gsl_&quot;+procname).c_str());
++   char *error;
++   if ((error = dlerror()) != NULL) {
++      fprintf (stderr, &quot;%s\n&quot;, error);
++      exit(1);
++   }
++   (*func)(_dataStack);
++}
++
++
+ /////////////
+ // opcodes //
+ /////////////
+@@ -426,20 +458,26 @@
+    _executionStack.push(_dataStack.getBS());
+    _dataStack.setBS(_dataStack.getSP());
+ 
+-   int address = _code.fetchInt();
++   std::string libname = _dataStack.getCString(_code.fetchInt()+1);
++   int procAddress = _code.fetchInt();
+ 
+-   if (_dataStack[address] != CSymbol::CONST) {
++   if (_dataStack[procAddress] != CSymbol::CONST) {
+       error( &quot;Endereco para lcall deve conter uma string constante !!!&quot; );
+    }
+ 
+-   address=sumAddress(address, 1);
++   procAddress=sumAddress(procAddress, 1);
+ 
+-   if (_dataStack.getCString(address) == &quot;imprima&quot;) {
+-      procImprima();
+-   } else if (_dataStack.getCString(address) == &quot;leia&quot;) {
+-      procLeia();
+-   } else {
+-      error(&quot;lcall invocando subrotina desconhecida !!!&quot;);
++   std::string procname = _dataStack.getCString(procAddress);
++
++   if (libname == &quot;io&quot;) {
++      if (procname == &quot;imprima&quot;) {
++         procImprima();
++      } else if (procname == &quot;leia&quot;) {
++         procLeia();
++      } else {
++//         error(&quot;lcall invocando subrotina desconhecida !!!&quot;);
++         callSyslib(libname, procname);
++      }
+    }
+ 
+    _dataStack.setBS(_executionStack.top());
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-17 18:56:47 UTC (rev 433)
+@@ -39,6 +39,7 @@
+    void setStringData(const int &amp;address, const std::string &amp;value);
+    std::string getStringData(const int &amp;address);
+    void popRA();
++   void callSyslib(const std::string &amp;libname, const std::string &amp;procname);
+    // opcodes
+    void invalidOpcode(const std::string &amp;opcode=&quot;&quot;);
+    void nopOpcode();
+@@ -189,6 +190,7 @@
+    int             _returnCode;
+    CDataStack      _dataStack;
+    std::stack&lt;int&gt; _executionStack;
++   std::map&lt;std::string, void*&gt; syslibHandlerList;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptvm/src/Makefile
+===================================================================
+--- trunk/gpt2/gptvm/src/Makefile	2007-12-14 16:33:58 UTC (rev 432)
++++ trunk/gpt2/gptvm/src/Makefile	2007-12-17 18:56:47 UTC (rev 433)
+@@ -12,7 +12,7 @@
+           $(COMMON_DIR)CBinString.o $(COMMON_DIR)CSymbolList.o 
+           
+ all: $(objects)
+-	g++ -o gptvm $(objects)
++	g++ -o gptvm $(objects) -ldl
+ 
+ %.o: %.cpp %.hpp
+ 	$(CC) $(CCFLAGS) -c $(INCLUDE_DIR) $&lt; -o $@
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_condicionais_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/expressoes_matematicas_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/matrizes_4.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_5.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000106.html">[gpt-commit] r432 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000108.html">[gpt-commit] r434 - in trunk/gpt2: . bindings bindings/gptbind	bindings/gptbind/src bindings/gptbind/test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#107">[ date ]</a>
+              <a href="thread.html#107">[ thread ]</a>
+              <a href="subject.html#107">[ subject ]</a>
+              <a href="author.html#107">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

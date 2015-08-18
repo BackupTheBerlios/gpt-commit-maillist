@@ -1,0 +1,782 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r402 - in trunk/gpt2: common/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r402%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/test/wikki%0A%09gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200711301330.lAUDUA5F015212%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000075.html">
+   <LINK REL="Next"  HREF="000077.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r402 - in trunk/gpt2: common/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r402%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/test/wikki%0A%09gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200711301330.lAUDUA5F015212%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r402 - in trunk/gpt2: common/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Nov 30 14:30:10 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000075.html">[gpt-commit] r401 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000077.html">[gpt-commit] r403 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#76">[ date ]</a>
+              <a href="thread.html#76">[ thread ]</a>
+              <a href="subject.html#76">[ subject ]</a>
+              <a href="author.html#76">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-30 14:30:08 +0100 (Fri, 30 Nov 2007)
+New Revision: 402
+
+Added:
+   trunk/gpt2/common/src/Tools.cpp
+   trunk/gpt2/common/src/Tools.hpp
+   trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm
+Modified:
+   trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+Log:
+DEVNULL:
+* Procedimentos com ou sem passagem de parametros funcionando
+* Funcoes com ou sem passagem de parametros funcionando
+* Funcoes recursivas funcionando
+
+
+Added: trunk/gpt2/common/src/Tools.cpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.cpp	2007-11-29 12:23:01 UTC (rev 401)
++++ trunk/gpt2/common/src/Tools.cpp	2007-11-30 13:30:08 UTC (rev 402)
+@@ -0,0 +1,344 @@
++//#include &quot;PortugolParserTokenTypes.hpp&quot;
++
++#include &quot;Tools.hpp&quot;
++#include &quot;CSymbol.hpp&quot; // TODO: nao ta legal...
++#include &quot;Common.hpp&quot;
++
++
++int hexToInt(const char* _value) {
++    int result = 0;
++    char *position;
++    char conversionTable[] = &quot;0123456789ABCDEF&quot;;
++
++    while (*_value) {
++        position = strchr(conversionTable, *_value);
++        if (position == NULL)
++            return 0;
++
++        result &lt;&lt;= 4;
++        result = result | (position - conversionTable);
++        _value++;
++    }
++
++    return result;
++}
++
++string pad(string _text, unsigned int _size) {
++    if (_size &gt; _text.length())
++        _text.append(_size - _text.length(), ' ');
++
++    return _text;
++}
++
++string lpad(string _text, unsigned int _size) {
++    if (_size &gt; _text.length())
++        _text = string(_size - _text.length(), ' ') + _text;
++
++    return _text;
++}
++
++string intToHex(unsigned int _value, int _size) {
++    string codHex = &quot;0123456789ABCDEF&quot;;
++    string result;
++    int nible;
++
++    while (_value &gt; 0) {
++        nible = _value &amp; 0xF;
++        _value &gt;&gt;= 4;
++        result = codHex[nible] + result;
++    }
++
++    if ( _size == -1 )
++        _size = 1;
++
++    return strZero(result, _size);
++    // if (_size == -1)
++    //     return( result );
++    // else
++    //     return( strZero( result, _size ) );
++    //
++}
++
++string strZero(string _value, unsigned int _size) {
++    while (_value.length() &lt; _size) {
++        _value = '0' + _value;
++    }
++
++    return _value;
++}
++
++string strZero(int _value, unsigned int _size) {
++    string result = itoa(_value);
++
++    while (result.length() &lt; _size) {
++        result = '0' + result;
++    }
++
++    return result;
++}
++
++string dataToHex(char _code[], unsigned int _length) {
++    string result;
++    unsigned int count;
++
++    for (count = 0; count &lt; _length; count++)
++        result += intToHex(_code[count], 2);
++
++    return result;
++}
++
++string dataToHex(char _code[], unsigned int _start, unsigned int _length) {
++    string result;
++    unsigned int count;
++
++    for (count = _start; count - _start &lt; _length; count++)
++        result += intToHex(_code[count], 2);
++
++    return result;
++}
++
++int binToInt(const char* _binValue) {
++    int intValue = 0;
++    int length = strlen(_binValue) - 1;
++    int countBit;
++
++    for (countBit = length; countBit &gt;= 0; countBit--) {
++        if (_binValue[countBit] == '1')
++            intValue += int(pow(2.0, length - countBit));
++    }
++
++    return intValue;
++}
++
++string itoa(int _number) {
++    stringstream s;
++
++    s &lt;&lt; _number;
++    return s.str();
++}
++
++string ftos(double _value) {
++    stringstream s;
++
++    s &lt;&lt;  setiosflags(ios::fixed) &lt;&lt; _value;
++    
++    return s.str();
++}
++
++string itobool(int _number) {
++    if (_number == 0)
++        return &quot;false&quot;;
++    else
++        return &quot;true&quot;;
++}
++
++string strtoupper(string str) {
++    unsigned int count;
++
++    for (count = 0; count &lt; str.size(); count++)
++        str[count] = toupper(str[count]);
++
++    return str;
++}
++
++string strToUpperWithEscapeControls(string str) {
++    unsigned int count;
++
++    for (count = 0; count &lt; str.size(); count++) {
++        if (str[count] == '\\')
++            count += 2;
++        else
++            str[count] = toupper(str[count]);
++    }
++
++    return str;
++}
++
++string alltrim(string str) {
++    // crap version...  :-)
++    // precisamos usar `find', `rfind'! --felipek
++    while (str[0] == ' ')
++        str.erase(0, 1);
++
++    while (str[str.length() - 1] == ' ')
++        str.erase(str.length() - 1, 1);
++
++    return str;
++}
++
++string wo_ctrl_chrs(string str, char chr_to_put) {
++    unsigned int chr_number;
++
++    for (chr_number = 0; chr_number &lt; str.size(); chr_number++) {
++        if (str[chr_number] &lt; 32)
++            str[chr_number] = chr_to_put;
++    }
++
++    return str;
++}
++
++/* CRAP!  --felipek
++string&amp; getStringWithTab(string _data, string _tab) {
++	cout &lt;&lt; &quot;begin getStringWithTab&quot; &lt;&lt; endl;
++	cout &lt;&lt; &quot;tab=\&quot;&quot; &lt;&lt; _tab &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl;
++	cout &lt;&lt; &quot;begin datae&quot; &lt;&lt; endl;
++	cout &lt;&lt; _data &lt;&lt; endl;
++	cout &lt;&lt; &quot;end datae&quot; &lt;&lt; endl;
++	int pos = -1;
++ 
++	// test too another new line sequences
++	while( ( pos = _data.find( &quot;\n&quot;, pos + 1 ) ) != -1 ) {
++		_data.insert( pos + 1, _tab );
++	}
++ 
++	cout &lt;&lt; &quot;begin datas&quot; &lt;&lt; endl;
++	cout &lt;&lt; _data &lt;&lt; endl;
++	cout &lt;&lt; &quot;end datas&quot; &lt;&lt; endl;
++	return( _data );
++}
++*/
++
++bool streamtoken(istringstream&amp; stream, string&amp; key, string&amp; val) {
++     /* FIXME: leak, --felipek */
++     char buffer[8192];
++     unsigned int delim;
++     string entry;
++//     bool ret;
++
++     /* FIXME: ret type, -- felipek */
++     stream.getline(buffer, 8192 - 1);
++     entry = string(buffer);
++     delim = entry.find(' ', 0);
++
++     if (delim != entry.npos) {
++         key = entry.substr(0, delim);
++         val = entry.substr(delim + 1);
++     }
++
++     return !stream.eof();
++}
++
++
++/*const string typeToText(const int &amp;type)
++{
++   if (type == PortugolParserTokenTypes::T_INT_LIT) {
++      return &quot;int&quot;;
++   } else if (type == PortugolParserTokenTypes::T_CARAC_LIT) {
++      return &quot;char&quot;;
++   } else if (type == PortugolParserTokenTypes::T_STRING_LIT) {
++      return &quot;string&quot;;
++   } else if (type == PortugolParserTokenTypes::T_REAL_LIT) {
++      return &quot;real&quot;;
++   } else if (type == PortugolParserTokenTypes::T_IDENTIFICADOR) {
++      return &quot;id&quot;;
++   }
++
++   return &quot;ERRO !!!&quot;;
++}
++
++const string typeInAsm( const int &amp;type )
++{
++   if (type == PortugolParserTokenTypes::T_KW_INTEIRO) {
++      return &quot;int&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_LITERAL) {
++      return &quot;string&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_CARACTERE) {
++      return &quot;char&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_LOGICO) {
++      return &quot;bool&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_REAL) {
++      return &quot;real&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_CORINGA) {
++      return &quot;pointer ???&quot;;
++   } else if (type == PortugolParserTokenTypes::T_KW_MATRIZ) {
++      return &quot;matrix&quot;;
++   }
++
++   return &quot;ERRO !!!&quot;;
++}
++
++
++const int typeToLiteral( const int &amp;type )
++{
++   switch (type) {
++      case PortugolParserTokenTypes::T_KW_INTEIRO:
++         return PortugolParserTokenTypes::T_INT_LIT;
++      case PortugolParserTokenTypes::T_KW_LITERAL:
++         return PortugolParserTokenTypes::T_STRING_LIT;
++      case PortugolParserTokenTypes::T_KW_CARACTERE:
++         return PortugolParserTokenTypes::T_CARAC_LIT;
++      case PortugolParserTokenTypes::T_KW_LOGICO:
++         return PortugolParserTokenTypes::T_INT_LIT;
++//      case PortugolParserTokenTypes::T_KW_CORINGA:
++//         return &quot;pointer ???&quot;;
++//      case PortugolParserTokenTypes::T_KW_MATRIZ:
++//          return PortugolParserTokenTypes::T_MATRIZ;
++      default:
++          return 0;
++          // trow exception ???
++   }
++}
++*/
++
++int getTypeSize(const int &amp;type)
++{
++   switch(type) {
++   case CSymbol::INT:
++   case CSymbol::CHAR:
++   case CSymbol::BOOL:
++      return sizeof(int);
++   case CSymbol::REAL:
++      return sizeof(double);
++   case CSymbol::STRING:
++   case CSymbol::MATRIX:
++      return sizeof(void*);
++   }
++   return 0;
++}
++
++//struct SBits {
++//   int signal : 1;
++//   int localbit : 1;
++//   int others : 30;
++//}
++
++//int setLocalBit(const int &amp;value, const bool &amp;state)
++//{
++//   SBits result;
++//   memcpy(result, value, sizeof(int));
++//  result.localbit = state;
++//
++//   return (int) result;
++//}
++
++int realAddress(int address)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      address = address &amp; UNSET_LOCAL_BIT;
++   }
++   if (IS_NEG_ADDRESS(address)) {
++      address = address &amp; UNSET_NEG_BIT;
++      address *= -1;
++   }
++   return address;
++}
++
++std::string realAddressString(int address)
++{
++   std::string result;
++
++   if (IS_LOCAL_ADDRESS(address)) {
++      address = address &amp; UNSET_LOCAL_BIT;
++      result += &quot;LOCAL &quot;;
++   }
++   if (IS_NEG_ADDRESS(address)) {
++      address = address &amp; UNSET_NEG_BIT;
++      address *= -1;
++      result += &quot;NEG &quot;;
++   }
++   result += &quot;value &quot;;
++   result += itoa(address);
++
++   return result;
++}
++
+
+
+Property changes on: trunk/gpt2/common/src/Tools.cpp
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/gpt2/common/src/Tools.hpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.hpp	2007-11-29 12:23:01 UTC (rev 401)
++++ trunk/gpt2/common/src/Tools.hpp	2007-11-30 13:30:08 UTC (rev 402)
+@@ -0,0 +1,42 @@
++#ifndef GPT_TOOLS_H
++#define GPT_TOOLS_H
++
++#include &lt;iomanip&gt;
++
++#include &lt;iostream&gt;
++#include &lt;string&gt;
++#include &lt;cstdlib&gt;
++#include &lt;cstring&gt;
++#include &lt;cmath&gt;
++#include &lt;cstdio&gt;
++#include &lt;sstream&gt;
++using namespace std;
++
++
++int hexToInt(const char *);
++string pad(string, unsigned int);
++string lpad(string, unsigned int);
++string intToHex(unsigned int, int = -1);
++string strZero(string, unsigned int);
++string strZero(int, unsigned int);
++string dataToHex(char *, unsigned int);
++string dataToHex( char *, unsigned int, unsigned int);
++int binToInt(const char *);
++int octToInt(const char *);
++string itoa(int);
++string itobool(int);
++string ftos(double);
++string strtoupper(string);
++string strToUpperWithEscapeControls(string);
++string alltrim(string);
++string wo_ctrl_chrs(string str, char = ' ');
++bool streamtoken(istringstream&amp;, string&amp;, string&amp;);
++// string&amp; getStringWithTab(string, string);
++const string typeToText(const int &amp;type);
++const string typeInAsm( const int &amp;type );
++const int typeToLiteral( const int &amp;type );
++int getTypeSize(const int &amp;type);
++int realAddress(int address);
++std::string realAddressString(int address);
++
++#endif
+
+
+Property changes on: trunk/gpt2/common/src/Tools.hpp
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Modified: trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm	2007-11-29 12:23:01 UTC (rev 401)
++++ trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm	2007-11-30 13:30:08 UTC (rev 402)
+@@ -4,8 +4,8 @@
+     var t1 int
+     // imprima( &quot;A soma &#233;: &quot;, soma( 2, 7 ) );
+     push_0 // resultado da fun&#231;&#227;o
++    pushiv 7 // empilha 7
+     pushiv 2 // empilha 2
+-    pushiv 7 // empilha 7
+     pcall soma
+     popiv t1
+     pushiv t1
+
+Added: trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm	2007-11-29 12:23:01 UTC (rev 401)
++++ trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_2.gasm	2007-11-30 13:30:08 UTC (rev 402)
+@@ -0,0 +1,69 @@
++program exemplo
++
++var x int
++
++proc main
++    // imprima( &quot;Digite o n&#250;mero para calcular o fatorial:&quot; );
++    pushsv &quot;Digite o n&#250;mero para calcular o fatorial:&quot;
++    pushst
++    push_1
++    lcall imprima
++
++    // x := leia( );
++    pushit
++    lcall leia
++    popiv x
++
++    // imprima( &quot;Fatorial de &quot;, x, &quot; &#233; &quot;, fatorial( x ) );
++    push_0 // retorno da fun&#231;&#227;o
++    pushiv x
++    pcall fatorial
++    pushit
++    pushsv &quot; &#233; &quot;
++    pushst
++    pushiv x
++    pushit
++    pushsv &quot;Fatorial de &quot;
++    pushst
++    push_4
++    lcall imprima
++
++    exit_0
++endproc
++
++proc fatorial
++    param __result int
++    param z int
++	
++    var t1 int
++    var t2 int
++
++//    se z = 1 ent&#227;o
++    ieq t1, z, 1
++    ifnot t1, senao
++        // retorne 1;
++        iset __result, 1
++        decsp 12
++        ret
++        jmp proximo
++    // sen&#227;o
++    senao:
++        // retorne z * fatorial( z - 1 );
++        isub t1, z, 1
++        push_0 // retorno da fun&#231;&#227;o
++        pushiv t1
++        pcall fatorial
++        popiv t1
++        imul t2, z, t1
++        iset __result, t2
++        decsp 12
++        ret
++    // fim-se
++    proximo:
++
++    decsp 12
++    ret
++endproc
++
++endprogram
++
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm	2007-11-29 12:23:01 UTC (rev 401)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm	2007-11-30 13:30:08 UTC (rev 402)
+@@ -2,12 +2,12 @@
+ 
+ proc main
+     // soma( 2, 7 );
+-    pushiv 2
+     pushiv 7
++    pushiv 2
+     pcall soma
+ 
+-    pushiv 10
+     pushiv 20
++    pushiv 10
+     pcall soma
+ 
+     exit_0
+@@ -19,15 +19,12 @@
+ 
+     var t1 int
+ 
+-    pushsv &quot;A soma &#233;: &quot;
+-    pushst
+-    push_1
+-    lcall imprima
+-
+     isum t1, x, y
+     pushiv t1
+     pushit
+-    push_1
++    pushsv &quot;A soma &#233;: &quot;
++    pushst
++    push_2
+     lcall imprima
+ 
+     decsp 12
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm	2007-11-29 12:23:01 UTC (rev 401)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm	2007-11-30 13:30:08 UTC (rev 402)
+@@ -4,9 +4,9 @@
+ 
+ proc main
+     // soma( s, 2, 7 );
++    pushiv 7
++    pushiv 2
+     pushiv s
+-    pushiv 2
+-    pushiv 7
+     pcall soma
+ 	
+     // imprima( s );
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-29 12:23:01 UTC (rev 401)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-30 13:30:08 UTC (rev 402)
+@@ -208,24 +208,30 @@
+ 
+ void CRunBytecode::procImprima()
+ {
+-   int argNumber = _dataStack.popInt();
++   int address = sizeof(int);
++   int argNumber = _dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT);
+ 
+    for (int arg=0; arg &lt; argNumber; arg++) {
+-      int type = _dataStack.popInt();
++      address += sizeof(int);
++      int type = _dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT);
+       int boolValue;
+       switch (type) {
+          case CSymbol::STRING:
+-            std::cout &lt;&lt; getStringData(_dataStack.popInt());
++            address += sizeof(int);
++            std::cout &lt;&lt; getStringData(_dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT));
+             break;
+          case CSymbol::INT:
+-            std::cout &lt;&lt; _dataStack.popInt();
++            address += sizeof(int);
++            std::cout &lt;&lt; _dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT);
+             break;
+          case CSymbol::CHAR:
+ //            std::cout &lt;&lt; (char)_dataStack.popInt();
+-            std::cout &lt;&lt; &quot;char [&quot; &lt;&lt; (int)_dataStack.popInt() &lt;&lt; &quot;]&quot;;
++            address += sizeof(int);
++            std::cout &lt;&lt; &quot;char [&quot; &lt;&lt; (int)_dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT) &lt;&lt; &quot;]&quot;;
+             break;
+          case CSymbol::BOOL:
+-            boolValue = _dataStack.popInt();
++            address += sizeof(int);
++            boolValue = _dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT);
+             if (boolValue == 0) {
+                std::cout &lt;&lt; &quot;false&quot;;
+             } else {
+@@ -240,9 +246,47 @@
+       }
+    }
+    std::cout &lt;&lt; std::endl;
++   _dataStack.popBytes(address);
+ }
+ 
+ 
++//void CRunBytecode::procImprima()
++//{
++//   int argNumber = _dataStack.popInt();
++//
++//   for (int arg=0; arg &lt; argNumber; arg++) {
++//      int type = _dataStack.popInt();
++//      int boolValue;
++//      switch (type) {
++//         case CSymbol::STRING:
++//            std::cout &lt;&lt; getStringData(_dataStack.popInt());
++//            break;
++//         case CSymbol::INT:
++//            std::cout &lt;&lt; _dataStack.popInt();
++//            break;
++//         case CSymbol::CHAR:
++////            std::cout &lt;&lt; (char)_dataStack.popInt();
++//            std::cout &lt;&lt; &quot;char [&quot; &lt;&lt; (int)_dataStack.popInt() &lt;&lt; &quot;]&quot;;
++//            break;
++//         case CSymbol::BOOL:
++//            boolValue = _dataStack.popInt();
++//            if (boolValue == 0) {
++//               std::cout &lt;&lt; &quot;false&quot;;
++//            } else {
++//               std::cout &lt;&lt; &quot;true&quot;;
++//            }
++//            break;
++//         case CSymbol::REAL:
++//         case CSymbol::MATRIX:
++//         default:
++//            std::cout &lt;&lt; &quot;Tipo ainda nao suportado !!!&quot; &lt;&lt; std::endl;
++//            abort();
++//      }
++//   }
++//   std::cout &lt;&lt; std::endl;
++//}
++
++
+ void CRunBytecode::procLeia()
+ {
+    int type = _dataStack.popInt();
+@@ -334,8 +378,11 @@
+ 
+ void CRunBytecode::lcallOpcode()
+ {
+-   trace (&quot;libcall opcode&quot;);
++   trace (&quot;lcall opcode&quot;);
+ 
++   _executionStack.push(_dataStack.getBS());
++   _dataStack.setBS(_dataStack.getSP());
++
+    int address = _code.fetchInt();
+ 
+    if (_globalData.getCString(address) == &quot;imprima&quot;) {
+@@ -343,8 +390,11 @@
+    } else if (_globalData.getCString(address) == &quot;leia&quot;) {
+       procLeia();
+    } else {
+-      error(&quot;libcall invocando subrotina desconhecida !!!&quot;);
++      error(&quot;lcall invocando subrotina desconhecida !!!&quot;);
+    }
++
++   _dataStack.setBS(_executionStack.top());
++   _executionStack.pop();
+ }
+ 
+ 
+@@ -947,7 +997,7 @@
+ 
+ void CRunBytecode::push_0Opcode()
+ {
+-   trace (&quot;pus_h0 opcode&quot;);
++   trace (&quot;push_0 opcode&quot;);
+ 
+    _dataStack.pushInt(0);
+ }
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000075.html">[gpt-commit] r401 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000077.html">[gpt-commit] r403 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#76">[ date ]</a>
+              <a href="thread.html#76">[ thread ]</a>
+              <a href="subject.html#76">[ subject ]</a>
+              <a href="author.html#76">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r359 - trunk/gpt2/gptc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r359%20-%20trunk/gpt2/gptc&In-Reply-To=%3C200711132004.lADK41hN016301%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000032.html">
+   <LINK REL="Next"  HREF="000034.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r359 - trunk/gpt2/gptc</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r359%20-%20trunk/gpt2/gptc&In-Reply-To=%3C200711132004.lADK41hN016301%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r359 - trunk/gpt2/gptc">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Nov 13 21:04:01 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000032.html">[gpt-commit] r358 - trunk/gpt2/gptc/test
+</A></li>
+        <LI>Next message: <A HREF="000034.html">[gpt-commit] r360 - trunk/gpt2/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#33">[ date ]</a>
+              <a href="thread.html#33">[ thread ]</a>
+              <a href="subject.html#33">[ subject ]</a>
+              <a href="author.html#33">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-13 21:04:01 +0100 (Tue, 13 Nov 2007)
+New Revision: 359
+
+Modified:
+   trunk/gpt2/gptc/Makefile
+   trunk/gpt2/gptc/parser.g
+   trunk/gpt2/gptc/teste.cpp
+Log:
+-Adicionado codigo para suprimir mensagens de erro, para que os testes nao os mostrem.
+
+Modified: trunk/gpt2/gptc/Makefile
+===================================================================
+--- trunk/gpt2/gptc/Makefile	2007-11-13 20:00:29 UTC (rev 358)
++++ trunk/gpt2/gptc/Makefile	2007-11-13 20:04:01 UTC (rev 359)
+@@ -32,7 +32,7 @@
+ 	$(cpp) -c MismatchedUnicodeCharException.cpp \
+ 	-o $(output)/MismatchedUnicodeCharException.o
+ 
+-$(output)/teste.o: teste.cpp $(output)/table.hpp
++$(output)/teste.o: teste.cpp $(output)/tokenNames.hpp
+ 	$(cpp) -c teste.cpp -o $(output)/teste.o
+ 
+ $(output)/PortugolLexer.hpp $(output)/PortugolLexer.cpp: lexer.g
+@@ -44,12 +44,15 @@
+ $(output)/SemanticWalker.hpp $(output)/SemanticWalker.cpp: semantic.g
+ 	antlr -o $(output) semantic.g
+ 
+-$(output)/table.hpp:
+-	grep = $(output)/PortugolTokenTypes.txt &gt; $(output)/table.hpp
+-	sed -i -e 's/([^=]*)//' $(output)/table.hpp
+-	sed -i -e 's/&quot;[^&quot;]*&quot;//' $(output)/table.hpp
+-	sed -i -e 's/==/=/' $(output)/table.hpp
+-	sed -i -e 's/\([^=]*\)=\(.*\)/table[\2]=&quot;\1&quot;;/' $(output)/table.hpp
++$(output)/tokenNames.hpp:
++	echo &quot;std::map&lt;int, std::string &gt; tokenNames;&quot;  &gt; $(output)/tokenNames.hpp
++	grep = $(output)/PortugolTokenTypes.txt &gt;&gt; $(output)/tokenNames.hpp
++	sed -i -e 's/([^=]*)//' $(output)/tokenNames.hpp
++	sed -i -e 's/&quot;[^&quot;]*&quot;//' $(output)/tokenNames.hpp
++	sed -i -e 's/==/=/' $(output)/tokenNames.hpp
++	sed -i -e 's/()//' $(output)/tokenNames.hpp
++	sed -i -e 's/\([^=]*\)=\(.*\)/tokenNames[\2]=&quot;\1&quot;;/' \
++		$(output)/tokenNames.hpp
+ 
+ 
+ clean:
+
+Modified: trunk/gpt2/gptc/parser.g
+===================================================================
+--- trunk/gpt2/gptc/parser.g	2007-11-13 20:00:29 UTC (rev 358)
++++ trunk/gpt2/gptc/parser.g	2007-11-13 20:04:01 UTC (rev 359)
+@@ -17,6 +17,11 @@
+  *   Free Software Foundation, Inc.,                                       *
+  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             */
+ 
++header {
++#include &lt;antlr/NoViableAltException.hpp&gt;
++#include &lt;antlr/SemanticException.hpp&gt;
++  using namespace antlr;
++}
+ 
+ options {
+   language=&quot;Cpp&quot;;
+@@ -24,12 +29,53 @@
+ 
+ class PortugolParser extends Parser;
+ options {
+-  importVocab  = Portugol;
+-  genHashLines = false;
+-  buildAST     = true;
++  importVocab    = Portugol;
++  genHashLines   = false;
++  buildAST       = true;
++  noConstructors = true;
+ }
+ 
+ {
++public:
++  PortugolParser(antlr::TokenBuffer&amp; tokenBuf, bool report = true)
++  : antlr::LLkParser(tokenBuf,1), _reportErrors(report), _hasErrors(false)
++  {
++  }
++
++  PortugolParser(antlr::TokenStream&amp; lexer, bool report = true)
++  : antlr::LLkParser(lexer,1), _reportErrors(report), _hasErrors(false)
++  {
++  }
++
++  void reportError(const RecognitionException&amp; ex) {
++    _hasErrors = true;
++    if (!_reportErrors) return;
++    std::cerr &lt;&lt; ex.toString().c_str() &lt;&lt; std::endl;
++  }
++
++  void reportError(const std::string&amp; s) {
++    _hasErrors = true;
++    if (!_reportErrors) return;
++    if (getFilename() == &quot;&quot;) {
++      std::cerr &lt;&lt; &quot;error: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
++    } else {
++      std::cerr &lt;&lt; getFilename().c_str() &lt;&lt; &quot;: error: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
++    }
++  }
++
++  void reportWarning(const std::string&amp; s) {
++    if (!_reportErrors) return;
++    if (getFilename() == &quot;&quot;) {
++      std::cerr &lt;&lt; &quot;warning: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
++    } else {
++      std::cerr &lt;&lt; getFilename().c_str() &lt;&lt; &quot;: warning: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
++    }
++  }
++
++  bool hasErorrs() {
++    return _hasErrors;
++  }
++
+ private:
+   void createRootNode(antlr::ASTPair&amp; ast, antlr::RefToken token) {
+     astFactory-&gt;makeASTRoot(ast, astFactory-&gt;create(token));
+@@ -50,6 +96,9 @@
+   antlr::RefAST createNode(int type, const std::string&amp; txt) {
+     return astFactory-&gt;create(type, txt);
+   }
++
++  bool _reportErrors;
++  bool _hasErrors;
+ }
+ 
+ 
+
+Modified: trunk/gpt2/gptc/teste.cpp
+===================================================================
+--- trunk/gpt2/gptc/teste.cpp	2007-11-13 20:00:29 UTC (rev 358)
++++ trunk/gpt2/gptc/teste.cpp	2007-11-13 20:04:01 UTC (rev 359)
+@@ -9,15 +9,14 @@
+ #include &lt;fstream&gt;
+ 
+ void dump_tokens(char* fname) {
+-  char *table[200];
+-  #include &quot;table.hpp&quot;
++  #include &quot;tokenNames.hpp&quot;
+   std::ifstream fi(fname);
+   PortugolLexer lexer(fi, true);
+   antlr::TokenBuffer *buffer = new antlr::TokenBuffer(lexer);
+ 
+   while (true) {
+     std::cout &lt;&lt; lexer.getLine() &lt;&lt; &quot;: [&quot; &lt;&lt; buffer-&gt;LA(1) &lt;&lt; &quot;] &quot;
+-              &lt;&lt; table[buffer-&gt;LA(1)] &lt;&lt; &quot; (&quot; &lt;&lt; lexer.getText() &lt;&lt; &quot;)&quot;;
++              &lt;&lt; tokenNames[buffer-&gt;LA(1)] &lt;&lt; &quot; (&quot; &lt;&lt; lexer.getText() &lt;&lt; &quot;)&quot;;
+     buffer-&gt;consume();
+     getchar();
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000032.html">[gpt-commit] r358 - trunk/gpt2/gptc/test
+</A></li>
+	<LI>Next message: <A HREF="000034.html">[gpt-commit] r360 - trunk/gpt2/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#33">[ date ]</a>
+              <a href="thread.html#33">[ thread ]</a>
+              <a href="subject.html#33">[ subject ]</a>
+              <a href="author.html#33">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

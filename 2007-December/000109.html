@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r435 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r435%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712190052.lBJ0q9XE020122%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000108.html">
+   <LINK REL="Next"  HREF="000110.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r435 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r435%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712190052.lBJ0q9XE020122%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r435 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 01:52:09 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000108.html">[gpt-commit] r434 - in trunk/gpt2: . bindings bindings/gptbind	bindings/gptbind/src bindings/gptbind/test
+</A></li>
+        <LI>Next message: <A HREF="000110.html">[gpt-commit] r436 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 01:52:09 +0100 (Wed, 19 Dec 2007)
+New Revision: 435
+
+Modified:
+   trunk/gpt2/gptc/src/lexer.g
+   trunk/gpt2/gptc/src/parser.g
+Log:
+-Correcao na montagem da ast para operacoes unarias.
+-Adicao do token T_LVALUE
+
+Modified: trunk/gpt2/gptc/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptc/src/lexer.g	2007-12-18 17:53:16 UTC (rev 434)
++++ trunk/gpt2/gptc/src/lexer.g	2007-12-19 00:52:09 UTC (rev 435)
+@@ -99,7 +99,7 @@
+   //imagin&#225;rios para a AST
+ 
+   T_NULO=&quot;nulo&quot;;
+-
++  T_LVALUE;
+   
+ 
+   T_PARAM;
+
+Modified: trunk/gpt2/gptc/src/parser.g
+===================================================================
+--- trunk/gpt2/gptc/src/parser.g	2007-12-18 17:53:16 UTC (rev 434)
++++ trunk/gpt2/gptc/src/parser.g	2007-12-19 00:52:09 UTC (rev 435)
+@@ -385,7 +385,7 @@
+ 
+ lvalue!
+   : id:T_IDENTIFICADOR (m:lvalue_indices)? (T_PONTO es:lvalue_membro)?
+-    {#lvalue = #(id, m, es);}
++    {#lvalue = #([T_LVALUE,&quot;&amp;lvalue&quot;], id, m, es);}
+   ;
+ 
+ lvalue_membro!
+@@ -522,18 +522,18 @@
+   : expr_unario ((T_DIV^ | T_MULTIP^ | T_MOD^) expr_unario)*
+   ;
+ 
+-expr_unario
++expr_unario!
+ options {
+   defaultErrorHandler=false;
+ }
+-  : op_unario expr_elemento
++  : o:op_unario e:expr_elemento {#expr_unario = #(o,e);}
+   ;
+ 
+ op_unario!
+   : ( T_MENOS      {#op_unario = #[T_UN_NEGATIVO,&quot;&amp;negat&quot;];}
+     | T_MAIS       {#op_unario = #[T_UN_POSITIVO,&quot;&amp;pos&quot;];}
+-    | n:T_NAO      {#op_unario = #[T_NAO        ,&quot;nega&#231;&quot;];}
+-    | bn:T_BIT_NAO {#op_unario = #[T_BIT_NAO    ,&quot;&amp;negb&quot;];}
++    | n:T_NAO      {#op_unario = #n;}
++    | bn:T_BIT_NAO {#op_unario = #bn;}
+     )?
+   ;
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000108.html">[gpt-commit] r434 - in trunk/gpt2: . bindings bindings/gptbind	bindings/gptbind/src bindings/gptbind/test
+</A></li>
+	<LI>Next message: <A HREF="000110.html">[gpt-commit] r436 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

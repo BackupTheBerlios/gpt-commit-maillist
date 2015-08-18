@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r493 - in trunk/gpt: . src src/modules	src/modules/interpreter src/modules/parser
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r493%20-%20in%20trunk/gpt%3A%20.%20src%20src/modules%0A%09src/modules/interpreter%20src/modules/parser&In-Reply-To=%3C200803181734.m2IHYen7020589%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000165.html">
+   <LINK REL="Next"  HREF="000167.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r493 - in trunk/gpt: . src src/modules	src/modules/interpreter src/modules/parser</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r493%20-%20in%20trunk/gpt%3A%20.%20src%20src/modules%0A%09src/modules/interpreter%20src/modules/parser&In-Reply-To=%3C200803181734.m2IHYen7020589%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r493 - in trunk/gpt: . src src/modules	src/modules/interpreter src/modules/parser">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Mar 18 18:34:40 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000165.html">[gpt-commit] r492 - in trunk/gpt/doc/man: . pt_BR
+</A></li>
+        <LI>Next message: <A HREF="000167.html">[gpt-commit] r494 - trunk/gpt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#166">[ date ]</a>
+              <a href="thread.html#166">[ thread ]</a>
+              <a href="subject.html#166">[ subject ]</a>
+              <a href="author.html#166">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-03-18 18:34:39 +0100 (Tue, 18 Mar 2008)
+New Revision: 493
+
+Modified:
+   trunk/gpt/Makefile.am
+   trunk/gpt/configure.ac
+   trunk/gpt/src/Makefile.am
+   trunk/gpt/src/modules/Makefile.am
+   trunk/gpt/src/modules/interpreter/Makefile.am
+   trunk/gpt/src/modules/parser/Makefile.am
+Log:
+-Limpando configure.ac e Makefile.am's
+-Compilacao condicional do codigo do depurador em Windows
+
+Modified: trunk/gpt/Makefile.am
+===================================================================
+--- trunk/gpt/Makefile.am	2008-03-18 17:32:09 UTC (rev 492)
++++ trunk/gpt/Makefile.am	2008-03-18 17:34:39 UTC (rev 493)
+@@ -4,7 +4,7 @@
+ 
+ SUBDIRS = src doc exemplos lib
+ 
+-EXTRA_DIST = INSTALL.default ChangeLog HACKING
++EXTRA_DIST = INSTALL.default ChangeLog HACKING THANKS README.en README.pt_BR
+ 
+ uninstall-devel:
+ 	rm -rf $(includedir)/${PACKAGE} 
+
+Modified: trunk/gpt/configure.ac
+===================================================================
+--- trunk/gpt/configure.ac	2008-03-18 17:32:09 UTC (rev 492)
++++ trunk/gpt/configure.ac	2008-03-18 17:34:39 UTC (rev 493)
+@@ -60,7 +60,7 @@
+    SO_WINDOWS=&quot;no&quot;
+ fi
+ 
+-AM_CONDITIONAL(SO_WINDOWS, test x$SO_WINDOWS = xyes)
++AM_CONDITIONAL(BUILD_DEBUGGER, test x$SO_WINDOWS = xno)
+ 
+ dnl------------------------------
+ dnl Checks for ANTLR
+@@ -147,7 +147,8 @@
+ AC_OUTPUT(Makefile        
+         src/Makefile 
+         doc/Makefile 
+-        doc/man/Makefile 
++        doc/man/Makefile
++        doc/man/pt_BR/Makefile  
+         exemplos/Makefile
+         lib/Makefile
+         src/modules/Makefile 
+
+Modified: trunk/gpt/src/Makefile.am
+===================================================================
+--- trunk/gpt/src/Makefile.am	2008-03-18 17:32:09 UTC (rev 492)
++++ trunk/gpt/src/Makefile.am	2008-03-18 17:34:39 UTC (rev 493)
+@@ -10,10 +10,10 @@
+ 	
+ SUBDIRS = modules
+ 
+-if SO_WINDOWS
+-gpt_LDADD = $(top_builddir)/src/modules/libgportugol.la $(ANTLR_LIB) $(PCRE_LIB) -lwsock32
+-else
+-gpt_LDADD = $(top_builddir)/src/modules/libgportugol.la $(ANTLR_LIB) $(PCRE_LIB)
++gpt_LDADD = $(top_builddir)/src/modules/libgportugol.la $(ANTLR_LIB)
++
++if BUILD_DEBUGGER
++gpt_LDADD += $(PCRE_LIB)
+ endif
+ 
+ AM_LDFLAGS = -static
+
+Modified: trunk/gpt/src/modules/Makefile.am
+===================================================================
+--- trunk/gpt/src/modules/Makefile.am	2008-03-18 17:32:09 UTC (rev 492)
++++ trunk/gpt/src/modules/Makefile.am	2008-03-18 17:34:39 UTC (rev 493)
+@@ -2,19 +2,21 @@
+ 
+ SUBDIRS = parser c_translator interpreter x86
+ 
++headers = GPTDisplay.hpp PortugolAST.hpp Symbol.hpp SymbolTable.hpp
++sources = GPTDisplay.cpp PortugolAST.cpp Symbol.cpp SymbolTable.cpp
++
+ if INSTALL_DEVEL
+ lib_LTLIBRARIES = libgportugol.la
+-pkginclude_HEADERS = GPTDisplay.hpp PortugolAST.hpp Symbol.hpp SymbolTable.hpp
++pkginclude_HEADERS = $(headers)
+ else
+ noinst_LTLIBRARIES = libgportugol.la
+-noinst_HEADERS = GPTDisplay.hpp PortugolAST.hpp Symbol.hpp SymbolTable.hpp
++noinst_HEADERS = $(headers)
+ endif
+ 
+ 
+-libgportugol_la_SOURCES = GPTDisplay.cpp PortugolAST.cpp Symbol.cpp SymbolTable.cpp
++libgportugol_la_SOURCES = $(sources)
+ 
+ libgportugol_la_LIBADD = $(top_builddir)/src/modules/parser/libparser.la \
+                          $(top_builddir)/src/modules/interpreter/libinterpreter.la \
+                          $(top_builddir)/src/modules/c_translator/libctranslator.la \
+-												 $(top_builddir)/src/modules/x86/libx86.la
+-                         
++												 $(top_builddir)/src/modules/x86/libx86.la                         
+
+Modified: trunk/gpt/src/modules/interpreter/Makefile.am
+===================================================================
+--- trunk/gpt/src/modules/interpreter/Makefile.am	2008-03-18 17:32:09 UTC (rev 492)
++++ trunk/gpt/src/modules/interpreter/Makefile.am	2008-03-18 17:34:39 UTC (rev 493)
+@@ -7,8 +7,13 @@
+ BUILT_SOURCES = InterpreterWalker.cpp
+ 
+ nodist_libinterpreter_la_SOURCES = $(BUILT_SOURCES)
+-libinterpreter_la_SOURCES = InterpreterDBG.cpp InterpreterEval.cpp
+ 
++libinterpreter_la_SOURCES = InterpreterEval.cpp
++
++if BUILD_DEBUGGER
++libinterpreter_la_SOURCES += InterpreterDBG.cpp 
++endif
++
+ noinst_HEADERS = InterpreterDBG.hpp InterpreterEval.hpp
+ 
+ interpreter_g = interpreter.g
+
+Modified: trunk/gpt/src/modules/parser/Makefile.am
+===================================================================
+--- trunk/gpt/src/modules/parser/Makefile.am	2008-03-18 17:32:09 UTC (rev 492)
++++ trunk/gpt/src/modules/parser/Makefile.am	2008-03-18 17:34:39 UTC (rev 493)
+@@ -7,18 +7,20 @@
+ BUILT_SOURCES = PortugolLexer.cpp  PortugolParser.cpp SemanticWalker.cpp 
+ 
+ nodist_libparser_la_SOURCES = $(BUILT_SOURCES)
++
++headers = BasePortugolParser.hpp SemanticEval.hpp MismatchedUnicodeCharException.hpp \
++          UnicodeCharBuffer.hpp UnicodeCharScanner.hpp
++
+ libparser_la_SOURCES = BasePortugolParser.cpp SemanticEval.cpp MismatchedUnicodeCharException.cpp
+ 
+ if INSTALL_DEVEL
+ nodist_pkginclude_HEADERS = PortugolParserTokenTypes.hpp PortugolLexer.hpp \
+                             PortugolParser.hpp PortugolTokenTypes.hpp \
+-										        SemanticWalker.hpp SemanticWalkerTokenTypes.hpp
++								            SemanticWalker.hpp SemanticWalkerTokenTypes.hpp
+ 
+-pkginclude_HEADERS = BasePortugolParser.hpp SemanticEval.hpp MismatchedUnicodeCharException.hpp \
+-                     UnicodeCharBuffer.hpp UnicodeCharScanner.hpp
++pkginclude_HEADERS = $(headers)
+ else
+-noinst_HEADERS = BasePortugolParser.hpp SemanticEval.hpp MismatchedUnicodeCharException.hpp \
+-                     UnicodeCharBuffer.hpp UnicodeCharScanner.hpp
++noinst_HEADERS = $(headers)
+ endif
+ 
+ lexer_g       = lexer.g
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000165.html">[gpt-commit] r492 - in trunk/gpt/doc/man: . pt_BR
+</A></li>
+	<LI>Next message: <A HREF="000167.html">[gpt-commit] r494 - trunk/gpt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#166">[ date ]</a>
+              <a href="thread.html#166">[ thread ]</a>
+              <a href="subject.html#166">[ subject ]</a>
+              <a href="author.html#166">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

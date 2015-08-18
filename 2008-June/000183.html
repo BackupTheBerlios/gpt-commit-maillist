@@ -1,0 +1,255 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r510 - trunk/gpt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r510%20-%20trunk/gpt&In-Reply-To=%3C200806241606.m5OG6TE9007960%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000182.html">
+   <LINK REL="Next"  HREF="000184.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r510 - trunk/gpt</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r510%20-%20trunk/gpt&In-Reply-To=%3C200806241606.m5OG6TE9007960%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r510 - trunk/gpt">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Jun 24 18:06:29 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000182.html">[gpt-commit] r509 - trunk/gpt/src
+</A></li>
+        <LI>Next message: <A HREF="000184.html">[gpt-commit] r511 - trunk/gpt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#183">[ date ]</a>
+              <a href="thread.html#183">[ thread ]</a>
+              <a href="subject.html#183">[ subject ]</a>
+              <a href="author.html#183">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-06-24 18:06:29 +0200 (Tue, 24 Jun 2008)
+New Revision: 510
+
+Modified:
+   trunk/gpt/ChangeLog
+   trunk/gpt/NEWS
+   trunk/gpt/configure.ac
+Log:
+nomsg
+
+Modified: trunk/gpt/ChangeLog
+===================================================================
+--- trunk/gpt/ChangeLog	2008-06-24 15:36:51 UTC (rev 509)
++++ trunk/gpt/ChangeLog	2008-06-24 16:06:29 UTC (rev 510)
+@@ -1,5 +1,34 @@
++2008-06-24
++
++	* /trunk/gpt/src/Makefile.am:
++
++	-Linkando o gpt dinamicamente ao libgportugol
++
++2008-06-23
++
++	* /trunk/gpt/src/modules/interpreter/InterpreterEval.hpp:
++	* /trunk/gpt/src/modules/GPTDisplay.hpp:
++	* /trunk/gpt/src/modules/c_translator/pt2c.g:
++	* /trunk/gpt/src/main.cpp:
++	* /trunk/gpt/src/modules/parser/SemanticEval.hpp:
++	* /trunk/gpt/src/modules/parser/lexer.g:
++
++	-Patch do metal: adicao de headers para resolver a compilacao
++	com gcc 4.3 em outras plataformas
++
++2008-03-24
++
++	* /trunk/gpt/doc/man/gpt.1:
++	* /trunk/gpt/doc/man/pt_BR/gpt.1:
++
++	-Fix na licenca das man pages. Passando pra GPL
++
+ 2008-03-18
+ 
++	* /trunk/gpt/packages/win_setup/setup.iss:
++
++	-Tirando redundancias
++
+ 	* /trunk/gpt/configure.ac:
+ 	* /trunk/gpt/README.en:
+ 	* /trunk/gpt/doc/manual/manual.tex:
+
+Modified: trunk/gpt/NEWS
+===================================================================
+--- trunk/gpt/NEWS	2008-06-24 15:36:51 UTC (rev 509)
++++ trunk/gpt/NEWS	2008-06-24 16:06:29 UTC (rev 510)
+@@ -1,75 +1,79 @@
+-Sum&#225;rio de mudan&#231;as
++Sum&#195;&#161;rio de mudan&#195;&#167;as
+ -------------------
++24 de Junho de 2008 * gpt 1.0.2
+ 
+-18 de Mar&#231;o de 2008  * gpt 1.0.1
++  * Corre&#195;&#167;&#195;&#163;o de bugs relacionados &#195;&#160; compila&#195;&#167;&#195;&#163;o com gcc 4.3
++  * O programa GPT agora depende da biblioteca libgportugol
+ 
++18 de Mar&#195;&#167;o de 2008  * gpt 1.0.1
++
+   * Suporte exclusivo para arquivos fontes escritos em UTF-8.
+-  * (Win) Adapta&#231;&#227;o do programa Notepad++ para ser usado com o compilador.
++  * (Win) Adapta&#195;&#167;&#195;&#163;o do programa Notepad++ para ser usado com o compilador.
+   * (Win) Novo instalador para sistemas MS Windows.
+-  * (Win) Adi&#231;&#227;o do script gptshell.bat.
+-  * Corre&#231;&#227;o de bug relativo aos flags de tradu&#231;&#227;o do compilador.
++  * (Win) Adi&#195;&#167;&#195;&#163;o do script gptshell.bat.
++  * Corre&#195;&#167;&#195;&#163;o de bug relativo aos flags de tradu&#195;&#167;&#195;&#163;o do compilador.
+   * Diversos outros bugs corrigidos.
+ 
+ 08 de Abril de 2006  * gpt 1.0
+ 
+- * Adi&#231;&#227;o de arquivo com fun&#231;&#245;es b&#225;sicas (base.gpt).
+- * Melhorias no modulo de depura&#231;&#227;o.
+- * Revis&#227;o e corre&#231;&#227;o de mensagens de erro de compila&#231;&#227;o.
+- * Corre&#231;&#227;o de bugs na compila&#231;&#227;o em GNU/Linux (cabe&#231;alho ELF).
+- * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (declara&#231;&#227;o de vari&#225;vel local shadows vari&#225;vel
+-   global indefinidamente, ocasionando poss&#237;veis crashes).
+- * Corre&#231;&#227;o de bugs na compila&#231;&#227;o e tradu&#231;&#227;o (express&#245;es envolvendo literais).
+- * Corre&#231;&#227;o de bugs na compila&#231;&#227;o e tradu&#231;&#227;o (inicializa&#231;&#227;o de matrizes de 
++ * Adi&#195;&#167;&#195;&#163;o de arquivo com fun&#195;&#167;&#195;&#181;es b&#195;&#161;sicas (base.gpt).
++ * Melhorias no modulo de depura&#195;&#167;&#195;&#163;o.
++ * Revis&#195;&#163;o e corre&#195;&#167;&#195;&#163;o de mensagens de erro de compila&#195;&#167;&#195;&#163;o.
++ * Corre&#195;&#167;&#195;&#163;o de bugs na compila&#195;&#167;&#195;&#163;o em GNU/Linux (cabe&#195;&#167;alho ELF).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na compila&#195;&#167;&#195;&#163;o (declara&#195;&#167;&#195;&#163;o de vari&#195;&#161;vel local shadows vari&#195;&#161;vel
++   global indefinidamente, ocasionando poss&#195;&#173;veis crashes).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na compila&#195;&#167;&#195;&#163;o e tradu&#195;&#167;&#195;&#163;o (express&#195;&#181;es envolvendo literais).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na compila&#195;&#167;&#195;&#163;o e tradu&#195;&#167;&#195;&#163;o (inicializa&#195;&#167;&#195;&#163;o de matrizes de 
+    literais).
+- * Corre&#231;&#227;o de bugs na an&#225;lise sem&#226;ntica (avalia&#231;&#227;o de par&#226;metros de fun&#231;&#227;o).
+- * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (par&#226;metros de fun&#231;&#227;o).
+- * Corre&#231;&#227;o de bugs na an&#225;lise sint&#225;tica (express&#245;es sem par&#234;ntesis causando
++ * Corre&#195;&#167;&#195;&#163;o de bugs na an&#195;&#161;lise sem&#195;&#162;ntica (avalia&#195;&#167;&#195;&#163;o de par&#195;&#162;metros de fun&#195;&#167;&#195;&#163;o).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na compila&#195;&#167;&#195;&#163;o (par&#195;&#162;metros de fun&#195;&#167;&#195;&#163;o).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na an&#195;&#161;lise sint&#195;&#161;tica (express&#195;&#181;es sem par&#195;&#170;ntesis causando
+    crashes).
+- * Corre&#231;&#227;o de bugs na tradu&#231;&#227;o para C (express&#245;es faltando e/ou com 
+-   preced&#234;ncia incorreta).
+- * Corre&#231;&#227;o de bugs na tradu&#231;&#227;o para C (express&#245;es envolvendo valores literais).
+- * Corre&#231;&#227;o de bugs na interpreta&#231;&#227;o (express&#245;es envolvendo valores reais
++ * Corre&#195;&#167;&#195;&#163;o de bugs na tradu&#195;&#167;&#195;&#163;o para C (express&#195;&#181;es faltando e/ou com 
++   preced&#195;&#170;ncia incorreta).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na tradu&#195;&#167;&#195;&#163;o para C (express&#195;&#181;es envolvendo valores literais).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na interpreta&#195;&#167;&#195;&#163;o (express&#195;&#181;es envolvendo valores reais
+    calculadas incorretamente).
+- * Corre&#231;&#227;o de bugs na interpreta&#231;&#227;o (avalia&#231;&#227;o de diversas opera&#231;&#245;es).
+- * Corre&#231;&#227;o de bugs na interpreta&#231;&#227;o (enunciado &quot;se&quot; entrando em loop infinito).
+- * Corre&#231;&#227;o de bugs na interpreta&#231;&#227;o (retorno de dados em fun&#231;&#245;es).
+- * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (avalia&#231;&#227;o de subtra&#231;&#227;o envolvendo valores 
++ * Corre&#195;&#167;&#195;&#163;o de bugs na interpreta&#195;&#167;&#195;&#163;o (avalia&#195;&#167;&#195;&#163;o de diversas opera&#195;&#167;&#195;&#181;es).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na interpreta&#195;&#167;&#195;&#163;o (enunciado &quot;se&quot; entrando em loop infinito).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na interpreta&#195;&#167;&#195;&#163;o (retorno de dados em fun&#195;&#167;&#195;&#181;es).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na compila&#195;&#167;&#195;&#163;o (avalia&#195;&#167;&#195;&#163;o de subtra&#195;&#167;&#195;&#163;o envolvendo valores 
+    reais).
+- * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (avalia&#231;&#227;o de express&#245;es relacionais 
++ * Corre&#195;&#167;&#195;&#163;o de bugs na compila&#195;&#167;&#195;&#163;o (avalia&#195;&#167;&#195;&#163;o de express&#195;&#181;es relacionais 
+    envolvendo valores reais).
+- * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (operador un&#225;rio de nega&#231;&#227;o).
+- * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (retorno de valores de tipos diferentes
++ * Corre&#195;&#167;&#195;&#163;o de bugs na compila&#195;&#167;&#195;&#163;o (operador un&#195;&#161;rio de nega&#195;&#167;&#195;&#163;o).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na compila&#195;&#167;&#195;&#163;o (retorno de valores de tipos diferentes
+    sem utilizar casting).
+- * Corre&#231;&#227;o de bugs na an&#225;lise sem&#226;ntica (avalia&#231;&#227;o de retorno de valores
+-   em fun&#231;&#245;es).
+- * Corre&#231;&#227;o de bugs na compila&#231;&#227;o (casting de par&#226;metro inteiro para
++ * Corre&#195;&#167;&#195;&#163;o de bugs na an&#195;&#161;lise sem&#195;&#162;ntica (avalia&#195;&#167;&#195;&#163;o de retorno de valores
++   em fun&#195;&#167;&#195;&#181;es).
++ * Corre&#195;&#167;&#195;&#163;o de bugs na compila&#195;&#167;&#195;&#163;o (casting de par&#195;&#162;metro inteiro para
+    real e real para inteiro).
+- * Adicionado suporte a compila&#231;&#227;o de algoritmos usando mais de um arquivo.
+- * Adicionado suporte a vari&#225;vel de ambiente GPT_INCLUDE para incluir algoritmos 
++ * Adicionado suporte a compila&#195;&#167;&#195;&#163;o de algoritmos usando mais de um arquivo.
++ * Adicionado suporte a vari&#195;&#161;vel de ambiente GPT_INCLUDE para incluir algoritmos 
+    automaticamente.
+- * Revis&#227;o da man-page.
+- * Atualiza&#231;&#227;o do manual.
+- * Nome do algoritmo &#233; usado para criar arquivo execut&#225;vel ao inv&#233;s de usar 
++ * Revis&#195;&#163;o da man-page.
++ * Atualiza&#195;&#167;&#195;&#163;o do manual.
++ * Nome do algoritmo &#195;&#169; usado para criar arquivo execut&#195;&#161;vel ao inv&#195;&#169;s de usar 
+    &quot;a.exe&quot; ou &quot;a.out&quot;.
+ 
+ 05 de Abril de 2006  * gpt 0.9.2
+ 
+- * Corre&#231;&#227;o de um bug na avalia&#231;&#227;o de express&#245;es aritm&#233;ticas.
++ * Corre&#195;&#167;&#195;&#163;o de um bug na avalia&#195;&#167;&#195;&#163;o de express&#195;&#181;es aritm&#195;&#169;ticas.
+ 
+-31 de Mar&#231;o de 2006  * gpt 0.9.1
++31 de Mar&#195;&#167;o de 2006  * gpt 0.9.1
+ 
+- * Corre&#231;&#227;o de um bug de compila&#231;&#227;o relacionado a fun&#231;&#227;o &quot;leia&quot;.
++ * Corre&#195;&#167;&#195;&#163;o de um bug de compila&#195;&#167;&#195;&#163;o relacionado a fun&#195;&#167;&#195;&#163;o &quot;leia&quot;.
+ 
+-08 de Mar&#231;o de 2006  * gpt 0.9b
++08 de Mar&#195;&#167;o de 2006  * gpt 0.9b
+ 
+- * Implementa&#231;&#227;o da gera&#231;&#227;o de c&#243;digo execut&#225;vel (x86, PE/ELF,
++ * Implementa&#195;&#167;&#195;&#163;o da gera&#195;&#167;&#195;&#163;o de c&#195;&#179;digo execut&#195;&#161;vel (x86, PE/ELF,
+    NASM como backend).
+  * GPT portado para MS Windows (testado com compilador MingW32).
+- * V&#225;rios bugfixes (ver ChangeLog).
++ * V&#195;&#161;rios bugfixes (ver ChangeLog).
+ 
+ 27 de Janeiro de 2006  * gpt 0.8b
+ 
+- * Primeira vers&#227;o publicada.
++ * Primeira vers&#195;&#163;o publicada.
+  * Recursos oferecidos:
+    +interpretar/depurar;
+    +traduzir algoritmos para C;
+
+Modified: trunk/gpt/configure.ac
+===================================================================
+--- trunk/gpt/configure.ac	2008-06-24 15:36:51 UTC (rev 509)
++++ trunk/gpt/configure.ac	2008-06-24 16:06:29 UTC (rev 510)
+@@ -4,8 +4,8 @@
+ 
+ AC_PREREQ(2.60)
+ 
+-AC_INIT(gpt, 1.0.1)
+-AM_INIT_AUTOMAKE(gpt, 1.0.1)
++AC_INIT(gpt, 1.0.2)
++AM_INIT_AUTOMAKE(gpt, 1.0.2)
+ AC_CONFIG_HEADER([config.h])
+ AC_LANG(C++)
+ AC_PROG_CXX
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000182.html">[gpt-commit] r509 - trunk/gpt/src
+</A></li>
+	<LI>Next message: <A HREF="000184.html">[gpt-commit] r511 - trunk/gpt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#183">[ date ]</a>
+              <a href="thread.html#183">[ thread ]</a>
+              <a href="subject.html#183">[ subject ]</a>
+              <a href="author.html#183">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

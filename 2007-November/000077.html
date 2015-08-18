@@ -1,0 +1,880 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r403 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r403%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200711301509.lAUF9C3X027112%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000076.html">
+   <LINK REL="Next"  HREF="000078.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r403 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r403%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200711301509.lAUF9C3X027112%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r403 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Nov 30 16:09:12 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000076.html">[gpt-commit] r402 - in trunk/gpt2: common/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000078.html">[gpt-commit] r404 - trunk/gpt2/common/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-30 16:09:05 +0100 (Fri, 30 Nov 2007)
+New Revision: 403
+
+Modified:
+   trunk/gpt2/common/src/CBinString.cpp
+   trunk/gpt2/common/src/CBinString.hpp
+   trunk/gpt2/common/src/Common.hpp
+   trunk/gpt2/gptasm/src/CData.cpp
+   trunk/gpt2/gptasm/src/CGenBytecode.cpp
+   trunk/gpt2/gptasm/src/lexer.g
+   trunk/gpt2/gptasm/src/parser.g
+   trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm
+   trunk/gpt2/gptvm/src/CDataStack.cpp
+   trunk/gpt2/gptvm/src/CDataStack.hpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+Log:
+DEVNULL:
+* Implementado suporte ao tipo real
+
+
+Modified: trunk/gpt2/common/src/CBinString.cpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.cpp	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/common/src/CBinString.cpp	2007-11-30 15:09:05 UTC (rev 403)
+@@ -44,6 +44,18 @@
+ }
+ 
+ 
++void CBinString::writeReal(const double &amp;value)
++{
++   char *byte = (char*)&value;
++
++   for( size_t i = 0; i &lt; sizeof(double); i++) {
++      push_back(*byte);
++      byte++;
++   }
++}
++
++
++
+ void CBinString::readInt(int &amp;value)
+ {
+    int result = *((int*)data());
+@@ -61,6 +73,14 @@
+ }
+ 
+ 
++void CBinString::readReal(double &amp;value)
++{
++   double result = *((double*)data());
++   erase(0,sizeof(double));
++   value = result;
++}
++
++
+ char CBinString::getByte(const int &amp;pos)
+ {
+    return (*this)[pos];
+@@ -78,6 +98,13 @@
+ }
+ 
+ 
++double CBinString::getReal(int pos)
++{
++   double result = *((double*)(data()+pos));
++   return result;
++}
++
++
+ void CBinString::readString(std::string &amp;value)
+ {
+    int size;
+@@ -122,6 +149,13 @@
+ }
+ 
+ 
++void CBinString::setReal(int pos, const double &amp;value)
++{
++   double *address = (double*)(data()+pos);
++   *address = value;
++}
++
++
+ void CBinString::pushInt(const int &amp;value)
+ {
+    writeInt(value);
+@@ -140,6 +174,23 @@
+ }
+ 
+ 
++void CBinString::pushReal(const double &amp;value)
++{
++   writeReal(value);
++}
++
++
++double CBinString::popReal()
++{
++   int pos = size()-sizeof(double);
++   double result = *((double*)(data()+pos));
++
++   erase(pos,sizeof(double));
++
++   return result;
++}
++
++
+ int CBinString::getLastInt() const
+ {
+    int pos = size()-sizeof(int);
+@@ -149,6 +200,15 @@
+ }
+ 
+ 
++double CBinString::getLastReal() const
++{
++   int pos = size()-sizeof(double);
++   double result = *((double*)(data()+pos));
++
++   return result;
++}
++
++
+ void CBinString::pushCString(const std::string &amp;value)
+ {
+    (*this) += value;
+
+Modified: trunk/gpt2/common/src/CBinString.hpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.hpp	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/common/src/CBinString.hpp	2007-11-30 15:09:05 UTC (rev 403)
+@@ -3,6 +3,7 @@
+ 
+ #include &lt;string&gt;
+ 
++// TODO: muitos desses metodos poderiam ser implementados ou como templates ou entao com um metodo generico que receba aonde ler/gravar a informacao e o tamanho do dado (sizeof(tipo))
+ 
+ class CBinString : public std::string
+ {
+@@ -11,19 +12,26 @@
+    void writeByte(const char &amp;value);
+    void writeString(const std::string &amp;value, const bool &amp;writeSize=true);
+    void writeBool(const bool &amp;value);
++   void writeReal(const double &amp;value);
+    void readInt(int &amp;value);
+    void readByte(char &amp;value);
++   void readReal(double &amp;value);
+    char getByte(const int &amp;pos);
+    void getByte(const int &amp;pos, char &amp;value);
+    int getInt(int pos);
++   double getReal(int pos);
+    void readString(std::string &amp;value);
+    std::string readString();
+    void readBool(bool &amp;value);
+    void setInt(int pos, const int &amp;value);
+    void setCString(int pos, const std::string &amp;value);
++   void setReal(int pos, const double &amp;value);
+    void pushInt(const int &amp;value);
+    int popInt();
++   void pushReal(const double &amp;value);
++   double popReal();
+    int getLastInt() const;
++   double getLastReal() const;
+    void pushCString(const std::string &amp;value);
+    std::string popCString();
+    void pushBytes(const int &amp;number);
+
+Modified: trunk/gpt2/common/src/Common.hpp
+===================================================================
+--- trunk/gpt2/common/src/Common.hpp	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/common/src/Common.hpp	2007-11-30 15:09:05 UTC (rev 403)
+@@ -39,7 +39,6 @@
+    OP_IDIV        = 11,
+    OP_RDIV        = 12,
+    OP_IMOD        = 13,
+-   OP_RMOD        = 14,
+    OP_IGE         = 15,
+    OP_SGE         = 16,
+    OP_RGE         = 17,
+
+Modified: trunk/gpt2/gptasm/src/CData.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CData.cpp	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/gptasm/src/CData.cpp	2007-11-30 15:09:05 UTC (rev 403)
+@@ -46,10 +46,10 @@
+       writeString(name, false);
+    } else if (type == CSymbol::INT) {
+       writeInt(atoi(name.c_str()));
++   } else if (type == CSymbol::REAL) {
++      writeReal(atof(name.c_str()));
+    }
+ 
+    return symbol;
+ }
+ 
+-
+-
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-11-30 15:09:05 UTC (rev 403)
+@@ -23,7 +23,6 @@
+    _opcodes[ &quot;idiv&quot;        ] = OP_IDIV;
+    _opcodes[ &quot;rdiv&quot;        ] = OP_RDIV;
+    _opcodes[ &quot;imod&quot;        ] = OP_IMOD;
+-   _opcodes[ &quot;rmod&quot;        ] = OP_RMOD;
+    _opcodes[ &quot;ige&quot;         ] = OP_IGE;
+    _opcodes[ &quot;sge&quot;         ] = OP_SGE;
+    _opcodes[ &quot;rge&quot;         ] = OP_RGE;
+
+Modified: trunk/gpt2/gptasm/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptasm/src/lexer.g	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/gptasm/src/lexer.g	2007-11-30 15:09:05 UTC (rev 403)
+@@ -50,7 +50,6 @@
+    T_KW_IDIV=&quot;idiv&quot;;
+    T_KW_RDIV=&quot;rdiv&quot;;
+    T_KW_IMOD=&quot;imod&quot;;
+-   T_KW_RMOD=&quot;rmod&quot;;
+    T_KW_IGE=&quot;ige&quot;;
+    T_KW_SGE=&quot;sge&quot;;
+    T_KW_RGE=&quot;rge&quot;;
+
+Modified: trunk/gpt2/gptasm/src/parser.g
+===================================================================
+--- trunk/gpt2/gptasm/src/parser.g	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/gptasm/src/parser.g	2007-11-30 15:09:05 UTC (rev 403)
+@@ -167,7 +167,7 @@
+    :  ( &quot;isum&quot;|&quot;ssum&quot;|&quot;rsum&quot;
+       | &quot;isub&quot;|&quot;ssub&quot;|&quot;rsub&quot;
+       | &quot;imul&quot;|&quot;rmul&quot;|&quot;idiv&quot;|&quot;rdiv&quot;
+-      | &quot;imod&quot;|&quot;rmod&quot;
++      | &quot;imod&quot;
+       | &quot;ige&quot; |&quot;sge&quot; |&quot;rge&quot; |&quot;ile&quot;|&quot;sle&quot;|&quot;rle&quot;
+       | &quot;ine&quot; |&quot;sne&quot; |&quot;rne&quot;
+       | &quot;igt&quot; |&quot;sgt&quot; |&quot;rgt&quot;
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm	2007-11-30 15:09:05 UTC (rev 403)
+@@ -5,19 +5,19 @@
+ proc main
+     rset v, 0.0
+     rset v, v
+-    rsum v, 10.0, 10.0
++    rsum v, 10.2, 10.2
+     rsum v, v, v
+-    rsum v, v, 10.0
+-    rsum v, 10.0, v
++    rsum v, v, 10.2
++    rsum v, 10.2, v
+ 
+     pushrv v
+     pushrt
+-    pushrv 1
++    push_1
+     lcall imprima
+ 
+-    pushrv 10.0
++    pushrv 10.8
+     pushrt
+-    pushrv 1
++    push_1
+     lcall imprima
+ 
+     exit 0
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.cpp	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/gptvm/src/CDataStack.cpp	2007-11-30 15:09:05 UTC (rev 403)
+@@ -60,6 +60,42 @@
+ }
+ 
+ 
++void CDataStack::setReal(const int &amp;address, const double &amp;value)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      CBinString::setReal(_BS + realAddress(address), value);
++   } else {
++      std::cout &lt;&lt; &quot;ERRO !!! Invocando setReal com global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++   }
++}
++
++
++double CDataStack::getReal(const int &amp;address)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      return CBinString::getReal(_BS + realAddress(address));
++   } else {
++      std::cout &lt;&lt; &quot;ERRO !!! Invocando getReal com global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++      return -1;
++   }
++}
++
++
++void CDataStack::pushReal(const double &amp;value)
++{
++   CBinString::pushReal(value);
++   _SP+=sizeof(double);
++}
++
++
++double CDataStack::popReal()
++{
++   double result = CBinString::popReal();
++   _SP-=sizeof(double);
++   return result;
++}
++
++
+ void CDataStack::pushBytes(const int &amp;number)
+ {
+    CBinString::pushBytes(number);
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.hpp	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/gptvm/src/CDataStack.hpp	2007-11-30 15:09:05 UTC (rev 403)
+@@ -14,6 +14,10 @@
+    int getInt(const int &amp;address);
+    void pushInt(const int &amp;value);
+    int popInt();
++   void setReal(const int &amp;address, const double &amp;value);
++   double getReal(const int &amp;address);
++   void pushReal(const double &amp;value);
++   double popReal();
+    void pushBytes(const int &amp;number);
+    void popBytes(const int &amp;number);
+    void setBS(const int &amp;value);
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-30 15:09:05 UTC (rev 403)
+@@ -58,7 +58,6 @@
+    _opcodePointer[OP_IDIV       ] = &amp;CRunBytecode::idivOpcode;
+    _opcodePointer[OP_RDIV       ] = &amp;CRunBytecode::rdivOpcode;
+    _opcodePointer[OP_IMOD       ] = &amp;CRunBytecode::imodOpcode;
+-   _opcodePointer[OP_RMOD       ] = &amp;CRunBytecode::rmodOpcode;
+    _opcodePointer[OP_IGE        ] = &amp;CRunBytecode::igeOpcode;
+    _opcodePointer[OP_SGE        ] = &amp;CRunBytecode::sgeOpcode;
+    _opcodePointer[OP_RGE        ] = &amp;CRunBytecode::rgeOpcode;
+@@ -239,6 +238,9 @@
+             }
+             break;
+          case CSymbol::REAL:
++            address += sizeof(double);
++            std::cout &lt;&lt; _dataStack.getReal(address|SET_LOCAL_BIT|SET_NEG_BIT);
++            break;
+          case CSymbol::MATRIX:
+          default:
+             std::cout &lt;&lt; &quot;Tipo ainda nao suportado !!!&quot; &lt;&lt; std::endl;
+@@ -291,6 +293,7 @@
+ {
+    int type = _dataStack.popInt();
+    int iValue = 0;
++   double dValue = 0.0;
+    switch (type) {
+ //      case CSymbol::STRING:
+ //         _dataStack.pushString(std::cin);
+@@ -311,6 +314,9 @@
+ //         }
+ //         break;
+       case CSymbol::REAL:
++         std::cin &gt;&gt; dValue;
++         _dataStack.pushReal(dValue);
++         break;
+       case CSymbol::MATRIX:
+       default:
+          std::cout &lt;&lt; &quot;Tipo ainda nao suportado !!!&quot; &lt;&lt; std::endl;
+@@ -319,6 +325,71 @@
+    std::cout &lt;&lt; std::endl;
+ }
+ 
++
++void CRunBytecode::setIntData(const int &amp;address, const int &amp;value)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      _dataStack.setInt(address, value);
++   } else {
++//      std::cout &lt;&lt; &quot;setIntData global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++      _globalData.setInt(address, value);
++   }
++}
++
++
++int CRunBytecode::getIntData(const int &amp;address)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      return _dataStack.getInt(address);
++   } else {
++//      std::cout &lt;&lt; &quot;global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++      return _globalData.getInt(address);
++   }
++}
++
++
++void CRunBytecode::setRealData(const int &amp;address, const double &amp;value)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      _dataStack.setReal(address, value);
++   } else {
++      _globalData.setReal(address, value);
++   }
++}
++
++
++double CRunBytecode::getRealData(const int &amp;address)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      return _dataStack.getReal(address);
++   } else {
++      return _globalData.getReal(address);
++   }
++}
++
++
++void CRunBytecode::setStringData(const int &amp;address, const std::string &amp;value)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      _dataStack.setCString(address, value);
++   } else {
++//      std::cout &lt;&lt; &quot;setCStringData global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++      _globalData.setCString(address, value);
++   }
++}
++
++
++std::string CRunBytecode::getStringData(const int &amp;address)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      return _dataStack.getCString(address);
++   } else {
++//      std::cout &lt;&lt; &quot;global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++      return _globalData.getCString(address);
++   }
++}
++
++
+ /////////////
+ // opcodes //
+ /////////////
+@@ -335,31 +406,7 @@
+    // nothing to do
+ }
+ 
+-//void CRunBytecode::pushsregOpcode()
+-//{
+-//   invalidOpcode(__FUNCTION__);
+-//   trace (&quot;pushsreg opcode&quot;);
+-//
+-//   _executionStack.push(_dataStack.getBS());
+-//   _executionStack.push(_dataStack.getSP());
+-//}
+ 
+-//void CRunBytecode::popsregOpcode()
+-//{
+-//   invalidOpcode(__FUNCTION__);
+-//   trace (&quot;popsreg opcode&quot;);
+-//
+-//   _dataStack.setSP(_executionStack.top());
+-//   _executionStack.pop();
+-//
+-//   _dataStack.setBS(_executionStack.top());
+-//   _executionStack.pop();
+-//
+-//   // Ajusta o tamanho correto de _dataStack
+-//   _dataStack.resize(_dataStack.getSP());
+-//}
+-
+-
+ void CRunBytecode::pcallOpcode()
+ {
+    trace (&quot;pcall opcode&quot;);
+@@ -403,28 +450,25 @@
+    trace (&quot;exit opcode&quot;);
+ 
+    _returnCode = getIntData(_code.fetchInt());
+-
+-   _stop = true;
++   _stop       = true;
+ }
+ 
+ 
+ void CRunBytecode::exit_0Opcode()
+ {
+-   trace (&quot;exit0 opcode&quot;);
++   trace (&quot;exit_0 opcode&quot;);
+ 
+    _returnCode = 0;
+-
+-   _stop = true;
++   _stop       = true;
+ }
+ 
+ 
+ void CRunBytecode::exit_1Opcode()
+ {
+-   trace (&quot;exit1 opcode&quot;);
++   trace (&quot;exit_1 opcode&quot;);
+ 
+    _returnCode = 1;
+-
+-   _stop = true;
++   _stop       = true;
+ }
+ 
+ 
+@@ -453,7 +497,13 @@
+ 
+ void CRunBytecode::rsumOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;rsum opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(val1Address) + getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::isubOpcode()
+@@ -474,7 +524,13 @@
+ 
+ void CRunBytecode::rsubOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;rsub opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(val1Address) - getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::imulOpcode()
+@@ -490,7 +546,13 @@
+ 
+ void CRunBytecode::rmulOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;rmul opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(val1Address) * getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::idivOpcode()
+@@ -506,7 +568,13 @@
+ 
+ void CRunBytecode::rdivOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;rdiv opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(val1Address) / getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::imodOpcode()
+@@ -520,10 +588,6 @@
+    setIntData(varAddress, getIntData(val1Address) % getIntData(val2Address));
+ }
+ 
+-void CRunBytecode::rmodOpcode()
+-{
+-   invalidOpcode(__FUNCTION__);
+-}
+ 
+ void CRunBytecode::igeOpcode()
+ {
+@@ -543,7 +607,13 @@
+ 
+ void CRunBytecode::rgeOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;rge opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(val1Address) &gt;= getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::ileOpcode()
+@@ -564,7 +634,13 @@
+ 
+ void CRunBytecode::rleOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;rle opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(val1Address) &lt;= getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::ineOpcode()
+@@ -585,7 +661,13 @@
+ 
+ void CRunBytecode::rneOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;rne opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(val1Address) != getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::igtOpcode()
+@@ -606,7 +688,13 @@
+ 
+ void CRunBytecode::rgtOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;rgt opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(val1Address) &gt; getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::iltOpcode()
+@@ -627,7 +715,13 @@
+ 
+ void CRunBytecode::rltOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;rlt opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(val1Address) &lt; getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::ieqOpcode()
+@@ -648,7 +742,13 @@
+ 
+ void CRunBytecode::reqOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;req opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int val1Address = _code.fetchInt();
++   int val2Address = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(val1Address) == getRealData(val2Address));
+ }
+ 
+ void CRunBytecode::orOpcode()
+@@ -735,7 +835,12 @@
+ 
+ void CRunBytecode::i2rOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;i2r opcode&quot;);
++
++   int var1Address = _code.fetchInt();
++   int var2Address = _code.fetchInt();
++
++   setRealData(var1Address, (double)getIntData(var2Address));
+ }
+ 
+ void CRunBytecode::c2rOpcode()
+@@ -805,7 +910,12 @@
+ 
+ void CRunBytecode::r2iOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;r2i opcode&quot;);
++
++   int var1Address = _code.fetchInt();
++   int var2Address = _code.fetchInt();
++
++   setIntData(var1Address, (int)getRealData(var2Address));
+ }
+ 
+ void CRunBytecode::s2iOpcode()
+@@ -829,50 +939,6 @@
+ }
+ 
+ 
+-void CRunBytecode::setIntData(const int &amp;address, const int &amp;value)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      _dataStack.setInt(address, value);
+-   } else {
+-//      std::cout &lt;&lt; &quot;setIntData global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-      _globalData.setInt(address, value); // TODO: _globalData ou _globalData ???
+-   }
+-}
+-
+-
+-int CRunBytecode::getIntData(const int &amp;address)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      return _dataStack.getInt(address);
+-   } else {
+-//      std::cout &lt;&lt; &quot;global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-      return _globalData.getInt(address);
+-   }
+-}
+-
+-
+-void CRunBytecode::setStringData(const int &amp;address, const std::string &amp;value)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      _dataStack.setCString(address, value);
+-   } else {
+-//      std::cout &lt;&lt; &quot;setCStringData global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-      _globalData.setCString(address, value);
+-   }
+-}
+-
+-
+-std::string CRunBytecode::getStringData(const int &amp;address)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      return _dataStack.getCString(address);
+-   } else {
+-//      std::cout &lt;&lt; &quot;global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-      return _globalData.getCString(address);
+-   }
+-}
+-
+-
+ void CRunBytecode::ssetOpcode()
+ {
+    invalidOpcode(__FUNCTION__);
+@@ -880,7 +946,12 @@
+ 
+ void CRunBytecode::rsetOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;rset opcode&quot;);
++
++   int varAddress = _code.fetchInt();
++   int valAddress = _code.fetchInt();
++
++   setRealData(varAddress, getRealData(valAddress));
+ }
+ 
+ void CRunBytecode::getaOpcode()
+@@ -967,7 +1038,11 @@
+ 
+ void CRunBytecode::poprvOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;poprv opcode&quot;);
++
++   int address = _code.fetchInt();
++
++   setRealData(address, _dataStack.popReal());
+ }
+ 
+ void CRunBytecode::popmvOpcode()
+@@ -1066,7 +1141,9 @@
+ {
+    trace (&quot;pushrv opcode&quot;);
+ 
+-   invalidOpcode(__FUNCTION__);
++   int address = _code.fetchInt();
++
++   _dataStack.pushReal(getRealData(address));
+ }
+ 
+ void CRunBytecode::pushmvOpcode()
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-30 13:30:08 UTC (rev 402)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-30 15:09:05 UTC (rev 403)
+@@ -34,6 +34,8 @@
+    void procLeia();
+    void setIntData(const int &amp;address, const int &amp;value);
+    int  getIntData(const int &amp;address);
++   void setRealData(const int &amp;address, const double &amp;value);
++   double getRealData(const int &amp;address);
+    void setStringData(const int &amp;address, const std::string &amp;value);
+    std::string getStringData(const int &amp;address);
+    // opcodes
+@@ -57,7 +59,6 @@
+    void idivOpcode();
+    void rdivOpcode();
+    void imodOpcode();
+-   void rmodOpcode();
+    void igeOpcode();
+    void sgeOpcode();
+    void rgeOpcode();
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000076.html">[gpt-commit] r402 - in trunk/gpt2: common/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000078.html">[gpt-commit] r404 - trunk/gpt2/common/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

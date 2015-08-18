@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r349 - trunk/gpt2/src/gptc
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r349%20-%20trunk/gpt2/src/gptc&In-Reply-To=%3C200711090431.lA94VE8b031624%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000022.html">
+   <LINK REL="Next"  HREF="000024.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r349 - trunk/gpt2/src/gptc</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r349%20-%20trunk/gpt2/src/gptc&In-Reply-To=%3C200711090431.lA94VE8b031624%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r349 - trunk/gpt2/src/gptc">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Nov  9 05:31:14 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000022.html">[gpt-commit] r348 - in trunk/gpt2/src/gptc: . testes
+</A></li>
+        <LI>Next message: <A HREF="000024.html">[gpt-commit] r350 - trunk/gpt2/src/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#23">[ date ]</a>
+              <a href="thread.html#23">[ thread ]</a>
+              <a href="subject.html#23">[ subject ]</a>
+              <a href="author.html#23">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-09 05:31:13 +0100 (Fri, 09 Nov 2007)
+New Revision: 349
+
+Modified:
+   trunk/gpt2/src/gptc/Makefile
+Log:
+DEVNULL:-isolando arquivos gerados
+
+Modified: trunk/gpt2/src/gptc/Makefile
+===================================================================
+--- trunk/gpt2/src/gptc/Makefile	2007-11-09 04:18:22 UTC (rev 348)
++++ trunk/gpt2/src/gptc/Makefile	2007-11-09 04:31:13 UTC (rev 349)
+@@ -1,42 +1,55 @@
+-objects = PortugolLexer.o PortugolParser.o SemanticWalker.o \
+-			    MismatchedUnicodeCharException.o teste.o
++output = ./obj
+ 
+-teste: $(objects)
+-	g++ -o teste $(objects) /usr/local/lib/libantlr.a
++objects = $(output)/PortugolLexer.o $(output)/PortugolParser.o \
++					$(output)/SemanticWalker.o $(output)/teste.o \
++					$(output)/MismatchedUnicodeCharException.o
+ 
+-PortugolLexer.o: PortugolLexer.hpp PortugolLexer.cpp
+-	g++ -c PortugolLexer.cpp
+ 
+-PortugolParser.o: PortugolParser.hpp PortugolParser.cpp
+-	g++ -c PortugolParser.cpp
++cpp = g++ -I$(output) -I.
+ 
+-SemanticWalker.o: SemanticWalker.hpp SemanticWalker.cpp
+-	g++ -c SemanticWalker.cpp
++teste: bin $(objects)
++	$(cpp) -o $(output)/teste $(objects) /usr/local/lib/libantlr.a
+ 
+-MismatchedUnicodeCharException.o:
+-	g++ -c MismatchedUnicodeCharException.cpp
++bin:
++	mkdir -p $(output)
+ 
+-teste.o: teste.cpp table.hpp
+-	g++ -c teste.cpp
++$(output)/PortugolLexer.o: $(output)/PortugolLexer.hpp $(output)/PortugolLexer.cpp
++	$(cpp) -c $(output)/PortugolLexer.cpp -o $(output)/PortugolLexer.o
+ 
+-PortugolLexer.hpp PortugolLexer.cpp: lexer.g
+-	antlr lexer.g
++$(output)/PortugolParser.o: $(output)/PortugolParser.hpp $(output)/PortugolParser.cpp
++	$(cpp) -c $(output)/PortugolParser.cpp -o $(output)/PortugolParser.o
+ 
+-PortugolParser.hpp PortugolParser.cpp: parser.g
+-	antlr parser.g
++$(output)/SemanticWalker.o: $(output)/SemanticWalker.hpp $(output)/SemanticWalker.cpp
++	$(cpp) -c $(output)/SemanticWalker.cpp -o $(output)/SemanticWalker.o
+ 
+-SemanticWalker.hpp SemanticWalker.cpp: semantic.g
+-	antlr semantic.g
++$(output)/MismatchedUnicodeCharException.o:
++	$(cpp) -c MismatchedUnicodeCharException.cpp \
++	-o $(output)/MismatchedUnicodeCharException.o
+ 
+-table.hpp:
+-	grep = PortugolTokenTypes.txt &gt; table.hpp
+-	sed -i -e 's/([^=]*)//' table.hpp
+-	sed -i -e 's/&quot;[^&quot;]*&quot;//' table.hpp
+-	sed -i -e 's/==/=/' table.hpp
+-	sed -i -e 's/\([^=]*\)=\(.*\)/table[\2]=&quot;\1&quot;;/' table.hpp
++$(output)/teste.o: teste.cpp $(output)/table.hpp
++	$(cpp) -c teste.cpp -o $(output)/teste.o
+ 
++$(output)/PortugolLexer.hpp $(output)/PortugolLexer.cpp: lexer.g
++	antlr -o $(output) lexer.g
+ 
++$(output)/PortugolParser.hpp $(output)/PortugolParser.cpp: parser.g
++	antlr -o $(output) parser.g
++
++$(output)/SemanticWalker.hpp $(output)/SemanticWalker.cpp: semantic.g
++	antlr -o $(output) semantic.g
++
++$(output)/table.hpp:
++	grep = $(output)/PortugolTokenTypes.txt &gt; $(output)/table.hpp
++	sed -i -e 's/([^=]*)//' $(output)/table.hpp
++	sed -i -e 's/&quot;[^&quot;]*&quot;//' $(output)/table.hpp
++	sed -i -e 's/==/=/' $(output)/table.hpp
++	sed -i -e 's/\([^=]*\)=\(.*\)/table[\2]=&quot;\1&quot;;/' $(output)/table.hpp
++
++
+ clean:
++	rm -rf $(output)
++
++cleanold:
+ 	rm -f *.o PortugolLexer.cpp PortugolLexer.hpp PortugolTokenTypes.hpp \
+ 	PortugolTokenTypes.txt PortugolParser.cpp PortugolParser.hpp teste \
+ 	PortugolParserTokenTypes.hpp PortugolParserTokenTypes.txt table.hpp \
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000022.html">[gpt-commit] r348 - in trunk/gpt2/src/gptc: . testes
+</A></li>
+	<LI>Next message: <A HREF="000024.html">[gpt-commit] r350 - trunk/gpt2/src/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#23">[ date ]</a>
+              <a href="thread.html#23">[ thread ]</a>
+              <a href="subject.html#23">[ subject ]</a>
+              <a href="author.html#23">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

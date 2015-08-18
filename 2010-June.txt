@@ -1,0 +1,64 @@
+From gpt-commit-noreply at mail.berlios.de  Wed Jun 16 06:06:23 2010
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Wed, 16 Jun 2010 06:06:23 +0200
+Subject: [gpt-commit] r543 - trunk/gpt/test
+Message-ID: <201006160406.o5G46N4B010325@sheep.berlios.de>
+
+Author: adorilson
+Date: 2010-06-16 06:06:12 +0200 (Wed, 16 Jun 2010)
+New Revision: 543
+
+Modified:
+   trunk/gpt/test/tester.gpt
+Log:
+DEVNULL:
+- Adicao de testes referentes a ponto flutuante
+
+
+Modified: trunk/gpt/test/tester.gpt
+===================================================================
+--- trunk/gpt/test/tester.gpt	2010-05-28 15:09:56 UTC (rev 542)
++++ trunk/gpt/test/tester.gpt	2010-06-16 04:06:12 UTC (rev 543)
+@@ -174,6 +174,39 @@
+     imprima("testar_expr_aritm: 5.0 / 2 <> 2.5");
+   fim-se
+ 
++  se 6.6 + 5.3 <> 11.9 ent?o
++    imprima("testar_expr_aritm: 6.6 + 5.3 <> 11.9");
++  fim-se  
++
++  se (6.6 + 5.3)/2 <> 5.95 ent?o
++    imprima("testar_expr_aritm: (6.6 + 5.3)/2 <> 5.95");
++  fim-se
++
++  se 0.7 + 2 <> 2.7 ent?o
++    imprima("testar_expr_aritm: 0.7 + 2 <> 2.7");
++  fim-se
++
++  se (0.7 + 2)/2 <> 1.35 ent?o
++    imprima("testar_expr_aritm: (0.7 + 2)/2 <> 1.35");
++  fim-se
++
++  se 0.6 + 0.3 <> 0.90 ent?o
++   imprima("testar_expr_aritm: 0.6 + 0.3 <> 0.9");
++  fim-se
++
++  se (0.6 + 0.3)/2 <> 0.45 ent?o
++    imprima("testar_expr_aritm: (0.6 + 0.3)/2 <> 0.45");
++  fim-se
++
++  se 0.6 + 0.8 <> 1.40 ent?o
++    imprima("testar_expr_aritm: 0.6 + 0.8 <> 1.4");
++  fim-se
++
++  se (0.6 + 0.8)/2 <> 0.70 ent?o
++    imprima("testar_expr_aritm: (0.6 + 0.8)/2 <> 0.7");
++  fim-se
++
++
+   se 1 + 5.0 / 2 <> 3.5 ent?o
+     imprima("testar_expr_aritm: 1 + 5.0 / 2 <> 3.5");
+   fim-se
+
+
+

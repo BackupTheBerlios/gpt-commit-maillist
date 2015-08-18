@@ -1,0 +1,651 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r386 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r386%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src&In-Reply-To=%3C200711231806.lANI6Rns018374%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000059.html">
+   <LINK REL="Next"  HREF="000061.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r386 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r386%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src&In-Reply-To=%3C200711231806.lANI6Rns018374%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r386 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri Nov 23 19:06:27 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000059.html">[gpt-commit] r385 - in trunk/gpt2: gptasm/test/wikki gptvm/src
+</A></li>
+        <LI>Next message: <A HREF="000061.html">[gpt-commit] r387 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#60">[ date ]</a>
+              <a href="thread.html#60">[ thread ]</a>
+              <a href="subject.html#60">[ subject ]</a>
+              <a href="author.html#60">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-23 19:06:17 +0100 (Fri, 23 Nov 2007)
+New Revision: 386
+
+Added:
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm
+   trunk/gpt2/gptvm/src/CExecutionStack.cpp
+   trunk/gpt2/gptvm/src/CExecutionStack.hpp
+Modified:
+   trunk/gpt2/common/src/Common.hpp
+   trunk/gpt2/gptasm/src/CGenBytecode.cpp
+   trunk/gpt2/gptasm/src/CGenBytecode.hpp
+   trunk/gpt2/gptasm/src/lexer.g
+   trunk/gpt2/gptasm/src/parser.g
+   trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm
+   trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm
+   trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm
+   trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm
+   trunk/gpt2/gptvm/src/CBytecode.cpp
+   trunk/gpt2/gptvm/src/CBytecode.hpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/src/Makefile
+Log:
+DEVNULL
+* Mnemonico push_sp e pop_sp trocados por push_sreg e pop_sreg
+* Implementado chamada para procedimentos definidos pelo usuario
+  sem suporte a parametros e sem suporte a variaveis locais
+* Implementado opcode pcall, ret e libcall (versao rudimentar por enquanto)
+
+
+Modified: trunk/gpt2/common/src/Common.hpp
+===================================================================
+--- trunk/gpt2/common/src/Common.hpp	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/common/src/Common.hpp	2007-11-23 18:06:17 UTC (rev 386)
+@@ -87,29 +87,30 @@
+    OP_PUSH_CHAR = 82,
+    OP_PUSH_BOOL = 83,
+    OP_PUSH_MATRIX = 84,
+-   OP_PUSH_SP = 85,
+-   OP_POP_SP = 86,
++   OP_PUSH_SREG = 85,
++   OP_POP_SREG = 86,
+    OP_INCSP_4 = 87,
+    OP_INCSP_8 = 88,
+    OP_DECSP_4 = 89,
+    OP_DECSP_8 = 90,
+    OP_PCALL = 91,
+    OP_RET         = 92,
+-   OP_SALLOC = 93,
+-   OP_SFREE = 94,
+-   OP_SSETC = 95,
+-   OP_SGETC = 96,
+-   OP_M1ALLOC = 97,
+-   OP_M2ALLOC = 98,
+-   OP_MFREE = 99,
+-   OP_M1SET = 100,
+-   OP_M1GET = 101,
+-   OP_M2SET = 102,
+-   OP_M2GET = 103,
+-   OP_MCOPY = 104,
+-   OP_MGETSIZE1 = 105,
+-   OP_MGETSIZE2 = 106,
+-   OPCODE_NUMBER  = 107
++   OP_LIBCALL = 93,
++   OP_SALLOC = 94,
++   OP_SFREE = 95,
++   OP_SSETC = 96,
++   OP_SGETC = 97,
++   OP_M1ALLOC = 98,
++   OP_M2ALLOC = 99,
++   OP_MFREE = 100,
++   OP_M1SET = 101,
++   OP_M1GET = 102,
++   OP_M2SET = 103,
++   OP_M2GET = 104,
++   OP_MCOPY = 105,
++   OP_MGETSIZE1 = 106,
++   OP_MGETSIZE2 = 107,
++   OPCODE_NUMBER  = 108
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-11-23 18:06:17 UTC (rev 386)
+@@ -98,14 +98,15 @@
+    _opcodes[ &quot;push_char&quot;   ] = OP_PUSH_CHAR;
+    _opcodes[ &quot;push_bool&quot;   ] = OP_PUSH_BOOL;
+    _opcodes[ &quot;push_matrix&quot; ] = OP_PUSH_MATRIX;
+-   _opcodes[ &quot;push_sp&quot;     ] = OP_PUSH_SP;
+-   _opcodes[ &quot;pop_sp&quot;      ] = OP_POP_SP;
++   _opcodes[ &quot;push_sreg&quot;   ] = OP_PUSH_SREG;
++   _opcodes[ &quot;pop_sreg&quot;    ] = OP_POP_SREG;
+    _opcodes[ &quot;incsp_4&quot;     ] = OP_INCSP_4;
+    _opcodes[ &quot;incsp_8&quot;     ] = OP_INCSP_8;
+    _opcodes[ &quot;decsp_4&quot;     ] = OP_DECSP_4;
+    _opcodes[ &quot;decsp_8&quot;     ] = OP_DECSP_8;
+    _opcodes[ &quot;pcall&quot;       ] = OP_PCALL;
+    _opcodes[ &quot;ret&quot;         ] = OP_RET;
++   _opcodes[ &quot;libcall&quot;     ] = OP_LIBCALL;
+    _opcodes[ &quot;salloc&quot;      ] = OP_SALLOC;
+    _opcodes[ &quot;sfree&quot;       ] = OP_SFREE;
+    _opcodes[ &quot;ssetc&quot;       ] = OP_SSETC;
+@@ -140,14 +141,15 @@
+    _symbolTable.addProcedure (procedureName, CSymbol::NO_TYPE, _code.size(), hasVarArguments, staticParameters, parameters);
+    _currentProcedure = procedureName;
+    _currentSP = 0;
+-   _unsolvedLabels.clear();
+-   _solvedLabels.clear();
++//   _unsolvedLabels.clear();
++//   _solvedLabels.clear();
++    registryLabel(procedureName);
+ }
+ 
+ 
+ void CGenBytecode::finishProcedure()
+ {
+-   translateLabelsToAddress();
++//   translateLabelsToAddress();
+    _currentProcedure.clear();
+    // TODO: delete na procedure ???
+ }
+@@ -177,7 +179,7 @@
+       abort();
+    }
+    _solvedLabels[labelName] = _code.size();
+-//   std::cout &lt;&lt; &quot;Registry label: &quot; &lt;&lt; labelName &lt;&lt; &quot; address: &quot; &lt;&lt; _code.size() &lt;&lt; std::endl;
++   std::cout &lt;&lt; &quot;Registry label: &quot; &lt;&lt; labelName &lt;&lt; &quot; address: &quot; &lt;&lt; _code.size() &lt;&lt; std::endl;
+ }
+ 
+ 
+@@ -223,7 +225,7 @@
+ void CGenBytecode::unsolvedLabel(const std::string &amp;label)
+ {
+    _unsolvedLabels.push_back(std::pair&lt;std::string, int&gt;(label, _code.size()));
+-//   std::cout &lt;&lt; &quot;Unsolved label: &quot; &lt;&lt; label &lt;&lt; &quot; address: &quot; &lt;&lt; _code.size() &lt;&lt; std::endl;
++   std::cout &lt;&lt; &quot;Unsolved label: &quot; &lt;&lt; label &lt;&lt; &quot; address: &quot; &lt;&lt; _code.size() &lt;&lt; std::endl;
+    _code.writeInt(0);
+ }
+ 
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.hpp	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptasm/src/CGenBytecode.hpp	2007-11-23 18:06:17 UTC (rev 386)
+@@ -25,8 +25,8 @@
+    void addAddress(const std::string &amp;id, const int &amp;category, const int &amp;type);
+    CBinString getBinary();
+    void unsolvedLabel(const std::string &amp;label);
++   void translateLabelsToAddress();
+ private:
+-   void translateLabelsToAddress();
+ 
+    CHeader                    _header;
+    CSymbolTable               _symbolTable;
+
+Modified: trunk/gpt2/gptasm/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptasm/src/lexer.g	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptasm/src/lexer.g	2007-11-23 18:06:17 UTC (rev 386)
+@@ -133,13 +133,14 @@
+    T_KW_PUSH_CHAR=&quot;push_char&quot;;
+    T_KW_PUSH_BOOL=&quot;push_bool&quot;;
+    T_KW_PUSH_MATRIX=&quot;push_matrix&quot;;
+-   T_KW_PUSH_SP=&quot;push_sp&quot;;
+-   T_KW_POP_SP=&quot;pop_sp&quot;;
++   T_KW_PUSH_SP=&quot;push_sreg&quot;;
++   T_KW_POP_SP=&quot;pop_sreg&quot;;
+    T_KW_INCSP_4=&quot;incsp_4&quot;;
+    T_KW_INCSP_8=&quot;incsp_8&quot;;
+    T_KW_DECSP_4=&quot;decsp_4&quot;;
+    T_KW_DECSP_8=&quot;decsp_8&quot;;
+    T_KW_PCALL=&quot;pcall&quot;;
++   T_KW_LIBCALL=&quot;libcall&quot;;
+    T_KW_RET=&quot;ret&quot;;
+    T_KW_SALLOC=&quot;salloc&quot;;
+    T_KW_SFREE=&quot;sfree&quot;;
+
+Modified: trunk/gpt2/gptasm/src/parser.g
+===================================================================
+--- trunk/gpt2/gptasm/src/parser.g	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptasm/src/parser.g	2007-11-23 18:06:17 UTC (rev 386)
+@@ -64,6 +64,7 @@
+      &quot;endprogram&quot;
+      EOF
+      {
++        bytecode.translateLabelsToAddress();
+         ret = bytecode.getBinary();
+      }
+      ;
+@@ -262,13 +263,17 @@
+ //      {bytecode.addOpcode(getLastTokenText());}
+    |  (&quot;push_int&quot;|&quot;push_string&quot;|&quot;push_real&quot;|&quot;push_char&quot;|&quot;push_bool&quot;|&quot;push_matrix&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+-   |  (&quot;push_sp&quot;|&quot;pop_sp&quot;)
++   |  (&quot;push_sreg&quot;|&quot;pop_sreg&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+    |  (&quot;incsp_4&quot;|&quot;incsp_8&quot;|&quot;decsp_4&quot;|&quot;decsp_8&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+    |  &quot;pcall&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+       T_ID
++      { bytecode.unsolvedLabel(getLastTokenText());}
++   |  &quot;libcall&quot;
++      {bytecode.addOpcode(getLastTokenText());}
++      T_ID
+       { bytecode.addAddress(getLastTokenText(),CSymbol::CONST, CSymbol::STRING); }
+    |  &quot;ret&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+
+Modified: trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm	2007-11-23 18:06:17 UTC (rev 386)
+@@ -24,12 +24,12 @@
+     proximo:
+ 
+     // imprima( x );
+-    push_sp
++    push_sreg
+     push x
+     push_int
+     push 1
+-    pcall imprima
+-    pop_sp
++    libcall imprima
++    pop_sreg
+ 
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm	2007-11-23 18:06:17 UTC (rev 386)
+@@ -13,12 +13,12 @@
+     ifnot t1, proximo
+ 
+     // imprima( x );
+-    push_sp
++    push_sreg
+     push x
+     push_int
+     push 1
+-    pcall imprima
+-    pop_sp
++    libcall imprima
++    pop_sreg
+ 
+     // fim-para
+     iinc x, 1
+
+Modified: trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm	2007-11-23 18:06:17 UTC (rev 386)
+@@ -5,7 +5,7 @@
+     var t2 int
+ 
+     // imprima( &quot;2+5*3=&quot;, 2+5*3 );
+-    push_sp
++    push_sreg
+     imul t1, 5, 3
+     isum t2, 2, t1
+     push t2
+@@ -13,8 +13,8 @@
+     push &quot;2+5*3=&quot;
+     push_string
+     push 2
+-    pcall imprima
+-    pop_sp
++    libcall imprima
++    pop_sreg
+ 
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm	2007-11-23 18:06:17 UTC (rev 386)
+@@ -1,12 +1,12 @@
+ program exemplo
+ 
+ proc main
+-    push_sp
++    push_sreg
+     push &quot;Ol&#225; mundo !!!&quot;
+     push_string
+     push 1
+-    pcall imprima
+-    pop_sp
++    libcall imprima
++    pop_sreg
+ 
+     exit 0
+ endproc
+
+Added: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm	2007-11-23 18:06:17 UTC (rev 386)
+@@ -0,0 +1,33 @@
++program exemplo
++
++proc main
++   push_sreg
++   pcall soma
++   pop_sreg
++
++   push_sreg
++   push &quot;Finalizando...&quot;
++   push_string
++   push 1
++   libcall imprima
++   pop_sreg
++
++   exit 0
++endproc
++
++proc soma
++   var temp int
++
++   isum temp, 2, 4
++
++   push_sreg
++   push temp
++   push_int
++   push 1
++   libcall imprima
++   pop_sreg
++
++   ret
++endproc
++   
++endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm	2007-11-23 18:06:17 UTC (rev 386)
+@@ -14,7 +14,7 @@
+     iset y, 20
+ 	
+     // imprima( &quot;x*y+4=&quot;, x*y+4 );
+-    push_sp
++    push_sreg
+     imul t1, x, y
+     isum t2, t1, 4
+     push t2
+@@ -22,8 +22,8 @@
+     push &quot;x*y+4=&quot;
+     push_string
+     push 2
+-    pcall imprima
+-    pop_sp
++    libcall imprima
++    pop_sreg
+ 	
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptvm/src/CBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CBytecode.cpp	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptvm/src/CBytecode.cpp	2007-11-23 18:06:17 UTC (rev 386)
+@@ -32,3 +32,9 @@
+    _IP = IP;
+ }
+ 
++
++int CBytecode::getIP() const
++{
++   return _IP;
++}
++
+
+Modified: trunk/gpt2/gptvm/src/CBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CBytecode.hpp	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptvm/src/CBytecode.hpp	2007-11-23 18:06:17 UTC (rev 386)
+@@ -13,6 +13,7 @@
+    char fetchByte();
+    int  fetchInt();
+    void setIP(const int &amp;IP);
++   int getIP() const;
+    CBinString::readString;
+ private:
+    int _IP;
+
+Added: trunk/gpt2/gptvm/src/CExecutionStack.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CExecutionStack.cpp	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptvm/src/CExecutionStack.cpp	2007-11-23 18:06:17 UTC (rev 386)
+@@ -0,0 +1,27 @@
++#include &quot;CExecutionStack.hpp&quot;
++
++
++CExecutionStack::CExecutionStack()
++   : _BP(0)
++   , _SP(0)
++{
++}
++
++
++void CExecutionStack::pushStackRegs()
++{
++   push(_BP);
++   push(_SP);
++   _BP = _SP;
++}
++
++
++void CExecutionStack::popStackRegs()
++{
++   _SP = top();
++   pop();
++
++   _BP = top();
++   pop();
++}
++
+
+Added: trunk/gpt2/gptvm/src/CExecutionStack.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CExecutionStack.hpp	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptvm/src/CExecutionStack.hpp	2007-11-23 18:06:17 UTC (rev 386)
+@@ -0,0 +1,19 @@
++#ifndef GPT_EXECUTION_STACK_HPP
++#define GPT_EXECUTION_STACK_HPP
++
++#include &lt;stack&gt;
++
++
++class CExecutionStack : public std::stack&lt;int&gt;
++{
++public:
++   CExecutionStack();
++   void pushStackRegs();
++   void popStackRegs();
++private:
++   int _BP;
++   int _SP;
++};
++
++#endif
++
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-23 18:06:17 UTC (rev 386)
+@@ -39,12 +39,13 @@
+    }
+ 
+    _opcodePointer[OP_NOP        ] = &amp;CRunBytecode::nopOpcode;
+-   _opcodePointer[OP_PUSH_SP    ] = &amp;CRunBytecode::pushSpOpcode;
+-   _opcodePointer[OP_POP_SP     ] = &amp;CRunBytecode::popSpOpcode;
++   _opcodePointer[OP_PUSH_SREG  ] = &amp;CRunBytecode::pushSregOpcode;
++   _opcodePointer[OP_POP_SREG   ] = &amp;CRunBytecode::popSregOpcode;
+    _opcodePointer[OP_PUSH       ] = &amp;CRunBytecode::pushOpcode;
+    _opcodePointer[OP_PUSH_STRING] = &amp;CRunBytecode::pushStringOpcode;
+ //   _opcodePointer[OP_PUSH_1     ] = &amp;CRunBytecode::push1Opcode;
+    _opcodePointer[OP_PCALL      ] = &amp;CRunBytecode::pcallOpcode;
++   _opcodePointer[OP_LIBCALL    ] = &amp;CRunBytecode::libcallOpcode;
+ //   _opcodePointer[OP_EXIT_0     ] = &amp;CRunBytecode::exit0Opcode;
+    _opcodePointer[OP_EXIT       ] = &amp;CRunBytecode::exitOpcode;
+ 
+@@ -256,17 +257,18 @@
+    // nothing to do
+ }
+ 
+-void CRunBytecode::pushSpOpcode()
++void CRunBytecode::pushSregOpcode()
+ {
+-   trace (&quot;push_sp opcode&quot;);
+-   _executionStack.push(0); // TODO
++   trace (&quot;push_sreg opcode&quot;);
++
++   _executionStack.pushStackRegs();
+ }
+ 
+-void CRunBytecode::popSpOpcode()
++void CRunBytecode::popSregOpcode()
+ {
+-   trace (&quot;pop_sp opcode&quot;);
+-   _executionStack.top(); // TODO
+-   _executionStack.pop();
++   trace (&quot;pop_sreg opcode&quot;);
++
++   _executionStack.popStackRegs();
+ }
+ 
+ void CRunBytecode::pushOpcode()
+@@ -291,10 +293,21 @@
+ 
+    int address = _code.fetchInt();
+ 
+-//   std::string temp = _data.getCString(address);
++   _executionStack.push(_code.getIP());
++   _code.setIP(address);
++}
+ 
++
++void CRunBytecode::libcallOpcode()
++{
++   trace (&quot;libcall opcode&quot;);
++
++   int address = _code.fetchInt();
++
+    if (_data.getCString(address) == &quot;imprima&quot;) {
+       procImprima();
++   } else {
++      error(&quot;libcall invocando subrotina desconhecida !!!&quot;);
+    }
+ }
+ 
+@@ -850,7 +863,10 @@
+ 
+ void CRunBytecode::retOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;ret opcode&quot;);
++
++   _code.setIP(_executionStack.top());
++   _executionStack.pop();
+ }
+ 
+ void CRunBytecode::sallocOpcode()
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-23 18:06:17 UTC (rev 386)
+@@ -8,11 +8,11 @@
+ 
+ #include &quot;CHeader.hpp&quot;
+ #include &quot;CSymbolTable.hpp&quot;
+-//#include &quot;CData.hpp&quot;
+ #include &quot;CBinString.hpp&quot;
+ #include &quot;CBytecode.hpp&quot;
+ #include &quot;Common.hpp&quot;
+ #include &quot;CDataStack.hpp&quot;
++#include &quot;CExecutionStack.hpp&quot;
+ 
+ class CRunBytecode;
+ 
+@@ -35,12 +35,13 @@
+    // opcodes
+    void invalidOpcode(const std::string &amp;opcode=&quot;&quot;);
+    void nopOpcode();
+-   void pushSpOpcode();
+-   void popSpOpcode();
++   void pushSregOpcode();
++   void popSregOpcode();
+    void pushOpcode();
+    void pushStringOpcode();
+ //   void push1Opcode();
+    void pcallOpcode();
++   void libcallOpcode();
+ //   void exit0Opcode();
+    void exitOpcode();
+ 
+@@ -166,7 +167,7 @@
+    bool          _stop;
+    int           _returnCode;
+    CDataStack    _dataStack;
+-   std::stack&lt;int&gt; _executionStack;
++   CExecutionStack _executionStack;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptvm/src/Makefile
+===================================================================
+--- trunk/gpt2/gptvm/src/Makefile	2007-11-22 19:06:00 UTC (rev 385)
++++ trunk/gpt2/gptvm/src/Makefile	2007-11-23 18:06:17 UTC (rev 386)
+@@ -7,6 +7,7 @@
+ GPTASM=../gptasm/
+ 
+ objects = main.o CGptVm.o CRunBytecode.o CDataStack.o CBytecode.o \
++          CExecutionStack.o \
+           $(COMMON_DIR)CSymbol.o $(COMMON_DIR)CSymbolTable.o \
+           $(COMMON_DIR)CHeader.o \
+           $(COMMON_DIR)CBinString.o $(COMMON_DIR)CSymbolList.o 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000059.html">[gpt-commit] r385 - in trunk/gpt2: gptasm/test/wikki gptvm/src
+</A></li>
+	<LI>Next message: <A HREF="000061.html">[gpt-commit] r387 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#60">[ date ]</a>
+              <a href="thread.html#60">[ thread ]</a>
+              <a href="subject.html#60">[ subject ]</a>
+              <a href="author.html#60">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

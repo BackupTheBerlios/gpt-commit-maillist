@@ -1,0 +1,757 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r451 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm gptasm/test/wikki gptvm/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r451%20-%20in%20trunk/gpt2%3A%20bindings/gptbind/src%0A%09bindings/gptbind/test%20common/src%20gptasm%20gptasm/test/wikki%20gptvm/src&In-Reply-To=%3C200712191829.lBJIT21K015560%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000124.html">
+   <LINK REL="Next"  HREF="000126.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r451 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm gptasm/test/wikki gptvm/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r451%20-%20in%20trunk/gpt2%3A%20bindings/gptbind/src%0A%09bindings/gptbind/test%20common/src%20gptasm%20gptasm/test/wikki%20gptvm/src&In-Reply-To=%3C200712191829.lBJIT21K015560%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r451 - in trunk/gpt2: bindings/gptbind/src	bindings/gptbind/test common/src gptasm gptasm/test/wikki gptvm/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 19:29:02 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000124.html">[gpt-commit] r450 - trunk/gpt2/gptasm/src
+</A></li>
+        <LI>Next message: <A HREF="000126.html">[gpt-commit] r452 - trunk/gpt2/gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-19 19:29:01 +0100 (Wed, 19 Dec 2007)
+New Revision: 451
+
+Added:
+   trunk/gpt2/bindings/gptbind/test/math.sld
+   trunk/gpt2/bindings/gptbind/test/messages.sld
+   trunk/gpt2/common/src/CDataStack.cpp
+   trunk/gpt2/common/src/CDataStack.hpp
+Removed:
+   trunk/gpt2/bindings/gptbind/test/test.sld
+   trunk/gpt2/gptasm/test/wikki/chamada_sistema_2.gasm
+   trunk/gpt2/gptvm/src/CDataStack.cpp
+   trunk/gpt2/gptvm/src/CDataStack.hpp
+Modified:
+   trunk/gpt2/bindings/gptbind/src/CBindSources.cpp
+   trunk/gpt2/bindings/gptbind/src/CGptBind.cpp
+   trunk/gpt2/bindings/gptbind/src/parser.g
+   trunk/gpt2/gptasm/configure.ac
+   trunk/gpt2/gptasm/test/wikki/chamada_sistema_1.gasm
+   trunk/gpt2/gptasm/test/wikki/chamada_sistema_3.gasm
+   trunk/gpt2/gptasm/test/wikki/chamada_sistema_4.gasm
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+Log:
+DEVNULL:
+* Primeira versao funcional do gerador de bindings
+  - A partir de um .sld gera o .cpp, .hpp e Makefile
+  - Compilando o Makefile gera o .so que pode ser utilizado na VM
+* Movendo a classe CDataStack para o diretorio common
+
+
+Modified: trunk/gpt2/bindings/gptbind/src/CBindSources.cpp
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/CBindSources.cpp	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/bindings/gptbind/src/CBindSources.cpp	2007-12-19 18:29:01 UTC (rev 451)
+@@ -21,14 +21,21 @@
+    }
+    hppSource.writeln();
+ 
++   hppSource.writeln( &quot;#include \&quot;CDataStack.hpp\&quot;&quot; );
++   hppSource.writeln();
++
+    hppSource.writeln( &quot;extern \&quot;C\&quot; {&quot; );
+    hppSource.incTab();
+ 
+    cppSource.writeln( &quot;#include \&quot;&quot; + _filename + &quot;.hpp\&quot;&quot; );
+    cppSource.writeln();
+-   cppSource.writeln( &quot;#include \&quot;CDataStack.hpp\&quot;&quot; );
+    cppSource.writeln( &quot;#include \&quot;CSymbol.hpp\&quot;&quot; );
+    cppSource.writeln();
++
++   makefileSource.writeln(&quot;COMMON_DIR=../../../common/src/&quot;);
++   makefileSource.writeln(&quot;INCLUDE_DIR=-I$(COMMON_DIR)&quot;);// -I../../../gptvm/src/&quot;);
++   makefileSource.writeln(&quot;CC=g++&quot;);
++   makefileSource.writeln(&quot;CCFLAGS=-g -Wall&quot;);
+ }
+ 
+ 
+@@ -112,6 +119,34 @@
+    hppSource.writeln(&quot;}&quot;);
+    hppSource.writeln();
+    hppSource.writeln( &quot;#endif&quot; );
++
++   makefileSource.write(&quot;LIBS=&quot;);
++
++   for(std::list&lt;std::string&gt;::iterator lib = _linkerLibList.begin(); lib != _linkerLibList.end(); lib++) {
++      std::string slib = (*lib).substr(1, (*lib).length()-2);
++      makefileSource.write(&quot;-l&quot; + slib + &quot; &quot;);
++   }
++   makefileSource.writeln();
++   makefileSource.writeln();
++
++   makefileSource.writeln(&quot;objects = &quot; + _filename + &quot;.o $(COMMON_DIR)/CDataStack.o $(COMMON_DIR)/CBinString.o $(COMMON_DIR)/Tools.o&quot;);
++   makefileSource.writeln();
++
++   makefileSource.writeln(&quot;all: $(objects)&quot;);
++   makefileSource.writeln(&quot;\tg++ -shared $(objects) $(LIBS) -o lib&quot; + _filename + &quot;.so&quot;);
++   makefileSource.writeln();
++
++   makefileSource.writeln(&quot;%.o: %.cpp %.hpp&quot;);
++   makefileSource.writeln(&quot;\t$(CC) -shared $(CCFLAGS) -c $(INCLUDE_DIR) $&lt; -o $@&quot;);
++   makefileSource.writeln();
++
++   makefileSource.writeln(&quot;%.o: %.cpp&quot;);
++   makefileSource.writeln(&quot;\t$(CC) -shared $(CCFLAGS) -c $(INCLUDE_DIR) $&lt; -o $@&quot;);
++   makefileSource.writeln();
++
++   makefileSource.writeln(&quot;clean:&quot;);
++   makefileSource.writeln(&quot;\trm -f *.o lib&quot; + _filename + &quot;.so&quot;);
++   makefileSource.writeln();
+ }
+ 
+ 
+
+Modified: trunk/gpt2/bindings/gptbind/src/CGptBind.cpp
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/CGptBind.cpp	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/bindings/gptbind/src/CGptBind.cpp	2007-12-19 18:29:01 UTC (rev 451)
+@@ -40,6 +40,14 @@
+ 
+    hppFile &lt;&lt; hppOutput;
+ 
++   ofstream makefileFile((&quot;Makefile.&quot; + _options-&gt;destfile).c_str(), ios_base::out);
++   if (!makefileFile) {
++      cout &lt;&lt; &quot;ERRO: n&#227;o foi poss&#237;vel abrir o arquivo: \&quot;&quot; &lt;&lt; _options-&gt;destfile &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl;
++      return false;
++   }
++
++   makefileFile &lt;&lt; makefileOutput;
++
+    return true;
+ }
+ 
+
+Modified: trunk/gpt2/bindings/gptbind/src/parser.g
+===================================================================
+--- trunk/gpt2/bindings/gptbind/src/parser.g	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/bindings/gptbind/src/parser.g	2007-12-19 18:29:01 UTC (rev 451)
+@@ -86,19 +86,19 @@
+ //-------
+   optionsdef
+ //-------
+-   : &quot;options&quot; T_ABREC (optiondef)+ T_FECHAC
++   : &quot;options&quot; T_ABREC (optiondef)* T_FECHAC
+    ;
+ 
+ //------
+   optiondef
+ //------
+-   : optionname T_EQUAL T_STRING_VALUE T_SEMICOLON
++   : linkerlibOption T_SEMICOLON
+    ;
+ 
+ ///----------
+-   optionname
++   linkerlibOption
+ ///----------
+-   : &quot;linkerlib&quot; { sources-&gt;addLinkerLib(getLastTokenText()); }
++   : &quot;linkerlib&quot; T_EQUAL T_STRING_VALUE { sources-&gt;addLinkerLib(getLastTokenText()); }
+    ;
+ 
+ //#############
+
+Added: trunk/gpt2/bindings/gptbind/test/math.sld
+===================================================================
+--- trunk/gpt2/bindings/gptbind/test/math.sld	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/bindings/gptbind/test/math.sld	2007-12-19 18:29:01 UTC (rev 451)
+@@ -0,0 +1,13 @@
++options {
++}
++
++headers {
++   &quot;math.h&quot;;
++}
++
++function sqrt(real value) : real ::= sqrt(value);
++
++function exponencial(real valor) : real ::= exp(valor);
++
++function pow(real value1, real value2) : real ::= pow(value1, value2);
++
+
+Added: trunk/gpt2/bindings/gptbind/test/messages.sld
+===================================================================
+--- trunk/gpt2/bindings/gptbind/test/messages.sld	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/bindings/gptbind/test/messages.sld	2007-12-19 18:29:01 UTC (rev 451)
+@@ -0,0 +1,12 @@
++options {
++//   linkerlib = &quot;math&quot;;
++}
++
++headers {
++   &quot;stdlib.h&quot;;
++   &quot;iostream&quot;;
++}
++
++procedure mensagem_padrao() ::= puts(&quot;Hello !!!&quot;);
++
++procedure imprime_mensagem(string msg) ::= puts(msg);
+
+Deleted: trunk/gpt2/bindings/gptbind/test/test.sld
+===================================================================
+--- trunk/gpt2/bindings/gptbind/test/test.sld	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/bindings/gptbind/test/test.sld	2007-12-19 18:29:01 UTC (rev 451)
+@@ -1,17 +0,0 @@
+-options {
+-   linkerlib = &quot;math&quot;;
+-}
+-
+-headers {
+-   &quot;stdlib.h&quot;;
+-   &quot;math.h&quot;;
+-   &quot;iostream&quot;;
+-}
+-
+-procedure mensagem_padrao() ::= puts(&quot;Hello !!!&quot;);
+-
+-procedure mensagem_personalizada(string msg) ::= puts(msg);
+-
+-function sqrt(real value) : real ::= sqrt(value);
+-
+-function exponencial(real valor) : real ::= exp(valor);
+
+Copied: trunk/gpt2/common/src/CDataStack.cpp (from rev 433, trunk/gpt2/gptvm/src/CDataStack.cpp)
+
+Copied: trunk/gpt2/common/src/CDataStack.hpp (from rev 433, trunk/gpt2/gptvm/src/CDataStack.hpp)
+
+Modified: trunk/gpt2/gptasm/configure.ac
+===================================================================
+--- trunk/gpt2/gptasm/configure.ac	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/gptasm/configure.ac	2007-12-19 18:29:01 UTC (rev 451)
+@@ -94,7 +94,7 @@
+ [
+   COMMON_LIB=`pwd`/$withval
+ ],[
+-  COMMON_LIB=&quot;../../common/src/libgptcommon.la&quot;
++  COMMON_LIB=&quot;../../common/_build/src/libgptcommon.la&quot;
+ ])
+ 
+ AC_SUBST(COMMON_LIB)
+
+Modified: trunk/gpt2/gptasm/test/wikki/chamada_sistema_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/chamada_sistema_1.gasm	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/gptasm/test/wikki/chamada_sistema_1.gasm	2007-12-19 18:29:01 UTC (rev 451)
+@@ -2,12 +2,12 @@
+ // use io
+ 
+ proc main
+-    lcall io, imprime_hello
++    lcall messages, mensagem_padrao
+ 
+-    lcall io, imprime_hello
++    lcall messages, mensagem_padrao
+ 
+     pushsv &quot;Oi !!!!&quot;
+-    lcall io, imprime_mensagem
++    lcall messages, imprime_mensagem
+ 
+     exit 0
+ endproc
+
+Deleted: trunk/gpt2/gptasm/test/wikki/chamada_sistema_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/chamada_sistema_2.gasm	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/gptasm/test/wikki/chamada_sistema_2.gasm	2007-12-19 18:29:01 UTC (rev 451)
+@@ -1,20 +0,0 @@
+-program exemplo
+-// use io
+-
+-var t1 int
+-
+-proc main
+-    pushiv 2
+-    pushiv 4
+-    lcall io, soma
+-    popiv t1
+-
+-    pushiv t1
+-    pushit
+-    push_1
+-    lcall io, imprima
+-
+-    exit 0
+-endproc
+-
+-endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/chamada_sistema_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/chamada_sistema_3.gasm	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/gptasm/test/wikki/chamada_sistema_3.gasm	2007-12-19 18:29:01 UTC (rev 451)
+@@ -6,7 +6,7 @@
+ proc main
+     pushrv 3
+     pushrv 9
+-    lcall io, pow
++    lcall math, pow
+     poprv t1
+ 
+     pushrv t1
+
+Modified: trunk/gpt2/gptasm/test/wikki/chamada_sistema_4.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/chamada_sistema_4.gasm	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/gptasm/test/wikki/chamada_sistema_4.gasm	2007-12-19 18:29:01 UTC (rev 451)
+@@ -5,7 +5,7 @@
+ 
+ proc main
+     pushrv 9
+-    lcall io, sqrt
++    lcall math, sqrt
+     poprv t1
+ 
+     pushrv t1
+
+Deleted: trunk/gpt2/gptvm/src/CDataStack.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-19 18:29:01 UTC (rev 451)
+@@ -1,313 +0,0 @@
+-#include &quot;CDataStack.hpp&quot;
+-
+-#include &quot;Common.hpp&quot;
+-
+-#include &quot;Tools.hpp&quot;
+-#include &quot;CSymbol.hpp&quot;
+-
+-
+-
+-#include &lt;iostream&gt;
+-
+-
+-CDataStack::CDataStack()
+-   : _BS(0)
+-   , _SP(0)
+-{
+-}
+-
+-
+-CDataStack::~CDataStack()
+-{
+-}
+-
+-void CDataStack::setInt(const int &amp;address, const int &amp;value)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      CBinString::setInt(_BS + realAddress(address), value);
+-   } else {
+-      CBinString::setInt(realAddress(address), value);
+-   }
+-//   CBinString::setInt(_BS * IS_LOCAL_ADDRESS(address) + realAddress(address), value);
+-}
+-
+-
+-
+-int CDataStack::getInt(const int &amp;address)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      return CBinString::getInt(_BS + realAddress(address));
+-   } else {
+-      return CBinString::getInt(realAddress(address));
+-   }
+-//   return CBinString::getInt(_BS * IS_LOCAL_ADDRESS(address) + realAddress(address));
+-}
+-
+-
+-//void CDataStack::setInt(const int &amp;address, const int &amp;value)
+-//{
+-////   std::cout &lt;&lt; &quot;setInt &quot;;
+-//   if (IS_LOCAL_ADDRESS(address)) {
+-////      std::cout &lt;&lt; &quot;local address sem bit ligado: &quot; &lt;&lt; ((unsigned int)address &amp; UNSET_BIT_LOCAL) &lt;&lt; std::endl;
+-//      CBinString::setInt(_BS + realAddress(address), value);
+-//   } else {
+-//      std::cout &lt;&lt; &quot;ERRO !!! Invocando setInt com global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-//   }
+-//}
+-
+-
+-
+-//int CDataStack::getInt(const int &amp;address)
+-//{
+-////   std::cout &lt;&lt; &quot;getInt &quot;;
+-//   if (IS_LOCAL_ADDRESS(address)) {
+-////      std::cout &lt;&lt; &quot;local address sem bit ligado: &quot; &lt;&lt; ((unsigned int)address &amp; UNSET_BIT_LOCAL) &lt;&lt; std::endl;
+-//      return CBinString::getInt(_BS + realAddress(address));
+-//   } else {
+-//      std::cout &lt;&lt; &quot;ERRO !!! Invocando getInt com global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-//      return -1;
+-//   }
+-//}
+-
+-
+-void CDataStack::pushInt(const int &amp;value)
+-{
+-   CBinString::pushInt(value);
+-   _SP+=sizeof(int);
+-}
+-
+-
+-int CDataStack::popInt()
+-{
+-   int result = CBinString::popInt();
+-   _SP-=sizeof(int);
+-   return result;
+-}
+-
+-
+-void CDataStack::pushByte(const char &amp;value)
+-{
+-   CBinString::pushByte(value);
+-   _SP+=sizeof(char);
+-}
+-
+-
+-char CDataStack::popByte()
+-{
+-   char result = CBinString::popByte();
+-   _SP-=sizeof(char);
+-   return result;
+-}
+-
+-
+-void CDataStack::setReal(const int &amp;address, const double &amp;value)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      CBinString::setReal(_BS + realAddress(address), value);
+-   } else {
+-      CBinString::setReal(realAddress(address), value);
+-   }
+-}
+-
+-
+-double CDataStack::getReal(const int &amp;address)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      return CBinString::getReal(_BS + realAddress(address));
+-   } else {
+-      return CBinString::getReal(realAddress(address));
+-   }
+-}
+-
+-
+-void CDataStack::pushReal(const double &amp;value)
+-{
+-   CBinString::pushReal(value);
+-   _SP+=sizeof(double);
+-}
+-
+-
+-double CDataStack::popReal()
+-{
+-   double result = CBinString::popReal();
+-   _SP-=sizeof(double);
+-   return result;
+-}
+-
+-
+-void CDataStack::setBytes(const int &amp;address, const std::string &amp;value)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      CBinString::setBytes(_BS + realAddress(address), value);
+-   } else {
+-      CBinString::setBytes(realAddress(address), value);
+-   }
+-}
+-
+-
+-void CDataStack::pushBytes(const std::string &amp;value)
+-{
+-   CBinString::pushBytes(value);
+-   _SP+=value.size();
+-}
+-
+-
+-std::string CDataStack::popBytes(const int &amp;size)
+-{
+-   std::string result = CBinString::popBytes(size);
+-   _SP-=size;
+-   return result;
+-}
+-
+-
+-std::string CDataStack::getBytes(const int &amp;address, const int &amp;size)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      return CBinString::getBytes(_BS + realAddress(address), size);
+-   } else {
+-      return CBinString::getBytes(realAddress(address), size);
+-   }
+-}
+-
+-
+-void CDataStack::setString(int address, const std::string &amp;value)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      address = _BS + realAddress(address);
+-   } else {
+-      address = realAddress(address);
+-   }
+-
+-   char type = getByte(address);
+-   address++;
+-
+-   if (type == CSymbol::CONST) {
+-      CBinString::setCString(address, value);
+-   } else {
+-      *((std::string*)(CBinString::getInt(address))) = value;
+-   }
+-}
+-
+-
+-std::string CDataStack::getString(int address)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      address = _BS + realAddress(address);
+-   } else {
+-      address = realAddress(address);
+-   }
+-
+-   char type = CBinString::getByte(address);
+-   address++;
+-
+-   if (type == CSymbol::CONST) {
+-      return CBinString::getCString(address);
+-//      return CBinString::getCString(CBinString::getInt(address)+1);
+-   } else {
+-      return *((std::string*)CBinString::getInt(address));
+-   }
+-}
+-
+-
+-std::string CDataStack::popString()
+-{
+-   int dataSize = sizeof(char)+sizeof(std::string*);
+-   std::string result = getString(size()-dataSize);
+-   CBinString::popBytes(dataSize);
+-   return result;
+-}
+-
+-void CDataStack::pushBytes(const int &amp;number)
+-{
+-   CBinString::pushBytes(number);
+-   _SP += number;
+-}
+-
+-
+-void CDataStack::discardBytes(const int &amp;number)
+-{
+-   CBinString::popBytes(number);
+-   _SP -= number;
+-}
+-
+-
+-void CDataStack::setBS(const int &amp;value)
+-{
+-   _BS = value;
+-}
+-
+-
+-void CDataStack::setSP(const int &amp;value)
+-{
+-   CBinString::resize(value);
+-   _SP = value;
+-}
+-
+-
+-void CDataStack::decSP(const int &amp;value)
+-{
+-   CBinString::popBytes(value);
+-   _SP -= value;
+-}
+-
+-
+-int CDataStack::getBS() const
+-{
+-   return _BS;
+-}
+-
+-
+-int CDataStack::getSP() const
+-{
+-   return _SP;
+-}
+-
+-void CDataStack::readString(std::string &amp;value)
+-{
+-   CBinString::readString(value);
+-   setBS(size());
+-}
+-
+-
+-void CDataStack::setByte(const int &amp;address, const char &amp;value)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      CBinString::setByte(_BS + realAddress(address), value);
+-   } else {
+-      CBinString::setByte(realAddress(address), value);
+-   }
+-}
+-
+-
+-char CDataStack::getByte(const int &amp;address)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      return CBinString::getByte(_BS + realAddress(address));
+-   } else {
+-      return CBinString::getByte(realAddress(address));
+-   }
+-}
+-
+-
+-void *CDataStack::getPointer(const int &amp;address)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      return (void*)(data() + _BS + realAddress(address));
+-   } else {
+-      return (void*)(data() + realAddress(address));
+-   }
+-}
+-
+-
+-void CDataStack::pushBytes(const void* data, const int &amp;size)
+-{
+-   const char* bytes = (const char*) data;
+-   for(int i=0; i&lt;size; i++) {
+-      CBinString::pushByte(*bytes);
+-      bytes++;
+-   }
+-
+-   _SP+=size;
+-}
+-
+-
+
+Deleted: trunk/gpt2/gptvm/src/CDataStack.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-19 18:29:01 UTC (rev 451)
+@@ -1,48 +0,0 @@
+-#ifndef GPT_DATA_STACK_H
+-#define GPT_DATA_STACK_H
+-
+-
+-#include &quot;CBinString.hpp&quot;
+-
+-
+-class CDataStack : public CBinString
+-{
+-public:
+-   CDataStack();
+-   ~CDataStack();
+-   void setInt(const int &amp;address, const int &amp;value);
+-   int getInt(const int &amp;address);
+-   void pushInt(const int &amp;value);
+-   int popInt();
+-   void setReal(const int &amp;address, const double &amp;value);
+-   double getReal(const int &amp;address);
+-   void pushReal(const double &amp;value);
+-   double popReal();
+-   void setBytes(const int &amp;address, const std::string &amp;value);
+-   std::string getBytes(const int &amp;address, const int &amp;size);
+-   void pushBytes(const std::string &amp;value);
+-   std::string popBytes(const int &amp;size);
+-   void pushBytes(const int &amp;number);
+-   void discardBytes(const int &amp;number);
+-   void setBS(const int &amp;value);
+-   void setSP(const int &amp;value);
+-   void decSP(const int &amp;value);
+-   int getBS() const;
+-   int getSP() const;
+-   void readString(std::string &amp;value);
+-   std::string getString(int address);
+-   std::string popString();
+-   void setString(int address, const std::string &amp;value);
+-   void setByte(const int &amp;address, const char &amp;value);
+-   char getByte(const int &amp;address);
+-   void pushByte(const char &amp;value);
+-   char popByte();
+-   void *getPointer(const int &amp;address);
+-   void pushBytes(const void* data, const int &amp;size);
+-private:
+-   int _BS;
+-   int _SP; // TODO: SP eh equivalente a size() ???
+-};
+-
+-#endif
+-
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-19 16:15:32 UTC (rev 450)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-19 18:29:01 UTC (rev 451)
+@@ -396,7 +396,7 @@
+ 
+    if (ithandler == syslibHandlerList.end()) {
+       // TODO: path absoluto ??? nem pensar :-)
+-      dlhandler = dlopen((&quot;../../../syslib/src/lib&quot; + libname + &quot;.so&quot;).c_str(), RTLD_LAZY);
++      dlhandler = dlopen((&quot;../../../bindings/gptbind/test/lib&quot; + libname + &quot;.so&quot;).c_str(), RTLD_LAZY);
+       if (!dlhandler) {
+          fprintf (stderr, &quot;%s\n&quot;, dlerror());
+          exit(1);
+@@ -475,9 +475,10 @@
+       } else if (procname == &quot;leia&quot;) {
+          procLeia();
+       } else {
+-//         error(&quot;lcall invocando subrotina desconhecida !!!&quot;);
+-         callSyslib(libname, procname);
++         error(&quot;lcall invocando subrotina desconhecida !!!&quot;);
+       }
++   } else {
++      callSyslib(libname, procname);
+    }
+ 
+    _dataStack.setBS(_executionStack.top());
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000124.html">[gpt-commit] r450 - trunk/gpt2/gptasm/src
+</A></li>
+	<LI>Next message: <A HREF="000126.html">[gpt-commit] r452 - trunk/gpt2/gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

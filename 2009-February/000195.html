@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r522 - trunk/gpt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r522%20-%20trunk/gpt&In-Reply-To=%3C200902211901.n1LJ1bLU000704%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000194.html">
+   <LINK REL="Next"  HREF="000196.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r522 - trunk/gpt</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r522%20-%20trunk/gpt&In-Reply-To=%3C200902211901.n1LJ1bLU000704%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r522 - trunk/gpt">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Sat Feb 21 20:01:37 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000194.html">[gpt-commit] r521 - trunk/gpt/src/modules/interpreter
+</A></li>
+        <LI>Next message: <A HREF="000196.html">[gpt-commit] r523 - trunk/gpt/src/modules/x86
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#195">[ date ]</a>
+              <a href="thread.html#195">[ thread ]</a>
+              <a href="subject.html#195">[ subject ]</a>
+              <a href="author.html#195">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2009-02-21 20:01:37 +0100 (Sat, 21 Feb 2009)
+New Revision: 522
+
+Modified:
+   trunk/gpt/gpt.kdevelop
+Log:
+nomsg
+
+Modified: trunk/gpt/gpt.kdevelop
+===================================================================
+--- trunk/gpt/gpt.kdevelop	2009-02-21 17:49:59 UTC (rev 521)
++++ trunk/gpt/gpt.kdevelop	2009-02-21 19:01:37 UTC (rev 522)
+@@ -1,5 +1,4 @@
+ &lt;?xml version = '1.0'?&gt;
+-
+ &lt;kdevelop&gt;
+   &lt;general&gt;
+     &lt;author&gt;Thiago Silva&lt;/author&gt;
+@@ -16,6 +15,8 @@
+     &lt;projectdirectory&gt;.&lt;/projectdirectory&gt;
+     &lt;absoluteprojectpath&gt;false&lt;/absoluteprojectpath&gt;
+     &lt;description&gt;&lt;/description&gt;
++    &lt;projectname&gt;gpt&lt;/projectname&gt;
++    &lt;defaultencoding&gt;&lt;/defaultencoding&gt;
+   &lt;/general&gt;
+   &lt;kdevautoproject&gt;
+     &lt;general&gt;
+@@ -23,16 +24,21 @@
+       &lt;useconfiguration&gt;debug&lt;/useconfiguration&gt;
+     &lt;/general&gt;
+     &lt;run&gt;
+-      &lt;mainprogram&gt;src/gpt&lt;/mainprogram&gt;
++      &lt;mainprogram&gt;/home/tsilva/src/gpt/gpt/debug/src/gpt&lt;/mainprogram&gt;
+       &lt;terminal&gt;false&lt;/terminal&gt;
+       &lt;directoryradio&gt;executable&lt;/directoryradio&gt;
+       &lt;customdirectory&gt;/&lt;/customdirectory&gt;
+-      &lt;programargs/&gt;
++      &lt;programargs&gt;-i ../exemplos/olamundo.gpt&lt;/programargs&gt;
+       &lt;autocompile&gt;true&lt;/autocompile&gt;
+       &lt;envvars/&gt;
+       &lt;runarguments&gt;
+         &lt;gpt/&gt;
+       &lt;/runarguments&gt;
++      &lt;globaldebugarguments&gt;-i ../exemplos/olamundo.gpt&lt;/globaldebugarguments&gt;
++      &lt;globalcwd&gt;/home/tsilva/src/gpt/gpt/debug&lt;/globalcwd&gt;
++      &lt;useglobalprogram&gt;true&lt;/useglobalprogram&gt;
++      &lt;autoinstall&gt;false&lt;/autoinstall&gt;
++      &lt;autokdesu&gt;false&lt;/autokdesu&gt;
+     &lt;/run&gt;
+     &lt;configurations&gt;
+       &lt;optimized&gt;
+@@ -61,15 +67,13 @@
+       &lt;/debug&gt;
+     &lt;/configurations&gt;
+     &lt;make&gt;
+-      &lt;envvars&gt;
+-        &lt;envvar value=&quot;1&quot; name=&quot;WANT_AUTOCONF_2_5&quot; /&gt;
+-        &lt;envvar value=&quot;1&quot; name=&quot;WANT_AUTOMAKE_1_6&quot; /&gt;
+-      &lt;/envvars&gt;
++      &lt;envvars/&gt;
+       &lt;abortonerror&gt;true&lt;/abortonerror&gt;
+-      &lt;numberofjobs&gt;1&lt;/numberofjobs&gt;
++      &lt;numberofjobs&gt;3&lt;/numberofjobs&gt;
+       &lt;dontact&gt;false&lt;/dontact&gt;
+-      &lt;makebin/&gt;
++      &lt;makebin&gt;&lt;/makebin&gt;
+       &lt;prio&gt;0&lt;/prio&gt;
++      &lt;runmultiplejobs&gt;true&lt;/runmultiplejobs&gt;
+     &lt;/make&gt;
+   &lt;/kdevautoproject&gt;
+   &lt;kdevdoctreeview&gt;
+@@ -170,11 +174,31 @@
+       &lt;codeCompletionDelay&gt;250&lt;/codeCompletionDelay&gt;
+       &lt;argumentsHintDelay&gt;400&lt;/argumentsHintDelay&gt;
+       &lt;headerCompletionDelay&gt;250&lt;/headerCompletionDelay&gt;
++      &lt;showOnlyAccessibleItems&gt;false&lt;/showOnlyAccessibleItems&gt;
++      &lt;completionBoxItemOrder&gt;0&lt;/completionBoxItemOrder&gt;
++      &lt;howEvaluationContextMenu&gt;true&lt;/howEvaluationContextMenu&gt;
++      &lt;showCommentWithArgumentHint&gt;true&lt;/showCommentWithArgumentHint&gt;
++      &lt;statusBarTypeEvaluation&gt;false&lt;/statusBarTypeEvaluation&gt;
++      &lt;namespaceAliases&gt;std=_GLIBCXX_STD;__gnu_cxx=std&lt;/namespaceAliases&gt;
++      &lt;processPrimaryTypes&gt;true&lt;/processPrimaryTypes&gt;
++      &lt;processFunctionArguments&gt;false&lt;/processFunctionArguments&gt;
++      &lt;preProcessAllHeaders&gt;false&lt;/preProcessAllHeaders&gt;
++      &lt;parseMissingHeadersExperimental&gt;false&lt;/parseMissingHeadersExperimental&gt;
++      &lt;resolveIncludePathsUsingMakeExperimental&gt;false&lt;/resolveIncludePathsUsingMakeExperimental&gt;
++      &lt;alwaysParseInBackground&gt;true&lt;/alwaysParseInBackground&gt;
++      &lt;usePermanentCaching&gt;true&lt;/usePermanentCaching&gt;
++      &lt;alwaysIncludeNamespaces&gt;false&lt;/alwaysIncludeNamespaces&gt;
++      &lt;includePaths&gt;.;&lt;/includePaths&gt;
+     &lt;/codecompletion&gt;
+     &lt;qt&gt;
+       &lt;used&gt;false&lt;/used&gt;
+       &lt;version&gt;3&lt;/version&gt;
+       &lt;root&gt;/usr/lib/qt&lt;/root&gt;
++      &lt;includestyle&gt;3&lt;/includestyle&gt;
++      &lt;designerintegration&gt;EmbeddedKDevDesigner&lt;/designerintegration&gt;
++      &lt;qmake&gt;&lt;/qmake&gt;
++      &lt;designer&gt;&lt;/designer&gt;
++      &lt;designerpluginpaths/&gt;
+     &lt;/qt&gt;
+     &lt;creategettersetter&gt;
+       &lt;prefixGet&gt;&lt;/prefixGet&gt;
+@@ -184,6 +208,11 @@
+       &lt;inlineGet&gt;true&lt;/inlineGet&gt;
+       &lt;inlineSet&gt;true&lt;/inlineSet&gt;
+     &lt;/creategettersetter&gt;
++    &lt;splitheadersource&gt;
++      &lt;enabled&gt;false&lt;/enabled&gt;
++      &lt;synchronize&gt;true&lt;/synchronize&gt;
++      &lt;orientation&gt;Vertical&lt;/orientation&gt;
++    &lt;/splitheadersource&gt;
+   &lt;/kdevcppsupport&gt;
+   &lt;cppsupportpart&gt;
+     &lt;filetemplates&gt;
+@@ -202,6 +231,7 @@
+       &lt;breakonloadinglibs&gt;true&lt;/breakonloadinglibs&gt;
+       &lt;separatetty&gt;false&lt;/separatetty&gt;
+       &lt;floatingtoolbar&gt;false&lt;/floatingtoolbar&gt;
++      &lt;raiseGDBOnStart&gt;false&lt;/raiseGDBOnStart&gt;
+     &lt;/general&gt;
+     &lt;display&gt;
+       &lt;staticmembers&gt;false&lt;/staticmembers&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000194.html">[gpt-commit] r521 - trunk/gpt/src/modules/interpreter
+</A></li>
+	<LI>Next message: <A HREF="000196.html">[gpt-commit] r523 - trunk/gpt/src/modules/x86
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#195">[ date ]</a>
+              <a href="thread.html#195">[ thread ]</a>
+              <a href="subject.html#195">[ subject ]</a>
+              <a href="author.html#195">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

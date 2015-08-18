@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r523 - trunk/gpt/src/modules/x86
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r523%20-%20trunk/gpt/src/modules/x86&In-Reply-To=%3C200902212126.n1LLQFST020721%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000195.html">
+   <LINK REL="Next"  HREF="000197.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r523 - trunk/gpt/src/modules/x86</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r523%20-%20trunk/gpt/src/modules/x86&In-Reply-To=%3C200902212126.n1LLQFST020721%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r523 - trunk/gpt/src/modules/x86">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Sat Feb 21 22:26:15 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000195.html">[gpt-commit] r522 - trunk/gpt
+</A></li>
+        <LI>Next message: <A HREF="000197.html">[gpt-commit] r524 - trunk/gpt/src/modules/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#196">[ date ]</a>
+              <a href="thread.html#196">[ thread ]</a>
+              <a href="subject.html#196">[ subject ]</a>
+              <a href="author.html#196">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: adorilson
+Date: 2009-02-21 22:26:05 +0100 (Sat, 21 Feb 2009)
+New Revision: 523
+
+Modified:
+   trunk/gpt/src/modules/x86/X86.cpp
+   trunk/gpt/src/modules/x86/asm_lib.h
+Log:
+- Correcao do bug #83 (ver mantis) para a versao compilada (impressao de tipo literal)
+
+
+Modified: trunk/gpt/src/modules/x86/X86.cpp
+===================================================================
+--- trunk/gpt/src/modules/x86/X86.cpp	2009-02-21 19:01:37 UTC (rev 522)
++++ trunk/gpt/src/modules/x86/X86.cpp	2009-02-21 21:26:05 UTC (rev 523)
+@@ -186,6 +186,7 @@
+             &quot;    aux2            dd 0\n&quot;
+             &quot;    str_true        db 'verdadeiro',0\n&quot;
+             &quot;    str_false       db 'falso',0\n&quot;
++            &quot;    str_null        db '(nulo)',0\n&quot;
+             &quot;    str_no_mem_left db 'N&#227;o foi poss&#237;vel alocar mem&#243;ria.',0\n\n&quot;;
+ 
+ 
+
+Modified: trunk/gpt/src/modules/x86/asm_lib.h
+===================================================================
+--- trunk/gpt/src/modules/x86/asm_lib.h	2009-02-21 19:01:37 UTC (rev 522)
++++ trunk/gpt/src/modules/x86/asm_lib.h	2009-02-21 21:26:05 UTC (rev 523)
+@@ -84,13 +84,18 @@
+ &quot;    begin 0\n&quot;
+ &quot;\n&quot;
+ &quot;    mov eax, [string]\n&quot;
+-&quot;    cmp eax, 0\n&quot;
+-&quot;    jz .end\n&quot;
++&quot;    cmp eax, ''\n&quot;
++&quot;    jz .imprima_nulo\n&quot;
+ &quot;\n&quot;
+ &quot;    addarg dword [string]\n&quot;
+ &quot;    call print\n&quot;
+ &quot;    clargs 1\n&quot;
++&quot;    jmp .end\n&quot;
+ &quot;\n&quot;
++&quot;    .imprima_nulo&quot;
++&quot;      addarg dword str_null\n&quot;
++&quot;      call print\n&quot;
++&quot;      clargs 1\n&quot;
+ &quot;\n&quot;
+ &quot;    .end:\n&quot;
+ &quot;      return\n&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000195.html">[gpt-commit] r522 - trunk/gpt
+</A></li>
+	<LI>Next message: <A HREF="000197.html">[gpt-commit] r524 - trunk/gpt/src/modules/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#196">[ date ]</a>
+              <a href="thread.html#196">[ thread ]</a>
+              <a href="subject.html#196">[ subject ]</a>
+              <a href="author.html#196">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

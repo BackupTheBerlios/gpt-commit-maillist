@@ -1,0 +1,582 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r428 - in trunk/gpt2/gptc: . test test/tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r428%20-%20in%20trunk/gpt2/gptc%3A%20.%20test%20test/tests&In-Reply-To=%3C200712080931.lB89VYJg017854%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000101.html">
+   <LINK REL="Next"  HREF="000103.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r428 - in trunk/gpt2/gptc: . test test/tests</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r428%20-%20in%20trunk/gpt2/gptc%3A%20.%20test%20test/tests&In-Reply-To=%3C200712080931.lB89VYJg017854%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r428 - in trunk/gpt2/gptc: . test test/tests">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Sat Dec  8 10:31:34 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000101.html">[gpt-commit] r427 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000103.html">[gpt-commit] r429 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#102">[ date ]</a>
+              <a href="thread.html#102">[ thread ]</a>
+              <a href="subject.html#102">[ subject ]</a>
+              <a href="author.html#102">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-08 10:31:34 +0100 (Sat, 08 Dec 2007)
+New Revision: 428
+
+Modified:
+   trunk/gpt2/gptc/Makefile.am
+   trunk/gpt2/gptc/test/TestAST.cpp
+   trunk/gpt2/gptc/test/compiler_test.g
+   trunk/gpt2/gptc/test/tests/ast.test
+Log:
+-Testes atualizados
+
+Modified: trunk/gpt2/gptc/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/Makefile.am	2007-12-08 09:30:55 UTC (rev 427)
++++ trunk/gpt2/gptc/Makefile.am	2007-12-08 09:31:34 UTC (rev 428)
+@@ -1 +1 @@
+-SUBDIRS = src
+\ No newline at end of file
++SUBDIRS = src test
+\ No newline at end of file
+
+Modified: trunk/gpt2/gptc/test/TestAST.cpp
+===================================================================
+--- trunk/gpt2/gptc/test/TestAST.cpp	2007-12-08 09:30:55 UTC (rev 427)
++++ trunk/gpt2/gptc/test/TestAST.cpp	2007-12-08 09:31:34 UTC (rev 428)
+@@ -1,5 +1,6 @@
+ #include &quot;TestAST.hpp&quot;
+ #include &lt;iostream&gt;
++#include &quot;TokenNames.hpp&quot;
+ 
+ #include &lt;map&gt;
+ #include &lt;string&gt;
+@@ -62,16 +63,15 @@
+ 		return false;
+   }
+ 
+-  #include &quot;tokenNames.hpp&quot;
+ 
+   int token = -1;
+-  std::map&lt;int, std::string &gt;::iterator it;
+-  for (it = tokenNames.begin(); it != tokenNames.end(); it++) {
+-    if (it-&gt;second == getText()) {
+-      token = it-&gt;first;
++  for (int i = 0; i &lt; g_tokenNamesSize; i++) {
++    if (g_tokenNames[i] == getText()) {
++      token = i;
++      break;
+     }
+   }
+-
++  
+   if (token == -1) {
+     cerr &lt;&lt; &quot;\n\n[TestAST::equals] ops: token n&#227;o encontrado: &quot;
+          &lt;&lt; getText() &lt;&lt; endl &lt;&lt; endl;
+
+Modified: trunk/gpt2/gptc/test/compiler_test.g
+===================================================================
+--- trunk/gpt2/gptc/test/compiler_test.g	2007-12-08 09:30:55 UTC (rev 427)
++++ trunk/gpt2/gptc/test/compiler_test.g	2007-12-08 09:31:34 UTC (rev 428)
+@@ -109,7 +109,6 @@
+   ;
+ 
+ COMENTARIO_C
+-{int line = getLine();}
+   : &quot;/*&quot;
+     (
+       options { generateAmbigWarnings=false; } :
+
+Modified: trunk/gpt2/gptc/test/tests/ast.test
+===================================================================
+--- trunk/gpt2/gptc/test/tests/ast.test	2007-12-08 09:30:55 UTC (rev 427)
++++ trunk/gpt2/gptc/test/tests/ast.test	2007-12-08 09:31:34 UTC (rev 428)
+@@ -69,7 +69,7 @@
+ 
+   ast: (T_ALGORITMO
+          (T_VARIAVEL T_LITERAL T_IDENTIFICADOR
+-           (T_VALOR T_INTEIRO_LITERAL)))
++           (T_VALOR (T_EXPRESSAO T_INTEIRO_LITERAL))))
+ fim
+ 
+ teste
+@@ -91,7 +91,9 @@
+          (T_VARIAVEL (T_MATRIZ T_CARACTERE T_NULO) T_IDENTIFICADOR
+            (T_VALOR
+              (T_VAL_MATRIZ
+-                T_CARACTERE_LITERAL T_CARACTERE_LITERAL T_CARACTERE_LITERAL))))
++                (T_EXPRESSAO T_CARACTERE_LITERAL)
++                (T_EXPRESSAO T_CARACTERE_LITERAL)
++                (T_EXPRESSAO T_CARACTERE_LITERAL)))))
+ fim
+ 
+ teste
+@@ -104,9 +106,9 @@
+            (T_VALOR
+              (T_VAL_MATRIZ
+                 (T_VAL_MATRIZ
+-                  T_CARACTERE_LITERAL T_CARACTERE_LITERAL)
++                  (T_EXPRESSAO T_CARACTERE_LITERAL) (T_EXPRESSAO T_CARACTERE_LITERAL))
+                 (T_VAL_MATRIZ
+-                  T_CARACTERE_LITERAL T_CARACTERE_LITERAL)))))
++                  (T_EXPRESSAO T_CARACTERE_LITERAL) (T_EXPRESSAO T_CARACTERE_LITERAL))))))
+ fim
+ 
+ teste
+@@ -125,8 +127,8 @@
+   ast: (T_ALGORITMO
+           (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
+             (T_VALOR (T_VAL_ESTRUTURA
+-                        T_IDENTIFICADOR T_IDENTIFICADOR
+-                        T_IDENTIFICADOR T_INTEIRO_LITERAL))))
++                        T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR)
++                        T_IDENTIFICADOR (T_EXPRESSAO T_INTEIRO_LITERAL)))))
+ fim
+ 
+ teste
+@@ -138,9 +140,9 @@
+           (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
+             (T_VALOR
+               (T_VAL_ESTRUTURA T_IDENTIFICADOR
+-                (T_VAL_MATRIZ T_INTEIRO_LITERAL
+-                              T_INTEIRO_LITERAL
+-                              T_INTEIRO_LITERAL)))))
++                (T_VAL_MATRIZ (T_EXPRESSAO T_INTEIRO_LITERAL)
++                              (T_EXPRESSAO T_INTEIRO_LITERAL)
++                              (T_EXPRESSAO T_INTEIRO_LITERAL))))))
+ fim
+ 
+ 
+@@ -158,9 +160,9 @@
+             T_IDENTIFICADOR
+             (T_VALOR
+               (T_VAL_MATRIZ
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_TEXTO_LITERAL)
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_VERDADEIRO)))))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_TEXTO_LITERAL))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_VERDADEIRO))))))
+ fim
+ 
+ 
+@@ -178,9 +180,9 @@
+             T_IDENTIFICADOR
+             (T_VALOR
+               (T_VAL_MATRIZ
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_TEXTO_LITERAL)
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_VERDADEIRO)))))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_TEXTO_LITERAL))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_VERDADEIRO))))))
+ fim
+ 
+ teste
+@@ -194,13 +196,15 @@
+           (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
+             (T_VALOR
+               (T_VAL_ESTRUTURA T_IDENTIFICADOR
+-                (T_VAL_MATRIZ T_INTEIRO_LITERAL
+-                              T_INTEIRO_LITERAL
+-                              T_INTEIRO_LITERAL))))
++                (T_VAL_MATRIZ (T_EXPRESSAO T_INTEIRO_LITERAL)
++                              (T_EXPRESSAO T_INTEIRO_LITERAL)
++                              (T_EXPRESSAO T_INTEIRO_LITERAL)))))
+           (T_VARIAVEL (T_MATRIZ T_CARACTERE T_NULO) T_IDENTIFICADOR
+            (T_VALOR
+              (T_VAL_MATRIZ
+-                T_CARACTERE_LITERAL T_CARACTERE_LITERAL T_CARACTERE_LITERAL)))
++                (T_EXPRESSAO  T_CARACTERE_LITERAL) 
++                (T_EXPRESSAO  T_CARACTERE_LITERAL) 
++                (T_EXPRESSAO  T_CARACTERE_LITERAL))))
+           (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR))
+ fim
+ 
+@@ -244,9 +248,9 @@
+             T_IDENTIFICADOR T_IDENTIFICADOR T_IDENTIFICADOR
+             (T_VALOR
+               (T_VAL_MATRIZ
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL)))))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_CARACTERE_LITERAL))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL))))))
+ fim
+ 
+ 
+@@ -273,11 +277,11 @@
+                T_IDENTIFICADOR T_IDENTIFICADOR T_IDENTIFICADOR
+                (T_VALOR
+                   (T_VAL_MATRIZ
+-                     (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
+-                     (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
+-                      (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL))))
++                     (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR))
++                     (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_CARACTERE_LITERAL))
++                     (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL)))))
+           (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
+-             (T_VALOR (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR))))
++             (T_VALOR (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR)))))
+ fim
+ 
+ 
+@@ -309,11 +313,11 @@
+                          T_INTEIRO_LITERAL)
+                T_IDENTIFICADOR T_IDENTIFICADOR T_IDENTIFICADOR
+                (T_VALOR (T_VAL_MATRIZ
+-                     (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
+-                     (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
+-                     (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL))))
++                     (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR))
++                     (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_CARACTERE_LITERAL))
++                     (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL)))))
+            (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
+-             (T_VALOR (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR))))
++             (T_VALOR (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR)))))
+ fim
+ 
+ 
+@@ -329,7 +333,7 @@
+ 
+   ast: (T_ALGORITMO
+           (T_CONSTANTE T_INTEIRO T_IDENTIFICADOR
+-            (T_VALOR T_INTEIRO_LITERAL)))
++            (T_VALOR (T_EXPRESSAO T_INTEIRO_LITERAL))))
+ fim
+ 
+ 
+@@ -343,7 +347,9 @@
+             (T_MATRIZ T_INTEIRO T_INTEIRO_LITERAL) T_IDENTIFICADOR
+               (T_VALOR
+                 (T_VAL_MATRIZ
+-                  T_INTEIRO_LITERAL T_INTEIRO_LITERAL T_INTEIRO_LITERAL))))
++                  (T_EXPRESSAO T_INTEIRO_LITERAL)
++                  (T_EXPRESSAO T_INTEIRO_LITERAL)
++                  (T_EXPRESSAO T_INTEIRO_LITERAL)))))
+ fim
+ 
+ teste
+@@ -355,8 +361,8 @@
+           (T_CONSTANTE T_IDENTIFICADOR T_IDENTIFICADOR
+             (T_VALOR
+               (T_VAL_ESTRUTURA
+-                T_IDENTIFICADOR T_IDENTIFICADOR
+-                T_IDENTIFICADOR T_REAL_LITERAL))))
++                T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR)
++                T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL)))))
+ fim
+ 
+ teste
+@@ -370,11 +376,11 @@
+               (T_VALOR
+                 (T_VAL_MATRIZ
+                   (T_VAL_ESTRUTURA
+-                    T_IDENTIFICADOR T_INTEIRO_LITERAL
+-                    T_IDENTIFICADOR T_REAL_LITERAL)
++                    T_IDENTIFICADOR (T_EXPRESSAO T_INTEIRO_LITERAL)
++                    T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL))
+                   (T_VAL_ESTRUTURA
+-                    T_IDENTIFICADOR T_CARACTERE_LITERAL
+-                    T_IDENTIFICADOR T_TEXTO_LITERAL)))))
++                    T_IDENTIFICADOR (T_EXPRESSAO T_CARACTERE_LITERAL)
++                    T_IDENTIFICADOR (T_EXPRESSAO T_TEXTO_LITERAL))))))
+ fim
+ 
+ 
+@@ -386,17 +392,17 @@
+ 
+   ast: (T_ALGORITMO
+          (T_CONSTANTE T_INTEIRO T_IDENTIFICADOR
+-            (T_VALOR T_INTEIRO_LITERAL))
++            (T_VALOR (T_EXPRESSAO T_INTEIRO_LITERAL)))
+           (T_CONSTANTE
+             (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL) T_IDENTIFICADOR
+               (T_VALOR
+                 (T_VAL_MATRIZ
+                   (T_VAL_ESTRUTURA
+-                    T_IDENTIFICADOR T_INTEIRO_LITERAL
+-                    T_IDENTIFICADOR T_REAL_LITERAL)
++                    T_IDENTIFICADOR (T_EXPRESSAO T_INTEIRO_LITERAL)
++                    T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL))
+                   (T_VAL_ESTRUTURA
+-                    T_IDENTIFICADOR T_CARACTERE_LITERAL
+-                    T_IDENTIFICADOR T_TEXTO_LITERAL)))))
++                    T_IDENTIFICADOR (T_EXPRESSAO T_CARACTERE_LITERAL)
++                    T_IDENTIFICADOR (T_EXPRESSAO T_TEXTO_LITERAL))))))
+ fim
+ 
+ teste
+@@ -412,15 +418,15 @@
+ 
+   ast : (T_ALGORITMO
+           (T_CONSTANTE T_INTEIRO T_IDENTIFICADOR
+-                        (T_VALOR T_INTEIRO_LITERAL))
++                        (T_VALOR (T_EXPRESSAO T_INTEIRO_LITERAL)))
+           (T_CONSTANTE
+             (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL)
+              T_IDENTIFICADOR
+             (T_VALOR
+               (T_VAL_MATRIZ
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL)))))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_CARACTERE_LITERAL))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL))))))
+ fim
+ 
+ teste
+@@ -437,20 +443,20 @@
+ 
+   ast : (T_ALGORITMO
+           (T_CONSTANTE T_INTEIRO T_IDENTIFICADOR
+-                        (T_VALOR T_INTEIRO_LITERAL))
++                        (T_VALOR (T_EXPRESSAO T_INTEIRO_LITERAL)))
+           (T_CONSTANTE
+             (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL)
+              T_IDENTIFICADOR
+             (T_VALOR
+               (T_VAL_MATRIZ
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
+-                (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL))))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_CARACTERE_LITERAL))
++                (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL)))))
+                     (T_CONSTANTE T_IDENTIFICADOR T_IDENTIFICADOR
+             (T_VALOR
+               (T_VAL_ESTRUTURA
+-                T_IDENTIFICADOR T_IDENTIFICADOR
+-                T_IDENTIFICADOR T_REAL_LITERAL))))
++                T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR)
++                T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL)))))
+ fim
+ 
+ 
+@@ -473,15 +479,15 @@
+           (T_ESTRUTURA T_IDENTIFICADOR
+             (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR)
+             (T_VARIAVEL T_INTEIRO T_IDENTIFICADOR
+-               (T_VALOR T_INTEIRO_LITERAL))
++               (T_VALOR (T_EXPRESSAO T_INTEIRO_LITERAL)))
+             (T_VARIAVEL
+               (T_MATRIZ T_IDENTIFICADOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL)
+               T_IDENTIFICADOR T_IDENTIFICADOR T_IDENTIFICADOR
+               (T_VALOR
+                 (T_VAL_MATRIZ
+-                  (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
+-                  (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
+-                  (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL))))))
++                  (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR))
++                  (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_CARACTERE_LITERAL))
++                  (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL)))))))
+ fim
+ 
+ 
+@@ -608,11 +614,11 @@
+                             T_INTEIRO_LITERAL)
+                   T_IDENTIFICADOR T_IDENTIFICADOR T_IDENTIFICADOR
+                   (T_VALOR (T_VAL_MATRIZ
+-                        (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)
+-                        (T_VAL_ESTRUTURA T_IDENTIFICADOR T_CARACTERE_LITERAL)
+-                        (T_VAL_ESTRUTURA T_IDENTIFICADOR T_REAL_LITERAL))))
++                        (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR))
++                        (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_CARACTERE_LITERAL))
++                        (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_REAL_LITERAL)))))
+            (T_VARIAVEL T_IDENTIFICADOR T_IDENTIFICADOR
+-             (T_VALOR (T_VAL_ESTRUTURA T_IDENTIFICADOR T_IDENTIFICADOR)))
++             (T_VALOR (T_VAL_ESTRUTURA T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR))))
+             (T_INICIO)))
+ fim
+ 
+@@ -637,7 +643,7 @@
+          (T_VARIAVEL T_INTEIRO T_IDENTIFICADOR)
+          (T_INICIO
+             (T_ATRIBUICAO T_IDENTIFICADOR
+-              (T_MAIS T_INTEIRO_LITERAL T_INTEIRO_LITERAL))))
++              (T_EXPRESSAO (T_MAIS T_INTEIRO_LITERAL T_INTEIRO_LITERAL)))))
+ fim
+ 
+ teste
+@@ -650,8 +656,8 @@
+   ast: (T_ALGORITMO
+          (T_INICIO
+             (T_ATRIBUICAO T_IDENTIFICADOR
+-              (T_MAIS T_INTEIRO_LITERAL
+-                (T_MULTIP T_INTEIRO_LITERAL T_INTEIRO_LITERAL)))))
++              (T_EXPRESSAO (T_MAIS T_INTEIRO_LITERAL
++                (T_MULTIP T_INTEIRO_LITERAL T_INTEIRO_LITERAL))))))
+ fim
+ 
+ 
+@@ -667,7 +673,22 @@
+           x := 1;
+         fim-para
+       fim-para
++    fim
++  }
+ 
++
++  ast:
++    (T_ALGORITMO
++      (T_INICIO
++        (T_PARA T_IDENTIFICADOR (T_EXPRESSAO T_INTEIRO_LITERAL) (T_EXPRESSAO T_INTEIRO_LITERAL)
++          (T_PARA T_IDENTIFICADOR (T_EXPRESSAO T_INTEIRO_LITERAL) (T_EXPRESSAO T_INTEIRO_LITERAL)
++                ( T_PASSO T_MENOS T_INTEIRO_LITERAL )
++            ( T_ATRIBUICAO T_IDENTIFICADOR (T_EXPRESSAO T_INTEIRO_LITERAL))))))
++fim
++
++teste
++  {
++    in&#237;cio
+       enquanto x &gt; 10 / 3 fa&#231;a
+         repita
+           se x % 2 &lt;&gt; 3 / 4 ent&#227;o
+@@ -675,7 +696,24 @@
+           fim-se
+         at&#233; 10 &gt; 3
+       fim-enquanto
++    fim
++  }
++  ast:
++    (T_ALGORITMO
++      (T_INICIO
++        (T_ENQUANTO
++          (T_EXPRESSAO (T_MAIOR T_IDENTIFICADOR (T_DIV T_INTEIRO_LITERAL T_INTEIRO_LITERAL)))
++            (T_REPITA
++              (T_SE (T_EXPRESSAO (T_DIFERENTE
++                      (T_MOD T_IDENTIFICADOR T_INTEIRO_LITERAL)
++                      (T_DIV T_INTEIRO_LITERAL T_INTEIRO_LITERAL)))
++                (T_CALL T_IDENTIFICADOR (T_EXPRESSAO T_IDENTIFICADOR)))
++              T_ATE (T_EXPRESSAO ( T_MAIOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL))))))
++fim
+ 
++teste
++  {
++    in&#237;cio
+       sair;
+ 
+       se verdadeiro ent&#227;o
+@@ -683,7 +721,28 @@
+       sen&#227;o
+         f((1+2)*3);
+       fim-se
++    fim
++  }
+ 
++  ast:
++    (T_ALGORITMO
++      (T_INICIO
++        (T_SAIR)
++        (T_SE (T_EXPRESSAO T_VERDADEIRO)
++          (T_RETORNE (T_EXPRESSAO (T_BIT_SHIFT_RIGHT
++                        (T_IDENTIFICADOR (T_MEMBRO T_IDENTIFICADOR))
++                        (T_IDENTIFICADOR (T_SUBSCRITO (T_EXPRESSAO T_INTEIRO_LITERAL))))))
++          T_SENAO (T_CALL T_IDENTIFICADOR (T_EXPRESSAO (T_MULTIP
++                                            (T_EXPRESSAO (T_MAIS T_INTEIRO_LITERAL
++                                                                T_INTEIRO_LITERAL))
++                                                        T_INTEIRO_LITERAL))))))
++
++fim
++
++
++teste
++  {
++    in&#237;cio
+       caso x seja
+         &quot;teste&quot; fa&#231;a
+           f(1);
+@@ -701,36 +760,16 @@
+     fim
+   }
+ 
+-  ast:
+-(T_ALGORITMO
+-  (T_INICIO
+-    (T_PARA T_IDENTIFICADOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL
+-      (T_PARA T_IDENTIFICADOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL
+-            ( T_PASSO T_MENOS T_INTEIRO_LITERAL )
+-        ( T_ATRIBUICAO T_IDENTIFICADOR T_INTEIRO_LITERAL ) ) )
+-    (T_ENQUANTO
+-      (T_MAIOR T_IDENTIFICADOR (T_DIV T_INTEIRO_LITERAL T_INTEIRO_LITERAL))
+-        (T_REPITA
+-          (T_SE (T_DIFERENTE
+-                  (T_MOD T_IDENTIFICADOR T_INTEIRO_LITERAL)
+-                  (T_DIV T_INTEIRO_LITERAL T_INTEIRO_LITERAL))
+-            (T_CALL T_IDENTIFICADOR T_IDENTIFICADOR))
+-          T_ATE ( T_MAIOR T_INTEIRO_LITERAL T_INTEIRO_LITERAL)))
+-    (T_SAIR)
+-    (T_SE T_VERDADEIRO
+-      (T_RETORNE (T_BIT_SHIFT_RIGHT
+-                    (T_IDENTIFICADOR T_IDENTIFICADOR)
+-                    (T_IDENTIFICADOR T_INTEIRO_LITERAL)))
+-      T_SENAO (T_CALL T_IDENTIFICADOR (T_MULTIP
+-                                      (T_MAIS T_INTEIRO_LITERAL
+-                                              T_INTEIRO_LITERAL)
+-                                       T_INTEIRO_LITERAL)))
+-    (T_CASO T_IDENTIFICADOR
+-      (T_TEXTO_LITERAL
+-        (T_CALL T_IDENTIFICADOR T_INTEIRO_LITERAL)
+-        (T_ATRIBUICAO T_IDENTIFICADOR T_INTEIRO_LITERAL))
+-      (T_REAL_LITERAL
+-        (T_ATRIBUICAO T_IDENTIFICADOR T_INTEIRO_LITERAL))
+-      (T_SENAO
+-        (T_ATRIBUICAO T_IDENTIFICADOR T_INTEIRO_LITERAL)))))
++  ast: 
++      (T_ALGORITMO
++        (T_INICIO
++          (T_CASO (T_EXPRESSAO T_IDENTIFICADOR)
++            (T_FACA T_TEXTO_LITERAL
++              (T_CALL T_IDENTIFICADOR (T_EXPRESSAO  T_INTEIRO_LITERAL))
++              (T_ATRIBUICAO T_IDENTIFICADOR (T_EXPRESSAO T_INTEIRO_LITERAL)))
++            (T_FACA T_REAL_LITERAL
++              (T_ATRIBUICAO T_IDENTIFICADOR (T_EXPRESSAO T_INTEIRO_LITERAL)))
++            (T_SENAO
++              (T_ATRIBUICAO T_IDENTIFICADOR (T_EXPRESSAO T_INTEIRO_LITERAL))))))
++          
+ fim
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000101.html">[gpt-commit] r427 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000103.html">[gpt-commit] r429 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#102">[ date ]</a>
+              <a href="thread.html#102">[ thread ]</a>
+              <a href="subject.html#102">[ subject ]</a>
+              <a href="author.html#102">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r486 - trunk/gpt/src/modules
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r486%20-%20trunk/gpt/src/modules&In-Reply-To=%3C200803180744.m2I7im25028281%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000158.html">
+   <LINK REL="Next"  HREF="000160.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r486 - trunk/gpt/src/modules</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r486%20-%20trunk/gpt/src/modules&In-Reply-To=%3C200803180744.m2I7im25028281%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r486 - trunk/gpt/src/modules">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Mar 18 08:44:48 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000158.html">[gpt-commit] r485 - trunk/gpt/src
+</A></li>
+        <LI>Next message: <A HREF="000160.html">[gpt-commit] r487 - trunk/gpt/src/modules/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#159">[ date ]</a>
+              <a href="thread.html#159">[ thread ]</a>
+              <a href="subject.html#159">[ subject ]</a>
+              <a href="author.html#159">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-03-18 08:44:48 +0100 (Tue, 18 Mar 2008)
+New Revision: 486
+
+Modified:
+   trunk/gpt/src/modules/GPTDisplay.cpp
+   trunk/gpt/src/modules/GPTDisplay.hpp
+Log:
+BUGFIX:
+-Exibicao das mensagens UTF-8 corretamente, de acordo com o OEM
+
+Modified: trunk/gpt/src/modules/GPTDisplay.cpp
+===================================================================
+--- trunk/gpt/src/modules/GPTDisplay.cpp	2008-03-18 07:43:30 UTC (rev 485)
++++ trunk/gpt/src/modules/GPTDisplay.cpp	2008-03-18 07:44:48 UTC (rev 486)
+@@ -42,11 +42,29 @@
+   return _totalErrors;
+ }
+ 
++string GPTDisplay::toLatin1(const string&amp; str) {
++	char c = 0;
++	string ret;
++	for (int i = 0; i &lt; str.length(); i++) {
++		if (str[i] == 0xffffffc3) {
++			c = 1;
++			continue;
++		}
++		if (c) {
++			ret += str[i] | 0x40;
++		} else {
++			ret += str[i];
++		}
++		c = 0;
++	}
++	return ret;
++}
++
+ string GPTDisplay::toOEM(const string&amp; str) {
+   #ifdef WIN32
+     string ret;
+     char buffer [str.length()];
+-    CharToOem(str.c_str(), buffer);
++    CharToOem(toLatin1(str.c_str()).c_str(), buffer);
+     ret = buffer;
+     return ret;
+   #else
+
+Modified: trunk/gpt/src/modules/GPTDisplay.hpp
+===================================================================
+--- trunk/gpt/src/modules/GPTDisplay.hpp	2008-03-18 07:43:30 UTC (rev 485)
++++ trunk/gpt/src/modules/GPTDisplay.hpp	2008-03-18 07:44:48 UTC (rev 486)
+@@ -96,7 +96,8 @@
+   static GPTDisplay* _self;
+ 
+   string toOEM(const string&amp; str);
+-
++  string toLatin1(const string&amp;);
++  
+   void showError(ErrorMsg&amp;);
+   void showTip(ErrorMsg&amp;);
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000158.html">[gpt-commit] r485 - trunk/gpt/src
+</A></li>
+	<LI>Next message: <A HREF="000160.html">[gpt-commit] r487 - trunk/gpt/src/modules/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#159">[ date ]</a>
+              <a href="thread.html#159">[ thread ]</a>
+              <a href="subject.html#159">[ subject ]</a>
+              <a href="author.html#159">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

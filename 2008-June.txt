@@ -1,0 +1,362 @@
+From gpt-commit-noreply at mail.berlios.de  Mon Jun 23 17:55:40 2008
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Mon, 23 Jun 2008 17:55:40 +0200
+Subject: [gpt-commit] r508 - in trunk/gpt/src: . modules
+	modules/c_translator modules/interpreter modules/parser
+Message-ID: <200806231555.m5NFteQ0022685@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2008-06-23 17:55:40 +0200 (Mon, 23 Jun 2008)
+New Revision: 508
+
+Modified:
+   trunk/gpt/src/main.cpp
+   trunk/gpt/src/modules/GPTDisplay.hpp
+   trunk/gpt/src/modules/c_translator/pt2c.g
+   trunk/gpt/src/modules/interpreter/InterpreterEval.hpp
+   trunk/gpt/src/modules/parser/SemanticEval.hpp
+   trunk/gpt/src/modules/parser/lexer.g
+Log:
+Patch do metal: adicao de headers para resolver a compilacao com gcc 4.3 em outras plataformas
+
+Modified: trunk/gpt/src/main.cpp
+===================================================================
+--- trunk/gpt/src/main.cpp	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/main.cpp	2008-06-23 15:55:40 UTC (rev 508)
+@@ -27,6 +27,8 @@
+ #include <string>
+ #include <list>
+ #include <unistd.h>
++#include <stdio.h>
++#include <string.h>
+ 
+ #define DEFAULT_PORT "7680"
+ 
+
+Modified: trunk/gpt/src/modules/GPTDisplay.hpp
+===================================================================
+--- trunk/gpt/src/modules/GPTDisplay.hpp	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/modules/GPTDisplay.hpp	2008-06-23 15:55:40 UTC (rev 508)
+@@ -25,6 +25,7 @@
+ #include <list>
+ #include <string>
+ #include <sstream>
++#include <stdlib.h>
+ 
+ using namespace std;
+ 
+
+Modified: trunk/gpt/src/modules/c_translator/pt2c.g
+===================================================================
+--- trunk/gpt/src/modules/c_translator/pt2c.g	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/modules/c_translator/pt2c.g	2008-06-23 15:55:40 UTC (rev 508)
+@@ -26,6 +26,8 @@
+   #include <sstream>
+   #include <map>
+   #include <list>
++  #include <stdlib.h>
++  
+   using namespace std;
+ 
+   typedef struct production_t {
+
+Modified: trunk/gpt/src/modules/interpreter/InterpreterEval.hpp
+===================================================================
+--- trunk/gpt/src/modules/interpreter/InterpreterEval.hpp	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/modules/interpreter/InterpreterEval.hpp	2008-06-23 15:55:40 UTC (rev 508)
+@@ -30,6 +30,7 @@
+ #include <stack>
+ #include <map>
+ #include <iostream>
++#include <stdlib.h>
+ 
+ using namespace std;
+ 
+
+Modified: trunk/gpt/src/modules/parser/SemanticEval.hpp
+===================================================================
+--- trunk/gpt/src/modules/parser/SemanticEval.hpp	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/modules/parser/SemanticEval.hpp	2008-06-23 15:55:40 UTC (rev 508)
+@@ -27,6 +27,7 @@
+ #include <string>
+ #include <map>
+ #include <list>
++#include <stdlib.h>
+ 
+ //---------- helpers ------------
+ 
+
+Modified: trunk/gpt/src/modules/parser/lexer.g
+===================================================================
+--- trunk/gpt/src/modules/parser/lexer.g	2008-03-24 03:38:45 UTC (rev 507)
++++ trunk/gpt/src/modules/parser/lexer.g	2008-06-23 15:55:40 UTC (rev 508)
+@@ -28,6 +28,7 @@
+   #include <antlr/TokenStreamSelector.hpp>
+ 	#include "UnicodeCharBuffer.hpp"
+ 	#include "UnicodeCharScanner.hpp"
++  #include <stdlib.h>
+ 
+   using namespace antlr;
+   using namespace std;
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Tue Jun 24 17:36:52 2008
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Tue, 24 Jun 2008 17:36:52 +0200
+Subject: [gpt-commit] r509 - trunk/gpt/src
+Message-ID: <200806241536.m5OFaqKx005075@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2008-06-24 17:36:51 +0200 (Tue, 24 Jun 2008)
+New Revision: 509
+
+Modified:
+   trunk/gpt/src/Makefile.am
+Log:
+Linkando o gpt dinamicamente ao libgportugol
+
+Modified: trunk/gpt/src/Makefile.am
+===================================================================
+--- trunk/gpt/src/Makefile.am	2008-06-23 15:55:40 UTC (rev 508)
++++ trunk/gpt/src/Makefile.am	2008-06-24 15:36:51 UTC (rev 509)
+@@ -16,5 +16,4 @@
+ gpt_LDADD += $(PCRE_LIB)
+ endif
+ 
+-AM_LDFLAGS = -static
+ noinst_HEADERS = GPT.hpp
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Tue Jun 24 18:06:29 2008
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Tue, 24 Jun 2008 18:06:29 +0200
+Subject: [gpt-commit] r510 - trunk/gpt
+Message-ID: <200806241606.m5OG6TE9007960@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2008-06-24 18:06:29 +0200 (Tue, 24 Jun 2008)
+New Revision: 510
+
+Modified:
+   trunk/gpt/ChangeLog
+   trunk/gpt/NEWS
+   trunk/gpt/configure.ac
+Log:
+nomsg
+
+Modified: trunk/gpt/ChangeLog
+===================================================================
+--- trunk/gpt/ChangeLog	2008-06-24 15:36:51 UTC (rev 509)
++++ trunk/gpt/ChangeLog	2008-06-24 16:06:29 UTC (rev 510)
+@@ -1,5 +1,34 @@
++2008-06-24
++
++	* /trunk/gpt/src/Makefile.am:
++
++	-Linkando o gpt dinamicamente ao libgportugol
++
++2008-06-23
++
++	* /trunk/gpt/src/modules/interpreter/InterpreterEval.hpp:
++	* /trunk/gpt/src/modules/GPTDisplay.hpp:
++	* /trunk/gpt/src/modules/c_translator/pt2c.g:
++	* /trunk/gpt/src/main.cpp:
++	* /trunk/gpt/src/modules/parser/SemanticEval.hpp:
++	* /trunk/gpt/src/modules/parser/lexer.g:
++
++	-Patch do metal: adicao de headers para resolver a compilacao
++	com gcc 4.3 em outras plataformas
++
++2008-03-24
++
++	* /trunk/gpt/doc/man/gpt.1:
++	* /trunk/gpt/doc/man/pt_BR/gpt.1:
++
++	-Fix na licenca das man pages. Passando pra GPL
++
+ 2008-03-18
+ 
++	* /trunk/gpt/packages/win_setup/setup.iss:
++
++	-Tirando redundancias
++
+ 	* /trunk/gpt/configure.ac:
+ 	* /trunk/gpt/README.en:
+ 	* /trunk/gpt/doc/manual/manual.tex:
+
+Modified: trunk/gpt/NEWS
+===================================================================
+--- trunk/gpt/NEWS	2008-06-24 15:36:51 UTC (rev 509)
++++ trunk/gpt/NEWS	2008-06-24 16:06:29 UTC (rev 510)
+@@ -1,75 +1,79 @@
+-Sum?rio de mudan?as
++Sum??rio de mudan??as
+ -------------------
++24 de Junho de 2008 * gpt 1.0.2
+ 
+-18 de Mar?o de 2008  * gpt 1.0.1
++  * Corre????o de bugs relacionados ?? compila????o com gcc 4.3
++  * O programa GPT agora depende da biblioteca libgportugol
+ 
++18 de Mar??o de 2008  * gpt 1.0.1
++
+   * Suporte exclusivo para arquivos fontes escritos em UTF-8.
+-  * (Win) Adapta??o do programa Notepad++ para ser usado com o compilador.
++  * (Win) Adapta????o do programa Notepad++ para ser usado com o compilador.
+   * (Win) Novo instalador para sistemas MS Windows.
+-  * (Win) Adi??o do script gptshell.bat.
+-  * Corre??o de bug relativo aos flags de tradu??o do compilador.
++  * (Win) Adi????o do script gptshell.bat.
++  * Corre????o de bug relativo aos flags de tradu????o do compilador.
+   * Diversos outros bugs corrigidos.
+ 
+ 08 de Abril de 2006  * gpt 1.0
+ 
+- * Adi??o de arquivo com fun??es b?sicas (base.gpt).
+- * Melhorias no modulo de depura??o.
+- * Revis?o e corre??o de mensagens de erro de compila??o.
+- * Corre??o de bugs na compila??o em GNU/Linux (cabe?alho ELF).
+- * Corre??o de bugs na compila??o (declara??o de vari?vel local shadows vari?vel
+-   global indefinidamente, ocasionando poss?veis crashes).
+- * Corre??o de bugs na compila??o e tradu??o (express?es envolvendo literais).
+- * Corre??o de bugs na compila??o e tradu??o (inicializa??o de matrizes de 
++ * Adi????o de arquivo com fun????es b??sicas (base.gpt).
++ * Melhorias no modulo de depura????o.
++ * Revis??o e corre????o de mensagens de erro de compila????o.
++ * Corre????o de bugs na compila????o em GNU/Linux (cabe??alho ELF).
++ * Corre????o de bugs na compila????o (declara????o de vari??vel local shadows vari??vel
++   global indefinidamente, ocasionando poss??veis crashes).
++ * Corre????o de bugs na compila????o e tradu????o (express??es envolvendo literais).
++ * Corre????o de bugs na compila????o e tradu????o (inicializa????o de matrizes de 
+    literais).
+- * Corre??o de bugs na an?lise sem?ntica (avalia??o de par?metros de fun??o).
+- * Corre??o de bugs na compila??o (par?metros de fun??o).
+- * Corre??o de bugs na an?lise sint?tica (express?es sem par?ntesis causando
++ * Corre????o de bugs na an??lise sem??ntica (avalia????o de par??metros de fun????o).
++ * Corre????o de bugs na compila????o (par??metros de fun????o).
++ * Corre????o de bugs na an??lise sint??tica (express??es sem par??ntesis causando
+    crashes).
+- * Corre??o de bugs na tradu??o para C (express?es faltando e/ou com 
+-   preced?ncia incorreta).
+- * Corre??o de bugs na tradu??o para C (express?es envolvendo valores literais).
+- * Corre??o de bugs na interpreta??o (express?es envolvendo valores reais
++ * Corre????o de bugs na tradu????o para C (express??es faltando e/ou com 
++   preced??ncia incorreta).
++ * Corre????o de bugs na tradu????o para C (express??es envolvendo valores literais).
++ * Corre????o de bugs na interpreta????o (express??es envolvendo valores reais
+    calculadas incorretamente).
+- * Corre??o de bugs na interpreta??o (avalia??o de diversas opera??es).
+- * Corre??o de bugs na interpreta??o (enunciado "se" entrando em loop infinito).
+- * Corre??o de bugs na interpreta??o (retorno de dados em fun??es).
+- * Corre??o de bugs na compila??o (avalia??o de subtra??o envolvendo valores 
++ * Corre????o de bugs na interpreta????o (avalia????o de diversas opera????es).
++ * Corre????o de bugs na interpreta????o (enunciado "se" entrando em loop infinito).
++ * Corre????o de bugs na interpreta????o (retorno de dados em fun????es).
++ * Corre????o de bugs na compila????o (avalia????o de subtra????o envolvendo valores 
+    reais).
+- * Corre??o de bugs na compila??o (avalia??o de express?es relacionais 
++ * Corre????o de bugs na compila????o (avalia????o de express??es relacionais 
+    envolvendo valores reais).
+- * Corre??o de bugs na compila??o (operador un?rio de nega??o).
+- * Corre??o de bugs na compila??o (retorno de valores de tipos diferentes
++ * Corre????o de bugs na compila????o (operador un??rio de nega????o).
++ * Corre????o de bugs na compila????o (retorno de valores de tipos diferentes
+    sem utilizar casting).
+- * Corre??o de bugs na an?lise sem?ntica (avalia??o de retorno de valores
+-   em fun??es).
+- * Corre??o de bugs na compila??o (casting de par?metro inteiro para
++ * Corre????o de bugs na an??lise sem??ntica (avalia????o de retorno de valores
++   em fun????es).
++ * Corre????o de bugs na compila????o (casting de par??metro inteiro para
+    real e real para inteiro).
+- * Adicionado suporte a compila??o de algoritmos usando mais de um arquivo.
+- * Adicionado suporte a vari?vel de ambiente GPT_INCLUDE para incluir algoritmos 
++ * Adicionado suporte a compila????o de algoritmos usando mais de um arquivo.
++ * Adicionado suporte a vari??vel de ambiente GPT_INCLUDE para incluir algoritmos 
+    automaticamente.
+- * Revis?o da man-page.
+- * Atualiza??o do manual.
+- * Nome do algoritmo ? usado para criar arquivo execut?vel ao inv?s de usar 
++ * Revis??o da man-page.
++ * Atualiza????o do manual.
++ * Nome do algoritmo ?? usado para criar arquivo execut??vel ao inv??s de usar 
+    "a.exe" ou "a.out".
+ 
+ 05 de Abril de 2006  * gpt 0.9.2
+ 
+- * Corre??o de um bug na avalia??o de express?es aritm?ticas.
++ * Corre????o de um bug na avalia????o de express??es aritm??ticas.
+ 
+-31 de Mar?o de 2006  * gpt 0.9.1
++31 de Mar??o de 2006  * gpt 0.9.1
+ 
+- * Corre??o de um bug de compila??o relacionado a fun??o "leia".
++ * Corre????o de um bug de compila????o relacionado a fun????o "leia".
+ 
+-08 de Mar?o de 2006  * gpt 0.9b
++08 de Mar??o de 2006  * gpt 0.9b
+ 
+- * Implementa??o da gera??o de c?digo execut?vel (x86, PE/ELF,
++ * Implementa????o da gera????o de c??digo execut??vel (x86, PE/ELF,
+    NASM como backend).
+  * GPT portado para MS Windows (testado com compilador MingW32).
+- * V?rios bugfixes (ver ChangeLog).
++ * V??rios bugfixes (ver ChangeLog).
+ 
+ 27 de Janeiro de 2006  * gpt 0.8b
+ 
+- * Primeira vers?o publicada.
++ * Primeira vers??o publicada.
+  * Recursos oferecidos:
+    +interpretar/depurar;
+    +traduzir algoritmos para C;
+
+Modified: trunk/gpt/configure.ac
+===================================================================
+--- trunk/gpt/configure.ac	2008-06-24 15:36:51 UTC (rev 509)
++++ trunk/gpt/configure.ac	2008-06-24 16:06:29 UTC (rev 510)
+@@ -4,8 +4,8 @@
+ 
+ AC_PREREQ(2.60)
+ 
+-AC_INIT(gpt, 1.0.1)
+-AM_INIT_AUTOMAKE(gpt, 1.0.1)
++AC_INIT(gpt, 1.0.2)
++AM_INIT_AUTOMAKE(gpt, 1.0.2)
+ AC_CONFIG_HEADER([config.h])
+ AC_LANG(C++)
+ AC_PROG_CXX
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Tue Jun 24 18:07:30 2008
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Tue, 24 Jun 2008 18:07:30 +0200
+Subject: [gpt-commit] r511 - trunk/gpt
+Message-ID: <200806241607.m5OG7UbB008078@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2008-06-24 18:07:29 +0200 (Tue, 24 Jun 2008)
+New Revision: 511
+
+Modified:
+   trunk/gpt/NEWS
+Log:
+nomsg
+
+Modified: trunk/gpt/NEWS
+===================================================================
+--- trunk/gpt/NEWS	2008-06-24 16:06:29 UTC (rev 510)
++++ trunk/gpt/NEWS	2008-06-24 16:07:29 UTC (rev 511)
+@@ -1,5 +1,6 @@
+ Sum?rio de mudan?as
+ -------------------
++
+ 24 de Junho de 2008 * gpt 1.0.2
+ 
+   * Corre??o de bugs relacionados ? compila??o com gcc 4.3
+
+
+

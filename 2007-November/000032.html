@@ -1,0 +1,717 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r358 - trunk/gpt2/gptc/test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r358%20-%20trunk/gpt2/gptc/test&In-Reply-To=%3C200711132000.lADK0TpP015941%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000031.html">
+   <LINK REL="Next"  HREF="000033.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r358 - trunk/gpt2/gptc/test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r358%20-%20trunk/gpt2/gptc/test&In-Reply-To=%3C200711132000.lADK0TpP015941%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r358 - trunk/gpt2/gptc/test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Nov 13 21:00:29 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000031.html">[gpt-commit] r357 - in trunk/gpt2/gptc: . test
+</A></li>
+        <LI>Next message: <A HREF="000033.html">[gpt-commit] r359 - trunk/gpt2/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#32">[ date ]</a>
+              <a href="thread.html#32">[ thread ]</a>
+              <a href="subject.html#32">[ subject ]</a>
+              <a href="author.html#32">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-13 21:00:29 +0100 (Tue, 13 Nov 2007)
+New Revision: 358
+
+Added:
+   trunk/gpt2/gptc/test/TestAST.cpp
+   trunk/gpt2/gptc/test/TestAST.hpp
+   trunk/gpt2/gptc/test/test.example
+Removed:
+   trunk/gpt2/gptc/test/first.test
+Modified:
+   trunk/gpt2/gptc/test/Makefile
+   trunk/gpt2/gptc/test/compiler_test.g
+   trunk/gpt2/gptc/test/tester.cpp
+Log:
+-Agora, a estrutura de testes para verificacao de ASTs parece estar funcionando. O arquivo test.example tem um exemplo de descricao de testes. Verificacao de erros nao esta funcionando ainda, mas a ideia eh verificar o codigo identificador de cada erro que o compilador gptc emitir, listando os codigos de erro na secao &quot;erros&quot; de cada teste no arquivo de descricao de testes.
+
+Modified: trunk/gpt2/gptc/test/Makefile
+===================================================================
+--- trunk/gpt2/gptc/test/Makefile	2007-11-13 15:53:03 UTC (rev 357)
++++ trunk/gpt2/gptc/test/Makefile	2007-11-13 20:00:29 UTC (rev 358)
+@@ -1,12 +1,12 @@
+ output = ./obj
+ 
+ objects = $(output)/LangTestLexer.o $(output)/LangTestParser.o \
+-					$(output)/tester.o
++          $(output)/TestAST.o $(output)/tester.o
+ 
+ other = ../obj/PortugolLexer.o ../obj/PortugolParser.o \
+ 				../obj/MismatchedUnicodeCharException.o
+ 
+-cpp = g++ -I$(output) -I. -I../ -I../obj
++cpp = g++ -g3 -I$(output) -I. -I../ -I../obj
+ 
+ $(output)/tester: $(output) $(objects)
+ 	$(cpp) -o $(output)/tester $(objects) $(other) /usr/local/lib/libantlr.a
+@@ -14,26 +14,36 @@
+ $(output):
+ 	mkdir -p $(output)
+ 
+-$(output)/LangTestLexer.o: $(output)/LangTestLexer.hpp $(output)/LangTestLexer.cpp
++$(output)/LangTestLexer.o: $(output)/LangTestLexer.hpp \
++		$(output)/LangTestLexer.cpp
+ 	$(cpp) -c $(output)/LangTestLexer.cpp -o $(output)/LangTestLexer.o
+ 
+-$(output)/LangTestParser.o: $(output)/LangTestParser.hpp $(output)/LangTestParser.cpp
++$(output)/LangTestParser.o: $(output)/LangTestParser.hpp \
++		$(output)/LangTestParser.cpp
+ 	$(cpp) -c $(output)/LangTestParser.cpp -o $(output)/LangTestParser.o
+ 
+-$(output)/tester.o: tester.cpp
++$(output)/tester.o: tester.cpp $(output)/testTokenNames.hpp
+ 	$(cpp) -c tester.cpp -o $(output)/tester.o
+ 
++$(output)/TestAST.o: TestAST.cpp TestAST.hpp
++	$(cpp) -c TestAST.cpp -o $(output)/TestAST.o
++
+ $(output)/LangTestLexer.hpp $(output)/LangTestLexer.cpp \
+ $(output)/LangTestParser.hpp $(output)/LangTestParser.cpp: compiler_test.g
+ 	antlr -o $(output) compiler_test.g
+ 
+ 
+-# $(output)/table.hpp:
+-# 	grep = $(output)/LangTestLexerTokenTypes.txt &gt; $(output)/table.hpp
+-# 	sed -i -e 's/([^=]*)//' $(output)/table.hpp
+-# 	sed -i -e 's/&quot;[^&quot;]*&quot;//' $(output)/table.hpp
+-# 	sed -i -e 's/==/=/' $(output)/table.hpp
+-# 	sed -i -e 's/\([^=]*\)=\(.*\)/table[\2]=&quot;\1&quot;;/' $(output)/table.hpp
++$(output)/testTokenNames.hpp: $(output)/LangTestLexerTokenTypes.txt
++	echo &quot;std::map&lt;int, std::string &gt; testTokenNames;&quot;  \
++		&gt; $(output)/testTokenNames.hpp
++	grep '=' $(output)/LangTestLexerTokenTypes.txt \
++		&gt;&gt; $(output)/testTokenNames.hpp
++	sed -i -e 's/([^=]*)//' $(output)/testTokenNames.hpp
++	sed -i -e 's/&quot;[^&quot;]*&quot;//' $(output)/testTokenNames.hpp
++	sed -i -e 's/==/=/' $(output)/testTokenNames.hpp
++	sed -i -e 's/()//' $(output)/testTokenNames.hpp
++	sed -i -e 's/\([^=]*\)=\(.*\)/testTokenNames[\2]=&quot;\1&quot;;/' \
++		$(output)/testTokenNames.hpp
+ 
+ 
+ clean:
+
+Added: trunk/gpt2/gptc/test/TestAST.cpp
+===================================================================
+--- trunk/gpt2/gptc/test/TestAST.cpp	2007-11-13 15:53:03 UTC (rev 357)
++++ trunk/gpt2/gptc/test/TestAST.cpp	2007-11-13 20:00:29 UTC (rev 358)
+@@ -0,0 +1,111 @@
++#include &quot;TestAST.hpp&quot;
++#include &lt;iostream&gt;
++
++#include &lt;map&gt;
++#include &lt;string&gt;
++
++using namespace std;
++
++const char* const TestAST::TYPE_NAME = &quot;TestAST&quot;;
++
++TestAST::TestAST()
++    : CommonAST()
++{
++
++}
++
++TestAST::TestAST( RefToken t )
++    : CommonAST(t)
++{
++}
++
++TestAST::TestAST( const CommonAST&amp; other )
++    : CommonAST(other)
++{
++
++}
++
++TestAST::TestAST( const TestAST&amp; other )
++    : CommonAST(other)
++{
++
++}
++
++TestAST::~TestAST()
++{}
++
++RefAST TestAST::clone( void ) const
++{
++  TestAST *ast = new TestAST( *this );
++  return RefAST(ast);
++}
++
++const char* TestAST::typeName( void ) const
++{
++  return TestAST::TYPE_NAME;
++}
++
++void TestAST::initialize( RefToken t )
++{
++  CommonAST::initialize(t);
++}
++
++RefAST TestAST::factory()
++{
++  return RefAST(new TestAST);
++}
++
++
++bool TestAST::equals(RefAST other) const
++{
++	if (!other) {
++		return false;
++  }
++
++  #include &quot;tokenNames.hpp&quot;
++
++  int token = -1;
++  std::map&lt;int, std::string &gt;::iterator it;
++  for (it = tokenNames.begin(); it != tokenNames.end(); it++) {
++    if (it-&gt;second == getText()) {
++      token = it-&gt;first;
++    }
++  }
++
++  return token  == other-&gt;getType();
++}
++
++bool TestAST::equalsList(RefAST t) const
++{
++	// the empty tree is not a match of any non-null tree.
++	if (!t) {
++		return false;
++  }
++	// Otherwise, start walking sibling lists.  First mismatch, return false.
++	RefAST sibling=this;
++	for (;sibling &amp;&amp; t;
++			sibling=sibling-&gt;getNextSibling(), t=t-&gt;getNextSibling()) {
++		// as a quick optimization, check roots first.
++		if (!sibling-&gt;equals(t)) {
++			return false;
++    }
++		// if roots match, do full list match test on children.
++		if (sibling-&gt;getFirstChild()) {
++			if (!sibling-&gt;getFirstChild()-&gt;equalsList(t-&gt;getFirstChild()))  {
++				return false;
++      }
++		}
++		// sibling has no kids, make sure t doesn't either
++		else if (t-&gt;getFirstChild()) {
++			return false;
++    }
++	}
++
++	if (!sibling &amp;&amp; !t) {
++		return true;
++  } else if (!sibling &amp;&amp; (t-&gt;getType() == 1)) {
++    return true;
++  }
++
++	return false;
++}
+
+Added: trunk/gpt2/gptc/test/TestAST.hpp
+===================================================================
+--- trunk/gpt2/gptc/test/TestAST.hpp	2007-11-13 15:53:03 UTC (rev 357)
++++ trunk/gpt2/gptc/test/TestAST.hpp	2007-11-13 20:00:29 UTC (rev 358)
+@@ -0,0 +1,34 @@
++#ifndef TESTAST_HPP
++#define TESTAST_HPP
++
++#include &lt;antlr/CommonAST.hpp&gt;
++#include &lt;string&gt;
++
++using namespace std;
++using namespace antlr
++;
++class TestAST : public CommonAST {
++public:
++  TestAST();
++  TestAST(RefToken t );
++  TestAST(const CommonAST&amp; other);
++  TestAST(const TestAST&amp; other);
++
++  ~TestAST();
++
++  virtual RefAST clone( void ) const;
++
++  virtual void initialize( RefToken t );
++
++  virtual const char* typeName( void ) const;
++
++  virtual bool equals(RefAST t) const;
++  virtual bool equalsList(RefAST t) const;
++
++  static RefAST factory();
++  static const char* const TYPE_NAME;
++};
++
++typedef ASTRefCount&lt;TestAST&gt; RefTestAST;
++
++#endif
+
+Modified: trunk/gpt2/gptc/test/compiler_test.g
+===================================================================
+--- trunk/gpt2/gptc/test/compiler_test.g	2007-11-13 15:53:03 UTC (rev 357)
++++ trunk/gpt2/gptc/test/compiler_test.g	2007-11-13 20:00:29 UTC (rev 358)
+@@ -1,32 +1,16 @@
+-/*
+-
+-teste
+-  caso {
+-    algoritmo teste
+-  }
+-
+-  ast: ([T_ALGORITMO,&quot;algoritmo&quot;] [T_IDENTIFICADOR,&quot;teste&quot;])
+-  erros: [ES001] //ponto virgula
+-fim
+-
+-Codigos de erros:
+-
+-EXXXX - Erro XXXX
+-ESXXX - Erro Sintatico
+-EMXXX - Erro Semantico
+-
+-
+-*/
+-
+ header {
+ 
+   #include &quot;PortugolParser.hpp&quot;
+   #include &quot;PortugolLexer.hpp&quot;
+ 
++  #include &quot;TestAST.hpp&quot;
++
+   #include &lt;antlr/TokenBuffer.hpp&gt;
+   #include &lt;antlr/CommonAST.hpp&gt;
+ 
+   #include &lt;iostream&gt;
++  #include &lt;map&gt;
++  #include &lt;string&gt;
+ 
+   #include &quot;UnicodeCharBuffer.hpp&quot;
+   #include &quot;UnicodeCharScanner.hpp&quot;
+@@ -46,8 +30,6 @@
+   genHashLines   = false;
+   testLiterals   = false;
+   noConstructors = true;
+-  buildAST       = true;
+-  ASTLabelType   = &quot;TestAST&quot;;
+ }
+ 
+ {
+@@ -160,20 +142,27 @@
+ class LangTestParser extends Parser;
+ options {
+   k=2;
+-  genHashLines = false;
++  genHashLines   = false;
++  buildAST       = true;
++  ASTLabelType   = &quot;RefTestAST&quot;;
+ }
+ 
+-{
+-private:
+-  string searchToken(int token) {
+-    #include &quot;tokenNames.hpp&quot;
+-    if (token &gt;= 4) {
+-      return tokenNames[token];
+-    } else {
+-      return &quot;EOF&quot;;
+-    }
+-  }
+-}
++// {
++// private:
++//   int searchToken(string text) {
++//     #include &quot;tokenNames.hpp&quot;
++//     std::map&lt;int, std::string &gt;::iterator it;
++//     for (it = tokenNames.begin(); it != tokenNames.end(); it++) {
++//       if (it-&gt;second == text) {
++//         //return astFactory-&gt;create(it-&gt;first, &quot;&amp;test_empty&quot;);
++//         return it-&gt;first;
++//       }
++//     }
++//     cerr &lt;&lt; &quot;searchToken::leave2\n&quot;;
++// //     return astFactory-&gt;create(0, &quot;&amp;test_invalid&quot;);
++//     return it-&gt;first;
++//   }
++// }
+ 
+ teste_desc
+   : bloco EOF
+@@ -187,81 +176,102 @@
+       PortugolLexer lexer(fi, true);
+       PortugolParser parser(lexer,false);
+ 
+-      antlr::ASTFactory ast_factory(antlr::CommonAST::TYPE_NAME,
++      ASTFactory ast_factory(antlr::CommonAST::TYPE_NAME,
+                                       &amp;antlr::CommonAST::factory);
+       parser.initializeASTFactory(ast_factory);
+       parser.setASTFactory(&amp;ast_factory);
+ 
+-      try {
+-        parser.programa();
+-      } catch ( ... ) {
+-        cerr &lt;&lt; &quot;Houveram erros...\n&quot;;
++      parser.programa();
++
++      if (parser.hasErorrs()) {
++        cerr &lt;&lt; &quot;Parser has errors!!\n&quot;;
+       }
+ 
+       RefAST root = parser.getAST();
+ 
+       RefCommonAST cast = antlr::RefCommonAST(root);
+ 
+-      if (cast) {
++/*      if (cast) {
+         std::cerr &lt;&lt; cast-&gt;toStringList() &lt;&lt; std::endl &lt;&lt; std::endl;
+       } else {
+         cerr &lt;&lt; &quot;no tree!\n&quot;;
+-      }
++      }*/
+     }
+ 
+-    (erros)? (ast[root])? &quot;fim&quot; (bloco)?
++    (erros)?
++
++    (ast[root])?
++
++    &quot;fim&quot;
++
++    (bloco)?
+   ;
+ 
+-erros
++erros!
+   : &quot;erros&quot; T_DOIS_PONTOS T_ABRE_CHAVE (T_TOKEN_NAME)* T_FECHA_CHAVE
+   ;
+ 
+-ast[RefAST node]
+-  : &quot;ast&quot; T_DOIS_PONTOS lista[node]
++
++ast[RefAST gptRoot]
++  : tline:&quot;ast&quot;! T_DOIS_PONTOS! lista
++    {
++      int line = tline-&gt;getLine();
++      TestAST* tast = 0;
++      tast = RefTestAST(currentAST.root).get();
++
++      if (!tast-&gt;equalsList(gptRoot)) {
++        cerr &lt;&lt; &quot;-Erro na AST da linha [&quot; &lt;&lt; line &lt;&lt; &quot;]\n&quot;;
++        cerr &lt;&lt; &quot;Esperando: \n-----\n&quot; &lt;&lt; tast-&gt;toStringList() &lt;&lt; endl;
++        cerr &lt;&lt; &quot;-----\nEncontrado: \n-----\n&quot; &lt;&lt; gptRoot-&gt;toStringList() &lt;&lt; endl;
++        cerr &lt;&lt; &quot;-----\n&quot;;
++      }
++    }
+   ;
+ 
+-/*
+-TODO:
+-  Se &quot;ast: ()&quot; omitir n&#243;s, este parser n&#227;o saber&#225;.
+ 
+-  -Criar a AST do &quot;ast ()&quot; e, ao final, comparar com
+-    ast-&gt;equalsList(other)
+-*/
+ 
+-lista[RefAST node]
+-{
+-  RefAST child;
+-  if (node != nullAST) child = node-&gt;getFirstChild();
+-}
++lista
+ 
+-  : T_ABRE_PAREN atomo[node] (cdr[child])? T_FECHA_PAREN
++  : T_ABRE_PAREN!
++    T_TOKEN_NAME^  (cdr)*
++    T_FECHA_PAREN!
+   ;
+ 
+-cdr[RefAST node]
+-{
+-  RefAST sib;
+-  if (node != nullAST) sib = node-&gt;getNextSibling();
+-}
+-  : (lista[node] | atomo[node])
+-    (irmao[sib] {if (sib != nullAST) sib = sib-&gt;getNextSibling();})*
++cdr
++  : T_TOKEN_NAME
++  | lista
+   ;
+ 
+-irmao[RefAST node]
+-  : lista[node]
+-  | atomo[node]
++/*
++lista!
++{cerr &lt;&lt; &quot;lista::enter\n&quot;;}
++  : T_ABRE_PAREN t:T_TOKEN_NAME
++    {cerr &lt;&lt; &quot;lista::matched token\n&quot;;}
++    (c:cdr)? T_FECHA_PAREN
++    {
++      cerr &lt;&lt; &quot;lista::buildingAST\n&quot;;
++      #lista = #(searchToken(t-&gt;getText()),c);
++      {cerr &lt;&lt; &quot;lista::leave\n&quot;;}
++    }
+   ;
+ 
+-atomo[RefAST node]
+-  : tk:T_TOKEN_NAME
++cdr
++{cerr &lt;&lt; &quot;cdr::enter\n&quot;;}
++  :  lista         (cdr)?
++  |! t:T_TOKEN_NAME
++    (
++      c:cdr
+       {
+-        if (node == nullAST) {
+-          cerr &lt;&lt; &quot;erro(ast) &quot; &lt;&lt; tk-&gt;getLine()
+-                &lt;&lt; &quot;: esperando &quot; &lt;&lt; tk-&gt;getText() &lt;&lt; &quot; encontrado *null*\n&quot;;
+-        } else if(tk-&gt;getText() != searchToken(node-&gt;getType())) {
+-          cerr &lt;&lt; &quot;erro(ast) &quot; &lt;&lt; tk-&gt;getLine()
+-               &lt;&lt; &quot;: esperando &quot; &lt;&lt; tk-&gt;getText()
+-               &lt;&lt; &quot;, encontrado '&quot; &lt;&lt; searchToken(node-&gt;getType()) &lt;&lt; &quot;'\n&quot;;
+-        }
++        cerr &lt;&lt; &quot;cdr::buildingAST\n&quot;;
++        #cdr = #(searchToken(t-&gt;getText()),c);
++        cerr &lt;&lt; &quot;cdr::leaving\n&quot;;
+       }
+-  ;
+ 
++      |
++        {
++          cerr &lt;&lt; &quot;cdr::building2\n&quot;;
++          #cdr = (#t);
++          cerr &lt;&lt; &quot;cdr::leaving2\n&quot;;
++        }
++    )
++  ;*/
+
+Deleted: trunk/gpt2/gptc/test/first.test
+===================================================================
+--- trunk/gpt2/gptc/test/first.test	2007-11-13 15:53:03 UTC (rev 357)
++++ trunk/gpt2/gptc/test/first.test	2007-11-13 20:00:29 UTC (rev 358)
+@@ -1,25 +0,0 @@
+-teste
+-  {
+-    in&#237;cio
+-      x := 2 + 3 * 5;
+-    fim
+-  }
+-
+-  erros: []
+-
+-  ast : ( T_INICIO
+-          ( T_ATRIBUICAO T_IDENTIFICADOR
+-            (T_MAIS T_INTEIRO_LITERAL
+-              (T_MULTIP T_INTEIRO_LITERAL ) ) ) )
+-
+-fim
+-
+-
+-teste
+-  {
+-      algoritmo teste;
+-  }
+-
+-
+-fim
+-
+
+Added: trunk/gpt2/gptc/test/test.example
+===================================================================
+--- trunk/gpt2/gptc/test/test.example	2007-11-13 15:53:03 UTC (rev 357)
++++ trunk/gpt2/gptc/test/test.example	2007-11-13 20:00:29 UTC (rev 358)
+@@ -0,0 +1,42 @@
++teste
++  {
++    in&#237;cio
++      x := 2 + 3 * 5;
++    fim
++  }
++
++  erros: []
++
++  ast : (T_INICIO
++          (T_ATRIBUICAO T_IDENTIFICADOR
++            (T_MAIS T_INTEIRO_LITERAL
++              (T_MULTIP T_INTEIRO_LITERAL T_INTEIRO_LITERAL))))
++
++fim
++
++teste
++  {
++      algoritmo teste;
++
++      fun&#231;&#227;o f() : inteiro
++      in&#237;cio
++        x := 2;
++      fim
++  }
++
++  ast : (T_FUNCAO T_IDENTIFICADOR T_INTEIRO
++          (T_INICIO
++            (T_ATRIBUICAO T_IDENTIFICADOR T_INTEIRO_LITERAL)))
++
++fim
++
++teste
++  {
++      fun&#231;&#227;o f() : inteiro
++      in&#237;cio
++      fim
++  }
++
++  ast : (T_OPS)
++
++fim
+
+Modified: trunk/gpt2/gptc/test/tester.cpp
+===================================================================
+--- trunk/gpt2/gptc/test/tester.cpp	2007-11-13 15:53:03 UTC (rev 357)
++++ trunk/gpt2/gptc/test/tester.cpp	2007-11-13 20:00:29 UTC (rev 358)
+@@ -2,23 +2,28 @@
+ #include &quot;LangTestLexer.hpp&quot;
+ #include &quot;LangTestParser.hpp&quot;
+ #include &quot;LangTestLexerTokenTypes.hpp&quot;
++#include &quot;TestAST.hpp&quot;
+ #include &lt;antlr/TokenBuffer.hpp&gt;
+ #include &lt;antlr/CommonAST.hpp&gt;
+ #include &lt;antlr/ANTLRException.hpp&gt;
+ #include &lt;fstream&gt;
+ #include &lt;iostream&gt;
+ 
++#include &lt;map&gt;
++#include &lt;string&gt;
++
+ using namespace std;
++using namespace antlr;
+ 
+ void dump_tokens(char* fname) {
+-  #include &quot;tokenNames.hpp&quot;
+-  std::ifstream fi(fname);
++  #include &quot;testTokenNames.hpp&quot;
++  ifstream fi(fname);
+   LangTestLexer lexer(fi);
+-  antlr::TokenBuffer *buffer = new antlr::TokenBuffer(lexer);
++  TokenBuffer *buffer = new TokenBuffer(lexer);
+ 
+   while (true) {
+-    std::cout &lt;&lt; lexer.getLine() &lt;&lt; &quot;: [&quot; &lt;&lt; buffer-&gt;LA(1) &lt;&lt; &quot;] &quot;
+-              &lt;&lt; tokenNames[buffer-&gt;LA(1)] &lt;&lt; &quot; (&quot; &lt;&lt; lexer.getText() &lt;&lt; &quot;)&quot;;
++    cerr &lt;&lt; lexer.getLine() &lt;&lt; &quot;: [&quot; &lt;&lt; buffer-&gt;LA(1) &lt;&lt; &quot;] &quot;
++              &lt;&lt; testTokenNames[buffer-&gt;LA(1)] &lt;&lt; &quot; (&quot; &lt;&lt; lexer.getText() &lt;&lt; &quot;)&quot;;
+     buffer-&gt;consume();
+     getchar();
+ 
+@@ -28,27 +33,56 @@
+   }
+ }
+ 
+-void f(char* fname) {
++RefAST dump_tree(char* fname) {
+ 
+   std::ifstream fi(fname);
+   LangTestLexer lexer(fi);
+   LangTestParser parser(lexer);
+ 
++  ASTFactory ast_factory(TestAST::TYPE_NAME,&amp;TestAST::factory);
++  parser.initializeASTFactory(ast_factory);
++  parser.setASTFactory(&amp;ast_factory);
++
+   parser.teste_desc();
++
++  RefAST ast    = parser.getAST();
++  RefCommonAST cast = RefCommonAST(ast);
++
++  if (!cast) {
++    cerr &lt;&lt; &quot;no parse tree!&quot; &lt;&lt; endl;
++  } else {
++    cerr &lt;&lt; cast-&gt;toStringList() &lt;&lt; endl &lt;&lt; endl;
++  }
++  return ast;
+ }
+ 
++void f(char* fname) {
++
++  ifstream fi(fname);
++  LangTestLexer lexer(fi);
++  LangTestParser parser(lexer);
++
++  ASTFactory ast_factory(TestAST::TYPE_NAME,&amp;TestAST::factory);
++  parser.initializeASTFactory(ast_factory);
++  parser.setASTFactory(&amp;ast_factory);
++
++  parser.teste_desc();
++}
++
+ int main(int argc, char** argv) {
+ 
+   if (argc &lt; 2) {
+-    std::cerr &lt;&lt; &quot;./tester &lt;file.gpt&gt;&quot; &lt;&lt; std::endl;
++    cerr &lt;&lt; &quot;./tester &lt;file.gpt&gt;&quot; &lt;&lt; endl;
+     return 0;
+   }
+ 
++//   DEBUG_PARSER = true;
+   try {
+ //     dump_tokens(argv[1]);
+     f(argv[1]);
++//     dump_tree(argv[1]);
+ 	}
+-  catch(antlr::ANTLRException&amp; e)
++  catch(ANTLRException&amp; e)
+ 	{
+ 		cerr &lt;&lt; &quot;Parse exception: &quot; &lt;&lt; e.toString() &lt;&lt; endl;
+ 		return -1;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000031.html">[gpt-commit] r357 - in trunk/gpt2/gptc: . test
+</A></li>
+	<LI>Next message: <A HREF="000033.html">[gpt-commit] r359 - trunk/gpt2/gptc
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#32">[ date ]</a>
+              <a href="thread.html#32">[ thread ]</a>
+              <a href="subject.html#32">[ subject ]</a>
+              <a href="author.html#32">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

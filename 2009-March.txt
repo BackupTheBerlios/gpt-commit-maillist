@@ -1,0 +1,532 @@
+From gpt-commit-noreply at mail.berlios.de  Sun Mar 22 20:02:13 2009
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Sun, 22 Mar 2009 20:02:13 +0100
+Subject: [gpt-commit] r529 - in trunk/gpt: . src src/modules/c_translator
+	src/modules/parser src/modules/x86 test
+Message-ID: <200903221902.n2MJ2D7C023051@sheep.berlios.de>
+
+Author: adorilson
+Date: 2009-03-22 20:01:04 +0100 (Sun, 22 Mar 2009)
+New Revision: 529
+
+Modified:
+   trunk/gpt/HACKING
+   trunk/gpt/src/
+   trunk/gpt/src/GPT.cpp
+   trunk/gpt/src/modules/c_translator/pt2c.g
+   trunk/gpt/src/modules/parser/SemanticEval.cpp
+   trunk/gpt/src/modules/x86/X86.cpp
+   trunk/gpt/src/modules/x86/X86.hpp
+   trunk/gpt/src/modules/x86/x86.g
+   trunk/gpt/test/tester.gpt
+Log:
+NEW:
+- Adicionado suporte a retorne no bloco principal. Sendo que, atualmente, somente na traducao para C++ o valor de retorno do 
+algoritmo ?\195?\169 passado para o S.O.
+BUGFIX:
+- Resolvido bug na traducao para C++: o g++ nao encontrava a funcao str_strlen().
+REGULAR:
+- Pequena correcao no HACKING.
+
+
+Modified: trunk/gpt/HACKING
+===================================================================
+--- trunk/gpt/HACKING	2009-02-22 01:43:36 UTC (rev 528)
++++ trunk/gpt/HACKING	2009-03-22 19:01:04 UTC (rev 529)
+@@ -166,8 +166,7 @@
+   e bugfixes.
+ 
+   Al?m do mais, BUGFIX pode ser seguido de um n?mero (ie #1234), que representa
+-  o n?mero do bug em um sistema de gerencia de bugs, como bugzilla. Por?m
+-  ainda n?o usamos tal sistema.
++  o n?mero do bug em um sistema de gerencia de bugs, que no nossa caso ? o Mantis.
+ 
+ o Unit Testing
+ 
+
+
+Property changes on: trunk/gpt/src
+___________________________________________________________________
+Name: svn:ignore
+   + .libs
+.deps
+
+
+Modified: trunk/gpt/src/GPT.cpp
+===================================================================
+--- trunk/gpt/src/GPT.cpp	2009-02-22 01:43:36 UTC (rev 528)
++++ trunk/gpt/src/GPT.cpp	2009-03-22 19:01:04 UTC (rev 529)
+@@ -41,7 +41,7 @@
+ GPT* GPT::_self = 0;
+ 
+ GPT::GPT()
+-  :/* _usePipe(false),*/ _printParseTree(false), _useOutputFile(false)
++  : /*_usePipe(false),*/ _printParseTree(false), _useOutputFile(false)
+ {
+ }
+ 
+@@ -97,9 +97,8 @@
+           "   -h            mostra esse texto\n"
+           "   -o <arquivo>  compila e salva programa como <arquivo>\n"
+           "   -t <arquivo>  salva o c?digo em linguagem C como <arquivo>\n"
+-          "   -s <arquivo>  salva o c?digo em linguagem assembly como <arquivo>\n"
++          "   -s <arquivo>  salva o c?digo em linguagem Assembly como <arquivo>\n"
+           "   -i            interpreta o algoritmo\n"
+-          "\n"
+           "   -d            exibe dicas no relat?rio de erros\n\n"
+           "   Maiores informa??es no manual.\n";
+ 
+@@ -152,7 +151,7 @@
+     return success;
+ }
+ 
+-bool GPT::compile(const list<string>& ifnames, bool genBinary) {  
++bool GPT::compile(const list<string>& ifnames, bool genBinary){  
+   bool success = false;
+   stringstream s;
+ 
+@@ -173,54 +172,59 @@
+     #endif
+   }
+ 
+-  X86Walker x86(_stable);
+-  string asmsrc = x86.algoritmo(_astree);
++  try{
++    X86Walker x86(_stable);
++    string asmsrc = x86.algoritmo(_astree);
+ 
+-  string ftmpname = createTmpFile();
+-  ofstream fo;
++    string ftmpname = createTmpFile();
++    ofstream fo;
+ 
+-  if(!genBinary) { //salva assembly code
+-    fo.open(ofname.c_str(), ios_base::out);
+-    if(!fo) {
+-      s << PACKAGE << ": n?o foi poss?vel abrir o arquivo: \"" << ofname << "\"" << endl;
+-      GPTDisplay::self()->showError(s);
+-      goto bail;
+-    }
+-    fo << asmsrc;
+-    fo.close();
+-  } else { //compile
+-    fo.open(ftmpname.c_str(), ios_base::out);
+-    if(!fo) {
+-      s << PACKAGE << ": erro ao processar arquivo tempor?rio" << endl;
+-      GPTDisplay::self()->showError(s);
+-      goto bail;
+-    }
+-    fo << asmsrc;
+-    fo.close();
++    if(!genBinary) { //salva assembly code
++      fo.open(ofname.c_str(), ios_base::out);
++      if(!fo) {
++        s << PACKAGE << ": n?o foi poss?vel abrir o arquivo: \"" << ofname << "\"" << endl;
++        GPTDisplay::self()->showError(s);
++        goto bail;
++      }
++      fo << asmsrc;
++      fo.close();
++    } else { //compile
++      fo.open(ftmpname.c_str(), ios_base::out);
++      if(!fo) {
++        s << PACKAGE << ": erro ao processar arquivo tempor?rio" << endl;
++        GPTDisplay::self()->showError(s);
++        goto bail;
++      }
++      fo << asmsrc;
++      fo.close();
+ 
+-    stringstream cmd;
+-    cmd << "nasm -O1 -fbin -o \"" << ofname << "\" " << ftmpname;
++      stringstream cmd;
++      cmd << "nasm -O1 -fbin -o \"" << ofname << "\" " << ftmpname;
+ 
+-    if(system(cmd.str().c_str()) == -1) {
+-      s << PACKAGE << ": n?o foi poss?vel invocar o nasm." << endl;
+-      GPTDisplay::self()->showError(s);
+-      goto bail;
++      if(system(cmd.str().c_str()) == -1) {
++        s << PACKAGE << ": n?o foi poss?vel invocar o nasm." << endl;
++        GPTDisplay::self()->showError(s);
++        goto bail;
++      }
++
++      #ifndef WIN32
++        cmd.str("");
++        cmd << "chmod +x " << ofname;
++        system(cmd.str().c_str());
++      #endif
+     }
++  
++    success = true;
+ 
+-    #ifndef WIN32
+-      cmd.str("");
+-      cmd << "chmod +x " << ofname;
+-      system(cmd.str().c_str());
+-    #endif
++    bail:
++      if(ftmpname.length()>0) {
++         unlink(ftmpname.c_str());
++      }
++    return success;
++  } catch(SymbolTableException& e) {
++      s << PACKAGE << ": erro interno: " << e.getMessage() << endl;
++      GPTDisplay::self()->showError(s);
+   }
+-
+-  success = true;
+-
+-  bail:
+-    if(ftmpname.length()>0) {
+-       unlink(ftmpname.c_str());
+-    }
+-    return success;
+ }
+ 
+ bool GPT::translate2C(const list<string>& ifnames) {
+@@ -236,23 +240,28 @@
+      ofname += ".c";
+   }
+ 
+-  Portugol2CWalker pt2c(_stable);
+-  string c_src = pt2c.algoritmo(_astree);
++  try{
++  	Portugol2CWalker pt2c(_stable);
++	string c_src = pt2c.algoritmo(_astree);
+ 
+-  ofstream fo;
+-  fo.open(ofname.c_str(), ios_base::out);
+-  if(!fo) {
+-    s << PACKAGE << ": n?o foi poss?vel abrir o arquivo: \"" << ofname << "\"" << endl;
+-    GPTDisplay::self()->showError(s);
+-    goto bail;
+-  }
+-  fo << c_src;
+-  fo.close();
++	ofstream fo;
++	fo.open(ofname.c_str(), ios_base::out);
++	if(!fo) {
++	  s << PACKAGE << ": n?o foi poss?vel abrir o arquivo: \"" << ofname << "\"" << endl;
++      GPTDisplay::self()->showError(s);
++	  goto bail;
++	}
++	fo << c_src;
++	fo.close();
+ 
+-  success = true;
++	success = true;
+ 
+-  bail:
+-    return success;
++	bail:
++	  return success;
++  } catch(SymbolTableException& e) {
++      s << PACKAGE << ": erro interno: " << e.getMessage() << endl;
++      GPTDisplay::self()->showError(s);
++  }
+ }
+ 
+ bool GPT::interpret(const list<string>& ifnames, const string& host, int port) {
+
+Modified: trunk/gpt/src/modules/c_translator/pt2c.g
+===================================================================
+--- trunk/gpt/src/modules/c_translator/pt2c.g	2009-02-22 01:43:36 UTC (rev 528)
++++ trunk/gpt/src/modules/c_translator/pt2c.g	2009-03-22 19:01:04 UTC (rev 529)
+@@ -271,6 +271,12 @@
+          "   }\n"
+          "   return TRUE;\n"
+          "}\n";
++    s << "int str_strlen(char* str) {\n"
++         "   if(str == 0) {\n"
++         "     return 0;\n"
++         "   }\n"
++         "   return strlen(str);\n"
++         "}\n";     
+     s << "boolean str_comp(char* left, char* right) {\n"
+          "   if (!left && !right) {\n"
+          "      return TRUE;\n"
+@@ -286,12 +292,6 @@
+          "   }\n"
+          "   return (strcmp(left, right)==0);\n"
+          "}\n";
+-    s << "int str_strlen(char* str) {\n"
+-         "   if(str == 0) {\n"
+-         "     return 0;\n"
+-         "   }\n"
+-         "   return strlen(str);\n"
+-         "}\n";
+     s << "char* return_literal(char* str) {\n"
+          "  char* lit = NULL;\n"
+          "  lit = (char*) malloc(sizeof(char)*(str_strlen(str)+1));\n"
+@@ -705,9 +705,16 @@
+ 
+ stm_ret
+ {
+-  int expecting_type = stable.getSymbol(SymbolTable::GlobalScope, _currentScope, true).type.primitiveType();
++  int expecting_type=TIPO_NULO;
++  bool isGlobalEscope = _currentScope==SymbolTable::GlobalScope;
++  if (isGlobalEscope){
++    expecting_type = TIPO_INTEIRO; // o retorno no bloco principal ? do TIPO_INTEIRO
++  }else{
++  	expecting_type = stable.getSymbol(SymbolTable::GlobalScope, _currentScope, true).type.primitiveType();
++  }
++  
+   production e;
+-  stringstream str;
++  stringstream str; 
+ }
+   : #(T_KW_RETORNE (TI_NULL|e=expr[expecting_type]))
+     {
+@@ -725,7 +732,7 @@
+ stm_se
+ {
+   production e;
+-  stringstream str;
++  stringstream str; 
+ }
+   : #(T_KW_SE e=expr[TIPO_LOGICO]
+         {
+
+Modified: trunk/gpt/src/modules/parser/SemanticEval.cpp
+===================================================================
+--- trunk/gpt/src/modules/parser/SemanticEval.cpp	2009-02-22 01:43:36 UTC (rev 528)
++++ trunk/gpt/src/modules/parser/SemanticEval.cpp	2009-03-22 19:01:04 UTC (rev 529)
+@@ -550,9 +550,13 @@
+ }
+ 
+ void SemanticEval::evaluateReturnCmd(ExpressionValue& ev, int line) {
+-  if(currentScope == SymbolTable::GlobalScope) {
+-    //tentando retornar no bloco principal
+-    GPTDisplay::self()->add("Bloco principal n?o deve ter retorno", line);
++  bool isGlobalEscope = currentScope == SymbolTable::GlobalScope;
++  if(isGlobalEscope) {
++    if(ev.primitiveType() != TIPO_INTEIRO) {
++        stringstream msg;
++        msg << "Retorno do bloco principal deve ser compat?vel do tipo inteiro: " ;
++        GPTDisplay::self()->add(msg.str(), line);
++      }
+   } else {
+     //currentScope eh o nome da funcao atual
+     try {
+
+Modified: trunk/gpt/src/modules/x86/X86.cpp
+===================================================================
+--- trunk/gpt/src/modules/x86/X86.cpp	2009-02-22 01:43:36 UTC (rev 528)
++++ trunk/gpt/src/modules/x86/X86.cpp	2009-03-22 19:01:04 UTC (rev 529)
+@@ -220,8 +220,13 @@
+   return _currentScope;
+ }
+ 
+-void X86::writeExit() {
+-  writeTEXT("exit 0");
++void X86::writeExit(int value) {
++  char svalue[5];
++  sprintf(svalue, "%d", value);
++  
++  string exit = "exit ";
++  exit += svalue;
++  writeTEXT(exit);
+ }
+ 
+ void X86::declarePrimitive(int decl_type, const string& name, int type) {
+
+Modified: trunk/gpt/src/modules/x86/X86.hpp
+===================================================================
+--- trunk/gpt/src/modules/x86/X86.hpp	2009-02-22 01:43:36 UTC (rev 528)
++++ trunk/gpt/src/modules/x86/X86.hpp	2009-03-22 19:01:04 UTC (rev 529)
+@@ -98,7 +98,7 @@
+   string translateFuncImprima(const string& id, int type);
+   string createLabel(bool local, string tmpl);
+ 
+-  void writeExit();
++  void writeExit(int value=0);
+ 
+   void writeAttribution(int e1, int e2, pair<pair<int, bool>, string>&);
+   void writeOuExpr();
+
+Modified: trunk/gpt/src/modules/x86/x86.g
+===================================================================
+--- trunk/gpt/src/modules/x86/x86.g	2009-02-22 01:43:36 UTC (rev 528)
++++ trunk/gpt/src/modules/x86/x86.g	2009-03-22 19:01:04 UTC (rev 529)
+@@ -331,22 +331,34 @@
+ 
+ stm_ret
+ {
+-  int expecting_type = stable.getSymbol(SymbolTable::GlobalScope, x86.currentScope(), true).type.primitiveType();
++  int expecting_type=TIPO_NULO;
+   int etype;
++  bool isGlobalEscope = (x86.currentScope()==SymbolTable::GlobalScope);
++  if (isGlobalEscope){
++    expecting_type = TIPO_INTEIRO; // o retorno no bloco principal ? do TIPO_INTEIRO
++  }else{
++	expecting_type = stable.getSymbol(SymbolTable::GlobalScope, x86.currentScope(), true).type.primitiveType();        
++  }  
+ }
+   : #(T_KW_RETORNE (TI_NULL|etype=expr[expecting_type]))
+     {
+-      if(expecting_type != TIPO_NULO) {
+-        x86.writeTEXT("pop eax");
++      if (isGlobalEscope){
++      // arrumar um jeito de passar o valor do retorne aqui.
++      	x86.writeExit();  // o writeExit() j? est? preparado pra receber um parametro inteiro, que ? opcional	
++      }else{
++      	if(expecting_type != TIPO_NULO) {
++        	x86.writeTEXT("pop eax");
++      	}
++      	if(expecting_type == TIPO_LITERAL) {
++        	x86.writeTEXT("addarg eax");
++        	x86.writeTEXT("call clone_literal");
++        	x86.writeTEXT("clargs 1");
++      	} else {
++        	x86.writeCast(etype, expecting_type);
++      	}
++      
++      	x86.writeTEXT("return");
+       }
+-      if(expecting_type == TIPO_LITERAL) {
+-        x86.writeTEXT("addarg eax");
+-        x86.writeTEXT("call clone_literal");
+-        x86.writeTEXT("clargs 1");
+-      } else {
+-        x86.writeCast(etype, expecting_type);
+-      }
+-      x86.writeTEXT("return");
+     }
+   ;
+ 
+
+Modified: trunk/gpt/test/tester.gpt
+===================================================================
+--- trunk/gpt/test/tester.gpt	2009-02-22 01:43:36 UTC (rev 528)
++++ trunk/gpt/test/tester.gpt	2009-03-22 19:01:04 UTC (rev 529)
+@@ -30,6 +30,8 @@
+ 
+ //testar_castings();
+ 
++  retorne 42;
++  imprima("se imprimiu essa linha, o retorne do bloco principal n?o funcionou");
+ fim
+ 
+ fun??o testar_inicializacao()
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Mon Mar 30 05:35:03 2009
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Mon, 30 Mar 2009 05:35:03 +0200
+Subject: [gpt-commit] r530 - trunk/gpt/src/modules/parser
+Message-ID: <200903300335.n2U3Z3Nj008732@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2009-03-30 05:35:02 +0200 (Mon, 30 Mar 2009)
+New Revision: 530
+
+Modified:
+   trunk/gpt/src/modules/parser/SemanticEval.cpp
+Log:
+-Adequacao de mensagem de erro
+
+Modified: trunk/gpt/src/modules/parser/SemanticEval.cpp
+===================================================================
+--- trunk/gpt/src/modules/parser/SemanticEval.cpp	2009-03-22 19:01:04 UTC (rev 529)
++++ trunk/gpt/src/modules/parser/SemanticEval.cpp	2009-03-30 03:35:02 UTC (rev 530)
+@@ -554,7 +554,7 @@
+   if(isGlobalEscope) {
+     if(ev.primitiveType() != TIPO_INTEIRO) {
+         stringstream msg;
+-        msg << "Retorno do bloco principal deve ser compat?vel do tipo inteiro: " ;
++        msg << "Valor de retorno do bloco principal deve ser compat?vel com o tipo inteiro";
+         GPTDisplay::self()->add(msg.str(), line);
+       }
+   } else {
+
+
+
+From gpt-commit-noreply at mail.berlios.de  Mon Mar 30 05:36:35 2009
+From: gpt-commit-noreply at mail.berlios.de (gpt-commit-noreply at mail.berlios.de)
+Date: Mon, 30 Mar 2009 05:36:35 +0200
+Subject: [gpt-commit] r531 - trunk/gpt/src/modules/x86
+Message-ID: <200903300336.n2U3aZXG008853@sheep.berlios.de>
+
+Author: thiago_silva
+Date: 2009-03-30 05:36:34 +0200 (Mon, 30 Mar 2009)
+New Revision: 531
+
+Modified:
+   trunk/gpt/src/modules/x86/X86.cpp
+   trunk/gpt/src/modules/x86/X86.hpp
+   trunk/gpt/src/modules/x86/x86.g
+Log:
+-Passando o valor de exit() pelo registrador ecx
+
+Modified: trunk/gpt/src/modules/x86/X86.cpp
+===================================================================
+--- trunk/gpt/src/modules/x86/X86.cpp	2009-03-30 03:35:02 UTC (rev 530)
++++ trunk/gpt/src/modules/x86/X86.cpp	2009-03-30 03:36:34 UTC (rev 531)
+@@ -220,13 +220,10 @@
+   return _currentScope;
+ }
+ 
+-void X86::writeExit(int value) {
+-  char svalue[5];
+-  sprintf(svalue, "%d", value);
+-  
+-  string exit = "exit ";
+-  exit += svalue;
+-  writeTEXT(exit);
++void X86::writeExit() {
++  stringstream s;
++  s << "exit ecx";
++  writeTEXT(s.str());
+ }
+ 
+ void X86::declarePrimitive(int decl_type, const string& name, int type) {
+
+Modified: trunk/gpt/src/modules/x86/X86.hpp
+===================================================================
+--- trunk/gpt/src/modules/x86/X86.hpp	2009-03-30 03:35:02 UTC (rev 530)
++++ trunk/gpt/src/modules/x86/X86.hpp	2009-03-30 03:36:34 UTC (rev 531)
+@@ -98,7 +98,7 @@
+   string translateFuncImprima(const string& id, int type);
+   string createLabel(bool local, string tmpl);
+ 
+-  void writeExit(int value=0);
++  void writeExit();
+ 
+   void writeAttribution(int e1, int e2, pair<pair<int, bool>, string>&);
+   void writeOuExpr();
+
+Modified: trunk/gpt/src/modules/x86/x86.g
+===================================================================
+--- trunk/gpt/src/modules/x86/x86.g	2009-03-30 03:35:02 UTC (rev 530)
++++ trunk/gpt/src/modules/x86/x86.g	2009-03-30 03:36:34 UTC (rev 531)
+@@ -149,7 +149,10 @@
+ 
+ principal
+   : stm_block
+-    {x86.writeExit();}
++    {
++            x86.writeTEXT("mov ecx, 0");
++            x86.writeExit();
++    }
+   ;
+ 
+ stm_block
+@@ -343,9 +346,9 @@
+   : #(T_KW_RETORNE (TI_NULL|etype=expr[expecting_type]))
+     {
+       if (isGlobalEscope){
+-      // arrumar um jeito de passar o valor do retorne aqui.
+-      	x86.writeExit();  // o writeExit() j? est? preparado pra receber um parametro inteiro, que ? opcional	
+-      }else{
++        x86.writeTEXT("pop ecx");
++        x86.writeExit();
++      } else {
+       	if(expecting_type != TIPO_NULO) {
+         	x86.writeTEXT("pop eax");
+       	}
+
+
+

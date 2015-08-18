@@ -1,0 +1,231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r532 - in trunk/gpt: src src/modules/c_translator	src/modules/interpreter src/modules/x86 test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2009-May/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r532%20-%20in%20trunk/gpt%3A%20src%20src/modules/c_translator%0A%09src/modules/interpreter%20src/modules/x86%20test&In-Reply-To=%3C200905290314.n4T3Em99006570%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r532 - in trunk/gpt: src src/modules/c_translator	src/modules/interpreter src/modules/x86 test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r532%20-%20in%20trunk/gpt%3A%20src%20src/modules/c_translator%0A%09src/modules/interpreter%20src/modules/x86%20test&In-Reply-To=%3C200905290314.n4T3Em99006570%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r532 - in trunk/gpt: src src/modules/c_translator	src/modules/interpreter src/modules/x86 test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Fri May 29 05:14:48 CEST 2009</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#205">[ date ]</a>
+              <a href="thread.html#205">[ thread ]</a>
+              <a href="subject.html#205">[ subject ]</a>
+              <a href="author.html#205">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: adorilson
+Date: 2009-05-29 05:13:43 +0200 (Fri, 29 May 2009)
+New Revision: 532
+
+Modified:
+   trunk/gpt/src/GPT.cpp
+   trunk/gpt/src/GPT.hpp
+   trunk/gpt/src/main.cpp
+   trunk/gpt/src/modules/c_translator/pt2c.g
+   trunk/gpt/src/modules/interpreter/InterpreterEval.cpp
+   trunk/gpt/src/modules/interpreter/InterpreterEval.hpp
+   trunk/gpt/src/modules/interpreter/interpreter.g
+   trunk/gpt/src/modules/x86/x86.g
+   trunk/gpt/test/tester.gpt
+Log:
+NEW:
+- Adicionado suporte a retorne no bloco principal, no modulo interpretador.
+
+
+
+Modified: trunk/gpt/src/GPT.cpp
+===================================================================
+--- trunk/gpt/src/GPT.cpp	2009-03-30 03:36:34 UTC (rev 531)
++++ trunk/gpt/src/GPT.cpp	2009-05-29 03:13:43 UTC (rev 532)
+@@ -264,15 +264,15 @@
+   }
+ }
+ 
+-bool GPT::interpret(const list&lt;string&gt;&amp; ifnames, const string&amp; host, int port) {
++int GPT::interpret(const list&lt;string&gt;&amp; ifnames, const string&amp; host, int port) {
+   if(!prologue(ifnames)) {
+     return false;
+   }
+ 
+   InterpreterWalker interpreter(_stable, host, port);
+-  interpreter.algoritmo(_astree);
++  int r = interpreter.algoritmo(_astree);
+ 
+-  return true;
++  return r;
+ }
+ 
+ 
+
+Modified: trunk/gpt/src/GPT.hpp
+===================================================================
+--- trunk/gpt/src/GPT.hpp	2009-03-30 03:36:34 UTC (rev 531)
++++ trunk/gpt/src/GPT.hpp	2009-05-29 03:13:43 UTC (rev 532)
+@@ -48,7 +48,7 @@
+ 
+   bool compile(const list&lt;string&gt;&amp; ifnames, bool genBinary = true);
+   bool translate2C(const list&lt;string&gt;&amp; ifnames);
+-  bool interpret(const list&lt;string&gt;&amp; ifnames, const string&amp; host, int port);
++  int interpret(const list&lt;string&gt;&amp; ifnames, const string&amp; host, int port);
+   
+ private:
+   GPT();
+
+Modified: trunk/gpt/src/main.cpp
+===================================================================
+--- trunk/gpt/src/main.cpp	2009-03-30 03:36:34 UTC (rev 531)
++++ trunk/gpt/src/main.cpp	2009-05-29 03:13:43 UTC (rev 532)
+@@ -260,7 +260,9 @@
+       success = GPT::self()-&gt;compile(_ifilenames, false);
+       break;
+     case CMD_INTERPRET:
+-      success = GPT::self()-&gt;interpret(_ifilenames, _host, atoi(_port.c_str()));
++      int result;
++      result = GPT::self()-&gt;interpret(_ifilenames, _host, atoi(_port.c_str()));
++      return result; 
+       break;
+     case CMD_INVALID:
+       break;
+
+Modified: trunk/gpt/src/modules/c_translator/pt2c.g
+===================================================================
+--- trunk/gpt/src/modules/c_translator/pt2c.g	2009-03-30 03:36:34 UTC (rev 531)
++++ trunk/gpt/src/modules/c_translator/pt2c.g	2009-05-29 03:13:43 UTC (rev 532)
+@@ -710,7 +710,7 @@
+   if (isGlobalEscope){
+     expecting_type = TIPO_INTEIRO; // o retorno no bloco principal &#233; do TIPO_INTEIRO
+   }else{
+-  	expecting_type = stable.getSymbol(SymbolTable::GlobalScope, _currentScope, true).type.primitiveType();
++    expecting_type = stable.getSymbol(SymbolTable::GlobalScope, _currentScope, true).type.primitiveType();
+   }
+   
+   production e;
+
+Modified: trunk/gpt/src/modules/interpreter/InterpreterEval.cpp
+===================================================================
+--- trunk/gpt/src/modules/interpreter/InterpreterEval.cpp	2009-03-30 03:36:34 UTC (rev 531)
++++ trunk/gpt/src/modules/interpreter/InterpreterEval.cpp	2009-05-29 03:13:43 UTC (rev 532)
+@@ -767,6 +767,10 @@
+   return retExpr;
+ }
+ 
++int InterpreterEval::getReturning(){
++  return atoi(retExpr.value.c_str());
++}
++
+ //----------- Debugger -------------------------
+ 
+ void InterpreterEval::nextCmd(const string&amp; file, int line) {
+
+Modified: trunk/gpt/src/modules/interpreter/InterpreterEval.hpp
+===================================================================
+--- trunk/gpt/src/modules/interpreter/InterpreterEval.hpp	2009-03-30 03:36:34 UTC (rev 531)
++++ trunk/gpt/src/modules/interpreter/InterpreterEval.hpp	2009-05-29 03:13:43 UTC (rev 532)
+@@ -151,6 +151,9 @@
+  
+   void setReturnExprValue(ExprValue&amp; v);
+   ExprValue getReturnExprValue(const string&amp;);
++  
++  int getReturning();
++  
+ //----------- Debugger -------------------------
+ 
+   void nextCmd(const string&amp; file, int line);
+
+Modified: trunk/gpt/src/modules/interpreter/interpreter.g
+===================================================================
+--- trunk/gpt/src/modules/interpreter/interpreter.g	2009-03-30 03:36:34 UTC (rev 531)
++++ trunk/gpt/src/modules/interpreter/interpreter.g	2009-05-29 03:13:43 UTC (rev 532)
+@@ -143,8 +143,9 @@
+   )
+ 
+ */
+-algoritmo
++algoritmo returns [int ret]
+ {
++  ret = 0;
+   topnode = _t;
+   interpreter.init(_t-&gt;getFilename());  
+   _t = _t-&gt;getNextSibling();
+@@ -153,6 +154,11 @@
+   }
+ }
+   : inicio    
++    {
++      if (_returning){
++        ret = interpreter.getReturning();
++      }
++    }
+   ;
+ 
+ inicio
+
+Modified: trunk/gpt/src/modules/x86/x86.g
+===================================================================
+--- trunk/gpt/src/modules/x86/x86.g	2009-03-30 03:36:34 UTC (rev 531)
++++ trunk/gpt/src/modules/x86/x86.g	2009-05-29 03:13:43 UTC (rev 532)
+@@ -340,7 +340,7 @@
+   if (isGlobalEscope){
+     expecting_type = TIPO_INTEIRO; // o retorno no bloco principal &#233; do TIPO_INTEIRO
+   }else{
+-	expecting_type = stable.getSymbol(SymbolTable::GlobalScope, x86.currentScope(), true).type.primitiveType();        
++    expecting_type = stable.getSymbol(SymbolTable::GlobalScope, x86.currentScope(), true).type.primitiveType();
+   }  
+ }
+   : #(T_KW_RETORNE (TI_NULL|etype=expr[expecting_type]))
+
+Modified: trunk/gpt/test/tester.gpt
+===================================================================
+--- trunk/gpt/test/tester.gpt	2009-03-30 03:36:34 UTC (rev 531)
++++ trunk/gpt/test/tester.gpt	2009-05-29 03:13:43 UTC (rev 532)
+@@ -30,6 +30,7 @@
+ 
+ //testar_castings();
+ 
++  imprima(&quot;Verifique se o resultado de 'echo $?' &#233; 42&quot;);
+   retorne 42;
+   imprima(&quot;se imprimiu essa linha, o retorne do bloco principal n&#227;o funcionou&quot;);
+ fim
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#205">[ date ]</a>
+              <a href="thread.html#205">[ thread ]</a>
+              <a href="subject.html#205">[ subject ]</a>
+              <a href="author.html#205">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

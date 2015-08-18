@@ -1,0 +1,2557 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r373 - in trunk/gpt2/gptc: . src test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r373%20-%20in%20trunk/gpt2/gptc%3A%20.%20src%20test&In-Reply-To=%3C200711190348.lAJ3mLud026223%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000046.html">
+   <LINK REL="Next"  HREF="000048.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r373 - in trunk/gpt2/gptc: . src test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r373%20-%20in%20trunk/gpt2/gptc%3A%20.%20src%20test&In-Reply-To=%3C200711190348.lAJ3mLud026223%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r373 - in trunk/gpt2/gptc: . src test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon Nov 19 04:48:21 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000046.html">[gpt-commit] r372 - trunk/gpt2/gptc
+</A></li>
+        <LI>Next message: <A HREF="000048.html">[gpt-commit] r374 - in trunk/gpt2: . common common/src gptasm	gptasm/src gptasm/test gptasm/test/gerados_pelo_gptc	gptasm/test/wikki gptvm gptvm/src gptvm/test	gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#47">[ date ]</a>
+              <a href="thread.html#47">[ thread ]</a>
+              <a href="subject.html#47">[ subject ]</a>
+              <a href="author.html#47">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-19 04:48:19 +0100 (Mon, 19 Nov 2007)
+New Revision: 373
+
+Added:
+   trunk/gpt2/gptc/src/
+   trunk/gpt2/gptc/src/BaseSemanticWalker.cpp
+   trunk/gpt2/gptc/src/BaseSemanticWalker.hpp
+   trunk/gpt2/gptc/src/MismatchedUnicodeCharException.cpp
+   trunk/gpt2/gptc/src/MismatchedUnicodeCharException.hpp
+   trunk/gpt2/gptc/src/UnicodeCharBuffer.hpp
+   trunk/gpt2/gptc/src/UnicodeCharScanner.hpp
+   trunk/gpt2/gptc/src/lexer.g
+   trunk/gpt2/gptc/src/parser.g
+   trunk/gpt2/gptc/src/semantic.g
+   trunk/gpt2/gptc/src/teste.cpp
+   trunk/gpt2/gptc/test/
+Removed:
+   trunk/gpt2/gptc/BaseSemanticWalker.cpp
+   trunk/gpt2/gptc/BaseSemanticWalker.hpp
+   trunk/gpt2/gptc/Makefile
+   trunk/gpt2/gptc/MismatchedUnicodeCharException.cpp
+   trunk/gpt2/gptc/MismatchedUnicodeCharException.hpp
+   trunk/gpt2/gptc/UnicodeCharBuffer.hpp
+   trunk/gpt2/gptc/UnicodeCharScanner.hpp
+   trunk/gpt2/gptc/compiler_test/
+   trunk/gpt2/gptc/lexer.g
+   trunk/gpt2/gptc/parser.g
+   trunk/gpt2/gptc/semantic.g
+   trunk/gpt2/gptc/test/Makefile
+   trunk/gpt2/gptc/teste.cpp
+Log:
+-Re-estruturando diretorios / preparando para o build system
+
+Deleted: trunk/gpt2/gptc/BaseSemanticWalker.cpp
+===================================================================
+--- trunk/gpt2/gptc/BaseSemanticWalker.cpp	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/BaseSemanticWalker.cpp	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,3 +0,0 @@
+-#include &quot;BaseSemanticWalker.hpp&quot;
+-
+-
+
+Deleted: trunk/gpt2/gptc/BaseSemanticWalker.hpp
+===================================================================
+--- trunk/gpt2/gptc/BaseSemanticWalker.hpp	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/BaseSemanticWalker.hpp	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,32 +0,0 @@
+-/***************************************************************************
+- *   Copyright (C) 2003-2006 by Thiago Silva                               *
+- *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>                                               *
+- *                                                                         *
+- *   This program is free software; you can redistribute it and/or modify  *
+- *   it under the terms of the GNU General Public License as published by  *
+- *   the Free Software Foundation; either version 2 of the License, or     *
+- *   (at your option) any later version.                                   *
+- *                                                                         *
+- *   This program is distributed in the hope that it will be useful,       *
+- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+- *   GNU General Public License for more details.                          *
+- *                                                                         *
+- *   You should have received a copy of the GNU General Public License     *
+- *   along with this program; if not, write to the                         *
+- *   Free Software Foundation, Inc.,                                       *
+- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+- ***************************************************************************/
+-
+-#ifndef BASESEMANTICWALKER_H
+-#define BASESEMANTICWALKER_H
+-
+-#include &lt;antlr/TreeParser.hpp&gt;
+-
+-class BaseSemanticWalker : public antlr::TreeParser {
+-
+-public:
+-  BaseSemanticWalker() : antlr::TreeParser() {}
+-};
+-
+-#endif
+
+Deleted: trunk/gpt2/gptc/Makefile
+===================================================================
+--- trunk/gpt2/gptc/Makefile	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/Makefile	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,61 +0,0 @@
+-output = ./obj
+-
+-objects = $(output)/PortugolLexer.o $(output)/PortugolParser.o \
+-					$(output)/BaseSemanticWalker.o $(output)/SemanticWalker.o \
+-					$(output)/teste.o $(output)/MismatchedUnicodeCharException.o
+-
+-
+-cpp = g++ -I$(output) -I.
+-
+-$(output)/teste: $(objects)
+-	$(cpp) -o $(output)/teste $(objects) /usr/local/lib/libantlr.a
+-
+-$(output):
+-	mkdir -p $(output)
+-
+-$(output)/PortugolLexer.o: $(output)/PortugolLexer.hpp \
+-		$(output)/PortugolLexer.cpp
+-	$(cpp) -c $(output)/PortugolLexer.cpp -o $(output)/PortugolLexer.o
+-
+-$(output)/PortugolParser.o: $(output)/PortugolParser.hpp \
+-		$(output)/PortugolParser.cpp
+-	$(cpp) -c $(output)/PortugolParser.cpp -o $(output)/PortugolParser.o
+-
+-$(output)/SemanticWalker.o: $(output)/SemanticWalker.hpp \
+-		BaseSemanticWalker.hpp
+-	$(cpp) -c $(output)/SemanticWalker.cpp -o $(output)/SemanticWalker.o
+-
+-$(output)/BaseSemanticWalker.o: BaseSemanticWalker.hpp BaseSemanticWalker.cpp
+-	$(cpp) -c BaseSemanticWalker.cpp -o $(output)/BaseSemanticWalker.o
+-
+-$(output)/MismatchedUnicodeCharException.o: \
+-	MismatchedUnicodeCharException.cpp MismatchedUnicodeCharException.hpp
+-	$(cpp) -c MismatchedUnicodeCharException.cpp \
+-	-o $(output)/MismatchedUnicodeCharException.o
+-
+-$(output)/teste.o: teste.cpp $(output)/tokenNames.hpp
+-	$(cpp) -c teste.cpp -o $(output)/teste.o
+-
+-$(output)/PortugolLexer.hpp $(output)/PortugolLexer.cpp: lexer.g
+-	antlr -o $(output) lexer.g
+-
+-$(output)/PortugolParser.hpp $(output)/PortugolParser.cpp: parser.g
+-	antlr -o $(output) parser.g
+-
+-$(output)/SemanticWalker.hpp $(output)/SemanticWalker.cpp: semantic.g
+-	antlr -o $(output) semantic.g
+-
+-$(output)/tokenNames.hpp:
+-	echo &quot;std::map&lt;int, std::string &gt; tokenNames;&quot;  &gt; $(output)/tokenNames.hpp
+-	grep = $(output)/PortugolTokenTypes.txt &gt;&gt; $(output)/tokenNames.hpp
+-	sed -i -e 's/([^=]*)//' $(output)/tokenNames.hpp
+-	sed -i -e 's/&quot;[^&quot;]*&quot;//' $(output)/tokenNames.hpp
+-	sed -i -e 's/==/=/' $(output)/tokenNames.hpp
+-	sed -i -e 's/()//' $(output)/tokenNames.hpp
+-	sed -i -e 's/\([^=]*\)=\(.*\)/tokenNames[\2]=&quot;\1&quot;;/' \
+-		$(output)/tokenNames.hpp
+-
+-
+-clean:
+-	rm -rf $(output)
+-
+
+Deleted: trunk/gpt2/gptc/MismatchedUnicodeCharException.cpp
+===================================================================
+--- trunk/gpt2/gptc/MismatchedUnicodeCharException.cpp	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/MismatchedUnicodeCharException.cpp	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,110 +0,0 @@
+-
+-#include &lt;iostream&gt;
+-
+-#include &lt;antlr/config.hpp&gt;
+-#include &lt;antlr/RecognitionException.hpp&gt;
+-#include &lt;antlr/BitSet.hpp&gt;
+-#include &lt;antlr/String.hpp&gt;
+-#include &quot;MismatchedUnicodeCharException.hpp&quot;
+-#include &quot;UnicodeCharScanner.hpp&quot;
+-
+-
+-MismatchedUnicodeCharException::MismatchedUnicodeCharException()
+-: RecognitionException(&quot;Mismatched char&quot;)
+-{
+-}
+-
+-// Expected range / not range
+-MismatchedUnicodeCharException::MismatchedUnicodeCharException(
+-	char_type c,
+-	char_type lower,
+-	char_type up,
+-	bool matchNot,
+-	UnicodeCharScanner* cs
+-)
+-: RecognitionException(&quot;Mismatched char&quot;,
+-							  cs-&gt;getFilename(),
+-							  cs-&gt;getLine(), cs-&gt;getColumn())
+-, mismatchType(matchNot ? NOT_RANGE : RANGE)
+-, foundChar(c)
+-, expecting(lower)
+-, upper(up)
+-, scanner(cs)
+-{
+-}
+-
+-// Expected char / not char
+-MismatchedUnicodeCharException::MismatchedUnicodeCharException(
+-	char_type c,
+-	char_type expect,
+-	bool matchNot,
+-	UnicodeCharScanner* cs
+-) : RecognitionException(&quot;Mismatched char&quot;,
+-                      cs-&gt;getFilename(),
+-							 cs-&gt;getLine(), cs-&gt;getColumn())
+-, mismatchType(matchNot ? NOT_CHAR : CHAR)
+-, foundChar(c)
+-, expecting(expect)
+-, scanner(cs)
+-{
+-}
+-
+-// Expected BitSet / not BitSet
+-MismatchedUnicodeCharException::MismatchedUnicodeCharException(
+-	char_type c,
+-	antlr::BitSet s,
+-	bool matchNot,
+-	UnicodeCharScanner* cs
+-) : RecognitionException(&quot;Mismatched char&quot;,
+-                      cs-&gt;getFilename(),
+-							 cs-&gt;getLine(), cs-&gt;getColumn())
+-, mismatchType(matchNot ? NOT_SET : SET)
+-, foundChar(c)
+-, set(s)
+-, scanner(cs)
+-{
+-}
+-
+-MismatchedUnicodeCharException::~MismatchedUnicodeCharException() throw() {}
+-
+-/**
+- * Returns a clean error message (no line number/column information)
+- */
+-std::string MismatchedUnicodeCharException::getMessage() const
+-{
+-	ANTLR_USE_NAMESPACE(std)string s;
+-
+-	switch (mismatchType) {
+-	case CHAR :
+-		s += &quot;expecting '&quot; + antlr::charName(expecting) + &quot;', found '&quot; + antlr::charName(foundChar) + &quot;'&quot;;
+-		break;
+-	case NOT_CHAR :
+-		s += &quot;expecting anything but '&quot; + antlr::charName(expecting) + &quot;'; got it anyway&quot;;
+-		break;
+-	case RANGE :
+-		s += &quot;expecting token in range: '&quot; + antlr::charName(expecting) + &quot;'..'&quot; + antlr::charName(upper) + &quot;', found '&quot; + antlr::charName(foundChar) + &quot;'&quot;;
+-		break;
+-	case NOT_RANGE :
+-		s += &quot;expecting token NOT in range: &quot; + antlr::charName(expecting) + &quot;'..'&quot; + antlr::charName(upper) + &quot;', found '&quot; + antlr::charName(foundChar) + &quot;'&quot;;
+-		break;
+-	case SET :
+-	case NOT_SET :
+-		{
+-			s += ANTLR_USE_NAMESPACE(std)string(&quot;expecting &quot;) + (mismatchType == NOT_SET ? &quot;NOT &quot; : &quot;&quot;) + &quot;one of (&quot;;
+-			ANTLR_USE_NAMESPACE(std)vector&lt;unsigned int&gt; elems = set.toArray();
+-			for ( unsigned int i = 0; i &lt; elems.size(); i++ )
+-			{
+-				s += &quot; '&quot;;
+-				s += antlr::charName(elems[i]);
+-				s += &quot;'&quot;;
+-			}
+-			s += &quot;), found '&quot; + antlr::charName(foundChar) + &quot;'&quot;;
+-		}
+-		break;
+-	default :
+-		s += RecognitionException::getMessage();
+-		break;
+-	}
+-
+-	return s;
+-}
+
+Deleted: trunk/gpt2/gptc/MismatchedUnicodeCharException.hpp
+===================================================================
+--- trunk/gpt2/gptc/MismatchedUnicodeCharException.hpp	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/MismatchedUnicodeCharException.hpp	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,82 +0,0 @@
+-#ifndef INC_MismatchedUnicodeCharException_hpp__
+-#define INC_MismatchedUnicodeCharException_hpp__
+-
+-/* ANTLR Translator Generator
+- * Project led by Terence Parr at <A HREF="http://www.jGuru.com">http://www.jGuru.com</A>
+- * Software rights: <A HREF="http://www.antlr.org/license.html">http://www.antlr.org/license.html</A>
+- *
+- * $Id:$
+- */
+-
+-#include &lt;antlr/config.hpp&gt;
+-#include &lt;antlr/RecognitionException.hpp&gt;
+-#include &lt;antlr/BitSet.hpp&gt;
+-#include &lt;antlr/String.hpp&gt;
+-
+-class UnicodeCharScanner;
+-
+-class MismatchedUnicodeCharException : public antlr::RecognitionException {
+-public:
+-	typedef unsigned int char_type;
+-	typedef enum {
+-		CHAR = 1,
+-		NOT_CHAR = 2,
+-		RANGE = 3,
+-		NOT_RANGE = 4,
+-		SET = 5,
+-		NOT_SET = 6
+-	} MATCH_TYPE;
+-
+-	MismatchedUnicodeCharException();
+-
+-	// Expected range / not range
+-	MismatchedUnicodeCharException(
+-		char_type c,
+-		char_type lower,
+-		char_type up,
+-		bool matchNot,
+-		UnicodeCharScanner* cs
+-	);
+-
+-	// Expected char / not char
+-	MismatchedUnicodeCharException(
+-		char_type c,
+-		char_type expect,
+-		bool matchNot,
+-		UnicodeCharScanner* cs
+-	);
+-
+-	// Expected BitSet / not BitSet
+-	MismatchedUnicodeCharException(
+-		char_type c,
+-		antlr::BitSet s,
+-		bool matchNot,
+-		UnicodeCharScanner* cs
+-	);
+-
+-	~MismatchedUnicodeCharException() throw();
+-
+-	/**
+-	 * Returns a clean error message (no line number/column information)
+-	 */
+-	std::string getMessage() const;
+-private:
+-	// One of the above
+-	MATCH_TYPE mismatchType;
+-
+-	// what was found on the input stream
+-	char_type foundChar;
+-
+-	// For CHAR/NOT_CHAR and RANGE/NOT_RANGE
+-	char_type expecting;
+-
+-	// For RANGE/NOT_RANGE (expecting is lower bound of range)
+-	char_type upper;
+-
+-	// For SET/NOT_SET
+-	antlr::BitSet set;
+-	// who knows...they may want to ask scanner questions
+-	UnicodeCharScanner* scanner;
+-};
+-
+-#endif
+
+Deleted: trunk/gpt2/gptc/UnicodeCharBuffer.hpp
+===================================================================
+--- trunk/gpt2/gptc/UnicodeCharBuffer.hpp	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/UnicodeCharBuffer.hpp	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,83 +0,0 @@
+-#ifndef INC_UnicodeCharBuffer_hpp__
+-#define INC_UnicodeCharBuffer_hpp__
+-
+-#include &lt;istream&gt;
+-#include &lt;cassert&gt;
+-#include &lt;antlr/config.hpp&gt;
+-#include &lt;antlr/InputBuffer.hpp&gt;
+-#include &lt;antlr/CharStreamIOException.hpp&gt;
+-
+-class ANTLR_API UnicodeCharBuffer : public antlr::InputBuffer {
+-public:
+-	typedef unsigned int char_type;	// should be 32 bits!
+-
+-	/// Create a character buffer
+-	UnicodeCharBuffer(std::istream&amp; inp)
+-	: input(inp)
+-	{
+-		//	input.exceptions(std::ios_base::badbit|
+-		//						  std::ios_base::failbit);
+-	}
+-	/// Get the next character from the stream
+-	int getChar()
+-	{
+-		char_type ch = 0;
+-		int inchar = input.get();
+-		if( inchar == EOF )
+-			return -1;
+-
+-// This is how UTF8 is encoded
+-// +---------------------------+----------+----------+----------+----------+
+-// | Unicode scalar            | 1st      | 2nd      | 3th      | 4th      |
+-// +---------------------------+----------+----------+----------+----------+
+-// |00000000 0xxxxxxx          | 0xxxxxxx |          |          |          |
+-// |00000yyy yyxxxxxx          | 110yyyyy | 10xxxxxx |          |          |
+-// |zzzzyyyy yyxxxxxx          | 1110zzzz | 10yyyyyy | 10xxxxxx |          |
+-// |000uuuuu zzzzyyyy yyxxxxxx | 11110uuu | 10uuzzzz | 10yyyyyy | 10xxxxxx |
+-// +---------------------------+----------+----------+----------+----------+
+-
+-		if( (inchar &amp; 0x80) == 0 )
+-			return inchar;
+-
+-		unsigned int need = 0;
+-		if( (inchar &amp; 0xF8) == 0xF8 )
+-		{
+-			ch = inchar &amp; 7;
+-			need = 3;
+-		}
+-		else if( (inchar &amp; 0xE0) == 0xE0 )
+-		{
+-			ch = inchar &amp; 0xF;
+-			need = 2;
+-		}
+-		else if( (inchar &amp; 0xC0) == 0xC0 )
+-		{
+-			ch = inchar &amp; 0x1F;
+-			need = 1;
+-		}
+-		else
+-		{
+-			assert(&quot;Invalid UTF8&quot;);
+-		}
+-		while( need )
+-		{
+-			inchar = input.get();
+-			if( inchar == EOF )
+-				assert(&quot;Invalid UTF8&quot;);
+-//				throw antlr::CharStreamIOException(std::logic_error());
+-			ch &lt;&lt;= 6;
+-			ch += inchar &amp; 0x3F;
+-			need--;
+-		}
+-		return ch;
+-	}
+-private:
+-	// character source
+-	std::istream&amp; input;
+-
+-	// NOTE: Unimplemented
+-	UnicodeCharBuffer(const UnicodeCharBuffer&amp; other);
+-	UnicodeCharBuffer&amp; operator=(const UnicodeCharBuffer&amp; other);
+-};
+-
+-#endif //INC_UnicodeCharBuffer_hpp__
+
+Deleted: trunk/gpt2/gptc/UnicodeCharScanner.hpp
+===================================================================
+--- trunk/gpt2/gptc/UnicodeCharScanner.hpp	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/UnicodeCharScanner.hpp	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,561 +0,0 @@
+-#ifndef INC_UnicodeCharScanner_hpp__
+-#define INC_UnicodeCharScanner_hpp__
+-
+-#include &lt;map&gt;
+-#include &lt;cctype&gt;
+-
+-#include &lt;antlr/config.hpp&gt;
+-#include &lt;antlr/CommonToken.hpp&gt;
+-#include &lt;antlr/TokenStream.hpp&gt;
+-#include &lt;antlr/RecognitionException.hpp&gt;
+-#include &lt;antlr/SemanticException.hpp&gt;
+-#include &lt;antlr/InputBuffer.hpp&gt;
+-#include &lt;antlr/BitSet.hpp&gt;
+-#include &lt;antlr/LexerSharedInputState.hpp&gt;
+-
+-#include &quot;MismatchedUnicodeCharException.hpp&quot;
+-
+-/** Superclass of generated lexers
+- */
+-class UnicodeCharScanner : public antlr::TokenStream {
+-protected:
+-	typedef antlr::RefToken (*factory_type)();
+-public:
+-	typedef int char_type;
+-	typedef std::map&lt;std::string,int&gt; string_map;
+-
+-	UnicodeCharScanner( antlr::InputBuffer&amp; cb, bool case_sensitive )
+-	: saveConsumedInput(true)
+-	, caseSensitive(case_sensitive)
+-	, literals()
+-	, inputState(new antlr::LexerInputState(cb))
+-	, commitToPath(false)
+-	, tabsize(8)
+-	, traceDepth(0)
+-	{
+-		setTokenObjectFactory(&amp;antlr::CommonToken::factory);
+-	}
+-	UnicodeCharScanner( antlr::InputBuffer* cb, bool case_sensitive )
+-	: saveConsumedInput(true)
+-	, caseSensitive(case_sensitive)
+-	, literals()
+-	, inputState(new antlr::LexerInputState(cb))
+-	, commitToPath(false)
+-	, tabsize(8)
+-	, traceDepth(0)
+-	{
+-		setTokenObjectFactory(&amp;antlr::CommonToken::factory);
+-	}
+-	UnicodeCharScanner( const antlr::LexerSharedInputState&amp; state, bool case_sensitive )
+-	: saveConsumedInput(true)
+-	, caseSensitive(case_sensitive)
+-	, literals()
+-	, inputState(state)
+-	, commitToPath(false)
+-	, tabsize(8)
+-	, traceDepth(0)
+-	{
+-		setTokenObjectFactory(&amp;antlr::CommonToken::factory);
+-	}
+-
+-	virtual ~UnicodeCharScanner()
+-	{
+-	}
+-
+-	virtual char_type LA(char_type i)
+-	{
+-		char_type c = inputState-&gt;getInput().LA(i);
+-		return c;
+-	}
+-
+-	virtual void append(char_type c)
+-	{
+-		if (saveConsumedInput)
+-		{
+-			size_t len = text.length();
+-
+-			if( (len % 256) == 0 )
+-				text.reserve(len+256);
+-
+-// This is how UTF8 is encoded
+-// +---------------------------+----------+----------+----------+----------+
+-// | Unicode scalar            | 1st      | 2nd      | 3th      | 4th      |
+-// +---------------------------+----------+----------+----------+----------+
+-// |00000000 0xxxxxxx          | 0xxxxxxx |          |          |          |
+-// |00000yyy yyxxxxxx          | 110yyyyy | 10xxxxxx |          |          |
+-// |zzzzyyyy yyxxxxxx          | 1110zzzz | 10yyyyyy | 10xxxxxx |          |
+-// |000uuuuu zzzzyyyy yyxxxxxx | 11110uuu | 10uuzzzz | 10yyyyyy | 10xxxxxx |
+-// +---------------------------+----------+----------+----------+----------+
+-
+-			if (c &lt; 0x80)
+-			{
+-				text += c;
+-				return;
+-			}
+-			else if (c &lt; 0x800)
+-			{
+-				text += ( (c &gt;&gt; 6) | 0xC0 );
+-				text += ( c &amp; 0x3F | 0x80 );
+-			}
+-			else if (c &lt; 0x10000)
+-			{
+-				text += ( (c &gt;&gt; 12) | 0xE0 );
+-				text += ( ((c &gt;&gt; 6) &amp; 0x3F) | 0x80 );
+-				text += ( (c &amp; 0x3F) | 0x80 );
+-			}
+-			else if (c &lt; 0x200000)
+-			{
+-				text += ( (c &gt;&gt; 18) | 0xF0 );				// first 3 bits
+-				text += ( (((c &gt;&gt; 16) &amp; 0x3) &lt;&lt; 4) |
+-								 ((c &gt;&gt; 12) &amp; 0xF) | 0x80 );
+-				text += ( ((c &gt;&gt; 6) &amp; 0x3F) | 0x80 );
+-				text += ( (c &amp; 0x3F) | 0x80 );
+-			}
+-			else
+-				assert(0);
+-		}
+-	}
+-
+-	virtual void append(const std::string&amp; s)
+-	{
+-		assert(0);
+-		if (saveConsumedInput)
+-			text+=s;
+-	}
+-
+-	virtual void commit()
+-	{
+-		inputState-&gt;getInput().commit();
+-	}
+-
+-	virtual void consume()
+-	{
+-		if (inputState-&gt;guessing == 0)
+-		{
+-			char_type c = LA(1);
+-			append(c);
+-			inputState-&gt;column++;
+-		}
+-		inputState-&gt;getInput().consume();
+-	}
+-
+-	/** Consume chars until one matches the given char */
+-	virtual void consumeUntil(char_type c)
+-	{
+-		for(;;)
+-		{
+-			char_type la_1 = LA(1);
+-			if( static_cast&lt;char_type&gt;(EOF_CHAR) == la_1 || la_1 == c )
+-				break;
+-			consume();
+-		}
+-	}
+-
+-	/** Consume chars until one matches the given set */
+-	virtual void consumeUntil(const antlr::BitSet&amp; set)
+-	{
+-		for(;;)
+-		{
+-			char_type la_1 = LA(1);
+-			if( static_cast&lt;char_type&gt;(EOF_CHAR) == la_1 || set.member(la_1) )
+-				break;
+-			consume();
+-		}
+-	}
+-
+-	/// Mark the current position and return a id for it
+-	virtual unsigned int mark()
+-	{
+-		return inputState-&gt;getInput().mark();
+-	}
+-
+-	/// Rewind the scanner to a previously marked position
+-	virtual void rewind(unsigned int pos)
+-	{
+-		inputState-&gt;getInput().rewind(pos);
+-	}
+-
+-	/// See if input contains character 'c' throw MismatchedUnicodeCharException if not
+-	virtual void match(char_type c)
+-	{
+-		char_type la_1 = LA(1);
+-		if ( la_1 != c )
+-			throw MismatchedUnicodeCharException(la_1, c, false, this);
+-		consume();
+-	}
+-
+-	/** See if input contains element from bitset b
+-	 * throw MismatchedUnicodeCharException if not
+-	 */
+-	virtual void match(const antlr::BitSet&amp; b)
+-	{
+-		char_type la_1 = LA(1);
+-
+-		if ( !b.member(la_1) )
+-			throw MismatchedUnicodeCharException( la_1, b, false, this );
+-		consume();
+-	}
+-
+-	/** See if input contains string 's' throw MismatchedUnicodeCharException if not
+-	 * @note the string cannot match EOF
+-	 */
+-	virtual void match( const char* s )
+-	{
+-		while( *s != '\0' )
+-		{
+-			// the &amp; 0xFF is here to prevent sign extension lateron
+-			char_type la_1 = LA(1), c = (*s++ &amp; 0xFF);
+-
+-			if ( la_1 != c )
+-				throw MismatchedUnicodeCharException(la_1, c, false, this);
+-
+-			consume();
+-		}
+-	}
+-	/** See if input contains string 's' throw MismatchedUnicodeCharException if not
+-	 * @note the string cannot match EOF
+-	 */
+-	virtual void match(const std::string&amp; s)
+-	{
+-		size_t len = s.length();
+-
+-		for (size_t i = 0; i &lt; len; i++)
+-		{
+-			// the &amp; 0xFF is here to prevent sign extension lateron
+-			char_type la_1 = LA(1), c = (s[i] &amp; 0xFF);
+-
+-			if ( la_1 != c )
+-				throw MismatchedUnicodeCharException(la_1, c, false, this);
+-
+-			consume();
+-		}
+-	}
+-	/** See if input does not contain character 'c'
+-	 * throw MismatchedUnicodeCharException if not
+-	 */
+-	virtual void matchNot(char_type c)
+-	{
+-		char_type la_1 = LA(1);
+-
+-		if ( la_1 == c )
+-			throw MismatchedUnicodeCharException(la_1, c, true, this);
+-
+-		consume();
+-	}
+-	/** See if input contains character in range c1-c2
+-	 * throw MismatchedUnicodeCharException if not
+-	 */
+-	virtual void matchRange(char_type c1, char_type c2)
+-	{
+-		char_type la_1 = LA(1);
+-
+-		if ( la_1 &lt; c1 || la_1 &gt; c2 )
+-			throw MismatchedUnicodeCharException(la_1, c1, c2, false, this);
+-
+-		consume();
+-	}
+-
+-	/// Get the line the scanner currently is in (starts at 1)
+-	virtual int getLine() const
+-	{
+-		return inputState-&gt;line;
+-	}
+-
+-	/// set the line number
+-	virtual void setLine(int l)
+-	{
+-		inputState-&gt;line = l;
+-	}
+-
+-	/// Get the column the scanner currently is in (starts at 1)
+-	virtual int getColumn() const
+-	{
+-		return inputState-&gt;column;
+-	}
+-	/// set the column number
+-	virtual void setColumn(int c)
+-	{
+-		inputState-&gt;column = c;
+-	}
+-
+-	/// get the filename for the file currently used
+-	virtual const std::string&amp; getFilename() const
+-	{
+-		return inputState-&gt;filename;
+-	}
+-	/// Set the filename the scanner is using (used in error messages)
+-	virtual void setFilename(const std::string&amp; f)
+-	{
+-		inputState-&gt;filename = f;
+-	}
+-
+-	virtual bool getCommitToPath() const
+-	{
+-		return commitToPath;
+-	}
+-
+-	virtual void setCommitToPath(bool commit)
+-	{
+-		commitToPath = commit;
+-	}
+-
+-	/** return a copy of the current text buffer */
+-	virtual const std::string&amp; getText() const
+-	{
+-		return text;
+-	}
+-
+-	virtual void setText(const std::string&amp; s)
+-	{
+-		text = s;
+-	}
+-
+-	virtual void resetText()
+-	{
+-		text = &quot;&quot;;
+-		inputState-&gt;tokenStartColumn = inputState-&gt;column;
+-		inputState-&gt;tokenStartLine = inputState-&gt;line;
+-	}
+-
+-	virtual antlr::RefToken getTokenObject() const
+-	{
+-		return _returnToken;
+-	}
+-
+-	///{ These need different handling in unicode case
+-
+-	virtual bool getCaseSensitiveLiterals() const=0;
+-
+-	virtual bool getCaseSensitive() const
+-	{
+-		return caseSensitive;
+-	}
+-
+-	virtual void setCaseSensitive(bool t)
+-	{
+-		caseSensitive = t;
+-	}
+-
+-	/** Override this method to get more specific case handling
+-	 * @note some platforms probably require setting the right locale for
+-	 * correct functioning.
+-	 */
+-	virtual char_type toLower(char_type c) const
+-	{
+-		return std::tolower(c);
+-	}
+-
+-	/** Used to keep track of line breaks, needs to be called from
+-	 * within generated lexers when a \n \r is encountered.
+-	 */
+-	virtual void newline()
+-	{
+-		++inputState-&gt;line;
+-		inputState-&gt;column = 1;
+-	}
+-
+-	/** Advance the current column number by an appropriate amount according
+-	 * to the tabsize. This method needs to be explicitly called from the
+-	 * lexer rules encountering tabs.
+-	 */
+-	virtual void tab()
+-	{
+-		int c = getColumn();
+-		int nc = ( ((c-1)/tabsize) + 1) * tabsize + 1;      // calculate tab stop
+-		setColumn( nc );
+-	}
+-	/// set the tabsize. Returns the old tabsize
+-	int setTabsize( int size )
+-	{
+-		int oldsize = tabsize;
+-		tabsize = size;
+-		return oldsize;
+-	}
+-	/// Return the tabsize used by the scanner
+-	int getTabSize() const
+-	{
+-		return tabsize;
+-	}
+-	///}
+-
+-	/** Report exception errors caught in nextToken() */
+-	virtual void reportError(const antlr::RecognitionException&amp; ex)
+-	{
+-		std::cerr &lt;&lt; ex.toString().c_str() &lt;&lt; std::endl;
+-	}
+-
+-	/** Parser error-reporting function can be overridden in subclass */
+-	virtual void reportError(const std::string&amp; s)
+-	{
+-		if (getFilename() == &quot;&quot;)
+-			std::cerr &lt;&lt; &quot;error: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-		else
+-			std::cerr &lt;&lt; getFilename().c_str() &lt;&lt; &quot;: error: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-	}
+-
+-	/** Parser warning-reporting function can be overridden in subclass */
+-	virtual void reportWarning(const std::string&amp; s)
+-	{
+-		if (getFilename() == &quot;&quot;)
+-			std::cerr &lt;&lt; &quot;warning: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-		else
+-			std::cerr &lt;&lt; getFilename().c_str() &lt;&lt; &quot;: warning: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-	}
+-
+-	virtual antlr::InputBuffer&amp; getInputBuffer()
+-	{
+-		return inputState-&gt;getInput();
+-	}
+-
+-	virtual antlr::LexerSharedInputState getInputState()
+-	{
+-		return inputState;
+-	}
+-
+-	/** set the input state for the lexer.
+-	 * @note state is a reference counted object, hence no reference */
+-	virtual void setInputState(antlr::LexerSharedInputState state)
+-	{
+-		inputState = state;
+-	}
+-
+-	/// Set the factory for created tokens
+-	virtual void setTokenObjectFactory(factory_type factory)
+-	{
+-		tokenFactory = factory;
+-	}
+-
+-	/** Test the token text against the literals table
+-	 * Override this method to perform a different literals test
+-	 */
+-	virtual int testLiteralsTable(int ttype) const
+-	{
+-		string_map::const_iterator i = literals.find(text);
+-		if (i != literals.end())
+-			ttype = (*i).second;
+-		return ttype;
+-	}
+-
+-	/** Test the text passed in against the literals table
+-	 * Override this method to perform a different literals test
+-	 * This is used primarily when you want to test a portion of
+-	 * a token
+-	 */
+-	virtual int testLiteralsTable(const std::string&amp; text, int ttype) const
+-	{
+-		string_map::const_iterator i = literals.find(text);
+-		if (i != literals.end())
+-			ttype = (*i).second;
+-		return ttype;
+-	}
+-
+-	/** This method is called by YourLexer::nextToken() when the lexer has
+-	 *  hit EOF condition.  EOF is NOT a character.
+-	 *  This method is not called if EOF is reached during
+-	 *  syntactic predicate evaluation or during evaluation
+-	 *  of normal lexical rules, which presumably would be
+-	 *  an IOException.  This traps the &quot;normal&quot; EOF condition.
+-	 *
+-	 *  uponEOF() is called after the complete evaluation of
+-	 *  the previous token and only if your parser asks
+-	 *  for another token beyond that last non-EOF token.
+-	 *
+-	 *  You might want to throw token or char stream exceptions
+-	 *  like: &quot;Heh, premature eof&quot; or a retry stream exception
+-	 *  (&quot;I found the end of this file, go back to referencing file&quot;).
+-	 */
+-	virtual void uponEOF()
+-	{
+-	}
+-
+-	/// Methods used to change tracing behavior
+-	void traceIndent()
+-	{
+-		for( int i = 0; i &lt; traceDepth; i++ )
+-			std::cout &lt;&lt; &quot; &quot;;
+-	}
+-
+-	void traceIn(const char* rname)
+-	{
+-		traceDepth++;
+-		traceIndent();
+-		std::cout &lt;&lt; &quot;&gt; lexer &quot; &lt;&lt; rname
+-			&lt;&lt; &quot;; c==&quot; &lt;&lt; LA(1) &lt;&lt; std::endl;
+-	}
+-
+-	void traceOut(const char* rname)
+-	{
+-		traceIndent();
+-		std::cout &lt;&lt; &quot;&lt; lexer &quot; &lt;&lt; rname
+-			&lt;&lt; &quot;; c==&quot; &lt;&lt; LA(1) &lt;&lt; std::endl;
+-		traceDepth--;
+-	}
+-
+-#ifndef NO_STATIC_CONSTS
+-	static const int EOF_CHAR = EOF;
+-#else
+-	enum {
+-		EOF_CHAR = EOF
+-	};
+-#endif
+-protected:
+-	std::string text; ///&lt; Text of current token
+- 	/// flag indicating wether consume saves characters
+-	bool saveConsumedInput;
+-	factory_type tokenFactory;				///&lt; Factory for tokens
+-	bool caseSensitive; 						///&lt; Is this lexer case sensitive
+-	string_map literals;						 // set by subclass
+-
+-	antlr::RefToken _returnToken;		///&lt; used to return tokens w/o using return val
+-
+-	/// Input state, gives access to input stream, shared among different lexers
+-	antlr::LexerSharedInputState inputState;
+-
+-	/** Used during filter mode to indicate that path is desired.
+-	 * A subsequent scan error will report an error as usual
+-	 * if acceptPath=true;
+-	 */
+-	bool commitToPath;
+-
+-	unsigned int tabsize; 	///&lt; tab size the scanner uses.
+-
+-	/// Create a new RefToken of type t
+-	virtual antlr::RefToken makeToken(int t)
+-	{
+-		antlr::RefToken tok = tokenFactory();
+-		// actually at this point you want to convert the stored lexeme text
+-		// into the format you want to have it in in the backend...
+-		tok-&gt;setType(t);
+-		tok-&gt;setColumn(inputState-&gt;tokenStartColumn);
+-		tok-&gt;setLine(inputState-&gt;tokenStartLine);
+-		return tok;
+-	}
+-
+-	/** Tracer class, used when -traceLexer is passed to antlr
+-	 */
+-	class Tracer {
+-	private:
+-		UnicodeCharScanner* parser;
+-		const char* text;
+-
+-		Tracer(const Tracer&amp; other); 					// undefined
+-		Tracer&amp; operator=(const Tracer&amp; other); 	// undefined
+-	public:
+-		Tracer( UnicodeCharScanner* p, const char* t )
+-		: parser(p), text(t)
+-		{
+-			parser-&gt;traceIn(text);
+-		}
+-		~Tracer()
+-		{
+-			parser-&gt;traceOut(text);
+-		}
+-	};
+-
+-	int traceDepth;
+-private:
+-	UnicodeCharScanner( const UnicodeCharScanner&amp; other ); 		  		// undefined
+-	UnicodeCharScanner&amp; operator=( const UnicodeCharScanner&amp; other );	// undefined
+-};
+-
+-#endif //INC_UnicodeCharScanner_hpp__
+
+Deleted: trunk/gpt2/gptc/lexer.g
+===================================================================
+--- trunk/gpt2/gptc/lexer.g	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/lexer.g	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,609 +0,0 @@
+-/*
+- *   Copyright (C) 2003-2006 by Thiago Silva                               *
+- *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>                                               *
+- *                                                                         *
+- *   This program is free software; you can redistribute it and/or modify  *
+- *   it under the terms of the GNU General Public License as published by  *
+- *   the Free Software Foundation; either version 2 of the License, or     *
+- *   (at your option) any later version.                                   *
+- *                                                                         *
+- *   This program is distributed in the hope that it will be useful,       *
+- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+- *   GNU General Public License for more details.                          *
+- *                                                                         *
+- *   You should have received a copy of the GNU General Public License     *
+- *   along with this program; if not, write to the                         *
+- *   Free Software Foundation, Inc.,                                       *
+- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             */
+-
+-
+-header {
+-  #include &lt;string&gt;
+-  #include &lt;sstream&gt;
+-  #include &lt;iostream&gt;
+-  #include &lt;ctype.h&gt;
+-  #include &quot;UnicodeCharBuffer.hpp&quot;
+-  #include &quot;UnicodeCharScanner.hpp&quot;
+-}
+-
+-options {
+-  language=&quot;Cpp&quot;;
+-}
+-
+-class PortugolLexer extends Lexer(&quot;UnicodeCharScanner&quot;);
+-
+-options {
+-  k=2;
+-  genHashLines   = false;
+-  exportVocab    = Portugol;
+-  filter         = T_INVALIDO;
+-  testLiterals   = false;
+-}
+-
+-tokens {
+-  T_ALGORITMO=&quot;algoritmo&quot;;
+-  T_USE=&quot;use&quot;;
+-  T_VARIAVEL=&quot;vari&#225;vel&quot;;
+-  T_VARIAVEIS=&quot;vari&#225;veis&quot;;
+-  T_FIM_VARIAVEIS=&quot;fim-vari&#225;veis&quot;;
+-  T_INTEIRO=&quot;inteiro&quot;;
+-  T_REAL=&quot;real&quot;;
+-  T_CARACTERE=&quot;caractere&quot;;
+-  T_LITERAL=&quot;literal&quot;;
+-  T_LOGICO=&quot;l&#243;gico&quot;;
+-  T_CORINGA=&quot;coringa&quot;;
+-  T_MATRIZ=&quot;matriz&quot;;
+-  T_DO=&quot;do&quot;;
+-  T_TIPO=&quot;tipo&quot;;
+-  T_CONSTANTE=&quot;constante&quot;;
+-  T_CONSTANTES=&quot;constantes&quot;;
+-  T_FIM_CONSTANTES=&quot;fim-constantes&quot;;
+-  T_ESTRUTURA=&quot;estrutura&quot;;
+-  T_FIM_ESTRUTURA=&quot;fim-estrutura&quot;;
+-  T_FUNCAO=&quot;fun&#231;&#227;o&quot;;
+-  T_PROCEDIMENTO=&quot;procedimento&quot;;
+-  T_REF=&quot;ref&quot;;
+-  T_INICIO=&quot;in&#237;cio&quot;;
+-  T_FIM=&quot;fim&quot;;
+-  T_SAIR=&quot;sair&quot;;
+-  T_RETORNE=&quot;retorne&quot;;
+-  T_SE=&quot;se&quot;;
+-  T_ENTAO=&quot;ent&#227;o&quot;;
+-  T_SENAO=&quot;sen&#227;o&quot;;
+-  T_FIM_SE=&quot;fim-se&quot;;
+-  T_ENQUANTO=&quot;enquanto&quot;;
+-  T_FACA=&quot;fa&#231;a&quot;;
+-  T_FIM_ENQUANTO=&quot;fim-enquanto&quot;;
+-  T_PARA=&quot;para&quot;;
+-  T_DE=&quot;de&quot;;
+-  T_ATE=&quot;at&#233;&quot;;
+-  T_FIM_PARA=&quot;fim-para&quot;;
+-  T_PASSO=&quot;passo&quot;;
+-  T_REPITA=&quot;repita&quot;;
+-  T_CASO=&quot;caso&quot;;
+-  T_SEJA=&quot;seja&quot;;
+-  T_FIM_SENAO=&quot;fim-sen&#227;o&quot;;
+-  T_FIM_CASO=&quot;fim-caso&quot;;
+-  T_FIM_FACA=&quot;fim-fa&#231;a&quot;;
+-  T_OU=&quot;ou&quot;;
+-  T_E=&quot;e&quot;;
+-  T_NAO=&quot;n&#227;o&quot;;
+-  T_VERDADEIRO=&quot;verdadeiro&quot;;
+-  T_FALSO=&quot;falso&quot;;
+-  T_NULO=&quot;nulo&quot;;
+-  T_ASM=&quot;asm&quot;;
+-  T_FIMASM=&quot;fim-asm&quot;;
+-
+-  T_REAL_LITERAL=&quot;n&#250;mero real&quot;; //a regra T_INTEIRO_LITERAL lida com reais
+-
+-
+-  //imagin&#225;rios para a AST
+-
+-  T_PARAM;
+-  T_TIPO_RETORNO;
+-
+-  T_VALOR;
+-  T_VAL_MATRIZ;    //valor da matriz    (literal [])
+-  T_VAL_ESTRUTURA; //valor da estrutura (literal {})
+-
+-  T_DIMENSOES;
+-
+-  T_UN_POSITIVO;
+-  T_UN_NEGATIVO;
+-
+-  T_CALL;
+-}
+-
+-
+-{
+-public:
+-  PortugolLexer(std::istream&amp; in, bool case_s)
+-   : UnicodeCharScanner(new UnicodeCharBuffer(in), case_s)
+-    {
+-      initLiterals();
+-    }
+-
+-private:
+-
+-  std::string toBase10(const std::string&amp; oct, int from) {
+-    std::stringstream stream;
+-    unsigned long long base10;
+-    base10 = strtoull(oct.c_str(), NULL, from);
+-    stream &lt;&lt; base10;
+-    return stream.str();
+-  }
+-
+-  bool isOctal(const std::string&amp; num) {
+-    std::stringstream s;
+-    if ((num.find(&quot;8&quot;,0)  != std::string::npos) ||
+-        (num.find(&quot;9&quot;,0)  != std::string::npos)) {
+-      return false;
+-    } else {
+-      for (unsigned int i = 2; i &lt; num.length(); ++i) {
+-        if (!isdigit(num[i])) {
+-          return false;
+-        }
+-      }
+-    }
+-    return true;
+-  }
+-
+-  bool isHex(const std::string&amp; num) {
+-    for (unsigned int i = 2; i &lt; num.length(); ++i) {
+-      if (!isxdigit(num[i])) {
+-        return false;
+-      }
+-    }
+-    return true;
+-  }
+-
+-  bool isBin(const std::string&amp; num) {
+-    for(unsigned int i = 2; i &lt; num.length(); ++i) {
+-      if ((num[i] != '0') &amp;&amp; (num[i] != '1')) {
+-        return false;
+-      }
+-    }
+-    return true;
+-  }
+-}
+-
+-
+-//####################################
+-//##             Regras             ##
+-//####################################
+-
+-
+-
+-T_ESPACO :
+-  (   ' '
+-    | '\t'
+-    | '\n' { newline(); }
+-    | '\r'
+-  )
+-  { $setType(antlr::Token::SKIP); }
+-  ;
+-
+-COMENTARIO_CPP
+-  : &quot;//&quot; (~('\n'))* ('\n')?
+-    {
+-      newline();
+-      $setType(antlr::Token::SKIP);
+-    }
+-  ;
+-
+-COMENTARIO_C
+-{int line = getLine();}
+-  : &quot;/*&quot;
+-    (
+-      options { generateAmbigWarnings=false; } :
+-        '\n'                     {newline();}
+-      | ('\r' '\n')=&gt; '\r' '\n'  {newline();}
+-      | '\r'                     {newline();}
+-      |~('*'|'\n'|'\r')
+-      | ('*' ~'/' )=&gt; '*'
+-    )*
+-    &quot;*/&quot;
+-    {$setType(antlr::Token::SKIP);}
+-  ;
+-exception
+-catch[antlr::RecognitionException] {
+-  std::stringstream s;
+-  //aviso! n&#227;o &#233; erro!
+-  s &lt;&lt; &quot;coment&#225;rio iniciado na linha &quot; &lt;&lt; line &lt;&lt; &quot; n&#227;o termina com \&quot;*/\&quot;.&quot;;
+-  std::cerr &lt;&lt; s.str() &lt;&lt; &quot;, na linha &quot; &lt;&lt; getLine() &lt;&lt; std::endl;
+-  $setType(antlr::Token::SKIP);
+-}
+-
+-T_PONTO_VIRGULA
+-options {
+-  paraphrase = &quot;';'&quot;;
+-}
+-  : ';'
+-  ;
+-
+-T_VIRGULA
+-options {
+-  paraphrase = &quot;','&quot;;
+-}
+-  : ','
+-  ;
+-
+-T_2_PONTOS
+-options {
+-  paraphrase = &quot;':'&quot;;
+-}
+-
+-  : ':'
+-  ;
+-
+-T_ABRE_CHAVE
+-options {
+-  paraphrase = &quot;'['&quot;;
+-}
+-  : '['
+-  ;
+-
+-T_FECHA_CHAVE
+-options {
+-  paraphrase = &quot;']'&quot;;
+-}
+-  : ']'
+-  ;
+-
+-T_ABRE_COLCHETE
+-options {
+-  paraphrase = &quot;'{'&quot;;
+-}
+-  : '{'
+-  ;
+-
+-T_FECHA_COLCHETE
+-options {
+-  paraphrase = &quot;'}'&quot;;
+-}
+-  : '}'
+-  ;
+-
+-T_ABRE_PAREN
+-options {
+-  paraphrase = &quot;'('&quot;;
+-}
+-  : '('
+-  ;
+-T_FECHA_PAREN
+-options {
+-  paraphrase = &quot;')'&quot;;
+-}
+-  : ')'
+-  ;
+-
+-T_ATRIBUICAO
+-options {
+-  paraphrase = &quot;':='&quot;;
+-}
+-  : &quot;:=&quot;
+-  ;
+-
+-T_BIT_OU
+-options {
+-  paraphrase = &quot;operador '|'&quot;;
+-}
+-  : '|'
+-  ;
+-
+-T_BIT_OUX
+-options {
+-  paraphrase = &quot;operador '^'&quot;;
+-}
+-  : '^'
+-  ;
+-
+-T_BIT_E
+-options {
+-  paraphrase = &quot;operador '&amp;'&quot;;
+-}
+-  : '&amp;'
+-  ;
+-
+-T_BIT_NAO
+-options {
+-  paraphrase = &quot;operador '~'&quot;;
+-}
+-  : '~'
+-  ;
+-
+-T_BIT_SHIFT_LEFT
+-options {
+-  paraphrase = &quot;operador '&lt;&lt;'&quot;;
+-}
+-  : &quot;&lt;&lt;&quot;
+-  ;
+-
+-T_BIT_SHIFT_RIGHT
+-options {
+-  paraphrase = &quot;operador '&gt;&gt;'&quot;;
+-}
+-
+-  : &quot;&gt;&gt;&quot;
+-  ;
+-
+-T_IGUAL
+-options {
+-  paraphrase = &quot;operador '='&quot;;
+-}
+-  : '='
+-  ;
+-
+-T_DIFERENTE
+-options {
+-  paraphrase = &quot;operador '&lt;&gt;'&quot;;
+-}
+-  : &quot;&lt;&gt;&quot;
+-  ;
+-
+-T_MAIOR
+-options {
+-  paraphrase = &quot;operador '&gt;'&quot;;
+-}
+-  : '&gt;'
+-  ;
+-
+-T_MAIOR_EQ
+-options {
+-  paraphrase = &quot;operador '&gt;='&quot;;
+-}
+-  : &quot;&gt;=&quot;
+-  ;
+-
+-T_MENOR
+-options {
+-  paraphrase = &quot;operador '&lt;'&quot;;
+-}
+-  : '&lt;'
+-  ;
+-T_MENOR_EQ
+-options {
+-  paraphrase = &quot;operador '&lt;='&quot;;
+-}
+-  : &quot;&lt;=&quot;
+-  ;
+-
+-T_MAIS
+-options {
+-  paraphrase = &quot;operador '+'&quot;;
+-}
+-  : '+'
+-  ;
+-
+-T_MENOS
+-options {
+-  paraphrase = &quot;operador '-'&quot;;
+-}
+-  : '-'
+-  ;
+-
+-T_DIV
+-options {
+-  paraphrase = &quot;operador '/'&quot;;
+-}
+-  : '/'
+-  ;
+-
+-T_MULTIP
+-options {
+-  paraphrase = &quot;operador '*'&quot;;
+-}
+-  : '*'
+-  ;
+-
+-T_MOD
+-options {
+-  paraphrase = &quot;operador '%'&quot;;
+-}
+-  : '%'
+-  ;
+-
+-/* Literais */
+-
+-
+-T_INTEIRO_LITERAL
+-options {
+-  paraphrase = &quot;n&#250;mero inteiro&quot;;
+-}
+-  : ('0' ('c'|'C') )=&gt; T_OCTAL_LIT
+-  | ('0' ('x'|'X') )=&gt; T_HEX_LIT
+-  | ('0' ('b'|'B') )=&gt; T_BIN_LIT
+-  | (T_DIGITO)+
+-    (
+-      '.' (T_DIGITO)+
+-      {$setType(T_REAL_LITERAL);}
+-    )?
+-  ;
+-
+-T_TEXTO_LITERAL
+-options {
+-  paraphrase = &quot;literal&quot;;
+-}
+-  : '&quot;'! ( ~( '&quot;' | '\\' | '\n' | '\r') | T_ESCAPE )* '&quot;'!
+-  ;
+-
+-
+-T_CARACTERE_LITERAL
+-options {
+-  paraphrase = &quot;caractere&quot;;
+-}
+-  : '\''! ( ~( '\'' | '\\' ) | T_ESCAPE )? '\''!
+-  ;
+-
+-
+-
+-/*
+-  Ok, um pouco de malabarismo...
+-
+-  Eis o problema:
+-
+-  N&#243;s precisamos que uma string como &quot;fim-vari&#225;veis&quot; seja
+-  identificada pelo scanner. Para isso, as keywords em tokens{} devem
+-  ser cobertos pelas regras T_*. No caso, T_IDENTIFICADOR
+-  costuma ser a regra que identifica keywords.
+-
+-  Por&#233;m, &quot;fim-vari&#225;veis&quot; n&#227;o &#233; um identificador v&#225;lido
+-  (ambig. com &quot;fim - vari&#225;veis&quot;).
+-
+-  Ent&#227;o, T_IDENTIFICADOR aqui representa a regra mais geral poss&#237;vel,
+-  para cobrir as keywords em tokens{}. Mas, para o caso problem&#225;tico
+-  de T_IDENTIFICADOres com &quot;-&quot;, verificamos se o lexema atual
+-  &#233; uma keyword ou um identificador seguido de T_MENOS, utilizando
+-  &quot;testLiteralsTable&quot; manualmente.
+-
+-  Se testLiteralsTable indicar que o lexema atual com hifen for uma keyword,
+-  &#233; a pr&#243;pria, obviamente.
+-
+-  Se n&#227;o, trata-se de um ID seguido de T_MENOS. Ent&#227;o, fazemos o rollback
+-  at&#233; o ponto do hifen.
+-*/
+-
+-T_IDENTIFICADOR
+-options {
+-  testLiterals = true;
+-}
+-  { int m = -1,len; }
+-
+-  : T_ID_AUX
+-      {
+-        len = $getText.length();
+-        if (LA(1) == '-') {
+-          m = mark();
+-        }
+-      }
+-
+-    ('-' (T_LETRA_OU_DIGITO)*)?
+-  {
+-    if ((m != -1) &amp;&amp; (testLiteralsTable(_ttype) == T_IDENTIFICADOR)) {
+-      rewind(m);
+-      std::string s = $getText;
+-      $setText(s.substr(0,len));
+-    }
+-  }
+-  ;
+-
+-
+-T_RETICENCIAS
+-options {
+-  paraphrase = &quot;retic&#234;ncias (...)&quot;;
+-}
+-  : &quot;...&quot;
+-  ;
+-
+-T_PONTO
+-options {
+-  paraphrase = &quot;ponto (.)&quot;;
+-}
+-  : '.'
+-  ;
+-
+-//####################################
+-//##            Protecteds          ##
+-//####################################
+-
+-
+-protected
+-T_ESCAPE
+-  : '\\' .  /* ex. \a */
+-  ;
+-
+-protected
+-T_DIGITO
+-  : '0'..'9'
+-  ;
+-
+-protected
+-T_LETRA
+-  : 'a'..'z'|'A'..'Z' | '\u00C0' .. '\u00FF' /* latim-1 */
+-  ;
+-
+-
+-protected
+-T_LETRA_OU_DIGITO
+-  : T_LETRA | T_DIGITO | '_'
+-  ;
+-
+-
+-//mais detalhes em T_IDENTIFICADOR
+-protected
+-T_ID_AUX
+-  : (T_LETRA | '_') (T_LETRA_OU_DIGITO)*
+-  ;
+-
+-protected
+-T_OCTAL_LIT
+-  : '0' ('c'|'C') (T_LETRA_OU_DIGITO)+ //T_LETRA_OU_DIGITO:
+-                                        //apenas para exibir
+-                                        //erro precisamente
+-  {
+-    std::string str = $getText;
+-    if (isOctal(str)) {
+-      $setText(toBase10(str.substr(2), 8));
+-    } else {
+-      std::stringstream s;
+-      s &lt;&lt; &quot;\&quot;&quot; &lt;&lt; str &lt;&lt; &quot;\&quot; n&#227;o &#233; um n&#250;mero octal v&#225;lido&quot;;
+-      std::cerr &lt;&lt; s.str() &lt;&lt; &quot;, na linha &quot; &lt;&lt; getLine() &lt;&lt; std::endl;
+-    }
+-  }
+-  ;
+-
+-protected
+-T_HEX_LIT
+-  : '0' ('x'|'X') (T_LETRA_OU_DIGITO)+ //T_LETRA_OU_DIGITO:
+-                                        //apenas para exibir
+-                                        //erro precisamente
+-  {
+-    std::string str = $getText;
+-    if (isHex(str)) {
+-      $setText(toBase10(str, 16));
+-    } else {
+-      std::stringstream s;
+-      s &lt;&lt; &quot;\&quot;&quot; &lt;&lt; str &lt;&lt; &quot;\&quot; n&#227;o &#233; um n&#250;mero hexadecimal v&#225;lido&quot;;
+-      std::cerr &lt;&lt; s.str() &lt;&lt; &quot;, na linha &quot; &lt;&lt; getLine() &lt;&lt; std::endl;
+-    }
+-  }
+-  ;
+-
+-protected
+-T_BIN_LIT
+-  : '0' ('b'|'B') (T_LETRA_OU_DIGITO)+ //T_LETRA_OU_DIGITO:
+-                                        //apenas para exibir
+-                                        //erro precisamente
+-  {
+-    std::string str = $getText;
+-    if (isBin(str)) {
+-      $setText(toBase10(str.substr(2), 2));
+-    } else {
+-      std::stringstream s;
+-      s &lt;&lt; &quot;\&quot;&quot; &lt;&lt; str &lt;&lt; &quot;\&quot; n&#227;o &#233; um n&#250;mero bin&#225;rio v&#225;lido&quot;;
+-      std::cerr &lt;&lt; s.str() &lt;&lt; &quot;, na linha &quot; &lt;&lt; getLine() &lt;&lt; std::endl;
+-    }
+-  }
+-  ;
+-
+-protected
+-T_INVALIDO
+-  : .
+-    {
+-      //caracteres de espa&#231;o inexistentes na tabela ascii
+-      //([160] == [-96] == ' ' == [32] == 160-128)
+-      if ($getText.c_str()[0] == (int)0xffffffa0) {
+-        $setType(antlr::Token::SKIP);
+-      } else {
+-        std::stringstream s;
+-        if (($getText != &quot;\&quot;&quot;) &amp;&amp; ($getText != &quot;'&quot;)) {
+-          s &lt;&lt; &quot;Caractere inv&#225;lido: \&quot;&quot; &lt;&lt; $getText &lt;&lt; &quot;\&quot;.\n&quot;;
+-          s &lt;&lt; &quot;Verifique se a codifica&#231;&#227;o do texto est&#225; em UTF-8&quot;;
+-        } else {
+-          s &lt;&lt; &quot;Faltando fechar aspas&quot;;
+-        }
+-        std::cerr &lt;&lt; s.str() &lt;&lt; &quot;, na linha &quot; &lt;&lt; getLine() &lt;&lt; std::endl;
+-      }
+-    }
+-  ;
+
+Deleted: trunk/gpt2/gptc/parser.g
+===================================================================
+--- trunk/gpt2/gptc/parser.g	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/parser.g	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,546 +0,0 @@
+-/*
+- *   Copyright (C) 2003-2006 by Thiago Silva                               *
+- *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>                                               *
+- *                                                                         *
+- *   This program is free software; you can redistribute it and/or modify  *
+- *   it under the terms of the GNU General Public License as published by  *
+- *   the Free Software Foundation; either version 2 of the License, or     *
+- *   (at your option) any later version.                                   *
+- *                                                                         *
+- *   This program is distributed in the hope that it will be useful,       *
+- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+- *   GNU General Public License for more details.                          *
+- *                                                                         *
+- *   You should have received a copy of the GNU General Public License     *
+- *   along with this program; if not, write to the                         *
+- *   Free Software Foundation, Inc.,                                       *
+- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             */
+-
+-header {
+-#include &lt;antlr/NoViableAltException.hpp&gt;
+-#include &lt;antlr/SemanticException.hpp&gt;
+-  using namespace antlr;
+-}
+-
+-options {
+-  language=&quot;Cpp&quot;;
+-}
+-
+-class PortugolParser extends Parser;
+-options {
+-  importVocab    = Portugol;
+-  genHashLines   = false;
+-  buildAST       = true;
+-  noConstructors = true;
+-}
+-
+-{
+-public:
+-  PortugolParser(antlr::TokenBuffer&amp; tokenBuf, bool report = true)
+-  : antlr::LLkParser(tokenBuf,1), _reportErrors(report), _hasErrors(false)
+-  {
+-  }
+-
+-  PortugolParser(antlr::TokenStream&amp; lexer, bool report = true)
+-  : antlr::LLkParser(lexer,1), _reportErrors(report), _hasErrors(false)
+-  {
+-  }
+-
+-  void reportError(const RecognitionException&amp; ex) {
+-    _hasErrors = true;
+-    if (!_reportErrors) return;
+-    std::cerr &lt;&lt; ex.toString().c_str() &lt;&lt; std::endl;
+-  }
+-
+-  void reportError(const std::string&amp; s) {
+-    _hasErrors = true;
+-    if (!_reportErrors) return;
+-    if (getFilename() == &quot;&quot;) {
+-      std::cerr &lt;&lt; &quot;error: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-    } else {
+-      std::cerr &lt;&lt; getFilename().c_str() &lt;&lt; &quot;: error: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-    }
+-  }
+-
+-  void reportWarning(const std::string&amp; s) {
+-    if (!_reportErrors) return;
+-    if (getFilename() == &quot;&quot;) {
+-      std::cerr &lt;&lt; &quot;warning: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-    } else {
+-      std::cerr &lt;&lt; getFilename().c_str() &lt;&lt; &quot;: warning: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-    }
+-  }
+-
+-  bool hasErorrs() {
+-    return _hasErrors;
+-  }
+-
+-private:
+-  void createRootNode(antlr::ASTPair&amp; ast, antlr::RefToken token) {
+-    astFactory-&gt;makeASTRoot(ast, astFactory-&gt;create(token));
+-  }
+-
+-  void createRootNode(antlr::ASTPair&amp; ast, int token, std::string txt = &quot;&quot;) {
+-    astFactory-&gt;makeASTRoot(ast, astFactory-&gt;create(token, txt));
+-  }
+-
+-  void addChildNode(antlr::ASTPair&amp; ast, antlr::RefToken token) {
+-    astFactory-&gt;addASTChild(ast, astFactory-&gt;create(token));
+-  }
+-
+-  void addChildNode(antlr::ASTPair&amp; ast, antlr::RefAST child) {
+-    astFactory-&gt;addASTChild(ast, child);
+-  }
+-
+-  antlr::RefAST createNode(int type, const std::string&amp; txt) {
+-    return astFactory-&gt;create(type, txt);
+-  }
+-
+-  bool _reportErrors;
+-  bool _hasErrors;
+-}
+-
+-
+-
+-//####################################
+-//##             In&#237;cio             ##
+-//####################################
+-
+-programa
+-{createRootNode(currentAST, T_ALGORITMO, &quot;&amp;algoritmo&quot;);}
+-
+-  : (declaracao_algoritmo)?
+-
+-    (importacao)*
+-
+-    (   declaracao_variaveis
+-      | declaracao_constantes
+-      | bloco_declaracao_estrutura
+-    )*
+-
+-    corpo
+-
+-    EOF
+-  ;
+-
+-declaracao_algoritmo!
+-  : T_ALGORITMO T_IDENTIFICADOR T_PONTO_VIRGULA
+-  ;
+-
+-importacao
+-  : T_USE^ T_TEXTO_LITERAL T_PONTO_VIRGULA!
+-  ;
+-
+-corpo
+-  :  declaracao_subrotina corpo
+-  |  bloco_codigo         corpo
+-  |  /*vazio*/
+-  ;
+-
+-
+-
+-//####################################
+-//##    Declara&#231;&#227;o de Vari&#225;veis     ##
+-//####################################
+-
+-declaracao_variaveis
+-  : bloco_declaracao_variaveis
+-  | T_VARIAVEL! declaracao_variavel_uniq
+-  ;
+-
+-bloco_declaracao_variaveis
+-  : T_VARIAVEIS! (declaracao_variavel)+ T_FIM_VARIAVEIS!
+-  ;
+-
+-declaracao_variavel!
+-  : ids:lista_identificadores   T_2_PONTOS
+-    t:tipo (l:lista_inicializacao)? T_PONTO_VIRGULA
+-
+-            {
+-              if (l_AST == antlr::nullAST) {
+-                #declaracao_variavel =
+-                    #([T_VARIAVEL,&quot;&amp;var&quot;], t,ids);
+-              } else {
+-                #declaracao_variavel =
+-                    #([T_VARIAVEL,&quot;&amp;var&quot;], t,ids,([T_VALOR,&quot;&amp;valor&quot;],l));
+-              }
+-            }
+-  ;
+-
+-lista_identificadores
+-  : T_IDENTIFICADOR (T_VIRGULA! T_IDENTIFICADOR)*
+-  ;
+-
+-declaracao_variavel_uniq!
+-  : id:T_IDENTIFICADOR T_2_PONTOS t:tipo
+-    (l:lista_inicializacao)? T_PONTO_VIRGULA
+-
+-            {
+-              if (l_AST == antlr::nullAST) {
+-                #declaracao_variavel_uniq=
+-                    #([T_VARIAVEL,&quot;&amp;var&quot;], t,id);
+-              } else {
+-                #declaracao_variavel_uniq =
+-                    #([T_VARIAVEL,&quot;&amp;var&quot;], t,id,([T_VALOR,&quot;&amp;valor&quot;],l));
+-              }
+-            }
+-  ;
+-
+-tipo
+-  : tipo_primitivo
+-  | tipo_matriz
+-  | T_IDENTIFICADOR
+-  ;
+-
+-lista_inicializacao
+-  : T_ATRIBUICAO! (expressao | inicializacao_composta)
+-  ;
+-
+-inicializacao_composta!
+-  : T_ABRE_CHAVE!
+-      idx:inicializacao_indices
+-    T_FECHA_CHAVE!
+-
+-                 {#inicializacao_composta = #([T_VAL_MATRIZ, &quot;&amp;vmatriz&quot;],idx);}
+-
+-  | T_ABRE_COLCHETE!
+-      mem:inicializacao_membros
+-    T_FECHA_COLCHETE!
+-
+-                 {#inicializacao_composta = #([T_VAL_ESTRUTURA, &quot;&amp;vestr&quot;],mem);}
+-  ;
+-
+-inicializacao_indices
+-  : (expressao | inicializacao_composta) (T_VIRGULA! inicializacao_indices)?
+-  ;
+-
+-inicializacao_membros
+-  : T_IDENTIFICADOR T_ATRIBUICAO! (expressao | inicializacao_composta)
+-    (T_VIRGULA! inicializacao_membros)?
+-  ;
+-
+-tipo_primitivo
+-  : T_INTEIRO
+-  | T_REAL
+-  | T_CARACTERE
+-  | T_LITERAL
+-  | T_LOGICO
+-  | T_CORINGA
+-  ;
+-
+-tipo_matriz!
+-  : m:T_MATRIZ dim:matriz_dimensoes
+-    T_DO T_TIPO t:tipo_da_matriz
+-
+-                    {#tipo_matriz = #(m, t,dim);}
+-  ;
+-
+-matriz_dimensoes
+-  : ( T_ABRE_CHAVE!
+-      ( T_INTEIRO_LITERAL
+-        | /*vazio*/  {addChildNode(currentAST, createNode(T_NULO,&quot;&amp;null&quot;));}
+-      )
+-      T_FECHA_CHAVE!
+-    )+
+-  ;
+-
+-tipo_da_matriz
+-  : tipo_primitivo | T_IDENTIFICADOR
+-  ;
+-
+-
+-
+-//####################################
+-//##    Declara&#231;&#227;o de Constantes    ##
+-//####################################
+-
+-
+-declaracao_constantes
+-  : bloco_declaracao_constantes
+-  | T_CONSTANTE! declaracao_constante
+-  ;
+-
+-bloco_declaracao_constantes
+-  : T_CONSTANTES! (declaracao_constante)+ T_FIM_CONSTANTES!
+-  ;
+-
+-declaracao_constante!
+-  : id:T_IDENTIFICADOR T_2_PONTOS t:tipo
+-    l:lista_inicializacao T_PONTO_VIRGULA
+-               {#declaracao_constante =
+-                    #([T_CONSTANTE,&quot;&amp;const&quot;],t,id,([T_VALOR,&quot;&amp;valor&quot;],l));}
+-  ;
+-
+-
+-
+-
+-//####################################
+-//##    Declara&#231;&#227;o de Estruturas    ##
+-//####################################
+-
+-
+-bloco_declaracao_estrutura
+-  : T_ESTRUTURA^ T_IDENTIFICADOR (declaracao_variavel)+ T_FIM_ESTRUTURA!
+-  ;
+-
+-
+-
+-
+-//####################################
+-//##    Declara&#231;&#227;o de Subrotinas    ##
+-//####################################
+-
+-
+-declaracao_subrotina
+-  : declaracao_funcao
+-  | declaracao_procedimento
+-  ;
+-
+-declaracao_funcao
+-  : T_FUNCAO^ T_IDENTIFICADOR
+-      T_ABRE_PAREN! (lista_parametros)? T_FECHA_PAREN! T_2_PONTOS! tipo_retorno
+-    (declaracao_constantes | declaracao_variaveis)*
+-    bloco_codigo
+-  ;
+-
+-declaracao_procedimento
+-  : T_PROCEDIMENTO^ T_IDENTIFICADOR
+-      T_ABRE_PAREN! (lista_parametros)? T_FECHA_PAREN!
+-    (declaracao_constantes | declaracao_variaveis)*
+-    bloco_codigo
+-  ;
+-
+-tipo_retorno!
+-  : t:tipo {#tipo_retorno = #([T_TIPO_RETORNO,&quot;&amp;ret&quot;],t);}
+-  ;
+-
+-lista_parametros
+-  : (param_reticencias | parametro (T_VIRGULA! lista_parametros)?)
+-  ;
+-
+-param_reticencias!
+-  : ret:T_RETICENCIAS id:T_IDENTIFICADOR
+-                       {#param_reticencias = #([T_PARAM,&quot;&amp;param&quot;],ret,id);}
+-  ;
+-
+-parametro!
+-  : ((c:T_CONSTANTE)? r:T_REF)? id:T_IDENTIFICADOR T_2_PONTOS t:tipo
+-
+-                          {#parametro = #([T_PARAM,&quot;&amp;param&quot;],t,id,c,r);}
+-  ;
+-
+-
+-//####################################
+-//##         Bloco de c&#243;digo        ##
+-//####################################
+-
+-bloco_codigo
+-  : T_INICIO^ lista_enunciados T_FIM!
+-  ;
+-
+-lista_enunciados
+-  : (enunciado)*
+-  ;
+-
+-enunciado
+-  : (lvalue T_ATRIBUICAO)=&gt; en_atribuicao
+-  | en_retorne
+-  | en_se
+-  | en_enquanto
+-  | en_repita
+-  | en_para
+-  | en_caso
+-
+-  | en_asm
+-
+-  | T_SAIR^ T_PONTO_VIRGULA!
+-  | T_PONTO_VIRGULA!
+-
+-//  TODO: retirar da gramatica ou resolver a ambiguidade
+-//        se esta producao vingar, retirar enunciado::chamada_subrotina
+-//   | expressao  T_PONTO_VIRGULA!
+-
+-  | chamada_subrotina T_PONTO_VIRGULA!
+-  ;
+-
+-en_atribuicao
+-  : lvalue T_ATRIBUICAO^ expressao T_PONTO_VIRGULA!
+-  ;
+-
+-
+-en_retorne
+-  : T_RETORNE^ (expressao)? T_PONTO_VIRGULA!
+-  ;
+-
+-lvalue
+-  : T_IDENTIFICADOR^ (matriz_indices | T_PONTO! lvalue)
+-  ;
+-
+-matriz_indices
+-  : ( T_ABRE_CHAVE!
+-      expressao
+-      T_FECHA_CHAVE!
+-    )*
+-  ;
+-
+-en_se
+-  : T_SE^ expressao T_ENTAO!
+-      lista_enunciados (T_SENAO lista_enunciados)? T_FIM_SE!
+-  ;
+-
+-en_enquanto
+-  : T_ENQUANTO^ expressao T_FACA! lista_enunciados T_FIM_ENQUANTO!
+-  ;
+-
+-en_para
+-  : T_PARA^ lvalue T_DE! expressao
+-    T_ATE! expressao (passo)? T_FACA!
+-      lista_enunciados T_FIM_PARA!
+-  ;
+-
+-passo
+-  : T_PASSO^ (T_MAIS|T_MENOS)? T_INTEIRO_LITERAL
+-  ;
+-
+-en_repita
+-  : T_REPITA^ lista_enunciados T_ATE expressao
+-  ;
+-
+-en_caso
+-  : T_CASO^ expressao
+-      T_SEJA! (teste_caso)+
+-      (caso_senao)? T_FIM_CASO!
+-  ;
+-
+-teste_caso!
+-  : l:literal T_FACA! en:lista_enunciados T_FIM_FACA!
+-
+-                                {#teste_caso = #(l, en);}
+-  ;
+-
+-caso_senao
+-  : T_SENAO^ lista_enunciados T_FIM_SENAO!
+-  ;
+-
+-
+-//TODO: codigo ilustrativo.
+-en_asm!
+-  : T_ASM (~(T_FIMASM))* T_FIMASM
+-  ;
+-
+-
+-//####################################
+-//##            Express&#245;es          ##
+-//####################################
+-
+-
+-expressao
+-  : expr_e (T_OU^ expr_e)*
+-  ;
+-
+-expr_e
+-options {
+-  defaultErrorHandler=false;
+-}
+-  : expr_bit_ou (T_E^ expr_bit_ou)*
+-  ;
+-
+-expr_bit_ou
+-options {
+-  defaultErrorHandler=false;
+-}
+-  : expr_bit_oux (T_BIT_OU^ expr_bit_oux)*
+-  ;
+-
+-expr_bit_oux
+-options {
+-  defaultErrorHandler=false;
+-}
+-  : expr_bit_e (T_BIT_OUX^ expr_bit_e)*
+-  ;
+-
+-expr_bit_e
+-options {
+-  defaultErrorHandler=false;
+-}
+-  : expr_eq (T_BIT_E^ expr_eq)*
+-  ;
+-
+-expr_eq
+-options {
+-  defaultErrorHandler=false;
+-}
+-  : expr_relacional (T_IGUAL^ expr_relacional | T_DIFERENTE^ expr_relacional)*
+-  ;
+-
+-expr_relacional
+-options {
+-  defaultErrorHandler=false;
+-}
+-  : expr_bit_shift ((T_MAIOR^ | T_MAIOR_EQ^ | T_MENOR^ | T_MENOR_EQ^) expr_bit_shift)*
+-  ;
+-
+-expr_bit_shift
+-options {
+-  defaultErrorHandler=false;
+-}
+-  : expr_soma ((T_BIT_SHIFT_LEFT^ | T_BIT_SHIFT_RIGHT^) expr_soma)*
+-  ;
+-
+-expr_soma
+-options {
+-  defaultErrorHandler=false;
+-}
+-  : expr_multip (T_MAIS^ expr_multip | T_MENOS^ expr_multip)*
+-  ;
+-
+-expr_multip
+-options {
+-  defaultErrorHandler=false;
+-}
+-  : expr_unario ((T_DIV^ | T_MULTIP^ | T_MOD^) expr_unario)*
+-  ;
+-
+-expr_unario
+-options {
+-  defaultErrorHandler=false;
+-}
+-  : op_unario expr_elemento
+-  ;
+-
+-op_unario!
+-  : ( T_MENOS      {#op_unario = #[T_UN_NEGATIVO,&quot;&amp;negat&quot;];}
+-    | T_MAIS       {#op_unario = #[T_UN_POSITIVO,&quot;&amp;pos&quot;];}
+-    | n:T_NAO      {#op_unario = #[T_NAO        ,&quot;nega&#231;&quot;];}
+-    | bn:T_BIT_NAO {#op_unario = #[T_BIT_NAO    ,&quot;&amp;negb&quot;];}
+-    )?
+-  ;
+-
+-expr_elemento
+-  :  (T_IDENTIFICADOR T_ABRE_PAREN)=&gt; chamada_subrotina
+-  |  lvalue
+-  |  literal
+-  | T_ABRE_PAREN! expressao T_FECHA_PAREN!
+-  ;
+-
+-
+-chamada_subrotina!
+-  : id:T_IDENTIFICADOR T_ABRE_PAREN (args:lista_argumentos)? T_FECHA_PAREN
+-
+-                        {#chamada_subrotina = #([T_CALL,&quot;&amp;call&quot;], id, args);}
+-  ;
+-
+-lista_argumentos
+-  : expressao (T_VIRGULA! expressao)*
+-  ;
+-
+-literal
+-  : T_TEXTO_LITERAL
+-  | T_INTEIRO_LITERAL
+-  | T_REAL_LITERAL
+-  | T_CARACTERE_LITERAL
+-  | T_VERDADEIRO
+-  | T_FALSO
+-  | T_NULO
+-  ;
+
+Deleted: trunk/gpt2/gptc/semantic.g
+===================================================================
+--- trunk/gpt2/gptc/semantic.g	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/semantic.g	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,148 +0,0 @@
+-/*
+- *   Copyright (C) 2003-2006 by Thiago Silva                               *
+- *   <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>                                               *
+- *                                                                         *
+- *   This program is free software; you can redistribute it and/or modify  *
+- *   it under the terms of the GNU General Public License as published by  *
+- *   the Free Software Foundation; either version 2 of the License, or     *
+- *   (at your option) any later version.                                   *
+- *                                                                         *
+- *   This program is distributed in the hope that it will be useful,       *
+- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+- *   GNU General Public License for more details.                          *
+- *                                                                         *
+- *   You should have received a copy of the GNU General Public License     *
+- *   along with this program; if not, write to the                         *
+- *   Free Software Foundation, Inc.,                                       *
+- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             */
+-
+-
+-header {
+-  #include &quot;BaseSemanticWalker.hpp&quot;
+-}
+-
+-
+-options {
+-  language=&quot;Cpp&quot;;
+-}
+-
+-class SemanticWalker extends TreeParser(&quot;BaseSemanticWalker&quot;);
+-options {
+-  importVocab    = Portugol;
+-  noConstructors = true;
+-  genHashLines   = false;
+-}
+-
+-{
+-public:
+-  SemanticWalker::SemanticWalker()
+-	 : BaseSemanticWalker() { }
+-}
+-
+-
+-programa
+-  : (importacao)*
+-
+-    (   declaracao_variaveis
+-//       | declaracao_constantes
+-//       | bloco_declaracao_estrutura
+-    )*
+-  ;
+-
+-importacao
+-  : #(T_USE T_TEXTO_LITERAL)
+-    //TODO: carregar a symboltable das bibliotecas especificadas
+-  ;
+-
+-declaracao_variaveis
+-  : #(T_VARIAVEIS (declaracao_variavel)+)
+-  | declaracao_variavel
+-  ;
+-
+-declaracao_variavel
+-  : #(T_VARIAVEL tipo lista_identificadores (lista_inicializacao)?)
+-  ;
+-
+-lista_identificadores
+-  : (T_IDENTIFICADOR)+
+-  ;
+-
+-tipo
+-  : tipo_primitivo
+-  | tipo_matriz
+-  | T_IDENTIFICADOR
+-  ;
+-
+-lista_inicializacao
+-  : #(T_VALOR valor_inicializacao)
+-  ;
+-
+-valor_inicializacao
+-  : (matriz_literal | estrutura_literal | expressao)
+-  ;
+-
+-matriz_literal
+-  : #(T_VAL_MATRIZ (valor_inicializacao)+)
+-  ;
+-
+-estrutura_literal
+-  : #(T_VAL_ESTRUTURA (T_IDENTIFICADOR valor_inicializacao)+)
+-  ;
+-
+-tipo_primitivo
+-  : T_INTEIRO
+-  | T_REAL
+-  | T_CARACTERE
+-  | T_LITERAL
+-  | T_LOGICO
+-  | T_CORINGA
+-  ;
+-
+-tipo_matriz
+-  : #(T_MATRIZ tipo_da_matriz (T_INTEIRO_LITERAL|T_NULO)+)
+-  ;
+-
+-tipo_da_matriz
+-  : tipo_primitivo | T_IDENTIFICADOR
+-  ;
+-
+-
+-expressao
+-  : expr_elemento
+-  ;
+-
+-expr_elemento
+-  : literal
+-  ;
+-
+-literal
+-  : T_TEXTO_LITERAL
+-  | T_INTEIRO_LITERAL
+-  | T_REAL_LITERAL
+-  | T_CARACTERE_LITERAL
+-  | T_VERDADEIRO
+-  | T_FALSO
+-  | T_NULO
+-  ;
+-
+-//   T_OU
+-//   : expr_bit_ou (T_E^ expr_bit_ou)*
+-//   : expr_bit_oux (T_BIT_OU^ expr_bit_oux)*
+-//   : expr_bit_e (T_BIT_OUX^ expr_bit_e)*
+-//   : expr_igual (T_BIT_E^ expr_igual)*
+-//   : expr_relacional (T_IGUAL^ expr_relacional | T_DIFERENTE^ expr_relacional)*
+-//   : expr_ad ((T_MAIOR^ | T_MAIOR_EQ^ | T_MENOR^ | T_MENOR_EQ^) expr_ad)*
+-//   : expr_multip (T_MAIS^ expr_multip | T_MENOS^ expr_multip)*
+-//   : expr_unario ((T_DIV^ | T_MULTIP^ | T_MOD^) expr_unario)*
+-//   : ( T_MENOS      {#op_unario = #[T_UN_NEGATIVO,&quot;&amp;negat&quot;];}
+-//     | T_MAIS       {#op_unario = #[T_UN_POSITIVO,&quot;&amp;pos&quot;];}
+-//     | n:T_NAO      {#op_unario = #[T_NAO        ,&quot;nega&#231;&quot;];}
+-//     | bn:T_BIT_NAO {#op_unario = #[T_BIT_NAO    ,&quot;&amp;negb&quot;];}
+-
+-// expr_elemento
+-//   :  (T_IDENTIFICADOR T_ABRE_PAREN)=&gt; chamada_subrotina
+-//   |  lvalue
+-//   |  literal
+-//   | T_ABRE_PAREN! expressao T_FECHA_PAREN!
+-//   ;
+
+Copied: trunk/gpt2/gptc/src/BaseSemanticWalker.cpp (from rev 372, trunk/gpt2/gptc/BaseSemanticWalker.cpp)
+
+Copied: trunk/gpt2/gptc/src/BaseSemanticWalker.hpp (from rev 372, trunk/gpt2/gptc/BaseSemanticWalker.hpp)
+
+Copied: trunk/gpt2/gptc/src/MismatchedUnicodeCharException.cpp (from rev 372, trunk/gpt2/gptc/MismatchedUnicodeCharException.cpp)
+
+Copied: trunk/gpt2/gptc/src/MismatchedUnicodeCharException.hpp (from rev 372, trunk/gpt2/gptc/MismatchedUnicodeCharException.hpp)
+
+Copied: trunk/gpt2/gptc/src/UnicodeCharBuffer.hpp (from rev 372, trunk/gpt2/gptc/UnicodeCharBuffer.hpp)
+
+Copied: trunk/gpt2/gptc/src/UnicodeCharScanner.hpp (from rev 372, trunk/gpt2/gptc/UnicodeCharScanner.hpp)
+
+Copied: trunk/gpt2/gptc/src/lexer.g (from rev 372, trunk/gpt2/gptc/lexer.g)
+
+Copied: trunk/gpt2/gptc/src/parser.g (from rev 372, trunk/gpt2/gptc/parser.g)
+
+Copied: trunk/gpt2/gptc/src/semantic.g (from rev 372, trunk/gpt2/gptc/semantic.g)
+
+Copied: trunk/gpt2/gptc/src/teste.cpp (from rev 372, trunk/gpt2/gptc/teste.cpp)
+
+Copied: trunk/gpt2/gptc/test (from rev 372, trunk/gpt2/gptc/compiler_test)
+
+Deleted: trunk/gpt2/gptc/test/Makefile
+===================================================================
+--- trunk/gpt2/gptc/compiler_test/Makefile	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/test/Makefile	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,52 +0,0 @@
+-output = ./obj
+-
+-objects = $(output)/LangTestLexer.o $(output)/LangTestParser.o \
+-          $(output)/TestAST.o $(output)/tester.o
+-
+-other = ../obj/PortugolLexer.o ../obj/PortugolParser.o \
+-				../obj/MismatchedUnicodeCharException.o
+-
+-cpp = g++ -I$(output) -I. -I../ -I../obj
+-
+-$(output)/tester: $(output) $(objects)
+-	$(cpp) -o $(output)/tester $(objects) $(other) /usr/local/lib/libantlr.a
+-
+-$(output):
+-	mkdir -p $(output)
+-
+-$(output)/LangTestLexer.o: $(output)/LangTestLexer.hpp \
+-		$(output)/LangTestLexer.cpp
+-	$(cpp) -c $(output)/LangTestLexer.cpp -o $(output)/LangTestLexer.o
+-
+-$(output)/LangTestParser.o: $(output)/LangTestParser.hpp \
+-		$(output)/LangTestParser.cpp
+-	$(cpp) -c $(output)/LangTestParser.cpp -o $(output)/LangTestParser.o
+-
+-$(output)/tester.o: tester.cpp $(output)/testTokenNames.hpp
+-	$(cpp) -c tester.cpp -o $(output)/tester.o
+-
+-$(output)/TestAST.o: TestAST.cpp TestAST.hpp
+-	$(cpp) -c TestAST.cpp -o $(output)/TestAST.o
+-
+-$(output)/LangTestLexer.hpp $(output)/LangTestLexer.cpp \
+-$(output)/LangTestParser.hpp $(output)/LangTestParser.cpp: compiler_test.g
+-	antlr -o $(output) compiler_test.g
+-
+-
+-$(output)/testTokenNames.hpp: $(output)/LangTestLexerTokenTypes.txt
+-	echo &quot;std::map&lt;int, std::string &gt; testTokenNames;&quot;  \
+-		&gt; $(output)/testTokenNames.hpp
+-	grep '=' $(output)/LangTestLexerTokenTypes.txt \
+-		&gt;&gt; $(output)/testTokenNames.hpp
+-	sed -i -e 's/([^=]*)//' $(output)/testTokenNames.hpp
+-	sed -i -e 's/&quot;[^&quot;]*&quot;//' $(output)/testTokenNames.hpp
+-	sed -i -e 's/==/=/' $(output)/testTokenNames.hpp
+-	sed -i -e 's/()//' $(output)/testTokenNames.hpp
+-	sed -i -e 's/\([^=]*\)=\(.*\)/testTokenNames[\2]=&quot;\1&quot;;/' \
+-		$(output)/testTokenNames.hpp
+-
+-
+-clean:
+-	rm -rf $(output)
+-
+-
+
+Deleted: trunk/gpt2/gptc/teste.cpp
+===================================================================
+--- trunk/gpt2/gptc/teste.cpp	2007-11-19 03:42:53 UTC (rev 372)
++++ trunk/gpt2/gptc/teste.cpp	2007-11-19 03:48:19 UTC (rev 373)
+@@ -1,81 +0,0 @@
+-#include &lt;stdio.h&gt;
+-#include &quot;PortugolLexer.hpp&quot;
+-#include &quot;PortugolParser.hpp&quot;
+-#include &quot;SemanticWalker.hpp&quot;
+-#include &quot;PortugolTokenTypes.hpp&quot;
+-#include &lt;antlr/TokenBuffer.hpp&gt;
+-#include &lt;antlr/CommonAST.hpp&gt;
+-
+-#include &lt;fstream&gt;
+-
+-void dump_tokens(char* fname) {
+-  #include &quot;tokenNames.hpp&quot;
+-  std::ifstream fi(fname);
+-  PortugolLexer lexer(fi, true);
+-  antlr::TokenBuffer *buffer = new antlr::TokenBuffer(lexer);
+-
+-  while (true) {
+-    std::cout &lt;&lt; lexer.getLine() &lt;&lt; &quot;: [&quot; &lt;&lt; buffer-&gt;LA(1) &lt;&lt; &quot;] &quot;
+-              &lt;&lt; tokenNames[buffer-&gt;LA(1)] &lt;&lt; &quot; (&quot; &lt;&lt; lexer.getText() &lt;&lt; &quot;)&quot;;
+-    buffer-&gt;consume();
+-    getchar();
+-
+-    if (buffer-&gt;LA(1) == PortugolTokenTypes::EOF_) {
+-      break;
+-    }
+-  }
+-}
+-
+-antlr::RefAST dump_tree(char* fname, bool should_dump) {
+-
+-  std::ifstream fi(fname);
+-  PortugolLexer lexer(fi, true);
+-  PortugolParser parser(lexer);
+-
+-  antlr::ASTFactory ast_factory(antlr::CommonAST::TYPE_NAME,&amp;antlr::CommonAST::factory);
+-  parser.initializeASTFactory(ast_factory);
+-  parser.setASTFactory(&amp;ast_factory);
+-
+-  parser.programa();
+-
+-  antlr::RefAST ast = parser.getAST();
+-  antlr::RefCommonAST cast = antlr::RefCommonAST(ast);
+-
+-  if (!cast) {
+-    std::cerr &lt;&lt; &quot;no parse tree!&quot; &lt;&lt; std::endl;
+-  }
+-
+-  if (should_dump) {
+-    std::cerr &lt;&lt; cast-&gt;toStringList() &lt;&lt; std::endl &lt;&lt; std::endl;
+-  }
+-  return ast;
+-}
+-
+-void semantic(char* fname) {
+-  antlr::RefAST ast;
+-
+-  ast = dump_tree(fname, true);
+-
+-  SemanticWalker semantic;
+-  semantic.programa(ast);
+-}
+-
+-int main(int argc, char** argv) {
+-
+-  if (argc &lt; 3) {
+-    std::cerr &lt;&lt; &quot;./test [lps] &lt;file.gpt&gt;&quot; &lt;&lt; std::endl;
+-    return 0;
+-  }
+-
+-  switch(*argv[1]) {
+-    case 'l':
+-      dump_tokens(argv[2]);
+-      break;
+-    case 'p':
+-      dump_tree(argv[2], true);
+-      break;
+-    case 's':
+-    default:
+-      semantic(argv[2]);
+-  }
+-}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000046.html">[gpt-commit] r372 - trunk/gpt2/gptc
+</A></li>
+	<LI>Next message: <A HREF="000048.html">[gpt-commit] r374 - in trunk/gpt2: . common common/src gptasm	gptasm/src gptasm/test gptasm/test/gerados_pelo_gptc	gptasm/test/wikki gptvm gptvm/src gptvm/test	gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#47">[ date ]</a>
+              <a href="thread.html#47">[ thread ]</a>
+              <a href="subject.html#47">[ subject ]</a>
+              <a href="author.html#47">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r389 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r389%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711261249.lAQCn4Lf007808%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000062.html">
+   <LINK REL="Next"  HREF="000064.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r389 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r389%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711261249.lAQCn4Lf007808%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r389 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon Nov 26 13:49:04 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000062.html">[gpt-commit] r388 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000064.html">[gpt-commit] r390 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#63">[ date ]</a>
+              <a href="thread.html#63">[ thread ]</a>
+              <a href="subject.html#63">[ subject ]</a>
+              <a href="author.html#63">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-26 13:49:04 +0100 (Mon, 26 Nov 2007)
+New Revision: 389
+
+Modified:
+   trunk/gpt2/gptc/src/SymbolTable.cpp
+   trunk/gpt2/gptc/src/SymbolTable.hpp
+Log:
+-Atualizacao em relacao as modificacoes em Types.?pp
+-Adicao do createAnonymousStruct
+
+Modified: trunk/gpt2/gptc/src/SymbolTable.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/SymbolTable.cpp	2007-11-26 12:48:37 UTC (rev 388)
++++ trunk/gpt2/gptc/src/SymbolTable.cpp	2007-11-26 12:49:04 UTC (rev 389)
+@@ -10,41 +10,45 @@
+ void SymbolTable::setScope(const std::string&amp; scope) {
+   _scope = scope;
+ }
++
+ void SymbolTable::setGlobalScope() {
+   _scope = &quot;@global&quot;;
+ }
+ 
+ Type* SymbolTable::getType(const std::string&amp; name) {
+-  Type* ret = _types.find(name);
++  TypeList::iterator ret = _types.find(name);
+ 
+-  if (ret == 0) {
++  if (ret == _types.end()) {
+     throw UndeclaredTypeException(name);
+   }
+ 
+-  return ret;
++  return *ret;
+ }
+ 
+ Type* SymbolTable::getType(int id) {
+-  Type* ret = _types.find(id);
++  TypeList::iterator ret = _types.find(id);
+ 
+-  if (ret == 0) {
++  if (ret == _types.end()) {
+     throw UndeclaredTypeException(id);
+   }
+ 
+-  return ret;
++  return *ret;
+ }
+ 
+ Type* SymbolTable::retrieveMatrixType(Type *ofType, int dimensions) {
+-  Type* t = _types.find(ofType, dimensions);
+-  if (t == 0) {
+-    t = new MatrixType(ofType, dimensions);
+-    _types.push_back(t);
++  TypeList::iterator it = _types.find(ofType, dimensions);
++  Type* type;
++  if (it == _types.end()) {
++    type = new MatrixType(ofType, dimensions);
++    _types.push_back(type);
++  } else {
++    type = *it;
+   }
+-  return t;
++  return type;
+ }
+ 
+ Symbol SymbolTable::newSymbol(const std::string&amp; name, Type* type,
+-                int line, const std::string&amp; scope,
++                const std::string&amp; scope, int line,
+                 bool isConst, bool isRef) {
+   return Symbol(name, type, line, _unit, scope, isConst, isRef);
+ }
+@@ -62,13 +66,19 @@
+     throw RedeclarationException(*dup);
+   }
+ 
+-  if (_types.find(name) != 0) {
++  if (_types.find(name) != _types.end()) {
+     throw RedefinedTypeException(name);
+   }
+   _types.push_back(new StructType(name,
+       symbolList.toStructFieldList(), _unit, line));
+ }
+ 
++StructType* SymbolTable::createAnonymousStruct(const SymbolList&amp; symbolList) {
++  StructType* ret = new StructType(symbolList.toStructFieldList());
++  _types.push_back(ret);
++  return ret;
++}
++
+ bool SymbolTable::declared(const Symbol&amp; s) {
+   return _table[_scope].count(s.lexeme()) &gt;= 1;
+ }
+@@ -81,9 +91,9 @@
+ }
+ 
+ void SymbolTable::declare(const SymbolList&amp; params,
+-                          const std::string&amp; scope) {
++                          const std::string&amp; proc) {
+   try {
+-    setScope(scope);
++    setScope(proc);
+     for (SymbolList::const_iterator it = params.begin(); it != params.end(); ++it) {
+       declare(*it);
+     }
+@@ -111,13 +121,15 @@
+ 
+ void SymbolTable::dump() {
+ 
+-  std::cerr &lt;&lt; &quot;Ids...\n&quot;;
++  std::cerr &lt;&lt; &quot;=== SymbolTable ===\n&quot;;
++  std::cerr &lt;&lt; &quot;Identifiers ...\n&quot;;
+   std::map&lt;std::string, SymbolList&gt;::iterator it;
+   for (it = _table.begin(); it != _table.end(); ++it) {
+     std::cerr &lt;&lt; it-&gt;second.toString() &lt;&lt; std::endl;
+   }
+   std::cerr &lt;&lt; &quot;Types ... &quot; &lt;&lt; std::endl;
+   std::cerr &lt;&lt; _types.toString() &lt;&lt; std::endl;
++  std::cerr &lt;&lt; &quot;=== End SymbolTable ===\n\n&quot;;
+ }
+ 
+ 
+
+Modified: trunk/gpt2/gptc/src/SymbolTable.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/SymbolTable.hpp	2007-11-26 12:48:37 UTC (rev 388)
++++ trunk/gpt2/gptc/src/SymbolTable.hpp	2007-11-26 12:49:04 UTC (rev 389)
+@@ -25,21 +25,23 @@
+   Type* retrieveMatrixType(Type *ofType, int dimensions);
+ 
+   Symbol newSymbol(const std::string&amp; name, Type* type,
+-                   int line, const std::string&amp; scope,
++                   const std::string&amp; scope, int line = -1,
+                    bool isConst = false, bool isRef = false);
+ 
+   Symbol newSymbol(const std::string&amp; name, Type* type,
+-                   int line, bool isConst = false, bool isRef = false);
++                   int line = -1, bool isConst = false, bool isRef = false);
+ 
+   void defineStruct(const std::string&amp; name,
+                    const SymbolList&amp; symbolList,
+                    int line);
+ 
++  StructType* createAnonymousStruct(const SymbolList&amp; symbolList);
++
+   bool declared(const Symbol&amp; s);
+ 
+   void declare(const Symbol&amp; symbol);
+ 
+-  void declare(const SymbolList&amp; params, const std::string&amp; scope);
++  void declare(const SymbolList&amp; params, const std::string&amp; proc);
+ 
+   const Symbol&amp; getSymbol(const std::string&amp; lexeme);
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000062.html">[gpt-commit] r388 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000064.html">[gpt-commit] r390 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#63">[ date ]</a>
+              <a href="thread.html#63">[ thread ]</a>
+              <a href="subject.html#63">[ subject ]</a>
+              <a href="author.html#63">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

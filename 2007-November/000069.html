@@ -1,0 +1,626 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r395 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r395%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711270306.lAR36D4i001924%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000068.html">
+   <LINK REL="Next"  HREF="000070.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r395 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r395%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200711270306.lAR36D4i001924%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r395 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Nov 27 04:06:13 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000068.html">[gpt-commit] r394 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000070.html">[gpt-commit] r396 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-11-27 04:06:10 +0100 (Tue, 27 Nov 2007)
+New Revision: 395
+
+Modified:
+   trunk/gpt2/gptc/src/Types.cpp
+   trunk/gpt2/gptc/src/Types.hpp
+Log:
+-Adicao dos metodos compatible para checar a interoperabilidade entre tipos em uma atribuicao (especialmente util em casos que misturam os tipos inteiro e real).
+-Permitindo valores nulos como rvalues para tipos compostos.
+-Fix em MatrixType::equals (comparacao de ofType's)
+-Correcao do MatrixType::_isRValueFor(MatrixType*), levando em consideracao promocoes de tipo.
+-Permitindo criacao de estruturas anonymas para ajudar na analise semantica
+-Adicao do tipo FieldList para StructType
+
+Modified: trunk/gpt2/gptc/src/Types.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Types.cpp	2007-11-27 03:05:35 UTC (rev 394)
++++ trunk/gpt2/gptc/src/Types.cpp	2007-11-27 03:06:10 UTC (rev 395)
+@@ -66,6 +66,27 @@
+   return _name;
+ }
+ 
++bool PrimitiveType::compatible(Type* other) {
++  other-&gt;_compatible(this);
++}
++
++bool PrimitiveType::_compatible(PrimitiveType* other) {
++  return _equals(other) || numPromotionWith(other);
++}
++
++bool PrimitiveType::_compatible(MatrixType*) {
++  return false;
++}
++
++bool PrimitiveType::_compatible(StructType*) {
++  return false;
++}
++
++bool PrimitiveType::_compatible(SubprogramType*) {
++  return false;
++}
++
++
+ bool PrimitiveType::equals(const Type* other) const {
+   other-&gt;_equals(this);
+ }
+@@ -131,10 +152,10 @@
+ }
+ 
+ bool PrimitiveType::isLValueFor(Type* rtype) {
+-  rtype-&gt;isRValueFor(this);
++  rtype-&gt;_isRValueFor(this);
+ }
+ 
+-bool PrimitiveType::isRValueFor(PrimitiveType* lvalue) {
++bool PrimitiveType::_isRValueFor(PrimitiveType* lvalue) {
+   if (lvalue-&gt;equals(this)) {
+     return true;
+   }
+@@ -146,15 +167,21 @@
+   return false;
+ }
+ 
+-bool PrimitiveType::isRValueFor(MatrixType*) {
++bool PrimitiveType::_isRValueFor(MatrixType*) {
++  if (_id == PortugolTokenTypes::T_NULO) {
++    return true;
++  }
+   return false;
+ }
+ 
+-bool PrimitiveType::isRValueFor(StructType*) {
++bool PrimitiveType::_isRValueFor(StructType*) {
++  if (_id == PortugolTokenTypes::T_NULO) {
++    return true;
++  }
+   return false;
+ }
+ 
+-bool PrimitiveType::isRValueFor(SubprogramType*) {
++bool PrimitiveType::_isRValueFor(SubprogramType*) {
+   return false;
+ }
+ 
+@@ -183,6 +210,27 @@
+   return _dimensions;
+ }
+ 
++bool MatrixType::compatible(Type* other) {
++  other-&gt;_compatible(this);
++}
++
++bool MatrixType::_compatible(PrimitiveType*) {
++  return false;
++}
++
++bool MatrixType::_compatible(MatrixType* other) {
++  return _dimensions == other-&gt;_dimensions &amp;&amp;
++         _ofType-&gt;compatible(other-&gt;_ofType);
++}
++
++bool MatrixType::_compatible(StructType*) {
++  return false;
++}
++
++bool MatrixType::_compatible(SubprogramType*) {
++  return false;
++}
++
+ bool MatrixType::equals(const Type* other) const {
+   other-&gt;_equals(this);
+ }
+@@ -200,7 +248,7 @@
+ }
+ 
+ bool MatrixType::_equals(const MatrixType* other) const {
+-  return (other-&gt;_ofType == _ofType) &amp;&amp; (other-&gt;_dimensions == _dimensions);
++  return (other-&gt;_ofType-&gt;equals(_ofType)) &amp;&amp; (other-&gt;_dimensions == _dimensions);
+ }
+ 
+ bool MatrixType::_equals(const StructType*) const {
+@@ -224,49 +272,44 @@
+ }
+ 
+ bool MatrixType::isLValueFor(Type* rtype) {
+-  rtype-&gt;isRValueFor(this);
++  rtype-&gt;_isRValueFor(this);
+ }
+ 
+-bool MatrixType::isRValueFor(PrimitiveType*) {
++bool MatrixType::_isRValueFor(PrimitiveType*) {
+   return false;
+ }
+ 
+-bool MatrixType::isRValueFor(MatrixType* lvalue) {
+-  if (_equals(lvalue)) {
++bool MatrixType::_isRValueFor(MatrixType* lvalue) {
++  if ((lvalue-&gt;_dimensions == _dimensions) &amp;&amp;
++      lvalue-&gt;_ofType-&gt;isLValueFor(_ofType)) {
+     return true;
+   }
+ 
+-  if ((lvalue-&gt;dimensions() == dimensions()) &amp;&amp;
+-      lvalue-&gt;ofType()-&gt;equals(PortugolTokenTypes::T_REAL) &amp;&amp;
+-      _ofType-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
+-    return true;
+-  }
+-
+   return false;
+ }
+ 
+-bool MatrixType::isRValueFor(StructType*) {
++bool MatrixType::_isRValueFor(StructType*) {
+   return false;
+ }
+ 
+-bool MatrixType::isRValueFor(SubprogramType*) {
++bool MatrixType::_isRValueFor(SubprogramType*) {
+   return false;
+ }
+ 
+ //------------------------------------------------------------------
+ 
+ 
+-StructType::StructType(const std::string&amp; name, const std::list&lt;Field&gt;&amp; fields,
++StructType::StructType(const std::string&amp; name, const FieldList&amp; fields,
+                        const std::string&amp; unit, int line)
+-  : _name(name), _fields(fields), _unit(unit), _line(line) {
++  : _anonymous(false), _name(name), _fields(fields), _unit(unit), _line(line) {
+ }
+ 
+ 
+-StructType::StructType(const std::list&lt;Field&gt;&amp; fields)
+-  : _name(&quot;&lt;anonymous&gt;&quot;), _fields(fields), _unit(&quot;&lt;intern&gt;&quot;), _line(-1) {
++StructType::StructType(const FieldList&amp; fields)
++  : _anonymous(true), _name(&quot;&lt;anonymous&gt;&quot;), _fields(fields), _unit(&quot;&lt;intern&gt;&quot;), _line(-1) {
+ }
+ 
+-const std::list&lt;StructType::Field&gt;&amp; StructType::fields() const {
++const StructType::FieldList&amp; StructType::fields() const {
+   return _fields;
+ }
+ 
+@@ -274,10 +317,26 @@
+   return _name;
+ }
+ 
+-bool StructType::equivalent(Type* other) {
++bool StructType::compatible(Type* other) {
++  other-&gt;_compatible(this);
++}
+ 
++bool StructType::_compatible(PrimitiveType*) {
++  return false;
+ }
+ 
++bool StructType::_compatible(MatrixType*) {
++  return false;
++}
++
++bool StructType::_compatible(StructType* other) {
++  return _fields.compatible(other-&gt;_fields);
++}
++
++bool StructType::_compatible(SubprogramType*) {
++  return false;
++}
++
+ bool StructType::equals(const Type* other) const {
+   other-&gt;_equals(this);
+ }
+@@ -299,7 +358,14 @@
+ }
+ 
+ bool StructType::_equals(const StructType* other) const {
+-  return _name == other-&gt;_name;
++  if ((_anonymous  &amp;&amp; other-&gt;_anonymous) ||
++      (!_anonymous &amp;&amp; !other-&gt;_anonymous)) {
++    //comparacao estrutural
++    return _fields == other-&gt;_fields;
++  } else {
++    //comparacao nominal
++    return _name == other-&gt;_name;
++  }
+ }
+ 
+ bool StructType::_equals(const SubprogramType*) const {
+@@ -319,22 +385,27 @@
+ }
+ 
+ bool StructType::isLValueFor(Type* rtype) {
+-  rtype-&gt;isRValueFor(this);
++  rtype-&gt;_isRValueFor(this);
+ }
+ 
+-bool StructType::isRValueFor(PrimitiveType*) {
++bool StructType::_isRValueFor(PrimitiveType*) {
+   return false;
+ }
+ 
+-bool StructType::isRValueFor(MatrixType*) {
++bool StructType::_isRValueFor(MatrixType*) {
+   return false;
+ }
+ 
+-bool StructType::isRValueFor(StructType* other) {
+-  return _equals(other);
++bool StructType::_isRValueFor(StructType* ltype) {
++  if (_anonymous || ltype-&gt;_anonymous) {
++    return ltype-&gt;_fields.isLValueFor(_fields);
++  } else {
++    //comparacao nominal
++    return _equals(ltype);
++  }
+ }
+ 
+-bool StructType::isRValueFor(SubprogramType*) {
++bool StructType::_isRValueFor(SubprogramType*) {
+   return false;
+ }
+ 
+@@ -359,6 +430,28 @@
+   return ret;
+ }
+ 
++
++bool SubprogramType::compatible(Type* other) {
++  other-&gt;_compatible(this);
++}
++
++bool SubprogramType::_compatible(PrimitiveType*) {
++  return false;
++}
++
++bool SubprogramType::_compatible(MatrixType*) {
++  return false;
++}
++
++bool SubprogramType::_compatible(StructType*) {
++  return false;
++}
++
++bool SubprogramType::_compatible(SubprogramType*) {
++  return false;
++}
++
++
+ bool SubprogramType::equals(const Type* other) const {
+   other-&gt;_equals(this);
+ }
+@@ -404,18 +497,18 @@
+   return false;
+ }
+ 
+-bool SubprogramType::isRValueFor(PrimitiveType*) {
++bool SubprogramType::_isRValueFor(PrimitiveType*) {
+   return false;
+ }
+ 
+-bool SubprogramType::isRValueFor(MatrixType*) {
++bool SubprogramType::_isRValueFor(MatrixType*) {
+   return false;
+ }
+ 
+-bool SubprogramType::isRValueFor(StructType*) {
++bool SubprogramType::_isRValueFor(StructType*) {
+   return false;
+ }
+ 
+-bool SubprogramType::isRValueFor(SubprogramType*) {
++bool SubprogramType::_isRValueFor(SubprogramType*) {
+   return false;
+ }
+
+Modified: trunk/gpt2/gptc/src/Types.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Types.hpp	2007-11-27 03:05:35 UTC (rev 394)
++++ trunk/gpt2/gptc/src/Types.hpp	2007-11-27 03:06:10 UTC (rev 395)
+@@ -15,6 +15,12 @@
+   virtual ~Type();
+   virtual std::string name() const = 0;
+ 
++  virtual bool compatible(Type*) = 0;
++  virtual bool _compatible(PrimitiveType*) = 0;
++  virtual bool _compatible(MatrixType*) = 0;
++  virtual bool _compatible(StructType*) = 0;
++  virtual bool _compatible(SubprogramType*) = 0;
++
+   virtual bool equals(const Type*) const = 0;
+   virtual bool equals(int id) const = 0;
+   virtual bool equals(Type* ofType, int dimensions) const = 0;
+@@ -31,10 +37,10 @@
+ 
+   virtual bool isLValueFor(Type*) = 0;
+ 
+-  virtual bool isRValueFor(PrimitiveType*) = 0;
+-  virtual bool isRValueFor(MatrixType*) = 0;
+-  virtual bool isRValueFor(StructType*) = 0;
+-  virtual bool isRValueFor(SubprogramType*) = 0;
++  virtual bool _isRValueFor(PrimitiveType*) = 0;
++  virtual bool _isRValueFor(MatrixType*) = 0;
++  virtual bool _isRValueFor(StructType*) = 0;
++  virtual bool _isRValueFor(SubprogramType*) = 0;
+ };
+ 
+ 
+@@ -60,6 +66,12 @@
+   int id();
+   virtual std::string name() const;
+ 
++  virtual bool compatible(Type*);
++  virtual bool _compatible(PrimitiveType*);
++  virtual bool _compatible(MatrixType*);
++  virtual bool _compatible(StructType*);
++  virtual bool _compatible(SubprogramType*);
++
+   virtual bool equals(const Type*) const;
+   virtual bool equals(int id) const;
+   virtual bool equals(Type* ofType, int dimensions) const;
+@@ -74,10 +86,10 @@
+   virtual Type* litPromotionWith(Type*);
+ 
+   virtual bool isLValueFor(Type*);
+-  virtual bool isRValueFor(PrimitiveType*);
+-  virtual bool isRValueFor(MatrixType*);
+-  virtual bool isRValueFor(StructType*);
+-  virtual bool isRValueFor(SubprogramType*);
++  virtual bool _isRValueFor(PrimitiveType*);
++  virtual bool _isRValueFor(MatrixType*);
++  virtual bool _isRValueFor(StructType*);
++  virtual bool _isRValueFor(SubprogramType*);
+ private:
+   int         _id;
+   std::string _name;
+@@ -95,6 +107,12 @@
+ 
+   virtual std::string name() const;
+ 
++  virtual bool compatible(Type*);
++  virtual bool _compatible(PrimitiveType*);
++  virtual bool _compatible(MatrixType*);
++  virtual bool _compatible(StructType*);
++  virtual bool _compatible(SubprogramType*);
++
+   virtual bool equals(const Type*) const;
+   virtual bool equals(int id) const;
+   virtual bool equals(Type* ofType, int dimensions) const;
+@@ -109,16 +127,15 @@
+   virtual Type* litPromotionWith(Type*);
+ 
+   virtual bool isLValueFor(Type*);
+-  virtual bool isRValueFor(PrimitiveType*);
+-  virtual bool isRValueFor(MatrixType*);
+-  virtual bool isRValueFor(StructType*);
+-  virtual bool isRValueFor(SubprogramType*);
++  virtual bool _isRValueFor(PrimitiveType*);
++  virtual bool _isRValueFor(MatrixType*);
++  virtual bool _isRValueFor(StructType*);
++  virtual bool _isRValueFor(SubprogramType*);
+ private:
+   Type          *_ofType;
+   int           _dimensions;
+ };
+ 
+-
+ class StructType : public Type {
+ public:
+   class Field {
+@@ -126,21 +143,101 @@
+     Field(const std::string&amp; n, Type* t)
+       : name(n), type(t) {}
+ 
++    bool isLValueFor(const Field&amp; other) const {
++      return name == other.name &amp;&amp; type-&gt;isLValueFor(other.type);
++    }
++
++    bool compatible(const Field&amp; other) const {
++      return name == other.name &amp;&amp; type-&gt;compatible(other.type);
++    }
++
++    bool operator==(const Field&amp; other) const {
++      return name == other.name &amp;&amp; type-&gt;equals(other.type);
++    }
++
+     std::string name;
+     Type* type;
+   };
+ 
+-  StructType(const std::string&amp; name, const std::list&lt;Field&gt;&amp; fields,
++  class FieldList : public std::list&lt;Field&gt; {
++    public:
++
++    bool compatible(const FieldList&amp; other) const {
++      if (size() != other.size()) {
++        return false;
++      }
++      const_iterator it, jt;
++      bool found;
++      for (it = begin(); it != end(); ++it) {
++        found = false;
++        for (jt = other.begin(); jt != other.end(); ++jt) {
++          if ((*it).compatible(*jt)) {
++            found = true;
++          }
++        }
++        if (!found) {
++          return false;
++        }
++      }
++      return true;
++    }
++
++    bool isLValueFor(const FieldList&amp; other) const {
++      if (size() != other.size()) {
++        return false;
++      }
++      const_iterator it, jt;
++      bool found;
++      for (it = begin(); it != end(); ++it) {
++        found = false;
++        for (jt = other.begin(); jt != other.end(); ++jt) {
++          if ((*it).isLValueFor(*jt)) {
++            found = true;
++          }
++        }
++        if (!found) {
++          return false;
++        }
++      }
++      return true;
++    }
++
++    bool operator==(const FieldList&amp; other) const {
++      if (size() != other.size()) {
++        return false;
++      }
++      const_iterator it, jt;
++      bool found;
++      for (it = begin(); it != end(); ++it) {
++        found = false;
++        for (jt = other.begin(); jt != other.end(); ++jt) {
++          if ((*it) == (*jt)) {
++            found = true;
++          }
++        }
++        if (!found) {
++          return false;
++        }
++      }
++      return true;
++    }
++  };
++
++  StructType(const std::string&amp; name, const FieldList&amp; fields,
+              const std::string&amp; unit, int line);
+ 
+-  StructType(const std::list&lt;Field&gt;&amp; fields);
++  StructType(const FieldList&amp; fields);
+ 
+-  const std::list&lt;Field&gt;&amp; fields() const;
++  const FieldList&amp; fields() const;
+ 
+-  bool equivalent(Type*);
+-
+   virtual std::string name() const;
+ 
++  virtual bool compatible(Type*);
++  virtual bool _compatible(PrimitiveType*);
++  virtual bool _compatible(MatrixType*);
++  virtual bool _compatible(StructType*);
++  virtual bool _compatible(SubprogramType*);
++
+   virtual bool equals(const Type*) const;
+   virtual bool equals(int id) const;
+   virtual bool equals(Type* ofType, int dimensions) const;
+@@ -155,13 +252,14 @@
+   virtual Type* litPromotionWith(Type*);
+ 
+   virtual bool isLValueFor(Type*);
+-  virtual bool isRValueFor(PrimitiveType*);
+-  virtual bool isRValueFor(MatrixType*);
+-  virtual bool isRValueFor(StructType*);
+-  virtual bool isRValueFor(SubprogramType*);
++  virtual bool _isRValueFor(PrimitiveType*);
++  virtual bool _isRValueFor(MatrixType*);
++  virtual bool _isRValueFor(StructType*);
++  virtual bool _isRValueFor(SubprogramType*);
+ private:
++  bool             _anonymous;
+   std::string      _name;
+-  std::list&lt;Field&gt; _fields;
++  FieldList        _fields;
+   std::string      _unit;
+   int              _line;
+ };
+@@ -173,6 +271,12 @@
+ 
+   virtual std::string name() const;
+ 
++  virtual bool compatible(Type*);
++  virtual bool _compatible(PrimitiveType*);
++  virtual bool _compatible(MatrixType*);
++  virtual bool _compatible(StructType*);
++  virtual bool _compatible(SubprogramType*);
++
+   virtual bool equals(const Type*) const;
+   virtual bool equals(int id) const;
+   virtual bool equals(Type* ofType, int dimensions) const;
+@@ -187,10 +291,10 @@
+   virtual Type* litPromotionWith(Type*);
+ 
+   virtual bool isLValueFor(Type*);
+-  virtual bool isRValueFor(PrimitiveType*);
+-  virtual bool isRValueFor(MatrixType*);
+-  virtual bool isRValueFor(StructType*);
+-  virtual bool isRValueFor(SubprogramType*);
++  virtual bool _isRValueFor(PrimitiveType*);
++  virtual bool _isRValueFor(MatrixType*);
++  virtual bool _isRValueFor(StructType*);
++  virtual bool _isRValueFor(SubprogramType*);
+ private:
+   TypeList         _paramTypes;
+   Type*            _returnType;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000068.html">[gpt-commit] r394 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000070.html">[gpt-commit] r396 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

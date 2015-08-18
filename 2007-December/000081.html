@@ -1,0 +1,1436 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r407 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r407%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712032150.lB3Loe1Q005846%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000080.html">
+   <LINK REL="Next"  HREF="000082.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r407 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r407%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712032150.lB3Loe1Q005846%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r407 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon Dec  3 22:50:40 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000080.html">[gpt-commit] r406 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000082.html">[gpt-commit] r408 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#81">[ date ]</a>
+              <a href="thread.html#81">[ thread ]</a>
+              <a href="subject.html#81">[ subject ]</a>
+              <a href="author.html#81">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-03 22:50:36 +0100 (Mon, 03 Dec 2007)
+New Revision: 407
+
+Added:
+   trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm
+Modified:
+   trunk/gpt2/common/src/CBinString.cpp
+   trunk/gpt2/common/src/CBinString.hpp
+   trunk/gpt2/common/src/CSymbol.cpp
+   trunk/gpt2/common/src/CSymbol.hpp
+   trunk/gpt2/common/src/CSymbolTable.cpp
+   trunk/gpt2/common/src/CSymbolTable.hpp
+   trunk/gpt2/common/src/Common.hpp
+   trunk/gpt2/common/src/Tools.cpp
+   trunk/gpt2/common/src/Tools.hpp
+   trunk/gpt2/gptasm/src/CData.cpp
+   trunk/gpt2/gptasm/src/CData.hpp
+   trunk/gpt2/gptasm/src/CGenBytecode.cpp
+   trunk/gpt2/gptasm/src/CGenBytecode.hpp
+   trunk/gpt2/gptasm/src/lexer.g
+   trunk/gpt2/gptasm/src/parser.g
+   trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm
+   trunk/gpt2/gptvm/src/CDataStack.cpp
+   trunk/gpt2/gptvm/src/CDataStack.hpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_condicionais_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/expressoes_matematicas_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_5.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+Log:
+DEVNULL:
+* Suporte a estruturas (tipo byte) no GptASM e GptVM
+* Enderecamento com igetv e isetv
+
+
+Modified: trunk/gpt2/common/src/CBinString.cpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.cpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/common/src/CBinString.cpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -235,7 +235,7 @@
+ }
+ 
+ 
+-void CBinString::popBytes(const int &amp;number)
++void CBinString::discardBytes(const int &amp;number)
+ {
+    int pos = size()-number;
+    erase(pos,number);
+@@ -293,3 +293,29 @@
+    }
+ }
+ 
++
++void CBinString::setBytes(const int &amp;address, const std::string &amp;value)
++{
++   replace(address, value.size(), value);
++}
++
++
++std::string CBinString::getBytes(const int &amp;address, const int &amp;size)
++{
++   return substr(address, size);
++}
++
++
++void CBinString::pushBytes(const std::string &amp;value)
++{
++   append(value);
++}
++
++
++std::string CBinString::popBytes(const int &amp;sizeToPop)
++{
++   std::string result = substr(size()-sizeToPop, sizeToPop);
++   erase(size()-sizeToPop, sizeToPop);
++   return result;
++}
++
+
+Modified: trunk/gpt2/common/src/CBinString.hpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.hpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/common/src/CBinString.hpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -36,7 +36,7 @@
+    void pushCString(const std::string &amp;value);
+    std::string popCString();
+    void pushBytes(const int &amp;number);
+-   void popBytes(const int &amp;number);
++   void discardBytes(const int &amp;number);
+    bool removeIfEqual(const int &amp;value);
+    bool removeIfEqual(const char &amp;value);
+    bool removeIfEqual(const std::string &amp;value);
+@@ -44,6 +44,10 @@
+    std::string::find;
+    void pushByte(const char &amp;value);
+    char popByte();
++   void setBytes(const int &amp;address, const std::string &amp;value);
++   std::string getBytes(const int &amp;address, const int &amp;size);
++   void pushBytes(const std::string &amp;value);
++   std::string popBytes(const int &amp;size);
+ private:
+    void writeData(const void *value, const size_t &amp;size);
+ };
+
+Modified: trunk/gpt2/common/src/CSymbol.cpp
+===================================================================
+--- trunk/gpt2/common/src/CSymbol.cpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/common/src/CSymbol.cpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -10,23 +10,25 @@
+ }
+ 
+ 
+-CSymbol::CSymbol (const int &amp;scope, const std::string &amp;name, const char &amp;type, const char &amp;category, const int &amp;address)
++CSymbol::CSymbol (const int &amp;scope, const std::string &amp;name, const char &amp;type, int size, const char &amp;category, const int &amp;address)
+    : _scope(scope)
+    , _name(name)
+    , _type(type)
++   , _size(size)
+    , _category(category)
+    , _address(address)
+ {
+ }
+ 
+ 
+-CSymbol::CSymbol (const std::string &amp;name, const char &amp;type, 
++CSymbol::CSymbol (const std::string &amp;name, const char &amp;type,
+                   const int &amp;address, const bool &amp;hasVarArguments, 
+                   const int &amp;staticParameters, 
+                   std::vector&lt;CSymbol&gt; parameters)
+    : _scope(GLOBAL)
+    , _name(name)
+    , _type(type)
++   , _size(0)
+    , _category(PROC)
+    , _address(address)
+    , _hasVarArguments(hasVarArguments)
+@@ -43,7 +45,8 @@
+ 
+ int CSymbol::getTypeSize() const
+ {
+-   return ::getTypeSize(_type);
++//   return ::getTypeSize(_type);
++   return _size;
+ }
+ 
+ 
+@@ -55,12 +58,14 @@
+ 
+    if (_category == CSymbol::VAR || _category == CSymbol::CONST) {
+       bin.readByte(_type);
++      bin.readInt(_size);
+       bin.readString(_name);
+ //      std::cout &lt;&lt; &quot;var ou const, type=&quot; &lt;&lt; _type &lt;&lt; &quot; name=&quot; &lt;&lt; _name &lt;&lt; std::endl;
+    } else { // PROC
+       bool _hasVariableArguments;// TODO
+       char _staticParameters;// TODO
+       bin.readByte(_type);
++      bin.readInt(_size);
+       bin.readString(_name);
+       bin.readBool(_hasVariableArguments);
+       bin.readByte(_staticParameters);
+
+Modified: trunk/gpt2/common/src/CSymbol.hpp
+===================================================================
+--- trunk/gpt2/common/src/CSymbol.hpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/common/src/CSymbol.hpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -24,13 +24,14 @@
+       STRING  = 'S',
+       INT     = 'I',
+       CHAR    = 'C',
+-      BOOL    = 'B',
++      LOGICAL = 'L',
+       REAL    = 'R',
+       MATRIX  = 'M',
+-      POINTER = 'P'
++      POINTER = 'P',
++      BYTE    = 'B'
+    };
+    CSymbol ();
+-   CSymbol (const int &amp;scope, const std::string &amp;name, const char &amp;type, 
++   CSymbol (const int &amp;scope, const std::string &amp;name, const char &amp;type, int size,
+             const char &amp;category, const int &amp;address);
+    CSymbol (const std::string &amp;name, const char &amp;type, const int &amp;address,
+             const bool &amp;hasVarArguments, const int &amp;staticParameters,
+@@ -74,6 +75,7 @@
+    int                  _scope;
+    std::string          _name;
+    char                 _type;
++   int                  _size;
+    char                 _category;
+    int                  _address;
+    bool                 _hasVarArguments;
+
+Modified: trunk/gpt2/common/src/CSymbolTable.cpp
+===================================================================
+--- trunk/gpt2/common/src/CSymbolTable.cpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/common/src/CSymbolTable.cpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -27,6 +27,7 @@
+    writeInt( address );
+    writeByte( CSymbol::PROC ); // procedure
+    writeByte( type ); // tipo do retorno // TODO: em asm proc tem retorno ???
++   writeInt( 0 ); // size
+    writeString( name ); // nome da procedure
+    writeBool( hasVarArguments );
+    writeByte( staticParameters );
+@@ -36,10 +37,14 @@
+ }
+ 
+ 
+-CSymbol* CSymbolTable::addParameter (const std::string &amp;name, const int &amp;type, const int &amp;address)
++CSymbol* CSymbolTable::addParameter (const std::string &amp;name, const int &amp;type, int size, const int &amp;address)
+ {
+-   CSymbol *symbol = new CSymbol(CSymbol::LOCAL, name, type, CSymbol::PARAM, address|SET_LOCAL_BIT|SET_NEG_BIT);
++   if (size == 0) {
++      size = getTypeSize(type);
++   }
+ 
++   CSymbol *symbol = new CSymbol(CSymbol::LOCAL, name, type, size, CSymbol::PARAM, address|SET_LOCAL_BIT|SET_NEG_BIT);
++
+    _symbols.push_back(symbol);
+ 
+    //_data += symbol-&gt;getBinary();
+@@ -48,10 +53,14 @@
+ }
+ 
+ 
+-CSymbol* CSymbolTable::addConstant (const std::string &amp;name, const int &amp;type, const int &amp;address)
++CSymbol* CSymbolTable::addConstant (const std::string &amp;name, const int &amp;type, int size, const int &amp;address)
+ {
+-   CSymbol *symbol = new CSymbol(CSymbol::GLOBAL, name, type, CSymbol::CONST, address);
++   if (size == 0) {
++      size = getTypeSize(type);
++   }
+ 
++   CSymbol *symbol = new CSymbol(CSymbol::GLOBAL, name, type, size, CSymbol::CONST, address);
++
+    _symbols.push_back(symbol);
+ 
+    // Endere&#231;o 0000 (data), constante, string, 8 bytes ???, nome &quot;c1&quot;
+@@ -59,20 +68,25 @@
+    writeInt( address );
+    writeByte( CSymbol::CONST ); // categoria: constante
+    writeByte( type );           // tipo
++   writeInt( size );            // tamanho
+    writeString( name );         // nome da constante
+ 
+    return symbol;
+ }
+ 
+ 
+-CSymbol* CSymbolTable::addVariable (const int &amp;scope, const std::string &amp;name, const int &amp;type, const int &amp;address)
++CSymbol* CSymbolTable::addVariable (const int &amp;scope, const std::string &amp;name, const int &amp;type, int size, const int &amp;address)
+ {
+    CSymbol *symbol = NULL;
+ 
++   if (size == 0) {
++      size = getTypeSize(type);
++   }
++
+    if (scope == CSymbol::GLOBAL) {
+-      symbol = new CSymbol(scope, name, type, CSymbol::VAR, address);
++      symbol = new CSymbol(scope, name, type, size, CSymbol::VAR, address);
+    } else {
+-      symbol = new CSymbol(scope, name, type, CSymbol::VAR, address | SET_LOCAL_BIT);
++      symbol = new CSymbol(scope, name, type, size, CSymbol::VAR, address | SET_LOCAL_BIT);
+    }
+ 
+    _symbols.push_back(symbol);
+@@ -83,6 +97,7 @@
+       writeInt( address );
+       writeByte( CSymbol::VAR ); // categoria: variavel
+       writeByte( type );         // tipo
++      writeInt( size );          // tamanho
+       writeString( name );       // nome da variavel
+    }
+ 
+
+Modified: trunk/gpt2/common/src/CSymbolTable.hpp
+===================================================================
+--- trunk/gpt2/common/src/CSymbolTable.hpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/common/src/CSymbolTable.hpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -14,9 +14,9 @@
+    CSymbolTable();
+    ~CSymbolTable();
+    CSymbol* addProcedure (const std::string &amp;name, const int &amp;type, const int &amp;address, const bool &amp;hasVarArguments, const int &amp;staticParameters, std::vector&lt;CSymbol&gt; parameters);
+-   CSymbol* addParameter (const std::string &amp;name, const int &amp;type, const int &amp;address);
+-   CSymbol* addConstant (const std::string &amp;name, const int &amp;type, const int &amp;address);
+-   CSymbol* addVariable (const int &amp;scope, const std::string &amp;name, const int &amp;type, const int &amp;address);
++   CSymbol* addParameter (const std::string &amp;name, const int &amp;type, int size, const int &amp;address);
++   CSymbol* addConstant (const std::string &amp;name, const int &amp;type, int size, const int &amp;address);
++   CSymbol* addVariable (const int &amp;scope, const std::string &amp;name, const int &amp;type, int size, const int &amp;address);
+    CSymbol* add(CSymbol *symbol);
+    bool readFromBinary(CBinString &amp;bin);
+    void clearLocalSymbols();
+
+Modified: trunk/gpt2/common/src/Common.hpp
+===================================================================
+--- trunk/gpt2/common/src/Common.hpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/common/src/Common.hpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -39,112 +39,115 @@
+    OP_IDIV        = 11,
+    OP_RDIV        = 12,
+    OP_IMOD        = 13,
+-   OP_IGE         = 15,
+-   OP_SGE         = 16,
+-   OP_RGE         = 17,
+-   OP_ILE         = 18,
+-   OP_SLE         = 19,
+-   OP_RLE         = 20,
+-   OP_INE         = 21,
+-   OP_SNE         = 22,
+-   OP_RNE         = 23,
+-   OP_IGT         = 24,
+-   OP_SGT         = 25,
+-   OP_RGT         = 26,
+-   OP_ILT         = 27,
+-   OP_SLT         = 28,
+-   OP_RLT         = 29,
+-   OP_IEQ         = 30,
+-   OP_SEQ         = 31,
+-   OP_REQ         = 32,
+-   OP_OR          = 33,
+-   OP_AND         = 34,
+-   OP_XOR         = 35,
+-   OP_INEG        = 36,
+-   OP_RNEG        = 37,
+-   OP_NOT         = 38,
+-   OP_IINC        = 39,
+-   OP_IDEC        = 40,
+-   OP_I2C         = 41,
+-   OP_R2C         = 42,
+-   OP_S2C         = 43,
+-   OP_B2C         = 44,
+-   OP_I2R         = 45,
+-   OP_C2R         = 46,
+-   OP_S2R         = 47,
+-   OP_B2R         = 48,
+-   OP_I2B         = 49,
+-   OP_C2B         = 50,
+-   OP_R2B         = 51,
+-   OP_S2B         = 52,
+-   OP_I2S         = 53,
+-   OP_C2S         = 54,
+-   OP_R2S         = 55,
+-   OP_B2S         = 56,
+-   OP_P2S         = 57,
+-   OP_C2I         = 58,
+-   OP_R2I         = 59,
+-   OP_S2I         = 60,
+-   OP_B2I         = 61,
+-   OP_ISET        = 62,
+-   OP_SSET        = 63,
+-   OP_RSET        = 64,
+-   OP_GETA        = 65,
+-   OP_IGETV       = 66,
+-   OP_SGETV       = 67,
+-   OP_RGETV       = 68,
+-   OP_ISETV       = 69,
+-   OP_SSETV       = 70,
+-   OP_RSETV       = 71,
+-   OP_JMP         = 72,
+-   OP_IF          = 73,
+-   OP_IFNOT       = 74,
+-   OP_INCSP       = 77,
+-   OP_DECSP       = 78,
+-   OP_PUSHIV      = 79,
+-   OP_PUSHSV      = 80,
+-   OP_PUSHRV      = 81,
+-   OP_PUSHMV      = 84,
+-   OP_INCSP_4     = 87,
+-   OP_INCSP_8     = 88,
+-   OP_DECSP_4     = 89,
+-   OP_DECSP_8     = 90,
+-   OP_PCALL       = 91,
+-   OP_RET         = 92,
+-   OP_LCALL       = 93,
+-   OP_SALLOC      = 94,
+-   OP_SFREE       = 95,
+-   OP_SSETC       = 96,
+-   OP_SGETC       = 97,
+-   OP_M1ALLOC     = 98,
+-   OP_M2ALLOC     = 99,
+-   OP_MFREE       = 100,
+-   OP_M1SET       = 101,
+-   OP_M1GET       = 102,
+-   OP_M2SET       = 103,
+-   OP_M2GET       = 104,
+-   OP_MCOPY       = 105,
+-   OP_MGETSIZE1   = 106,
+-   OP_MGETSIZE2   = 107,
+-   OP_PUSHIT      = 108,
+-   OP_PUSHST      = 109,
+-   OP_PUSHRT      = 110,
+-   OP_PUSHCT      = 111,
+-   OP_PUSHBT      = 112,
+-   OP_PUSHMT      = 113,
+-   OP_POPIV       = 114,
+-   OP_POPRV       = 115,
+-   OP_POPSV       = 116,
+-   OP_POPMV       = 117,
+-   OP_PUSH_0      = 118,
+-   OP_PUSH_1      = 119,
+-   OP_PUSH_2      = 120,
+-   OP_PUSH_3      = 121,
+-   OP_PUSH_4      = 122,
+-   OP_PUSH_5      = 123,
+-   OP_EXIT_0      = 124,
+-   OP_EXIT_1      = 125,
+-   OPCODE_NUMBER  = 125
++   OP_IGE         = 14,
++   OP_SGE         = 15,
++   OP_RGE         = 16,
++   OP_ILE         = 17,
++   OP_SLE         = 18,
++   OP_RLE         = 19,
++   OP_INE         = 20,
++   OP_SNE         = 21,
++   OP_RNE         = 22,
++   OP_IGT         = 23,
++   OP_SGT         = 24,
++   OP_RGT         = 25,
++   OP_ILT         = 26,
++   OP_SLT         = 27,
++   OP_RLT         = 28,
++   OP_IEQ         = 29,
++   OP_SEQ         = 30,
++   OP_REQ         = 31,
++   OP_OR          = 32,
++   OP_AND         = 33,
++   OP_XOR         = 34,
++   OP_INEG        = 35,
++   OP_RNEG        = 36,
++   OP_NOT         = 37,
++   OP_IINC        = 38,
++   OP_IDEC        = 39,
++   OP_I2C         = 40,
++   OP_R2C         = 41,
++   OP_S2C         = 42,
++   OP_B2C         = 43,
++   OP_I2R         = 44,
++   OP_C2R         = 45,
++   OP_S2R         = 46,
++   OP_B2R         = 47,
++   OP_I2B         = 48,
++   OP_C2B         = 49,
++   OP_R2B         = 50,
++   OP_S2B         = 51,
++   OP_I2S         = 52,
++   OP_C2S         = 53,
++   OP_R2S         = 54,
++   OP_B2S         = 55,
++   OP_P2S         = 56,
++   OP_C2I         = 57,
++   OP_R2I         = 58,
++   OP_S2I         = 59,
++   OP_B2I         = 60,
++   OP_ISET        = 61,
++   OP_SSET        = 62,
++   OP_RSET        = 63,
++   OP_GETA        = 64,
++   OP_IGETV       = 65,
++   OP_SGETV       = 66,
++   OP_RGETV       = 67,
++   OP_ISETV       = 68,
++   OP_SSETV       = 69,
++   OP_RSETV       = 70,
++   OP_JMP         = 71,
++   OP_IF          = 72,
++   OP_IFNOT       = 73,
++   OP_INCSP       = 74,
++   OP_DECSP       = 75,
++   OP_PUSHIV      = 76,
++   OP_PUSHSV      = 77,
++   OP_PUSHRV      = 78,
++   OP_PUSHBV      = 79,
++   OP_PUSHMV      = 80,
++   OP_INCSP_4     = 81,
++   OP_INCSP_8     = 82,
++   OP_DECSP_4     = 83,
++   OP_DECSP_8     = 84,
++   OP_PCALL       = 85,
++   OP_RET         = 86,
++   OP_LCALL       = 87,
++   OP_SALLOC      = 88,
++   OP_SFREE       = 89,
++   OP_SSETC       = 90,
++   OP_SGETC       = 91,
++   OP_M1ALLOC     = 92,
++   OP_M2ALLOC     = 93,
++   OP_MFREE       = 94,
++   OP_M1SET       = 95,
++   OP_M1GET       = 96,
++   OP_M2SET       = 97,
++   OP_M2GET       = 98,
++   OP_MCOPY       = 99,
++   OP_MGETSIZE1   = 100,
++   OP_MGETSIZE2   = 101,
++   OP_PUSHIT      = 102,
++   OP_PUSHST      = 103,
++   OP_PUSHRT      = 104,
++   OP_PUSHCT      = 105,
++   OP_PUSHLT      = 106,
++   OP_PUSHBT      = 107,
++   OP_PUSHMT      = 108,
++   OP_POPIV       = 109,
++   OP_POPRV       = 110,
++   OP_POPSV       = 111,
++   OP_POPBV       = 112,
++   OP_POPMV       = 113,
++   OP_PUSH_0      = 114,
++   OP_PUSH_1      = 115,
++   OP_PUSH_2      = 116,
++   OP_PUSH_3      = 117,
++   OP_PUSH_4      = 118,
++   OP_PUSH_5      = 119,
++   OP_EXIT_0      = 120,
++   OP_EXIT_1      = 121,
++   OPCODE_NUMBER  = 121
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/common/src/Tools.cpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.cpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/common/src/Tools.cpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -244,7 +244,7 @@
+    switch(type) {
+    case CSymbol::INT:
+    case CSymbol::CHAR:
+-   case CSymbol::BOOL:
++   case CSymbol::LOGICAL:
+       return sizeof(int);
+    case CSymbol::REAL:
+       return sizeof(double);
+@@ -288,7 +288,6 @@
+    return result;
+ }
+ 
+-/*
+ int sumAddress(int address, int value)
+ {
+    bool localAddress = false;
+@@ -305,12 +304,11 @@
+    }
+    address += value;
+    if (localAddress) {
+-      address |= SET_LOCAL_BIT;
++      address = abs(address) | SET_LOCAL_BIT;
+    }
+    if (negAddress) {
+-      address |= SET_NEG_BIT;
++      address = abs(address) | SET_NEG_BIT;
+    }
+    return address;
+ }
+-*/
+ 
+
+Modified: trunk/gpt2/common/src/Tools.hpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.hpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/common/src/Tools.hpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -38,6 +38,6 @@
+ int getTypeSize(const int &amp;type);
+ int realAddress(int address);
+ std::string realAddressString(int address);
+-//int sumAddress(int address, int value);
++int sumAddress(int address, int value);
+ 
+ #endif
+
+Modified: trunk/gpt2/gptasm/src/CData.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CData.cpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptasm/src/CData.cpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -1,4 +1,5 @@
+ #include &quot;CData.hpp&quot;
++#include &quot;Tools.hpp&quot;
+ 
+ 
+ CData::CData()
+@@ -19,10 +20,14 @@
+ }
+ 
+ 
+-CSymbol* CData::addVariable (const int &amp;scope, const std::string &amp;name, const int &amp;type, const int &amp;address)
++CSymbol* CData::addVariable (const int &amp;scope, const std::string &amp;name, const int &amp;type, int size, const int &amp;address)
+ {
+-   CSymbol *symbol = new CSymbol (scope, name, type, CSymbol::VAR, address);
++   if (size == 0) {
++      size = getTypeSize(type);
++   }
+ 
++   CSymbol *symbol = new CSymbol (scope, name, type, size, CSymbol::VAR, address);
++
+    _symbols.push_back(symbol);
+ 
+    if (type == CSymbol::STRING) {
+@@ -40,10 +45,14 @@
+ }
+ 
+ 
+-CSymbol* CData::addConstant (const std::string &amp;name, const int &amp;type, const int &amp;address)
++CSymbol* CData::addConstant (const std::string &amp;name, const int &amp;type, int size, const int &amp;address)
+ {
+-   CSymbol *symbol = new CSymbol (CSymbol::GLOBAL, name, type, CSymbol::CONST, address);
++   if (size == 0) {
++      size = getTypeSize(type);
++   }
+ 
++   CSymbol *symbol = new CSymbol (CSymbol::GLOBAL, name, type, size, CSymbol::CONST, address);
++
+    _symbols.push_back(symbol);
+ 
+    //_data += symbol-&gt;getBinary();
+
+Modified: trunk/gpt2/gptasm/src/CData.hpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CData.hpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptasm/src/CData.hpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -13,8 +13,8 @@
+    CData();
+    ~CData();
+    CSymbol* add(CSymbol *symbol);
+-   CSymbol* addVariable (const int &amp;scope, const std::string &amp;name, const int &amp;type, const int &amp;address);
+-   CSymbol* addConstant (const std::string &amp;name, const int &amp;type, const int &amp;address);
++   CSymbol* addVariable (const int &amp;scope, const std::string &amp;name, const int &amp;type, int size, const int &amp;address);
++   CSymbol* addConstant (const std::string &amp;name, const int &amp;type, int size, const int &amp;address);
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -85,6 +85,8 @@
+    _opcodes[ &quot;ifnot&quot;       ] = OP_IFNOT;
+    _opcodes[ &quot;popiv&quot;       ] = OP_POPIV;
+    _opcodes[ &quot;poprv&quot;       ] = OP_POPRV;
++   _opcodes[ &quot;popsv&quot;       ] = OP_POPSV;
++   _opcodes[ &quot;popbv&quot;       ] = OP_POPBV;
+    _opcodes[ &quot;popmv&quot;       ] = OP_POPMV;
+    _opcodes[ &quot;incsp&quot;       ] = OP_INCSP;
+    _opcodes[ &quot;decsp&quot;       ] = OP_DECSP;
+@@ -97,11 +99,13 @@
+    _opcodes[ &quot;pushiv&quot;      ] = OP_PUSHIV;
+    _opcodes[ &quot;pushsv&quot;      ] = OP_PUSHSV;
+    _opcodes[ &quot;pushrv&quot;      ] = OP_PUSHRV;
++   _opcodes[ &quot;pushbv&quot;      ] = OP_PUSHBV;
+    _opcodes[ &quot;pushmv&quot;      ] = OP_PUSHMV;
+    _opcodes[ &quot;pushit&quot;      ] = OP_PUSHIT;
+    _opcodes[ &quot;pushst&quot;      ] = OP_PUSHST;
+    _opcodes[ &quot;pushrt&quot;      ] = OP_PUSHRT;
+    _opcodes[ &quot;pushct&quot;      ] = OP_PUSHCT;
++   _opcodes[ &quot;pushlt&quot;      ] = OP_PUSHLT;
+    _opcodes[ &quot;pushbt&quot;      ] = OP_PUSHBT;
+    _opcodes[ &quot;pushmt&quot;      ] = OP_PUSHMT;
+    _opcodes[ &quot;incsp_4&quot;     ] = OP_INCSP_4;
+@@ -161,28 +165,35 @@
+ }
+ 
+ 
+-void CGenBytecode::makeVarDefinition(const std::string &amp;lexeme, const int &amp;type)
++void CGenBytecode::makeVarDefinition(const std::string &amp;lexeme, const int &amp;type, int size)
+ {
++   if (size == 0) {
++      size = getTypeSize(type);
++   }
++
+    if (_currentProcedure.empty()) {
+       // variavel global
+-      _symbolTable.addVariable (CSymbol::GLOBAL, lexeme, type, _data.getDataSize());
+-      std::cout &lt;&lt; &quot;var global &quot; &lt;&lt; lexeme &lt;&lt; &quot; address &quot; &lt;&lt; _data.getDataSize() &lt;&lt; std::endl;
+-      _data.addVariable (CSymbol::GLOBAL, lexeme, type, _data.getDataSize());
++      _symbolTable.addVariable (CSymbol::GLOBAL, lexeme, type, size, _data.getDataSize());
++      std::cout &lt;&lt; &quot;var global &quot; &lt;&lt; lexeme &lt;&lt; &quot; size &quot; &lt;&lt; size &lt;&lt; &quot; address &quot; &lt;&lt; _data.getDataSize() &lt;&lt; std::endl;
++      _data.addVariable (CSymbol::GLOBAL, lexeme, type, size, _data.getDataSize());
+    } else {
+       // variavel local
+-      CSymbol *symbol = _symbolTable.addVariable (CSymbol::LOCAL, lexeme, type, _currentSP);
+-      std::cout &lt;&lt; &quot;var local &quot; &lt;&lt; lexeme &lt;&lt; &quot; address &quot; &lt;&lt; _currentSP &lt;&lt; std::endl;
++      CSymbol *symbol = _symbolTable.addVariable (CSymbol::LOCAL, lexeme, type, size,  _currentSP);
++      std::cout &lt;&lt; &quot;var local &quot; &lt;&lt; lexeme &lt;&lt; &quot; size &quot; &lt;&lt; size &lt;&lt; &quot; address &quot; &lt;&lt; _currentSP &lt;&lt; std::endl;
+       _currentSP += symbol-&gt;getTypeSize();
+       // gera incsp XXX
+       _code.writeByte(OP_INCSP);
+-      addAddress(itoa(symbol-&gt;getTypeSize()), CSymbol::CONST, CSymbol::INT);
++      addAddress(itoa(symbol-&gt;getTypeSize()), CSymbol::CONST, CSymbol::INT, size);
+    }
+ }
+ 
+ 
+-void CGenBytecode::makeParDefinition(const std::string &amp;lexeme, const int &amp;type)
++void CGenBytecode::makeParDefinition(const std::string &amp;lexeme, const int &amp;type, int size)
+ {
+-   _parameters.push_back(std::pair&lt;std::string,int&gt;(lexeme, type));
++   if (size == 0) {
++      size = getTypeSize(type);
++   }
++   _parameters.push_back(SParameter(lexeme, type, size));
+ //   _parametersSize += getTypeSize(type);
+ //   CSymbol *symbol = _symbolTable.addParameter(lexeme, type, _currentSP);
+ //   std::cout &lt;&lt; &quot;par &quot; &lt;&lt; lexeme &lt;&lt; &quot; address &quot; &lt;&lt; _currentSP &lt;&lt; std::endl;
+@@ -193,10 +204,11 @@
+ void CGenBytecode::finishParDefinition()
+ {
+    _currentSP = 0;
+-   for (std::list&lt;std::pair&lt;std::string,int&gt; &gt;::reverse_iterator par = _parameters.rbegin();
++   for (std::list&lt;SParameter&gt;::reverse_iterator par = _parameters.rbegin();
+          par != _parameters.rend(); par++) {
+-      _currentSP -= getTypeSize(par-&gt;second);
+-      CSymbol *symbol = _symbolTable.addParameter(par-&gt;first, par-&gt;second, abs(_currentSP));
++      _currentSP -= par-&gt;_size;
++//      _currentSP -= getTypeSize(par-&gt;second);
++      CSymbol *symbol = _symbolTable.addParameter(par-&gt;_name, par-&gt;_type, par-&gt;_size, abs(_currentSP));
+ //      std::cout &lt;&lt; &quot;par &quot; &lt;&lt; par-&gt;first &lt;&lt; &quot; address &quot; &lt;&lt; _currentSP &lt;&lt; std::endl;
+       std::cout &lt;&lt; &quot;param=&quot; &lt;&lt; symbol-&gt;getName() &lt;&lt; &quot; address=&quot; &lt;&lt; symbol-&gt;getAddress() &lt;&lt; std::endl;
+       std::cout &lt;&lt; &quot;\t&quot; &lt;&lt; realAddressString(symbol-&gt;getAddress()) &lt;&lt; std::endl;
+@@ -238,11 +250,14 @@
+ }
+ 
+ 
+-void CGenBytecode::addAddress(const std::string &amp;id, const int &amp;category, const int &amp;type)
++void CGenBytecode::addAddress(const std::string &amp;id, const int &amp;category, const int &amp;type, int size)
+ {
++   if (size == 0) {
++      size = getTypeSize(type);
++   }
+    int address = _symbolTable.getAddress(id);
+    if (address == -1) {
+-      address = _data.addConstant (id, type, _data.getDataSize())-&gt;getAddress();
++      address = _data.addConstant (id, type, size, _data.getDataSize())-&gt;getAddress();
+    }
+    _code.writeInt(address);
+ }
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.hpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptasm/src/CGenBytecode.hpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -10,6 +10,18 @@
+ #include &quot;CData.hpp&quot;
+ #include &quot;CBinString.hpp&quot;
+ 
++struct SParameter
++{
++   std::string _name;
++   int         _type;
++   int         _size;
++   SParameter(std::string name, int type, int size)
++      : _name(name)
++      , _type(type)
++      , _size(size)
++   { }
++};
++
+ class CGenBytecode
+ {
+ public:
+@@ -17,12 +29,12 @@
+    ~CGenBytecode();
+    void initProcedure(const std::string &amp;procedureName, const bool &amp;hasVarArguments, const int &amp;staticParameters, std::vector&lt;CSymbol&gt; parameters);
+    void finishProcedure();
+-   void makeVarDefinition(const std::string &amp;lexeme, const int &amp;type);
+-   void makeParDefinition(const std::string &amp;lexeme, const int &amp;type);
++   void makeVarDefinition(const std::string &amp;lexeme, const int &amp;type, int size);
++   void makeParDefinition(const std::string &amp;lexeme, const int &amp;type, int size);
+    void finishParDefinition();
+    void registryLabel(const std::string &amp;labelName);
+    void addOpcode(const std::string &amp;mn);
+-   void addAddress(const std::string &amp;id, const int &amp;category, const int &amp;type);
++   void addAddress(const std::string &amp;id, const int &amp;category, const int &amp;type, int size = 0);
+    CBinString getBinary();
+    void unsolvedLabel(const std::string &amp;label);
+    void translateLabelsToAddress();
+@@ -38,7 +50,8 @@
+ //   int                        _parametersSize;
+    std::list&lt;std::pair&lt;std::string, int&gt; &gt; _unsolvedLabels;
+    std::map&lt;std::string, int&gt; _solvedLabels;
+-   std::list&lt;std::pair&lt;std::string, int&gt; &gt; _parameters;
++//   std::list&lt;std::pair&lt;std::string,int&gt; &gt; _parameters;
++   std::list&lt;SParameter&gt; _parameters;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptasm/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptasm/src/lexer.g	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptasm/src/lexer.g	2007-12-03 21:50:36 UTC (rev 407)
+@@ -35,6 +35,7 @@
+    T_KW_BOOL=&quot;bool&quot;;
+    T_KW_POINTER=&quot;pointer&quot;;
+    T_KW_MATRIX=&quot;matrix&quot;;
++   T_KW_BYTE=&quot;byte&quot;;
+    T_KW_PROC=&quot;proc&quot;;
+    T_KW_ENDPROC=&quot;endproc&quot;;
+    T_KW_PARAM=&quot;param&quot;;
+@@ -113,6 +114,7 @@
+    T_KW_POPIV=&quot;popiv&quot;;
+    T_KW_POPSV=&quot;popsv&quot;;
+    T_KW_POPRV=&quot;poprv&quot;;
++   T_KW_POPBV=&quot;popbv&quot;;
+    T_KW_POPMV=&quot;popmv&quot;;
+    T_KW_INCSP=&quot;incsp&quot;;
+    T_KW_DECSP=&quot;decsp&quot;;
+@@ -125,11 +127,13 @@
+    T_KW_PUSHIV=&quot;pushiv&quot;;
+    T_KW_PUSHSV=&quot;pushsv&quot;;
+    T_KW_PUSHRV=&quot;pushrv&quot;;
++   T_KW_PUSHBV=&quot;pushbv&quot;;
+    T_KW_PUSHMV=&quot;pushmv&quot;;
+    T_KW_PUSHIT=&quot;pushit&quot;;
+    T_KW_PUSHST=&quot;pushst&quot;;
+    T_KW_PUSHRT=&quot;pushrt&quot;;
+    T_KW_PUSHCT=&quot;pushct&quot;;
++   T_KW_PUSHLT=&quot;pushlt&quot;;
+    T_KW_PUSHBT=&quot;pushbt&quot;;
+    T_KW_PUSHMT=&quot;pushmt&quot;;
+    T_KW_INCSP_4=&quot;incsp_4&quot;;
+@@ -282,6 +286,21 @@
+ //  : '.'
+ //  ;
+ 
++T_ABREC
++options {
++  paraphrase = &quot;'['&quot;;
++}
++  : '['
++  ;
++
++T_FECHAC
++options {
++  paraphrase = &quot;']'&quot;;
++}
++  : ']'
++  ;
++
++
+ T_WS_ : (' '
+    | '\t'
+    | '\n' { newline(); }
+
+Modified: trunk/gpt2/gptasm/src/parser.g
+===================================================================
+--- trunk/gpt2/gptasm/src/parser.g	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptasm/src/parser.g	2007-12-03 21:50:36 UTC (rev 407)
+@@ -76,21 +76,23 @@
+ //---------------
+ {
+   char tk_type;
++  int byteSize = 0;
+ }
+-  : &quot;var&quot; tk_id:T_ID tk_type=primitive_type
+-    { bytecode.makeVarDefinition(tk_id-&gt;getText(), tk_type); }
++  : &quot;var&quot; tk_id:T_ID tk_type=primitive_type[byteSize]
++    { bytecode.makeVarDefinition(tk_id-&gt;getText(), tk_type, byteSize); }
+   ;
+ 
+ //--------------------------------
+-  primitive_type returns [char ret]
++  primitive_type [int &amp;byteSize] returns [char ret]
+ //--------------------------------
+   : &quot;int&quot;     {ret=CSymbol::INT;    }
+   | &quot;real&quot;    {ret=CSymbol::REAL;   }
+   | &quot;char&quot;    {ret=CSymbol::CHAR;   }
+   | &quot;string&quot;  {ret=CSymbol::STRING; }
+-  | &quot;bool&quot;    {ret=CSymbol::BOOL;   }
++  | &quot;bool&quot;    {ret=CSymbol::LOGICAL;   }
+   | &quot;pointer&quot; {ret=CSymbol::POINTER;}
+   | &quot;matrix&quot;  {ret=CSymbol::MATRIX; }
++  | &quot;byte&quot;    T_ABREC T_INT_VALUE {byteSize = atoi(getLastTokenText().c_str());} T_FECHAC {ret=CSymbol::BYTE; }
+   ;
+ 
+ //#################################
+@@ -116,9 +118,10 @@
+ //---------------------
+ {
+   int tk_type;
++  int byteSize = 0;
+ }
+-  : &quot;param&quot; (&quot;ref&quot;)? tk_id:T_ID tk_type=primitive_type
+-    { bytecode.makeParDefinition(tk_id-&gt;getText(), tk_type); }
++  : &quot;param&quot; (&quot;ref&quot;)? tk_id:T_ID tk_type=primitive_type[byteSize]
++    { bytecode.makeParDefinition(tk_id-&gt;getText(), tk_type, byteSize); }
+   ;
+ 
+ //#####################
+@@ -218,7 +221,7 @@
+       identifier T_COMMA identifier
+    |  (&quot;igetv&quot;|&quot;sgetv&quot;|&quot;rgetv&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+-      identifier T_COMMA element T_COLON element
++      identifier T_COMMA identifier T_COLON element
+    |  (&quot;isetv&quot;|&quot;ssetv&quot;|&quot;rsetv&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+       identifier T_COLON element T_COMMA element
+@@ -241,12 +244,24 @@
+    :  (&quot;pushiv&quot;|&quot;pushsv&quot;|&quot;pushrv&quot;|&quot;pushmv&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+       element
+-   |  (&quot;pushit&quot;|&quot;pushst&quot;|&quot;pushrt&quot;|&quot;pushct&quot;|&quot;pushbt&quot;|&quot;pushmt&quot;)
++   |  &quot;pushbv&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+-//   |  &quot;pop&quot;
++      element
++      T_COMMA
++      T_INT_VALUE
++      { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
++      // TODO: muitos opcodes poderiam ter o valor inteiro diretamente ao inves de um enderecamento...
++   |  (&quot;pushit&quot;|&quot;pushst&quot;|&quot;pushrt&quot;|&quot;pushct&quot;|&quot;pushlt&quot;|&quot;pushbt&quot;|&quot;pushmt&quot;)
++      {bytecode.addOpcode(getLastTokenText());}
+    |  (&quot;popiv&quot;|&quot;popsv&quot;|&quot;poprv&quot;|&quot;popmv&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+       identifier
++   |  &quot;popbv&quot;
++      {bytecode.addOpcode(getLastTokenText());}
++      identifier
++      T_COMMA
++      T_INT_VALUE
++      { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
+    |  (&quot;incsp&quot;|&quot;decsp&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+       T_INT_VALUE
+
+Modified: trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm	2007-12-03 21:50:36 UTC (rev 407)
+@@ -1,6 +1,6 @@
+ program exemplo
+ 
+-//var c byte[8] // sizeof c
++var c byte[8] // sizeof c
+ 
+ proc main
+     var t1 int
+
+Added: trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptasm/test/wikki/enderecamento_2.gasm	2007-12-03 21:50:36 UTC (rev 407)
+@@ -0,0 +1,46 @@
++program exemplo
++
++var c byte[8] // sizeof c
++
++proc main
++    // c.x := 10;
++    isetv c:0, 10 // *( c + 0 ) := 10
++
++    // c.y := 20;
++    isetv c:4, 20 // *(c + 4 ) := 20
++
++    pushbv c, 8
++    pcall exibe
++
++    exit_0
++endproc
++
++proc exibe
++    param est byte[8]
++
++    var t1 int
++
++    // imprima( &quot;est.x=&quot;, est.x );
++    igetv t1, est:0 // t1 := *( est + 0)
++    pushiv t1
++    pushit
++    pushsv &quot;est.x=&quot;
++    pushst
++    push_2
++    lcall imprima
++
++    // imprima( &quot;est.y=&quot;, est.y );
++    igetv t1, est:4 // t1 := *(est + 4)
++    pushiv t1
++    pushit
++    pushsv &quot;est.y=&quot;
++    pushst
++    push_2
++    lcall imprima
++
++    decsp 12
++    ret
++endproc
++
++endprogram
++
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm	2007-12-03 21:50:36 UTC (rev 407)
+@@ -8,17 +8,17 @@
+     iset v, v
+ 
+     pushiv true
+-    pushbt
++    pushlt
+     pushiv 1
+     lcall imprima
+ 
+     pushiv false
+-    pushbt
++    pushlt
+     pushiv 1
+     lcall imprima
+ 
+     pushiv v
+-    pushbt
++    pushlt
+     pushiv 1
+     lcall imprima
+ 
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -135,6 +135,41 @@
+ }
+ 
+ 
++void CDataStack::setBytes(const int &amp;address, const std::string &amp;value)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      CBinString::setBytes(_BS + realAddress(address), value);
++   } else {
++      CBinString::setBytes(realAddress(address), value);
++   }
++}
++
++
++void CDataStack::pushBytes(const std::string &amp;value)
++{
++   CBinString::pushBytes(value);
++   _SP+=value.size();
++}
++
++
++std::string CDataStack::popBytes(const int &amp;size)
++{
++   std::string result = CBinString::popBytes(size);
++   _SP-=size;
++   return result;
++}
++
++
++std::string CDataStack::getBytes(const int &amp;address, const int &amp;size)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      return CBinString::getBytes(_BS + realAddress(address), size);
++   } else {
++      return CBinString::getBytes(realAddress(address), size);
++   }
++}
++
++
+ void CDataStack::setString(int address, const std::string &amp;value)
+ {
+    if (IS_LOCAL_ADDRESS(address)) {
+@@ -181,7 +216,7 @@
+ }
+ 
+ 
+-void CDataStack::popBytes(const int &amp;number)
++void CDataStack::discardBytes(const int &amp;number)
+ {
+    CBinString::popBytes(number);
+    _SP -= number;
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -18,8 +18,12 @@
+    double getReal(const int &amp;address);
+    void pushReal(const double &amp;value);
+    double popReal();
++   void setBytes(const int &amp;address, const std::string &amp;value);
++   std::string getBytes(const int &amp;address, const int &amp;size);
++   void pushBytes(const std::string &amp;value);
++   std::string popBytes(const int &amp;size);
+    void pushBytes(const int &amp;number);
+-   void popBytes(const int &amp;number);
++   void discardBytes(const int &amp;number);
+    void setBS(const int &amp;value);
+    void setSP(const int &amp;value);
+    int getBS() const;
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -128,6 +128,7 @@
+    _opcodePointer[OP_POPSV      ] = &amp;CRunBytecode::popsvOpcode;
+    _opcodePointer[OP_POPIV      ] = &amp;CRunBytecode::popivOpcode;
+    _opcodePointer[OP_POPRV      ] = &amp;CRunBytecode::poprvOpcode;
++   _opcodePointer[OP_POPBV      ] = &amp;CRunBytecode::popbvOpcode;
+    _opcodePointer[OP_POPMV      ] = &amp;CRunBytecode::popmvOpcode;
+    _opcodePointer[OP_INCSP      ] = &amp;CRunBytecode::incspOpcode;
+    _opcodePointer[OP_DECSP      ] = &amp;CRunBytecode::decspOpcode;
+@@ -140,12 +141,14 @@
+    _opcodePointer[OP_PUSHSV     ] = &amp;CRunBytecode::pushsvOpcode;
+    _opcodePointer[OP_PUSHIV     ] = &amp;CRunBytecode::pushivOpcode;
+    _opcodePointer[OP_PUSHRV     ] = &amp;CRunBytecode::pushrvOpcode;
++   _opcodePointer[OP_PUSHBV     ] = &amp;CRunBytecode::pushbvOpcode;
+    _opcodePointer[OP_PUSHMV     ] = &amp;CRunBytecode::pushmvOpcode;
+ 
+    _opcodePointer[OP_PUSHST     ] = &amp;CRunBytecode::pushstOpcode;
+    _opcodePointer[OP_PUSHIT     ] = &amp;CRunBytecode::pushitOpcode;
+    _opcodePointer[OP_PUSHRT     ] = &amp;CRunBytecode::pushrtOpcode;
+    _opcodePointer[OP_PUSHCT     ] = &amp;CRunBytecode::pushctOpcode;
++   _opcodePointer[OP_PUSHLT     ] = &amp;CRunBytecode::pushltOpcode;
+    _opcodePointer[OP_PUSHBT     ] = &amp;CRunBytecode::pushbtOpcode;
+    _opcodePointer[OP_PUSHMT     ] = &amp;CRunBytecode::pushmtOpcode;
+ 
+@@ -235,7 +238,7 @@
+             address += sizeof(int);
+             std::cout &lt;&lt; &quot;char [&quot; &lt;&lt; (int)_dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT) &lt;&lt; &quot;]&quot;;
+             break;
+-         case CSymbol::BOOL:
++         case CSymbol::LOGICAL:
+             address += sizeof(int);
+             boolValue = _dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT);
+             if (boolValue == 0) {
+@@ -255,7 +258,7 @@
+       }
+    }
+    std::cout &lt;&lt; std::endl;
+-   _dataStack.popBytes(address);
++   _dataStack.discardBytes(address);
+ }
+ 
+ 
+@@ -342,7 +345,7 @@
+       error( &quot;Endereco para lcall deve conter uma string constante !!!&quot; );
+    }
+ 
+-   address++;
++   address=sumAddress(address,1);
+ 
+    if (_dataStack.getCString(address) == &quot;imprima&quot;) {
+       procImprima();
+@@ -920,7 +923,13 @@
+ 
+ void CRunBytecode::igetvOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;igetv opcode&quot;);
++
++   int resultAddress = _code.fetchInt();
++   int varAddress    = _code.fetchInt();
++   int offset        = _dataStack.getInt(_code.fetchInt());
++
++   _dataStack.setInt(resultAddress, _dataStack.getInt(sumAddress(varAddress,offset)));
+ }
+ 
+ void CRunBytecode::sgetvOpcode()
+@@ -935,7 +944,13 @@
+ 
+ void CRunBytecode::isetvOpcode()
+ {
+-   invalidOpcode(__FUNCTION__);
++   trace (&quot;isetv opcode&quot;);
++
++   int varAddress    = _code.fetchInt();
++   int offset        = _dataStack.getInt(_code.fetchInt());
++   int value         = _dataStack.getInt(_code.fetchInt());
++
++   _dataStack.setInt(sumAddress(varAddress,offset), value);
+ }
+ 
+ void CRunBytecode::ssetvOpcode()
+@@ -1004,6 +1019,16 @@
+    _dataStack.setReal(address, _dataStack.popReal());
+ }
+ 
++void CRunBytecode::popbvOpcode()
++{
++   trace (&quot;popbv opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int sizeAddress = _code.fetchInt();
++
++   _dataStack.setBytes(varAddress, _dataStack.popBytes(_dataStack.getInt(sizeAddress)));
++}
++
+ void CRunBytecode::popmvOpcode()
+ {
+    invalidOpcode(__FUNCTION__);
+@@ -1025,7 +1050,7 @@
+ 
+    int size = _dataStack.getInt(_code.fetchInt());
+ 
+-   _dataStack.popBytes(size);
++   _dataStack.discardBytes(size);
+ }
+ 
+ 
+@@ -1139,6 +1164,16 @@
+    _dataStack.pushReal(_dataStack.getReal(address));
+ }
+ 
++void CRunBytecode::pushbvOpcode()
++{
++   trace (&quot;pushbv opcode&quot;);
++
++   int varAddress  = _code.fetchInt();
++   int sizeAddress = _code.fetchInt();
++
++   _dataStack.pushBytes(_dataStack.getBytes(varAddress, _dataStack.getInt(sizeAddress)));
++}
++
+ void CRunBytecode::pushmvOpcode()
+ {
+    invalidOpcode(__FUNCTION__);
+@@ -1172,11 +1207,18 @@
+    _dataStack.pushInt(CSymbol::CHAR);
+ }
+ 
++void CRunBytecode::pushltOpcode()
++{
++   trace (&quot;pushlt opcode&quot;);
++
++   _dataStack.pushInt(CSymbol::LOGICAL);
++}
++
+ void CRunBytecode::pushbtOpcode()
+ {
+    trace (&quot;pushbt opcode&quot;);
+ 
+-   _dataStack.pushInt(CSymbol::BOOL);
++   _dataStack.pushInt(CSymbol::BYTE);
+ }
+ 
+ void CRunBytecode::pushmtOpcode()
+@@ -1240,7 +1282,7 @@
+    }
+ 
+    std::string *value = new std::string();
+-   _dataStack.setInt(address+1, (int)value);
++   _dataStack.setInt(sumAddress(address,1), (int)value);
+ }
+ 
+ void CRunBytecode::sfreeOpcode()
+@@ -1250,14 +1292,15 @@
+    int address = _code.fetchInt();
+ 
+    char type = _dataStack.getByte(address);
++   address=sumAddress(address,1);
+ 
+    if (type != CSymbol::VAR) {
+       error( &quot;sfree apenas com variaveis !!!&quot; );
+    }
+ 
+-   std::string *value = (std::string*)_dataStack.getInt(address+1);
++   std::string *value = (std::string*)_dataStack.getInt(address);
+    delete value;
+-   _dataStack.setInt(address+1, 0);
++   _dataStack.setInt(address, 0);
+ }
+ 
+ void CRunBytecode::ssetcOpcode()
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-03 15:53:35 UTC (rev 406)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-03 21:50:36 UTC (rev 407)
+@@ -122,6 +122,7 @@
+    void popsvOpcode();
+    void popivOpcode();
+    void poprvOpcode();
++   void popbvOpcode();
+    void popmvOpcode();
+    void incspOpcode();
+    void decspOpcode();
+@@ -134,12 +135,14 @@
+    void pushsvOpcode();
+    void pushivOpcode();
+    void pushrvOpcode();
++   void pushbvOpcode();
+    void pushmvOpcode();
+ 
+    void pushstOpcode();
+    void pushitOpcode();
+    void pushrtOpcode();
+    void pushctOpcode();
++   void pushltOpcode();
+    void pushbtOpcode();
+    void pushmtOpcode();
+ 
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_condicionais_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/expressoes_matematicas_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_3.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_5.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_6.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000080.html">[gpt-commit] r406 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000082.html">[gpt-commit] r408 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#81">[ date ]</a>
+              <a href="thread.html#81">[ thread ]</a>
+              <a href="subject.html#81">[ subject ]</a>
+              <a href="author.html#81">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

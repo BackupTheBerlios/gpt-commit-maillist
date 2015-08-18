@@ -1,0 +1,282 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r423 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r423%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051832.lB5IWqmt009864%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000096.html">
+   <LINK REL="Next"  HREF="000098.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r423 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r423%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051832.lB5IWqmt009864%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r423 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec  5 19:32:52 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000096.html">[gpt-commit] r422 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000098.html">[gpt-commit] r424 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#97">[ date ]</a>
+              <a href="thread.html#97">[ thread ]</a>
+              <a href="subject.html#97">[ subject ]</a>
+              <a href="author.html#97">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-05 19:32:52 +0100 (Wed, 05 Dec 2007)
+New Revision: 423
+
+Modified:
+   trunk/gpt2/gptc/src/PortugolAST.cpp
+   trunk/gpt2/gptc/src/PortugolAST.hpp
+   trunk/gpt2/gptc/src/Symbol.cpp
+   trunk/gpt2/gptc/src/Symbol.hpp
+Log:
+-Adicionado atributo 'coluna' do lexema
+
+Modified: trunk/gpt2/gptc/src/PortugolAST.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/PortugolAST.cpp	2007-12-05 18:32:10 UTC (rev 422)
++++ trunk/gpt2/gptc/src/PortugolAST.cpp	2007-12-05 18:32:52 UTC (rev 423)
+@@ -15,7 +15,7 @@
+  *   You should have received a copy of the GNU General Public License     *
+  *   along with this program; if not, write to the                         *
+  *   Free Software Foundation, Inc.,                                       *
+- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
++ *   59 Temple Place - Suite 330, Boston, MA  021110307, USA.             *
+  ***************************************************************************/
+ 
+ 
+@@ -26,19 +26,19 @@
+ const char* const PortugolAST::TYPE_NAME = &quot;PortugolAST&quot;;
+ 
+ PortugolAST::PortugolAST()
+-    : CommonAST(), line(-1), type(0) {
++    : CommonAST(), line(0), column(0), type(0) {
+ }
+ 
+ PortugolAST::PortugolAST(RefToken t)
+-    : CommonAST(t), line(t-&gt;getLine()), type(0) {
++    : CommonAST(t), line(t-&gt;getLine()), column(t-&gt;getColumn()), type(0) {
+ }
+ 
+ PortugolAST::PortugolAST( const CommonAST&amp; other )
+-    : CommonAST(other), line(-1), type(0) {
++    : CommonAST(other), line(0), column(0), type(0) {
+ }
+ 
+ PortugolAST::PortugolAST( const PortugolAST&amp; other )
+-    : CommonAST(other), line(other.line), type(0) {
++    : CommonAST(other), line(other.line), column(other.column), type(0) {
+ }
+ 
+ PortugolAST::~PortugolAST() {
+@@ -59,6 +59,7 @@
+ {
+   CommonAST::initialize(t);
+   setLine(t-&gt;getLine());
++  setColumn(t-&gt;getColumn());
+ }
+ 
+ void PortugolAST::setLine(int line_) {
+@@ -66,9 +67,33 @@
+ }
+ 
+ int PortugolAST::getLine() const {
+-  return line;
++    // most of the time the line number is not set if the node is a
++    // imaginary one. Usually this means it has a child. Refer to the
++    // child line number. Of course this could be extended a bit.
++    // based on an example by Peter Morling.
++    if ( line != 0 )
++        return line;
++    if( getFirstChild() )
++        return ( RefPortugolAST(getFirstChild())-&gt;getLine() );
++    return 0;
+ }
+ 
++void PortugolAST::setColumn(int c) {
++  column = c;
++}
++
++int PortugolAST::getColumn() const {
++    // most of the time the line number is not set if the node is a
++    // imaginary one. Usually this means it has a child. Refer to the
++    // child line number. Of course this could be extended a bit.
++    // based on an example by Peter Morling.
++    if ( column != 0 )
++        return column;
++    if( getFirstChild() )
++        return ( RefPortugolAST(getFirstChild())-&gt;getColumn() );
++    return 0;
++}
++
+ void PortugolAST::setEvalType(Type* t) {
+   type = t;
+ }
+@@ -81,6 +106,7 @@
+ std::string PortugolAST::toString() const {
+   std::stringstream s;
+   s &lt;&lt; getText();
++//   s &lt;&lt; &quot;(&quot; &lt;&lt; getLine() &lt;&lt; &quot;:&quot; &lt;&lt; getColumn() &lt;&lt; &quot;)&quot; &lt;&lt; getText();
+   if (type) {
+     s &lt;&lt; &quot;:&quot; &lt;&lt; type-&gt;name();
+   }
+
+Modified: trunk/gpt2/gptc/src/PortugolAST.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/PortugolAST.hpp	2007-12-05 18:32:10 UTC (rev 422)
++++ trunk/gpt2/gptc/src/PortugolAST.hpp	2007-12-05 18:32:52 UTC (rev 423)
+@@ -41,6 +41,9 @@
+   void setLine(int line);
+   int getLine() const;
+ 
++  void setColumn(int);
++  int getColumn() const;
++
+   void setEvalType(Type*);
+   Type* getEvalType();
+ 
+@@ -56,6 +59,7 @@
+   static const char* const TYPE_NAME;
+ protected:
+   int   line;
++  int   column;
+   Type* type;
+   int endLine;
+   int eval_type; //evaluated type of expression
+
+Modified: trunk/gpt2/gptc/src/Symbol.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Symbol.cpp	2007-12-05 18:32:10 UTC (rev 422)
++++ trunk/gpt2/gptc/src/Symbol.cpp	2007-12-05 18:32:52 UTC (rev 423)
+@@ -11,12 +11,14 @@
+                Type* type,
+                const std::string&amp; scope,
+                const std::string&amp; unit,
+-               int line)
++               int line,
++               int column)
+   :   _lexeme(lexeme),
+       _type(type),
+       _scope(scope),
+       _unit(unit),
+-      _line(line) {
++      _line(line),
++      _column(column) {
+ 
+   _identifier = buildIdentifier(lexeme, _type);
+ 
+@@ -25,11 +27,13 @@
+ Symbol::Symbol(const std::string&amp; lexeme,
+                Type* type,
+                const std::string&amp; unit,
+-               int line)
++               int line,
++               int column)
+   :   _lexeme(lexeme),
+       _type(type),
+       _unit(unit),
+-      _line(line) {
++      _line(line),
++      _column(column) {
+ 
+   _identifier = buildIdentifier(lexeme, _type);
+ }
+@@ -37,7 +41,8 @@
+ 
+ 
+ Symbol::Symbol(const std::string&amp; lexeme, Type* type) 
+-  : _lexeme(lexeme), _type(type), _scope(&quot;?&quot;), _unit(&quot;?&quot;), _line(-1) {
++  : _lexeme(lexeme), _type(type), _scope(&quot;?&quot;), _unit(&quot;?&quot;), 
++    _line(0), _column(0) {
+ 
+   _identifier = buildIdentifier(lexeme, _type);
+ }
+@@ -67,6 +72,10 @@
+   return _line;
+ }
+ 
++int Symbol::column() const {
++  return _column;
++}
++
+ std::string Symbol::toString() const {
+   std::stringstream ret;
+   ret &lt;&lt; _unit &lt;&lt; &quot;:&quot; &lt;&lt; _line
+
+Modified: trunk/gpt2/gptc/src/Symbol.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Symbol.hpp	2007-12-05 18:32:10 UTC (rev 422)
++++ trunk/gpt2/gptc/src/Symbol.hpp	2007-12-05 18:32:52 UTC (rev 423)
+@@ -18,12 +18,14 @@
+          Type* type,
+          const std::string&amp; scope,
+          const std::string&amp; unit,
+-         int line);
++         int line,
++         int column);
+ 
+   Symbol(const std::string&amp; lexeme,
+          Type* type,
+          const std::string&amp; unit,
+-         int line);
++         int line,
++         int column);
+ 
+   Symbol(const std::string&amp; lexeme,
+          Type* type);
+@@ -38,6 +40,7 @@
+   const std::string&amp; unit() const;
+ 
+   int line() const;
++  int column() const;
+ 
+   std::string toString() const;
+ 
+@@ -51,6 +54,7 @@
+   std::string      _scope;
+   std::string      _unit;
+   int              _line;
++  int              _column;
+ };
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000096.html">[gpt-commit] r422 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000098.html">[gpt-commit] r424 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#97">[ date ]</a>
+              <a href="thread.html#97">[ thread ]</a>
+              <a href="subject.html#97">[ subject ]</a>
+              <a href="author.html#97">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

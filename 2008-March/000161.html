@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r488 - trunk/gpt/src/modules/interpreter
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r488%20-%20trunk/gpt/src/modules/interpreter&In-Reply-To=%3C200803180745.m2I7jqjX028389%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000160.html">
+   <LINK REL="Next"  HREF="000162.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r488 - trunk/gpt/src/modules/interpreter</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r488%20-%20trunk/gpt/src/modules/interpreter&In-Reply-To=%3C200803180745.m2I7jqjX028389%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r488 - trunk/gpt/src/modules/interpreter">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Mar 18 08:45:52 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000160.html">[gpt-commit] r487 - trunk/gpt/src/modules/parser
+</A></li>
+        <LI>Next message: <A HREF="000162.html">[gpt-commit] r489 - trunk/gpt/doc/man
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#161">[ date ]</a>
+              <a href="thread.html#161">[ thread ]</a>
+              <a href="subject.html#161">[ subject ]</a>
+              <a href="author.html#161">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-03-18 08:45:52 +0100 (Tue, 18 Mar 2008)
+New Revision: 488
+
+Modified:
+   trunk/gpt/src/modules/interpreter/InterpreterEval.cpp
+Log:
+-Desabilitando codigo de depuracao no Windows (nao funcionava mesmo...)
+
+Modified: trunk/gpt/src/modules/interpreter/InterpreterEval.cpp
+===================================================================
+--- trunk/gpt/src/modules/interpreter/InterpreterEval.cpp	2008-03-18 07:45:06 UTC (rev 487)
++++ trunk/gpt/src/modules/interpreter/InterpreterEval.cpp	2008-03-18 07:45:52 UTC (rev 488)
+@@ -21,7 +21,9 @@
+ #include &quot;config.h&quot;
+ 
+ #include &quot;InterpreterEval.hpp&quot;
+-#include &quot;InterpreterDBG.hpp&quot;
++#ifndef WIN32
++  #include &quot;InterpreterDBG.hpp&quot;
++#endif
+ #include &quot;GPTDisplay.hpp&quot;
+ 
+ void ExprValue::setValue(string str) {
+@@ -201,7 +203,9 @@
+   stack_entry_t entry = stack_entry_t(file, ctx);
+   program_stack.push_back(entry);
+ 
++#ifndef WIN32
+   InterpreterDBG::self()-&gt;init(dbg_host, dbg_port);
++#endif
+ }
+ 
+ 
+@@ -769,7 +773,7 @@
+   program_stack.back().second.second = line;
+ 
+   currentLine = line;
+-
++#ifndef WIN32
+   InterpreterDBG::self()-&gt;checkData();
+ 
+   if(InterpreterDBG::self()-&gt;breakOn(file, line)) {
+@@ -808,6 +812,7 @@
+         break;
+     }
+   }
++#endif
+ }
+ 
+ //private
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000160.html">[gpt-commit] r487 - trunk/gpt/src/modules/parser
+</A></li>
+	<LI>Next message: <A HREF="000162.html">[gpt-commit] r489 - trunk/gpt/doc/man
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#161">[ date ]</a>
+              <a href="thread.html#161">[ thread ]</a>
+              <a href="subject.html#161">[ subject ]</a>
+              <a href="author.html#161">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

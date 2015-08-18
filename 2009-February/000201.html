@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r528 - trunk/gpt/src/modules/x86
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r528%20-%20trunk/gpt/src/modules/x86&In-Reply-To=%3C200902220143.n1M1hb3p002555%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000200.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r528 - trunk/gpt/src/modules/x86</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r528%20-%20trunk/gpt/src/modules/x86&In-Reply-To=%3C200902220143.n1M1hb3p002555%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r528 - trunk/gpt/src/modules/x86">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Sun Feb 22 02:43:37 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000200.html">[gpt-commit] r527 - trunk/gpt/test
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#201">[ date ]</a>
+              <a href="thread.html#201">[ thread ]</a>
+              <a href="subject.html#201">[ subject ]</a>
+              <a href="author.html#201">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2009-02-22 02:43:36 +0100 (Sun, 22 Feb 2009)
+New Revision: 528
+
+Modified:
+   trunk/gpt/src/modules/x86/X86.cpp
+Log:
+-substituindo um hack por outro em toReal
+
+Modified: trunk/gpt/src/modules/x86/X86.cpp
+===================================================================
+--- trunk/gpt/src/modules/x86/X86.cpp	2009-02-22 00:53:04 UTC (rev 527)
++++ trunk/gpt/src/modules/x86/X86.cpp	2009-02-22 01:43:36 UTC (rev 528)
+@@ -1024,14 +1024,20 @@
+   }
+ }
+ 
++//extrai os bytes que representam um n&#250;mero em ponto flutuante
++//e devolve o inteiro como string
+ string X86::toReal(const string&amp; str) {
++  float fvalue = (float) atof(str.c_str());
++  unsigned char *cp = (unsigned char*) &fvalue;
++
++  int i = cp[0]
++    + (cp[1] &lt;&lt; 8) 
++    + (cp[2] &lt;&lt; 16) 
++    + (cp[3] &lt;&lt; 24);
++
+   stringstream s;
+-  //get the content of a float variable to integer.
+-  float fvalue; //sizeof(float) should be 4
+-  long  *fvaluep; //sizeof(long) should be 4
+-  fvalue = atof(str.c_str());
+-  fvaluep = (long*) &fvalue;
+-  s &lt;&lt; *fvaluep;
++  s &lt;&lt; i;
++
+   return s.str();
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000200.html">[gpt-commit] r527 - trunk/gpt/test
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#201">[ date ]</a>
+              <a href="thread.html#201">[ thread ]</a>
+              <a href="subject.html#201">[ subject ]</a>
+              <a href="author.html#201">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

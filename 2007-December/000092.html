@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r418 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r418%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051135.lB5BZvVj009949%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000091.html">
+   <LINK REL="Next"  HREF="000093.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r418 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r418%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051135.lB5BZvVj009949%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r418 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec  5 12:35:57 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000091.html">[gpt-commit] r417 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000093.html">[gpt-commit] r419 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#92">[ date ]</a>
+              <a href="thread.html#92">[ thread ]</a>
+              <a href="subject.html#92">[ subject ]</a>
+              <a href="author.html#92">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-05 12:35:56 +0100 (Wed, 05 Dec 2007)
+New Revision: 418
+
+Modified:
+   trunk/gpt2/gptc/src/lexer.g
+Log:
+nomsg
+
+Modified: trunk/gpt2/gptc/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptc/src/lexer.g	2007-12-05 11:35:00 UTC (rev 417)
++++ trunk/gpt2/gptc/src/lexer.g	2007-12-05 11:35:56 UTC (rev 418)
+@@ -91,14 +91,16 @@
+   T_NAO=&quot;n&#227;o&quot;;
+   T_VERDADEIRO=&quot;verdadeiro&quot;;
+   T_FALSO=&quot;falso&quot;;
+-  T_NULO=&quot;nulo&quot;;
+   T_ASM=&quot;asm&quot;;
+-  T_FIMASM=&quot;fim-asm&quot;;
++  T_FIMASM=&quot;fim-asm&quot;;  
+ 
+   T_REAL_LITERAL=&quot;n&#250;mero real&quot;; //a regra T_INTEIRO_LITERAL lida com reais
++  
++  //imagin&#225;rios para a AST
+ 
++  T_NULO=&quot;nulo&quot;;
+ 
+-  //imagin&#225;rios para a AST
++  
+ 
+   T_PARAM;
+   T_TIPO_RETORNO;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000091.html">[gpt-commit] r417 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000093.html">[gpt-commit] r419 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#92">[ date ]</a>
+              <a href="thread.html#92">[ thread ]</a>
+              <a href="subject.html#92">[ subject ]</a>
+              <a href="author.html#92">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

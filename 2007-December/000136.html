@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r462 - trunk/gpt2/gptc/src/gptasm_target
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r462%20-%20trunk/gpt2/gptc/src/gptasm_target&In-Reply-To=%3C200712192221.lBJML44O026858%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000135.html">
+   <LINK REL="Next"  HREF="000137.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r462 - trunk/gpt2/gptc/src/gptasm_target</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r462%20-%20trunk/gpt2/gptc/src/gptasm_target&In-Reply-To=%3C200712192221.lBJML44O026858%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r462 - trunk/gpt2/gptc/src/gptasm_target">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 23:21:04 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000135.html">[gpt-commit] r461 - trunk/gpt2/gptc/src/symboltable
+</A></li>
+        <LI>Next message: <A HREF="000137.html">[gpt-commit] r463 - trunk/gpt2/gptc/src/semantic
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#136">[ date ]</a>
+              <a href="thread.html#136">[ thread ]</a>
+              <a href="subject.html#136">[ subject ]</a>
+              <a href="author.html#136">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 23:21:03 +0100 (Wed, 19 Dec 2007)
+New Revision: 462
+
+Modified:
+   trunk/gpt2/gptc/src/gptasm_target/BaseGptAsmWalker.cpp
+   trunk/gpt2/gptc/src/gptasm_target/gptasm.g
+Log:
+-getSymbol -&gt; getFirstSymbol
+
+Modified: trunk/gpt2/gptc/src/gptasm_target/BaseGptAsmWalker.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/gptasm_target/BaseGptAsmWalker.cpp	2007-12-19 22:19:11 UTC (rev 461)
++++ trunk/gpt2/gptc/src/gptasm_target/BaseGptAsmWalker.cpp	2007-12-19 22:21:03 UTC (rev 462)
+@@ -26,7 +26,7 @@
+ 
+ void BaseGptAsmWalker::declareProgramVars(const std::list&lt;std::string&gt;&amp; ids) {
+   for (std::list&lt;std::string&gt;::const_iterator it = ids.begin(); it != ids.end(); ++it) {
+-    Symbol symbol = _symtable-&gt;getSymbol(*it);
++    Symbol symbol = _symtable-&gt;getFirstSymbol(*it);
+     _asmPrg-&gt;emitVarDefinition(symbol.identifier(), symbol.type()-&gt;asmName(true));
+ 
+     if (symbol.type()-&gt;isMatrix()) {
+@@ -57,17 +57,17 @@
+ void BaseGptAsmWalker::declareSubroutineVars(const std::list&lt;std::string&gt;&amp; ids) {
+   for (std::list&lt;std::string&gt;::const_iterator it = ids.begin(); it != ids.end(); ++it) {
+     _subroutine-&gt;emitVarDefinition(
+-      *it, _symtable-&gt;getSymbol(*it).type());
++      *it, _symtable-&gt;getFirstSymbol(*it).type());
+   }
+ }
+ 
+ void BaseGptAsmWalker::declareParameter(const string&amp; lexeme) {
+   _subroutine-&gt;emitParDefinition(
+-    lexeme, _symtable-&gt;getSymbol(lexeme).type());
++    lexeme, _symtable-&gt;getFirstSymbol(lexeme).type());
+ }
+ 
+ int BaseGptAsmWalker::getSymbolType(const string&amp; lexeme) {
+-  return _symtable-&gt;getSymbol(lexeme).type()-&gt;primitiveType();
++  return _symtable-&gt;getFirstSymbol(lexeme).type()-&gt;primitiveType();
+ }
+ 
+ // std::string BaseGptAsmWalker::expandOffset(const std::string&amp;, const std::list&lt;std::string&gt;&amp;) {
+
+Modified: trunk/gpt2/gptc/src/gptasm_target/gptasm.g
+===================================================================
+--- trunk/gpt2/gptc/src/gptasm_target/gptasm.g	2007-12-19 22:19:11 UTC (rev 461)
++++ trunk/gpt2/gptc/src/gptasm_target/gptasm.g	2007-12-19 22:21:03 UTC (rev 462)
+@@ -213,7 +213,7 @@
+   : #(lv:T_LVALUE 
+       id:T_IDENTIFICADOR  
+ 
+-                     {ret = _symtable-&gt;getSymbol(id-&gt;getText());}
++                     {ret = _symtable-&gt;getFirstSymbol(id-&gt;getText());}
+ 
+ //       (
+ //_subroutine-&gt;declareTmp(lv-&gt;getEvalType());
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000135.html">[gpt-commit] r461 - trunk/gpt2/gptc/src/symboltable
+</A></li>
+	<LI>Next message: <A HREF="000137.html">[gpt-commit] r463 - trunk/gpt2/gptc/src/semantic
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#136">[ date ]</a>
+              <a href="thread.html#136">[ thread ]</a>
+              <a href="subject.html#136">[ subject ]</a>
+              <a href="author.html#136">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

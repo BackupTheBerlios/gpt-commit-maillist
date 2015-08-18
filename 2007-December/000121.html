@@ -1,0 +1,1956 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r447 - in trunk/gpt2: common/src gptc/src	gptc/src/gptasm_target gptc/src/parser
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r447%20-%20in%20trunk/gpt2%3A%20common/src%20gptc/src%0A%09gptc/src/gptasm_target%20gptc/src/parser&In-Reply-To=%3C200712191349.lBJDnRYc013766%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000120.html">
+   <LINK REL="Next"  HREF="000123.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r447 - in trunk/gpt2: common/src gptc/src	gptc/src/gptasm_target gptc/src/parser</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r447%20-%20in%20trunk/gpt2%3A%20common/src%20gptc/src%0A%09gptc/src/gptasm_target%20gptc/src/parser&In-Reply-To=%3C200712191349.lBJDnRYc013766%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r447 - in trunk/gpt2: common/src gptc/src	gptc/src/gptasm_target gptc/src/parser">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 14:49:27 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000120.html">[gpt-commit] r446 - in trunk/gpt2: common/src gptasm/src gptvm/src
+</A></li>
+        <LI>Next message: <A HREF="000123.html">[gpt-commit] r448 - trunk/gpt2/common/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#121">[ date ]</a>
+              <a href="thread.html#121">[ thread ]</a>
+              <a href="subject.html#121">[ subject ]</a>
+              <a href="author.html#121">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 14:49:26 +0100 (Wed, 19 Dec 2007)
+New Revision: 447
+
+Added:
+   trunk/gpt2/common/src/MismatchedUnicodeCharException.cpp
+   trunk/gpt2/common/src/MismatchedUnicodeCharException.hpp
+   trunk/gpt2/common/src/UnicodeCharBuffer.hpp
+   trunk/gpt2/common/src/UnicodeCharScanner.hpp
+Removed:
+   trunk/gpt2/gptc/src/gptasm_target/Tools.cpp
+   trunk/gpt2/gptc/src/gptasm_target/Tools.hpp
+   trunk/gpt2/gptc/src/parser/MismatchedUnicodeCharException.cpp
+   trunk/gpt2/gptc/src/parser/MismatchedUnicodeCharException.hpp
+   trunk/gpt2/gptc/src/parser/UnicodeCharBuffer.hpp
+   trunk/gpt2/gptc/src/parser/UnicodeCharScanner.hpp
+Modified:
+   trunk/gpt2/common/src/Makefile.am
+   trunk/gpt2/gptc/src/Makefile.am
+   trunk/gpt2/gptc/src/gptasm_target/Makefile.am
+   trunk/gpt2/gptc/src/parser/Makefile.am
+Log:
+-Movendo codigo comum para gpt2/common
+
+Modified: trunk/gpt2/common/src/Makefile.am
+===================================================================
+--- trunk/gpt2/common/src/Makefile.am	2007-12-19 13:48:10 UTC (rev 446)
++++ trunk/gpt2/common/src/Makefile.am	2007-12-19 13:49:26 UTC (rev 447)
+@@ -5,4 +5,7 @@
+ libgptcommon_la_SOURCES = CBinString.cpp  CHeader.cpp  COptions.hpp  CSymbol.hpp \
+                           CSymbolList.hpp   CSymbolTable.hpp  Makefile.am  Tools.hpp \
+                           CBinString.hpp  CHeader.hpp  CSymbol.cpp   CSymbolList.cpp  \
+-                          CSymbolTable.cpp  Common.hpp  Tools.cpp
++                          CSymbolTable.cpp  Common.hpp  Tools.cpp \
++                          MismatchedUnicodeCharException.hpp \
++                          MismatchedUnicodeCharException.cpp \
++                          UnicodeCharBuffer.hpp UnicodeCharScanner.hpp
+
+Copied: trunk/gpt2/common/src/MismatchedUnicodeCharException.cpp (from rev 443, trunk/gpt2/gptc/src/parser/MismatchedUnicodeCharException.cpp)
+
+Copied: trunk/gpt2/common/src/MismatchedUnicodeCharException.hpp (from rev 443, trunk/gpt2/gptc/src/parser/MismatchedUnicodeCharException.hpp)
+
+Copied: trunk/gpt2/common/src/UnicodeCharBuffer.hpp (from rev 443, trunk/gpt2/gptc/src/parser/UnicodeCharBuffer.hpp)
+
+Copied: trunk/gpt2/common/src/UnicodeCharScanner.hpp (from rev 443, trunk/gpt2/gptc/src/parser/UnicodeCharScanner.hpp)
+===================================================================
+--- trunk/gpt2/gptc/src/parser/UnicodeCharScanner.hpp	2007-12-19 03:38:52 UTC (rev 443)
++++ trunk/gpt2/common/src/UnicodeCharScanner.hpp	2007-12-19 13:49:26 UTC (rev 447)
+@@ -0,0 +1,562 @@
++#ifndef INC_UnicodeCharScanner_hpp__
++#define INC_UnicodeCharScanner_hpp__
++
++#include &lt;map&gt;
++#include &lt;cctype&gt;
++#include &lt;iostream&gt;
++
++#include &lt;antlr/config.hpp&gt;
++#include &lt;antlr/CommonToken.hpp&gt;
++#include &lt;antlr/TokenStream.hpp&gt;
++#include &lt;antlr/RecognitionException.hpp&gt;
++#include &lt;antlr/SemanticException.hpp&gt;
++#include &lt;antlr/InputBuffer.hpp&gt;
++#include &lt;antlr/BitSet.hpp&gt;
++#include &lt;antlr/LexerSharedInputState.hpp&gt;
++
++#include &quot;MismatchedUnicodeCharException.hpp&quot;
++
++/** Superclass of generated lexers
++ */
++class UnicodeCharScanner : public antlr::TokenStream {
++protected:
++	typedef antlr::RefToken (*factory_type)();
++public:
++	typedef int char_type;
++	typedef std::map&lt;std::string,int&gt; string_map;
++
++	UnicodeCharScanner( antlr::InputBuffer&amp; cb, bool case_sensitive )
++	: saveConsumedInput(true)
++	, caseSensitive(case_sensitive)
++	, literals()
++	, inputState(new antlr::LexerInputState(cb))
++	, commitToPath(false)
++	, tabsize(8)
++	, traceDepth(0)
++	{
++		setTokenObjectFactory(&amp;antlr::CommonToken::factory);
++	}
++	UnicodeCharScanner( antlr::InputBuffer* cb, bool case_sensitive )
++	: saveConsumedInput(true)
++	, caseSensitive(case_sensitive)
++	, literals()
++	, inputState(new antlr::LexerInputState(cb))
++	, commitToPath(false)
++	, tabsize(8)
++	, traceDepth(0)
++	{
++		setTokenObjectFactory(&amp;antlr::CommonToken::factory);
++	}
++	UnicodeCharScanner( const antlr::LexerSharedInputState&amp; state, bool case_sensitive )
++	: saveConsumedInput(true)
++	, caseSensitive(case_sensitive)
++	, literals()
++	, inputState(state)
++	, commitToPath(false)
++	, tabsize(8)
++	, traceDepth(0)
++	{
++		setTokenObjectFactory(&amp;antlr::CommonToken::factory);
++	}
++
++	virtual ~UnicodeCharScanner()
++	{
++	}
++
++	virtual char_type LA(char_type i)
++	{
++		char_type c = inputState-&gt;getInput().LA(i);
++		return c;
++	}
++
++	virtual void append(char_type c)
++	{
++		if (saveConsumedInput)
++		{
++			size_t len = text.length();
++
++			if( (len % 256) == 0 )
++				text.reserve(len+256);
++
++// This is how UTF8 is encoded
++// +---------------------------+----------+----------+----------+----------+
++// | Unicode scalar            | 1st      | 2nd      | 3th      | 4th      |
++// +---------------------------+----------+----------+----------+----------+
++// |00000000 0xxxxxxx          | 0xxxxxxx |          |          |          |
++// |00000yyy yyxxxxxx          | 110yyyyy | 10xxxxxx |          |          |
++// |zzzzyyyy yyxxxxxx          | 1110zzzz | 10yyyyyy | 10xxxxxx |          |
++// |000uuuuu zzzzyyyy yyxxxxxx | 11110uuu | 10uuzzzz | 10yyyyyy | 10xxxxxx |
++// +---------------------------+----------+----------+----------+----------+
++
++			if (c &lt; 0x80)
++			{
++				text += c;
++				return;
++			}
++			else if (c &lt; 0x800)
++			{
++				text += ( (c &gt;&gt; 6) | 0xC0 );
++				text += ( c &amp; 0x3F | 0x80 );
++			}
++			else if (c &lt; 0x10000)
++			{
++				text += ( (c &gt;&gt; 12) | 0xE0 );
++				text += ( ((c &gt;&gt; 6) &amp; 0x3F) | 0x80 );
++				text += ( (c &amp; 0x3F) | 0x80 );
++			}
++			else if (c &lt; 0x200000)
++			{
++				text += ( (c &gt;&gt; 18) | 0xF0 );				// first 3 bits
++				text += ( (((c &gt;&gt; 16) &amp; 0x3) &lt;&lt; 4) |
++								 ((c &gt;&gt; 12) &amp; 0xF) | 0x80 );
++				text += ( ((c &gt;&gt; 6) &amp; 0x3F) | 0x80 );
++				text += ( (c &amp; 0x3F) | 0x80 );
++			}
++			else
++				assert(0);
++		}
++	}
++
++	virtual void append(const std::string&amp; s)
++	{
++		assert(0);
++		if (saveConsumedInput)
++			text+=s;
++	}
++
++	virtual void commit()
++	{
++		inputState-&gt;getInput().commit();
++	}
++
++	virtual void consume()
++	{
++		if (inputState-&gt;guessing == 0)
++		{
++			char_type c = LA(1);
++			append(c);
++			inputState-&gt;column++;
++		}
++		inputState-&gt;getInput().consume();
++	}
++
++	/** Consume chars until one matches the given char */
++	virtual void consumeUntil(char_type c)
++	{
++		for(;;)
++		{
++			char_type la_1 = LA(1);
++			if( static_cast&lt;char_type&gt;(EOF_CHAR) == la_1 || la_1 == c )
++				break;
++			consume();
++		}
++	}
++
++	/** Consume chars until one matches the given set */
++	virtual void consumeUntil(const antlr::BitSet&amp; set)
++	{
++		for(;;)
++		{
++			char_type la_1 = LA(1);
++			if( static_cast&lt;char_type&gt;(EOF_CHAR) == la_1 || set.member(la_1) )
++				break;
++			consume();
++		}
++	}
++
++	/// Mark the current position and return a id for it
++	virtual unsigned int mark()
++	{
++		return inputState-&gt;getInput().mark();
++	}
++
++	/// Rewind the scanner to a previously marked position
++	virtual void rewind(unsigned int pos)
++	{
++		inputState-&gt;getInput().rewind(pos);
++	}
++
++	/// See if input contains character 'c' throw MismatchedUnicodeCharException if not
++	virtual void match(char_type c)
++	{
++		char_type la_1 = LA(1);
++		if ( la_1 != c )
++			throw MismatchedUnicodeCharException(la_1, c, false, this);
++		consume();
++	}
++
++	/** See if input contains element from bitset b
++	 * throw MismatchedUnicodeCharException if not
++	 */
++	virtual void match(const antlr::BitSet&amp; b)
++	{
++		char_type la_1 = LA(1);
++
++		if ( !b.member(la_1) )
++			throw MismatchedUnicodeCharException( la_1, b, false, this );
++		consume();
++	}
++
++	/** See if input contains string 's' throw MismatchedUnicodeCharException if not
++	 * @note the string cannot match EOF
++	 */
++	virtual void match( const char* s )
++	{
++		while( *s != '\0' )
++		{
++			// the &amp; 0xFF is here to prevent sign extension lateron
++			char_type la_1 = LA(1), c = (*s++ &amp; 0xFF);
++
++			if ( la_1 != c )
++				throw MismatchedUnicodeCharException(la_1, c, false, this);
++
++			consume();
++		}
++	}
++	/** See if input contains string 's' throw MismatchedUnicodeCharException if not
++	 * @note the string cannot match EOF
++	 */
++	virtual void match(const std::string&amp; s)
++	{
++		size_t len = s.length();
++
++		for (size_t i = 0; i &lt; len; i++)
++		{
++			// the &amp; 0xFF is here to prevent sign extension lateron
++			char_type la_1 = LA(1), c = (s[i] &amp; 0xFF);
++
++			if ( la_1 != c )
++				throw MismatchedUnicodeCharException(la_1, c, false, this);
++
++			consume();
++		}
++	}
++	/** See if input does not contain character 'c'
++	 * throw MismatchedUnicodeCharException if not
++	 */
++	virtual void matchNot(char_type c)
++	{
++		char_type la_1 = LA(1);
++
++		if ( la_1 == c )
++			throw MismatchedUnicodeCharException(la_1, c, true, this);
++
++		consume();
++	}
++	/** See if input contains character in range c1-c2
++	 * throw MismatchedUnicodeCharException if not
++	 */
++	virtual void matchRange(char_type c1, char_type c2)
++	{
++		char_type la_1 = LA(1);
++
++		if ( la_1 &lt; c1 || la_1 &gt; c2 )
++			throw MismatchedUnicodeCharException(la_1, c1, c2, false, this);
++
++		consume();
++	}
++
++	/// Get the line the scanner currently is in (starts at 1)
++	virtual int getLine() const
++	{
++		return inputState-&gt;line;
++	}
++
++	/// set the line number
++	virtual void setLine(int l)
++	{
++		inputState-&gt;line = l;
++	}
++
++	/// Get the column the scanner currently is in (starts at 1)
++	virtual int getColumn() const
++	{
++		return inputState-&gt;column;
++	}
++	/// set the column number
++	virtual void setColumn(int c)
++	{
++		inputState-&gt;column = c;
++	}
++
++	/// get the filename for the file currently used
++	virtual const std::string&amp; getFilename() const
++	{
++		return inputState-&gt;filename;
++	}
++	/// Set the filename the scanner is using (used in error messages)
++	virtual void setFilename(const std::string&amp; f)
++	{
++		inputState-&gt;filename = f;
++	}
++
++	virtual bool getCommitToPath() const
++	{
++		return commitToPath;
++	}
++
++	virtual void setCommitToPath(bool commit)
++	{
++		commitToPath = commit;
++	}
++
++	/** return a copy of the current text buffer */
++	virtual const std::string&amp; getText() const
++	{
++		return text;
++	}
++
++	virtual void setText(const std::string&amp; s)
++	{
++		text = s;
++	}
++
++	virtual void resetText()
++	{
++		text = &quot;&quot;;
++		inputState-&gt;tokenStartColumn = inputState-&gt;column;
++		inputState-&gt;tokenStartLine = inputState-&gt;line;
++	}
++
++	virtual antlr::RefToken getTokenObject() const
++	{
++		return _returnToken;
++	}
++
++	///{ These need different handling in unicode case
++
++	virtual bool getCaseSensitiveLiterals() const=0;
++
++	virtual bool getCaseSensitive() const
++	{
++		return caseSensitive;
++	}
++
++	virtual void setCaseSensitive(bool t)
++	{
++		caseSensitive = t;
++	}
++
++	/** Override this method to get more specific case handling
++	 * @note some platforms probably require setting the right locale for
++	 * correct functioning.
++	 */
++	virtual char_type toLower(char_type c) const
++	{
++		return std::tolower(c);
++	}
++
++	/** Used to keep track of line breaks, needs to be called from
++	 * within generated lexers when a \n \r is encountered.
++	 */
++	virtual void newline()
++	{
++		++inputState-&gt;line;
++		inputState-&gt;column = 1;
++	}
++
++	/** Advance the current column number by an appropriate amount according
++	 * to the tabsize. This method needs to be explicitly called from the
++	 * lexer rules encountering tabs.
++	 */
++	virtual void tab()
++	{
++		int c = getColumn();
++		int nc = ( ((c-1)/tabsize) + 1) * tabsize + 1;      // calculate tab stop
++		setColumn( nc );
++	}
++	/// set the tabsize. Returns the old tabsize
++	int setTabsize( int size )
++	{
++		int oldsize = tabsize;
++		tabsize = size;
++		return oldsize;
++	}
++	/// Return the tabsize used by the scanner
++	int getTabSize() const
++	{
++		return tabsize;
++	}
++	///}
++
++	/** Report exception errors caught in nextToken() */
++	virtual void reportError(const antlr::RecognitionException&amp; ex)
++	{
++		std::cerr &lt;&lt; ex.toString().c_str() &lt;&lt; std::endl;
++	}
++
++	/** Parser error-reporting function can be overridden in subclass */
++	virtual void reportError(const std::string&amp; s)
++	{
++		if (getFilename() == &quot;&quot;)
++			std::cerr &lt;&lt; &quot;error: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
++		else
++			std::cerr &lt;&lt; getFilename().c_str() &lt;&lt; &quot;: error: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
++	}
++
++	/** Parser warning-reporting function can be overridden in subclass */
++	virtual void reportWarning(const std::string&amp; s)
++	{
++		if (getFilename() == &quot;&quot;)
++			std::cerr &lt;&lt; &quot;warning: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
++		else
++			std::cerr &lt;&lt; getFilename().c_str() &lt;&lt; &quot;: warning: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
++	}
++
++	virtual antlr::InputBuffer&amp; getInputBuffer()
++	{
++		return inputState-&gt;getInput();
++	}
++
++	virtual antlr::LexerSharedInputState getInputState()
++	{
++		return inputState;
++	}
++
++	/** set the input state for the lexer.
++	 * @note state is a reference counted object, hence no reference */
++	virtual void setInputState(antlr::LexerSharedInputState state)
++	{
++		inputState = state;
++	}
++
++	/// Set the factory for created tokens
++	virtual void setTokenObjectFactory(factory_type factory)
++	{
++		tokenFactory = factory;
++	}
++
++	/** Test the token text against the literals table
++	 * Override this method to perform a different literals test
++	 */
++	virtual int testLiteralsTable(int ttype) const
++	{
++		string_map::const_iterator i = literals.find(text);
++		if (i != literals.end())
++			ttype = (*i).second;
++		return ttype;
++	}
++
++	/** Test the text passed in against the literals table
++	 * Override this method to perform a different literals test
++	 * This is used primarily when you want to test a portion of
++	 * a token
++	 */
++	virtual int testLiteralsTable(const std::string&amp; text, int ttype) const
++	{
++		string_map::const_iterator i = literals.find(text);
++		if (i != literals.end())
++			ttype = (*i).second;
++		return ttype;
++	}
++
++	/** This method is called by YourLexer::nextToken() when the lexer has
++	 *  hit EOF condition.  EOF is NOT a character.
++	 *  This method is not called if EOF is reached during
++	 *  syntactic predicate evaluation or during evaluation
++	 *  of normal lexical rules, which presumably would be
++	 *  an IOException.  This traps the &quot;normal&quot; EOF condition.
++	 *
++	 *  uponEOF() is called after the complete evaluation of
++	 *  the previous token and only if your parser asks
++	 *  for another token beyond that last non-EOF token.
++	 *
++	 *  You might want to throw token or char stream exceptions
++	 *  like: &quot;Heh, premature eof&quot; or a retry stream exception
++	 *  (&quot;I found the end of this file, go back to referencing file&quot;).
++	 */
++	virtual void uponEOF()
++	{
++	}
++
++	/// Methods used to change tracing behavior
++	void traceIndent()
++	{
++		for( int i = 0; i &lt; traceDepth; i++ )
++			std::cout &lt;&lt; &quot; &quot;;
++	}
++
++	void traceIn(const char* rname)
++	{
++		traceDepth++;
++		traceIndent();
++		std::cout &lt;&lt; &quot;&gt; lexer &quot; &lt;&lt; rname
++			&lt;&lt; &quot;; c==&quot; &lt;&lt; LA(1) &lt;&lt; std::endl;
++	}
++
++	void traceOut(const char* rname)
++	{
++		traceIndent();
++		std::cout &lt;&lt; &quot;&lt; lexer &quot; &lt;&lt; rname
++			&lt;&lt; &quot;; c==&quot; &lt;&lt; LA(1) &lt;&lt; std::endl;
++		traceDepth--;
++	}
++
++#ifndef NO_STATIC_CONSTS
++	static const int EOF_CHAR = EOF;
++#else
++	enum {
++		EOF_CHAR = EOF
++	};
++#endif
++protected:
++	std::string text; ///&lt; Text of current token
++ 	/// flag indicating wether consume saves characters
++	bool saveConsumedInput;
++	factory_type tokenFactory;				///&lt; Factory for tokens
++	bool caseSensitive; 						///&lt; Is this lexer case sensitive
++	string_map literals;						 // set by subclass
++
++	antlr::RefToken _returnToken;		///&lt; used to return tokens w/o using return val
++
++	/// Input state, gives access to input stream, shared among different lexers
++	antlr::LexerSharedInputState inputState;
++
++	/** Used during filter mode to indicate that path is desired.
++	 * A subsequent scan error will report an error as usual
++	 * if acceptPath=true;
++	 */
++	bool commitToPath;
++
++	unsigned int tabsize; 	///&lt; tab size the scanner uses.
++
++	/// Create a new RefToken of type t
++	virtual antlr::RefToken makeToken(int t)
++	{
++		antlr::RefToken tok = tokenFactory();
++		// actually at this point you want to convert the stored lexeme text
++		// into the format you want to have it in in the backend...
++		tok-&gt;setType(t);
++		tok-&gt;setColumn(inputState-&gt;tokenStartColumn);
++		tok-&gt;setLine(inputState-&gt;tokenStartLine);
++		return tok;
++	}
++
++	/** Tracer class, used when -traceLexer is passed to antlr
++	 */
++	class Tracer {
++	private:
++		UnicodeCharScanner* parser;
++		const char* text;
++
++		Tracer(const Tracer&amp; other); 					// undefined
++		Tracer&amp; operator=(const Tracer&amp; other); 	// undefined
++	public:
++		Tracer( UnicodeCharScanner* p, const char* t )
++		: parser(p), text(t)
++		{
++			parser-&gt;traceIn(text);
++		}
++		~Tracer()
++		{
++			parser-&gt;traceOut(text);
++		}
++	};
++
++	int traceDepth;
++private:
++	UnicodeCharScanner( const UnicodeCharScanner&amp; other ); 		  		// undefined
++	UnicodeCharScanner&amp; operator=( const UnicodeCharScanner&amp; other );	// undefined
++};
++
++#endif //INC_UnicodeCharScanner_hpp__
+
+Modified: trunk/gpt2/gptc/src/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/src/Makefile.am	2007-12-19 13:48:10 UTC (rev 446)
++++ trunk/gpt2/gptc/src/Makefile.am	2007-12-19 13:49:26 UTC (rev 447)
+@@ -1,8 +1,12 @@
+ SUBDIRS = parser common semantic symboltable gptasm_target
+ 
++COMMON_IDIR = ../../../common/src
++COMMON_LDIR = ../../common/src
++
+ INCLUDES = -I$(top_srcdir)/. -I$(top_srcdir)/src -I$(top_srcdir)/src/parser \
+ 	-I$(top_srcdir)/src/common -I$(top_srcdir)/src/semantic -I$(top_srcdir)/src/symboltable \
+-	-I$(top_srcdir)/src/gptasm_target -I./parser -I./semantic -I./gptasm_target
++	-I$(top_srcdir)/src/gptasm_target -I./parser -I./semantic -I./gptasm_target \
++  -I$(COMMON_IDIR)
+ 
+ bin_PROGRAMS = gptc
+ 
+@@ -10,4 +14,5 @@
+ 
+ gptc_LDADD = $(top_builddir)/src/symboltable/libsymboltable.la \
+ 	$(top_builddir)/src/common/libcommon.la $(top_builddir)/src/gptasm_target/libgptasm.la \
+-	$(top_builddir)/src/semantic/libsemantic.la $(top_builddir)/src/parser/libparser.la $(ANTLR_LIB)
++	$(top_builddir)/src/semantic/libsemantic.la $(top_builddir)/src/parser/libparser.la \
++  $(COMMON_LDIR)/libgptcommon.la $(ANTLR_LIB)
+
+Modified: trunk/gpt2/gptc/src/gptasm_target/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/src/gptasm_target/Makefile.am	2007-12-19 13:48:10 UTC (rev 446)
++++ trunk/gpt2/gptc/src/gptasm_target/Makefile.am	2007-12-19 13:49:26 UTC (rev 447)
+@@ -1,5 +1,7 @@
++COMMON_IDIR = ../../../../common/src
+ INCLUDES = -I$(top_srcdir)/. -I$(top_srcdir)/src -I../parser \
+-           -I$(top_srcdir)/src/symboltable -I$(top_srcdir)/src/common
++           -I$(top_srcdir)/src/symboltable -I$(top_srcdir)/src/common \
++           -I$(COMMON_IDIR)
+ 
+ noinst_LTLIBRARIES = libgptasm.la
+ 
+@@ -11,7 +13,7 @@
+ libgptasm_la_SOURCES = Arguments.cpp Arguments.hpp AsmProgram.cpp AsmProgram.hpp\
+ 	BaseGptAsmWalker.cpp BaseGptAsmWalker.hpp Context.cpp Context.hpp\
+ 	GptAsmExpression.cpp GptAsmExpression.hpp Options.hpp Subroutine.cpp\
+-	Subroutine.hpp TextFile.cpp TextFile.hpp Tools.cpp Tools.hpp $(BUILT_SOURCES)
++	Subroutine.hpp TextFile.cpp TextFile.hpp $(BUILT_SOURCES)
+ 
+ CLEANFILES = GptAsmWalkerTokenTypes.hpp \
+              GptAsmWalker.cpp \
+
+Deleted: trunk/gpt2/gptc/src/gptasm_target/Tools.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/gptasm_target/Tools.cpp	2007-12-19 13:48:10 UTC (rev 446)
++++ trunk/gpt2/gptc/src/gptasm_target/Tools.cpp	2007-12-19 13:49:26 UTC (rev 447)
+@@ -1,299 +0,0 @@
+-/*
+- * $Id: Tools.cpp,v 1.1.1.1 2005/08/15 15:19:52 asgarzao Exp $
+- * MyLibrary version 0.1.0
+- * Copyright (C) 2002 Alex Sandro Garz&#65533; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">alexgarzao at bol.com.br</A>&gt;
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version 2
+- * of the License, or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+- */
+-
+-#include &quot;PortugolParserTokenTypes.hpp&quot;
+-
+-#include &quot;Tools.hpp&quot;
+-
+-
+-int hexToInt(const char* _value) {
+-    int result = 0;
+-    char *position;
+-    char conversionTable[] = &quot;0123456789ABCDEF&quot;;
+-
+-    while (*_value) {
+-        position = strchr(conversionTable, *_value);
+-        if (position == NULL)
+-            return 0;
+-
+-        result &lt;&lt;= 4;
+-        result = result | (position - conversionTable);
+-        _value++;
+-    }
+-
+-    return result;
+-}
+-
+-string pad(string _text, unsigned int _size) {
+-    if (_size &gt; _text.length())
+-        _text.append(_size - _text.length(), ' ');
+-
+-    return _text;
+-}
+-
+-string lpad(string _text, unsigned int _size) {
+-    if (_size &gt; _text.length())
+-        _text = string(_size - _text.length(), ' ') + _text;
+-
+-    return _text;
+-}
+-
+-string intToHex(unsigned int _value, int _size) {
+-    string codHex = &quot;0123456789ABCDEF&quot;;
+-    string result;
+-    int nible;
+-
+-    while (_value &gt; 0) {
+-        nible = _value &amp; 0xF;
+-        _value &gt;&gt;= 4;
+-        result = codHex[nible] + result;
+-    }
+-
+-    if ( _size == -1 )
+-        _size = 1;
+-
+-    return strZero(result, _size);
+-    // if (_size == -1)
+-    //     return( result );
+-    // else
+-    //     return( strZero( result, _size ) );
+-    //
+-}
+-
+-string strZero(string _value, unsigned int _size) {
+-    while (_value.length() &lt; _size) {
+-        _value = '0' + _value;
+-    }
+-
+-    return _value;
+-}
+-
+-string strZero(int _value, unsigned int _size) {
+-    string result = itoa(_value);
+-
+-    while (result.length() &lt; _size) {
+-        result = '0' + result;
+-    }
+-
+-    return result;
+-}
+-
+-string dataToHex(char _code[], unsigned int _length) {
+-    string result;
+-    unsigned int count;
+-
+-    for (count = 0; count &lt; _length; count++)
+-        result += intToHex(_code[count], 2);
+-
+-    return result;
+-}
+-
+-string dataToHex(char _code[], unsigned int _start, unsigned int _length) {
+-    string result;
+-    unsigned int count;
+-
+-    for (count = _start; count - _start &lt; _length; count++)
+-        result += intToHex(_code[count], 2);
+-
+-    return result;
+-}
+-
+-int binToInt(const char* _binValue) {
+-    int intValue = 0;
+-    int length = strlen(_binValue) - 1;
+-    int countBit;
+-
+-    for (countBit = length; countBit &gt;= 0; countBit--) {
+-        if (_binValue[countBit] == '1')
+-            intValue += int(pow(2.0, length - countBit));
+-    }
+-
+-    return intValue;
+-}
+-
+-string itoa(int _number) {
+-    stringstream s;
+-
+-    s &lt;&lt; _number;
+-    return s.str();
+-}
+-
+-string ftos(double _value) {
+-    stringstream s;
+-
+-    s &lt;&lt;  setiosflags(ios::fixed) &lt;&lt; _value;
+-    
+-    return s.str();
+-}
+-
+-string itobool(int _number) {
+-    if (_number == 0)
+-        return &quot;false&quot;;
+-    else
+-        return &quot;true&quot;;
+-}
+-
+-string strtoupper(string str) {
+-    unsigned int count;
+-
+-    for (count = 0; count &lt; str.size(); count++)
+-        str[count] = toupper(str[count]);
+-
+-    return str;
+-}
+-
+-string strToUpperWithEscapeControls(string str) {
+-    unsigned int count;
+-
+-    for (count = 0; count &lt; str.size(); count++) {
+-        if (str[count] == '\\')
+-            count += 2;
+-        else
+-            str[count] = toupper(str[count]);
+-    }
+-
+-    return str;
+-}
+-
+-string alltrim(string str) {
+-    // crap version...  :-)
+-    // precisamos usar `find', `rfind'! --felipek
+-    while (str[0] == ' ')
+-        str.erase(0, 1);
+-
+-    while (str[str.length() - 1] == ' ')
+-        str.erase(str.length() - 1, 1);
+-
+-    return str;
+-}
+-
+-string wo_ctrl_chrs(string str, char chr_to_put) {
+-    unsigned int chr_number;
+-
+-    for (chr_number = 0; chr_number &lt; str.size(); chr_number++) {
+-        if (str[chr_number] &lt; 32)
+-            str[chr_number] = chr_to_put;
+-    }
+-
+-    return str;
+-}
+-
+-/* CRAP!  --felipek
+-string&amp; getStringWithTab(string _data, string _tab) {
+-	cout &lt;&lt; &quot;begin getStringWithTab&quot; &lt;&lt; endl;
+-	cout &lt;&lt; &quot;tab=\&quot;&quot; &lt;&lt; _tab &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl;
+-	cout &lt;&lt; &quot;begin datae&quot; &lt;&lt; endl;
+-	cout &lt;&lt; _data &lt;&lt; endl;
+-	cout &lt;&lt; &quot;end datae&quot; &lt;&lt; endl;
+-	int pos = -1;
+- 
+-	// test too another new line sequences
+-	while( ( pos = _data.find( &quot;\n&quot;, pos + 1 ) ) != -1 ) {
+-		_data.insert( pos + 1, _tab );
+-	}
+- 
+-	cout &lt;&lt; &quot;begin datas&quot; &lt;&lt; endl;
+-	cout &lt;&lt; _data &lt;&lt; endl;
+-	cout &lt;&lt; &quot;end datas&quot; &lt;&lt; endl;
+-	return( _data );
+-}
+-*/
+-
+-bool streamtoken(istringstream&amp; stream, string&amp; key, string&amp; val) {
+-     /* FIXME: leak, --felipek */
+-     char buffer[8192];
+-     unsigned int delim;
+-     string entry;
+-//     bool ret;
+-
+-     /* FIXME: ret type, -- felipek */
+-     stream.getline(buffer, 8192 - 1);
+-     entry = string(buffer);
+-     delim = entry.find(' ', 0);
+-
+-     if (delim != entry.npos) {
+-         key = entry.substr(0, delim);
+-         val = entry.substr(delim + 1);
+-     }
+-
+-     return !stream.eof();
+-}
+-
+-
+-const string typeToText(const int &amp;type)
+-{
+-//    if (type == PortugolParserTokenTypes::T_INT_LIT) {
+-//       return &quot;int&quot;;
+-//    } else if (type == PortugolParserTokenTypes::T_CARAC_LIT) {
+-//       return &quot;char&quot;;
+-//    } else if (type == PortugolParserTokenTypes::T_STRING_LIT) {
+-//       return &quot;string&quot;;
+-//    } else if (type == PortugolParserTokenTypes::T_REAL_LIT) {
+-//       return &quot;real&quot;;
+-//    } else if (type == PortugolParserTokenTypes::T_IDENTIFICADOR) {
+-//       return &quot;id&quot;;
+-//    }
+-// 
+-//    return &quot;ERRO !!!&quot;;
+-}
+-
+-const string typeInAsm( const int &amp;type )
+-{
+-//    if (type == PortugolParserTokenTypes::T_KW_INTEIRO) {
+-//       return &quot;int&quot;;
+-//    } else if (type == PortugolParserTokenTypes::T_KW_LITERAL) {
+-//       return &quot;string&quot;;
+-//    } else if (type == PortugolParserTokenTypes::T_KW_CARACTERE) {
+-//       return &quot;char&quot;;
+-//    } else if (type == PortugolParserTokenTypes::T_KW_LOGICO) {
+-//       return &quot;bool&quot;;
+-//    } else if (type == PortugolParserTokenTypes::T_KW_REAL) {
+-//       return &quot;real&quot;;
+-//    } else if (type == PortugolParserTokenTypes::T_KW_CORINGA) {
+-//       return &quot;pointer ???&quot;;
+-//    } else if (type == PortugolParserTokenTypes::T_KW_MATRIZ) {
+-//       return &quot;matrix&quot;;
+-//    }
+-
+-   return &quot;ERRO !!!&quot;;
+-}
+-
+-
+-const int typeToLiteral( const int &amp;type )
+-{
+-//    switch (type) {
+-//       case PortugolParserTokenTypes::T_KW_INTEIRO:
+-//          return PortugolParserTokenTypes::T_INT_LIT;
+-//       case PortugolParserTokenTypes::T_KW_LITERAL:
+-//          return PortugolParserTokenTypes::T_STRING_LIT;
+-//       case PortugolParserTokenTypes::T_KW_CARACTERE:
+-//          return PortugolParserTokenTypes::T_CARAC_LIT;
+-//       case PortugolParserTokenTypes::T_KW_LOGICO:
+-//          return PortugolParserTokenTypes::T_INT_LIT;
+-// //      case PortugolParserTokenTypes::T_KW_CORINGA:
+-// //         return &quot;pointer ???&quot;;
+-// //      case PortugolParserTokenTypes::T_KW_MATRIZ:
+-// //          return PortugolParserTokenTypes::T_MATRIZ;
+-//       default:
+-//           return 0;
+-//           // trow exception ???
+-//    }
+-}
+-
+
+Deleted: trunk/gpt2/gptc/src/gptasm_target/Tools.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/gptasm_target/Tools.hpp	2007-12-19 13:48:10 UTC (rev 446)
++++ trunk/gpt2/gptc/src/gptasm_target/Tools.hpp	2007-12-19 13:49:26 UTC (rev 447)
+@@ -1,39 +0,0 @@
+-#ifndef GPT_TOOLS_H
+-#define GPT_TOOLS_H
+-
+-#include &lt;iomanip&gt;
+-
+-#include &lt;iostream&gt;
+-#include &lt;string&gt;
+-#include &lt;cstdlib&gt;
+-#include &lt;cstring&gt;
+-#include &lt;cmath&gt;
+-#include &lt;cstdio&gt;
+-#include &lt;sstream&gt;
+-using namespace std;
+-
+-
+-int hexToInt(const char *);
+-string pad(string, unsigned int);
+-string lpad(string, unsigned int);
+-string intToHex(unsigned int, int = -1);
+-string strZero(string, unsigned int);
+-string strZero(int, unsigned int);
+-string dataToHex(char *, unsigned int);
+-string dataToHex( char *, unsigned int, unsigned int);
+-int binToInt(const char *);
+-int octToInt(const char *);
+-string itoa(int);
+-string itobool(int);
+-string ftos(double);
+-string strtoupper(string);
+-string strToUpperWithEscapeControls(string);
+-string alltrim(string);
+-string wo_ctrl_chrs(string str, char = ' ');
+-bool streamtoken(istringstream&amp;, string&amp;, string&amp;);
+-// string&amp; getStringWithTab(string, string);
+-const string typeToText(const int &amp;type);
+-const string typeInAsm( const int &amp;type );
+-const int typeToLiteral( const int &amp;type );
+-
+-#endif
+
+Modified: trunk/gpt2/gptc/src/parser/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/src/parser/Makefile.am	2007-12-19 13:48:10 UTC (rev 446)
++++ trunk/gpt2/gptc/src/parser/Makefile.am	2007-12-19 13:49:26 UTC (rev 447)
+@@ -1,4 +1,6 @@
+-INCLUDES = -I$(top_srcdir)/. -I$(top_srcdir)/src -I$(top_srcdir)/src/common
++COMMON_IDIR = ../../../../common/src
++INCLUDES = -I$(top_srcdir)/. -I$(top_srcdir)/src -I$(top_srcdir)/src/common \
++           -I$(COMMON_IDIR)
+ 
+ EXTRA_DIST = lexer.g parser.g
+ 
+@@ -11,9 +13,7 @@
+                 TokenNames.hpp \
+                 TokenLabels.hpp
+ 
+-libparser_la_SOURCES = MismatchedUnicodeCharException.cpp \
+-	MismatchedUnicodeCharException.hpp UnicodeCharBuffer.hpp \
+-	UnicodeCharScanner.hpp $(BUILT_SOURCES)
++libparser_la_SOURCES = $(BUILT_SOURCES)
+ 
+ 
+ CLEANFILES = PortugolLexer.cpp \
+
+Deleted: trunk/gpt2/gptc/src/parser/MismatchedUnicodeCharException.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/parser/MismatchedUnicodeCharException.cpp	2007-12-19 13:48:10 UTC (rev 446)
++++ trunk/gpt2/gptc/src/parser/MismatchedUnicodeCharException.cpp	2007-12-19 13:49:26 UTC (rev 447)
+@@ -1,110 +0,0 @@
+-
+-#include &lt;iostream&gt;
+-
+-#include &lt;antlr/config.hpp&gt;
+-#include &lt;antlr/RecognitionException.hpp&gt;
+-#include &lt;antlr/BitSet.hpp&gt;
+-#include &lt;antlr/String.hpp&gt;
+-#include &quot;MismatchedUnicodeCharException.hpp&quot;
+-#include &quot;UnicodeCharScanner.hpp&quot;
+-
+-
+-MismatchedUnicodeCharException::MismatchedUnicodeCharException()
+-: RecognitionException(&quot;Mismatched char&quot;)
+-{
+-}
+-
+-// Expected range / not range
+-MismatchedUnicodeCharException::MismatchedUnicodeCharException(
+-	char_type c,
+-	char_type lower,
+-	char_type up,
+-	bool matchNot,
+-	UnicodeCharScanner* cs
+-)
+-: RecognitionException(&quot;Mismatched char&quot;,
+-							  cs-&gt;getFilename(),
+-							  cs-&gt;getLine(), cs-&gt;getColumn())
+-, mismatchType(matchNot ? NOT_RANGE : RANGE)
+-, foundChar(c)
+-, expecting(lower)
+-, upper(up)
+-, scanner(cs)
+-{
+-}
+-
+-// Expected char / not char
+-MismatchedUnicodeCharException::MismatchedUnicodeCharException(
+-	char_type c,
+-	char_type expect,
+-	bool matchNot,
+-	UnicodeCharScanner* cs
+-) : RecognitionException(&quot;Mismatched char&quot;,
+-                      cs-&gt;getFilename(),
+-							 cs-&gt;getLine(), cs-&gt;getColumn())
+-, mismatchType(matchNot ? NOT_CHAR : CHAR)
+-, foundChar(c)
+-, expecting(expect)
+-, scanner(cs)
+-{
+-}
+-
+-// Expected BitSet / not BitSet
+-MismatchedUnicodeCharException::MismatchedUnicodeCharException(
+-	char_type c,
+-	antlr::BitSet s,
+-	bool matchNot,
+-	UnicodeCharScanner* cs
+-) : RecognitionException(&quot;Mismatched char&quot;,
+-                      cs-&gt;getFilename(),
+-							 cs-&gt;getLine(), cs-&gt;getColumn())
+-, mismatchType(matchNot ? NOT_SET : SET)
+-, foundChar(c)
+-, set(s)
+-, scanner(cs)
+-{
+-}
+-
+-MismatchedUnicodeCharException::~MismatchedUnicodeCharException() throw() {}
+-
+-/**
+- * Returns a clean error message (no line number/column information)
+- */
+-std::string MismatchedUnicodeCharException::getMessage() const
+-{
+-	ANTLR_USE_NAMESPACE(std)string s;
+-
+-	switch (mismatchType) {
+-	case CHAR :
+-		s += &quot;expecting '&quot; + antlr::charName(expecting) + &quot;', found '&quot; + antlr::charName(foundChar) + &quot;'&quot;;
+-		break;
+-	case NOT_CHAR :
+-		s += &quot;expecting anything but '&quot; + antlr::charName(expecting) + &quot;'; got it anyway&quot;;
+-		break;
+-	case RANGE :
+-		s += &quot;expecting token in range: '&quot; + antlr::charName(expecting) + &quot;'..'&quot; + antlr::charName(upper) + &quot;', found '&quot; + antlr::charName(foundChar) + &quot;'&quot;;
+-		break;
+-	case NOT_RANGE :
+-		s += &quot;expecting token NOT in range: &quot; + antlr::charName(expecting) + &quot;'..'&quot; + antlr::charName(upper) + &quot;', found '&quot; + antlr::charName(foundChar) + &quot;'&quot;;
+-		break;
+-	case SET :
+-	case NOT_SET :
+-		{
+-			s += ANTLR_USE_NAMESPACE(std)string(&quot;expecting &quot;) + (mismatchType == NOT_SET ? &quot;NOT &quot; : &quot;&quot;) + &quot;one of (&quot;;
+-			ANTLR_USE_NAMESPACE(std)vector&lt;unsigned int&gt; elems = set.toArray();
+-			for ( unsigned int i = 0; i &lt; elems.size(); i++ )
+-			{
+-				s += &quot; '&quot;;
+-				s += antlr::charName(elems[i]);
+-				s += &quot;'&quot;;
+-			}
+-			s += &quot;), found '&quot; + antlr::charName(foundChar) + &quot;'&quot;;
+-		}
+-		break;
+-	default :
+-		s += RecognitionException::getMessage();
+-		break;
+-	}
+-
+-	return s;
+-}
+
+Deleted: trunk/gpt2/gptc/src/parser/MismatchedUnicodeCharException.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/parser/MismatchedUnicodeCharException.hpp	2007-12-19 13:48:10 UTC (rev 446)
++++ trunk/gpt2/gptc/src/parser/MismatchedUnicodeCharException.hpp	2007-12-19 13:49:26 UTC (rev 447)
+@@ -1,82 +0,0 @@
+-#ifndef INC_MismatchedUnicodeCharException_hpp__
+-#define INC_MismatchedUnicodeCharException_hpp__
+-
+-/* ANTLR Translator Generator
+- * Project led by Terence Parr at <A HREF="http://www.jGuru.com">http://www.jGuru.com</A>
+- * Software rights: <A HREF="http://www.antlr.org/license.html">http://www.antlr.org/license.html</A>
+- *
+- * $Id:$
+- */
+-
+-#include &lt;antlr/config.hpp&gt;
+-#include &lt;antlr/RecognitionException.hpp&gt;
+-#include &lt;antlr/BitSet.hpp&gt;
+-#include &lt;antlr/String.hpp&gt;
+-
+-class UnicodeCharScanner;
+-
+-class MismatchedUnicodeCharException : public antlr::RecognitionException {
+-public:
+-	typedef unsigned int char_type;
+-	typedef enum {
+-		CHAR = 1,
+-		NOT_CHAR = 2,
+-		RANGE = 3,
+-		NOT_RANGE = 4,
+-		SET = 5,
+-		NOT_SET = 6
+-	} MATCH_TYPE;
+-
+-	MismatchedUnicodeCharException();
+-
+-	// Expected range / not range
+-	MismatchedUnicodeCharException(
+-		char_type c,
+-		char_type lower,
+-		char_type up,
+-		bool matchNot,
+-		UnicodeCharScanner* cs
+-	);
+-
+-	// Expected char / not char
+-	MismatchedUnicodeCharException(
+-		char_type c,
+-		char_type expect,
+-		bool matchNot,
+-		UnicodeCharScanner* cs
+-	);
+-
+-	// Expected BitSet / not BitSet
+-	MismatchedUnicodeCharException(
+-		char_type c,
+-		antlr::BitSet s,
+-		bool matchNot,
+-		UnicodeCharScanner* cs
+-	);
+-
+-	~MismatchedUnicodeCharException() throw();
+-
+-	/**
+-	 * Returns a clean error message (no line number/column information)
+-	 */
+-	std::string getMessage() const;
+-private:
+-	// One of the above
+-	MATCH_TYPE mismatchType;
+-
+-	// what was found on the input stream
+-	char_type foundChar;
+-
+-	// For CHAR/NOT_CHAR and RANGE/NOT_RANGE
+-	char_type expecting;
+-
+-	// For RANGE/NOT_RANGE (expecting is lower bound of range)
+-	char_type upper;
+-
+-	// For SET/NOT_SET
+-	antlr::BitSet set;
+-	// who knows...they may want to ask scanner questions
+-	UnicodeCharScanner* scanner;
+-};
+-
+-#endif
+
+Deleted: trunk/gpt2/gptc/src/parser/UnicodeCharBuffer.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/parser/UnicodeCharBuffer.hpp	2007-12-19 13:48:10 UTC (rev 446)
++++ trunk/gpt2/gptc/src/parser/UnicodeCharBuffer.hpp	2007-12-19 13:49:26 UTC (rev 447)
+@@ -1,83 +0,0 @@
+-#ifndef INC_UnicodeCharBuffer_hpp__
+-#define INC_UnicodeCharBuffer_hpp__
+-
+-#include &lt;istream&gt;
+-#include &lt;cassert&gt;
+-#include &lt;antlr/config.hpp&gt;
+-#include &lt;antlr/InputBuffer.hpp&gt;
+-#include &lt;antlr/CharStreamIOException.hpp&gt;
+-
+-class ANTLR_API UnicodeCharBuffer : public antlr::InputBuffer {
+-public:
+-	typedef unsigned int char_type;	// should be 32 bits!
+-
+-	/// Create a character buffer
+-	UnicodeCharBuffer(std::istream&amp; inp)
+-	: input(inp)
+-	{
+-		//	input.exceptions(std::ios_base::badbit|
+-		//						  std::ios_base::failbit);
+-	}
+-	/// Get the next character from the stream
+-	int getChar()
+-	{
+-		char_type ch = 0;
+-		int inchar = input.get();
+-		if( inchar == EOF )
+-			return -1;
+-
+-// This is how UTF8 is encoded
+-// +---------------------------+----------+----------+----------+----------+
+-// | Unicode scalar            | 1st      | 2nd      | 3th      | 4th      |
+-// +---------------------------+----------+----------+----------+----------+
+-// |00000000 0xxxxxxx          | 0xxxxxxx |          |          |          |
+-// |00000yyy yyxxxxxx          | 110yyyyy | 10xxxxxx |          |          |
+-// |zzzzyyyy yyxxxxxx          | 1110zzzz | 10yyyyyy | 10xxxxxx |          |
+-// |000uuuuu zzzzyyyy yyxxxxxx | 11110uuu | 10uuzzzz | 10yyyyyy | 10xxxxxx |
+-// +---------------------------+----------+----------+----------+----------+
+-
+-		if( (inchar &amp; 0x80) == 0 )
+-			return inchar;
+-
+-		unsigned int need = 0;
+-		if( (inchar &amp; 0xF8) == 0xF8 )
+-		{
+-			ch = inchar &amp; 7;
+-			need = 3;
+-		}
+-		else if( (inchar &amp; 0xE0) == 0xE0 )
+-		{
+-			ch = inchar &amp; 0xF;
+-			need = 2;
+-		}
+-		else if( (inchar &amp; 0xC0) == 0xC0 )
+-		{
+-			ch = inchar &amp; 0x1F;
+-			need = 1;
+-		}
+-		else
+-		{
+-			assert(&quot;Invalid UTF8&quot;);
+-		}
+-		while( need )
+-		{
+-			inchar = input.get();
+-			if( inchar == EOF )
+-				assert(&quot;Invalid UTF8&quot;);
+-//				throw antlr::CharStreamIOException(std::logic_error());
+-			ch &lt;&lt;= 6;
+-			ch += inchar &amp; 0x3F;
+-			need--;
+-		}
+-		return ch;
+-	}
+-private:
+-	// character source
+-	std::istream&amp; input;
+-
+-	// NOTE: Unimplemented
+-	UnicodeCharBuffer(const UnicodeCharBuffer&amp; other);
+-	UnicodeCharBuffer&amp; operator=(const UnicodeCharBuffer&amp; other);
+-};
+-
+-#endif //INC_UnicodeCharBuffer_hpp__
+
+Deleted: trunk/gpt2/gptc/src/parser/UnicodeCharScanner.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/parser/UnicodeCharScanner.hpp	2007-12-19 13:48:10 UTC (rev 446)
++++ trunk/gpt2/gptc/src/parser/UnicodeCharScanner.hpp	2007-12-19 13:49:26 UTC (rev 447)
+@@ -1,561 +0,0 @@
+-#ifndef INC_UnicodeCharScanner_hpp__
+-#define INC_UnicodeCharScanner_hpp__
+-
+-#include &lt;map&gt;
+-#include &lt;cctype&gt;
+-
+-#include &lt;antlr/config.hpp&gt;
+-#include &lt;antlr/CommonToken.hpp&gt;
+-#include &lt;antlr/TokenStream.hpp&gt;
+-#include &lt;antlr/RecognitionException.hpp&gt;
+-#include &lt;antlr/SemanticException.hpp&gt;
+-#include &lt;antlr/InputBuffer.hpp&gt;
+-#include &lt;antlr/BitSet.hpp&gt;
+-#include &lt;antlr/LexerSharedInputState.hpp&gt;
+-
+-#include &quot;MismatchedUnicodeCharException.hpp&quot;
+-
+-/** Superclass of generated lexers
+- */
+-class UnicodeCharScanner : public antlr::TokenStream {
+-protected:
+-	typedef antlr::RefToken (*factory_type)();
+-public:
+-	typedef int char_type;
+-	typedef std::map&lt;std::string,int&gt; string_map;
+-
+-	UnicodeCharScanner( antlr::InputBuffer&amp; cb, bool case_sensitive )
+-	: saveConsumedInput(true)
+-	, caseSensitive(case_sensitive)
+-	, literals()
+-	, inputState(new antlr::LexerInputState(cb))
+-	, commitToPath(false)
+-	, tabsize(8)
+-	, traceDepth(0)
+-	{
+-		setTokenObjectFactory(&amp;antlr::CommonToken::factory);
+-	}
+-	UnicodeCharScanner( antlr::InputBuffer* cb, bool case_sensitive )
+-	: saveConsumedInput(true)
+-	, caseSensitive(case_sensitive)
+-	, literals()
+-	, inputState(new antlr::LexerInputState(cb))
+-	, commitToPath(false)
+-	, tabsize(8)
+-	, traceDepth(0)
+-	{
+-		setTokenObjectFactory(&amp;antlr::CommonToken::factory);
+-	}
+-	UnicodeCharScanner( const antlr::LexerSharedInputState&amp; state, bool case_sensitive )
+-	: saveConsumedInput(true)
+-	, caseSensitive(case_sensitive)
+-	, literals()
+-	, inputState(state)
+-	, commitToPath(false)
+-	, tabsize(8)
+-	, traceDepth(0)
+-	{
+-		setTokenObjectFactory(&amp;antlr::CommonToken::factory);
+-	}
+-
+-	virtual ~UnicodeCharScanner()
+-	{
+-	}
+-
+-	virtual char_type LA(char_type i)
+-	{
+-		char_type c = inputState-&gt;getInput().LA(i);
+-		return c;
+-	}
+-
+-	virtual void append(char_type c)
+-	{
+-		if (saveConsumedInput)
+-		{
+-			size_t len = text.length();
+-
+-			if( (len % 256) == 0 )
+-				text.reserve(len+256);
+-
+-// This is how UTF8 is encoded
+-// +---------------------------+----------+----------+----------+----------+
+-// | Unicode scalar            | 1st      | 2nd      | 3th      | 4th      |
+-// +---------------------------+----------+----------+----------+----------+
+-// |00000000 0xxxxxxx          | 0xxxxxxx |          |          |          |
+-// |00000yyy yyxxxxxx          | 110yyyyy | 10xxxxxx |          |          |
+-// |zzzzyyyy yyxxxxxx          | 1110zzzz | 10yyyyyy | 10xxxxxx |          |
+-// |000uuuuu zzzzyyyy yyxxxxxx | 11110uuu | 10uuzzzz | 10yyyyyy | 10xxxxxx |
+-// +---------------------------+----------+----------+----------+----------+
+-
+-			if (c &lt; 0x80)
+-			{
+-				text += c;
+-				return;
+-			}
+-			else if (c &lt; 0x800)
+-			{
+-				text += ( (c &gt;&gt; 6) | 0xC0 );
+-				text += ( c &amp; 0x3F | 0x80 );
+-			}
+-			else if (c &lt; 0x10000)
+-			{
+-				text += ( (c &gt;&gt; 12) | 0xE0 );
+-				text += ( ((c &gt;&gt; 6) &amp; 0x3F) | 0x80 );
+-				text += ( (c &amp; 0x3F) | 0x80 );
+-			}
+-			else if (c &lt; 0x200000)
+-			{
+-				text += ( (c &gt;&gt; 18) | 0xF0 );				// first 3 bits
+-				text += ( (((c &gt;&gt; 16) &amp; 0x3) &lt;&lt; 4) |
+-								 ((c &gt;&gt; 12) &amp; 0xF) | 0x80 );
+-				text += ( ((c &gt;&gt; 6) &amp; 0x3F) | 0x80 );
+-				text += ( (c &amp; 0x3F) | 0x80 );
+-			}
+-			else
+-				assert(0);
+-		}
+-	}
+-
+-	virtual void append(const std::string&amp; s)
+-	{
+-		assert(0);
+-		if (saveConsumedInput)
+-			text+=s;
+-	}
+-
+-	virtual void commit()
+-	{
+-		inputState-&gt;getInput().commit();
+-	}
+-
+-	virtual void consume()
+-	{
+-		if (inputState-&gt;guessing == 0)
+-		{
+-			char_type c = LA(1);
+-			append(c);
+-			inputState-&gt;column++;
+-		}
+-		inputState-&gt;getInput().consume();
+-	}
+-
+-	/** Consume chars until one matches the given char */
+-	virtual void consumeUntil(char_type c)
+-	{
+-		for(;;)
+-		{
+-			char_type la_1 = LA(1);
+-			if( static_cast&lt;char_type&gt;(EOF_CHAR) == la_1 || la_1 == c )
+-				break;
+-			consume();
+-		}
+-	}
+-
+-	/** Consume chars until one matches the given set */
+-	virtual void consumeUntil(const antlr::BitSet&amp; set)
+-	{
+-		for(;;)
+-		{
+-			char_type la_1 = LA(1);
+-			if( static_cast&lt;char_type&gt;(EOF_CHAR) == la_1 || set.member(la_1) )
+-				break;
+-			consume();
+-		}
+-	}
+-
+-	/// Mark the current position and return a id for it
+-	virtual unsigned int mark()
+-	{
+-		return inputState-&gt;getInput().mark();
+-	}
+-
+-	/// Rewind the scanner to a previously marked position
+-	virtual void rewind(unsigned int pos)
+-	{
+-		inputState-&gt;getInput().rewind(pos);
+-	}
+-
+-	/// See if input contains character 'c' throw MismatchedUnicodeCharException if not
+-	virtual void match(char_type c)
+-	{
+-		char_type la_1 = LA(1);
+-		if ( la_1 != c )
+-			throw MismatchedUnicodeCharException(la_1, c, false, this);
+-		consume();
+-	}
+-
+-	/** See if input contains element from bitset b
+-	 * throw MismatchedUnicodeCharException if not
+-	 */
+-	virtual void match(const antlr::BitSet&amp; b)
+-	{
+-		char_type la_1 = LA(1);
+-
+-		if ( !b.member(la_1) )
+-			throw MismatchedUnicodeCharException( la_1, b, false, this );
+-		consume();
+-	}
+-
+-	/** See if input contains string 's' throw MismatchedUnicodeCharException if not
+-	 * @note the string cannot match EOF
+-	 */
+-	virtual void match( const char* s )
+-	{
+-		while( *s != '\0' )
+-		{
+-			// the &amp; 0xFF is here to prevent sign extension lateron
+-			char_type la_1 = LA(1), c = (*s++ &amp; 0xFF);
+-
+-			if ( la_1 != c )
+-				throw MismatchedUnicodeCharException(la_1, c, false, this);
+-
+-			consume();
+-		}
+-	}
+-	/** See if input contains string 's' throw MismatchedUnicodeCharException if not
+-	 * @note the string cannot match EOF
+-	 */
+-	virtual void match(const std::string&amp; s)
+-	{
+-		size_t len = s.length();
+-
+-		for (size_t i = 0; i &lt; len; i++)
+-		{
+-			// the &amp; 0xFF is here to prevent sign extension lateron
+-			char_type la_1 = LA(1), c = (s[i] &amp; 0xFF);
+-
+-			if ( la_1 != c )
+-				throw MismatchedUnicodeCharException(la_1, c, false, this);
+-
+-			consume();
+-		}
+-	}
+-	/** See if input does not contain character 'c'
+-	 * throw MismatchedUnicodeCharException if not
+-	 */
+-	virtual void matchNot(char_type c)
+-	{
+-		char_type la_1 = LA(1);
+-
+-		if ( la_1 == c )
+-			throw MismatchedUnicodeCharException(la_1, c, true, this);
+-
+-		consume();
+-	}
+-	/** See if input contains character in range c1-c2
+-	 * throw MismatchedUnicodeCharException if not
+-	 */
+-	virtual void matchRange(char_type c1, char_type c2)
+-	{
+-		char_type la_1 = LA(1);
+-
+-		if ( la_1 &lt; c1 || la_1 &gt; c2 )
+-			throw MismatchedUnicodeCharException(la_1, c1, c2, false, this);
+-
+-		consume();
+-	}
+-
+-	/// Get the line the scanner currently is in (starts at 1)
+-	virtual int getLine() const
+-	{
+-		return inputState-&gt;line;
+-	}
+-
+-	/// set the line number
+-	virtual void setLine(int l)
+-	{
+-		inputState-&gt;line = l;
+-	}
+-
+-	/// Get the column the scanner currently is in (starts at 1)
+-	virtual int getColumn() const
+-	{
+-		return inputState-&gt;column;
+-	}
+-	/// set the column number
+-	virtual void setColumn(int c)
+-	{
+-		inputState-&gt;column = c;
+-	}
+-
+-	/// get the filename for the file currently used
+-	virtual const std::string&amp; getFilename() const
+-	{
+-		return inputState-&gt;filename;
+-	}
+-	/// Set the filename the scanner is using (used in error messages)
+-	virtual void setFilename(const std::string&amp; f)
+-	{
+-		inputState-&gt;filename = f;
+-	}
+-
+-	virtual bool getCommitToPath() const
+-	{
+-		return commitToPath;
+-	}
+-
+-	virtual void setCommitToPath(bool commit)
+-	{
+-		commitToPath = commit;
+-	}
+-
+-	/** return a copy of the current text buffer */
+-	virtual const std::string&amp; getText() const
+-	{
+-		return text;
+-	}
+-
+-	virtual void setText(const std::string&amp; s)
+-	{
+-		text = s;
+-	}
+-
+-	virtual void resetText()
+-	{
+-		text = &quot;&quot;;
+-		inputState-&gt;tokenStartColumn = inputState-&gt;column;
+-		inputState-&gt;tokenStartLine = inputState-&gt;line;
+-	}
+-
+-	virtual antlr::RefToken getTokenObject() const
+-	{
+-		return _returnToken;
+-	}
+-
+-	///{ These need different handling in unicode case
+-
+-	virtual bool getCaseSensitiveLiterals() const=0;
+-
+-	virtual bool getCaseSensitive() const
+-	{
+-		return caseSensitive;
+-	}
+-
+-	virtual void setCaseSensitive(bool t)
+-	{
+-		caseSensitive = t;
+-	}
+-
+-	/** Override this method to get more specific case handling
+-	 * @note some platforms probably require setting the right locale for
+-	 * correct functioning.
+-	 */
+-	virtual char_type toLower(char_type c) const
+-	{
+-		return std::tolower(c);
+-	}
+-
+-	/** Used to keep track of line breaks, needs to be called from
+-	 * within generated lexers when a \n \r is encountered.
+-	 */
+-	virtual void newline()
+-	{
+-		++inputState-&gt;line;
+-		inputState-&gt;column = 1;
+-	}
+-
+-	/** Advance the current column number by an appropriate amount according
+-	 * to the tabsize. This method needs to be explicitly called from the
+-	 * lexer rules encountering tabs.
+-	 */
+-	virtual void tab()
+-	{
+-		int c = getColumn();
+-		int nc = ( ((c-1)/tabsize) + 1) * tabsize + 1;      // calculate tab stop
+-		setColumn( nc );
+-	}
+-	/// set the tabsize. Returns the old tabsize
+-	int setTabsize( int size )
+-	{
+-		int oldsize = tabsize;
+-		tabsize = size;
+-		return oldsize;
+-	}
+-	/// Return the tabsize used by the scanner
+-	int getTabSize() const
+-	{
+-		return tabsize;
+-	}
+-	///}
+-
+-	/** Report exception errors caught in nextToken() */
+-	virtual void reportError(const antlr::RecognitionException&amp; ex)
+-	{
+-		std::cerr &lt;&lt; ex.toString().c_str() &lt;&lt; std::endl;
+-	}
+-
+-	/** Parser error-reporting function can be overridden in subclass */
+-	virtual void reportError(const std::string&amp; s)
+-	{
+-		if (getFilename() == &quot;&quot;)
+-			std::cerr &lt;&lt; &quot;error: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-		else
+-			std::cerr &lt;&lt; getFilename().c_str() &lt;&lt; &quot;: error: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-	}
+-
+-	/** Parser warning-reporting function can be overridden in subclass */
+-	virtual void reportWarning(const std::string&amp; s)
+-	{
+-		if (getFilename() == &quot;&quot;)
+-			std::cerr &lt;&lt; &quot;warning: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-		else
+-			std::cerr &lt;&lt; getFilename().c_str() &lt;&lt; &quot;: warning: &quot; &lt;&lt; s.c_str() &lt;&lt; std::endl;
+-	}
+-
+-	virtual antlr::InputBuffer&amp; getInputBuffer()
+-	{
+-		return inputState-&gt;getInput();
+-	}
+-
+-	virtual antlr::LexerSharedInputState getInputState()
+-	{
+-		return inputState;
+-	}
+-
+-	/** set the input state for the lexer.
+-	 * @note state is a reference counted object, hence no reference */
+-	virtual void setInputState(antlr::LexerSharedInputState state)
+-	{
+-		inputState = state;
+-	}
+-
+-	/// Set the factory for created tokens
+-	virtual void setTokenObjectFactory(factory_type factory)
+-	{
+-		tokenFactory = factory;
+-	}
+-
+-	/** Test the token text against the literals table
+-	 * Override this method to perform a different literals test
+-	 */
+-	virtual int testLiteralsTable(int ttype) const
+-	{
+-		string_map::const_iterator i = literals.find(text);
+-		if (i != literals.end())
+-			ttype = (*i).second;
+-		return ttype;
+-	}
+-
+-	/** Test the text passed in against the literals table
+-	 * Override this method to perform a different literals test
+-	 * This is used primarily when you want to test a portion of
+-	 * a token
+-	 */
+-	virtual int testLiteralsTable(const std::string&amp; text, int ttype) const
+-	{
+-		string_map::const_iterator i = literals.find(text);
+-		if (i != literals.end())
+-			ttype = (*i).second;
+-		return ttype;
+-	}
+-
+-	/** This method is called by YourLexer::nextToken() when the lexer has
+-	 *  hit EOF condition.  EOF is NOT a character.
+-	 *  This method is not called if EOF is reached during
+-	 *  syntactic predicate evaluation or during evaluation
+-	 *  of normal lexical rules, which presumably would be
+-	 *  an IOException.  This traps the &quot;normal&quot; EOF condition.
+-	 *
+-	 *  uponEOF() is called after the complete evaluation of
+-	 *  the previous token and only if your parser asks
+-	 *  for another token beyond that last non-EOF token.
+-	 *
+-	 *  You might want to throw token or char stream exceptions
+-	 *  like: &quot;Heh, premature eof&quot; or a retry stream exception
+-	 *  (&quot;I found the end of this file, go back to referencing file&quot;).
+-	 */
+-	virtual void uponEOF()
+-	{
+-	}
+-
+-	/// Methods used to change tracing behavior
+-	void traceIndent()
+-	{
+-		for( int i = 0; i &lt; traceDepth; i++ )
+-			std::cout &lt;&lt; &quot; &quot;;
+-	}
+-
+-	void traceIn(const char* rname)
+-	{
+-		traceDepth++;
+-		traceIndent();
+-		std::cout &lt;&lt; &quot;&gt; lexer &quot; &lt;&lt; rname
+-			&lt;&lt; &quot;; c==&quot; &lt;&lt; LA(1) &lt;&lt; std::endl;
+-	}
+-
+-	void traceOut(const char* rname)
+-	{
+-		traceIndent();
+-		std::cout &lt;&lt; &quot;&lt; lexer &quot; &lt;&lt; rname
+-			&lt;&lt; &quot;; c==&quot; &lt;&lt; LA(1) &lt;&lt; std::endl;
+-		traceDepth--;
+-	}
+-
+-#ifndef NO_STATIC_CONSTS
+-	static const int EOF_CHAR = EOF;
+-#else
+-	enum {
+-		EOF_CHAR = EOF
+-	};
+-#endif
+-protected:
+-	std::string text; ///&lt; Text of current token
+- 	/// flag indicating wether consume saves characters
+-	bool saveConsumedInput;
+-	factory_type tokenFactory;				///&lt; Factory for tokens
+-	bool caseSensitive; 						///&lt; Is this lexer case sensitive
+-	string_map literals;						 // set by subclass
+-
+-	antlr::RefToken _returnToken;		///&lt; used to return tokens w/o using return val
+-
+-	/// Input state, gives access to input stream, shared among different lexers
+-	antlr::LexerSharedInputState inputState;
+-
+-	/** Used during filter mode to indicate that path is desired.
+-	 * A subsequent scan error will report an error as usual
+-	 * if acceptPath=true;
+-	 */
+-	bool commitToPath;
+-
+-	unsigned int tabsize; 	///&lt; tab size the scanner uses.
+-
+-	/// Create a new RefToken of type t
+-	virtual antlr::RefToken makeToken(int t)
+-	{
+-		antlr::RefToken tok = tokenFactory();
+-		// actually at this point you want to convert the stored lexeme text
+-		// into the format you want to have it in in the backend...
+-		tok-&gt;setType(t);
+-		tok-&gt;setColumn(inputState-&gt;tokenStartColumn);
+-		tok-&gt;setLine(inputState-&gt;tokenStartLine);
+-		return tok;
+-	}
+-
+-	/** Tracer class, used when -traceLexer is passed to antlr
+-	 */
+-	class Tracer {
+-	private:
+-		UnicodeCharScanner* parser;
+-		const char* text;
+-
+-		Tracer(const Tracer&amp; other); 					// undefined
+-		Tracer&amp; operator=(const Tracer&amp; other); 	// undefined
+-	public:
+-		Tracer( UnicodeCharScanner* p, const char* t )
+-		: parser(p), text(t)
+-		{
+-			parser-&gt;traceIn(text);
+-		}
+-		~Tracer()
+-		{
+-			parser-&gt;traceOut(text);
+-		}
+-	};
+-
+-	int traceDepth;
+-private:
+-	UnicodeCharScanner( const UnicodeCharScanner&amp; other ); 		  		// undefined
+-	UnicodeCharScanner&amp; operator=( const UnicodeCharScanner&amp; other );	// undefined
+-};
+-
+-#endif //INC_UnicodeCharScanner_hpp__
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000120.html">[gpt-commit] r446 - in trunk/gpt2: common/src gptasm/src gptvm/src
+</A></li>
+	<LI>Next message: <A HREF="000123.html">[gpt-commit] r448 - trunk/gpt2/common/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#121">[ date ]</a>
+              <a href="thread.html#121">[ thread ]</a>
+              <a href="subject.html#121">[ subject ]</a>
+              <a href="author.html#121">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

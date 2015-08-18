@@ -1,0 +1,323 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r492 - in trunk/gpt/doc/man: . pt_BR
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r492%20-%20in%20trunk/gpt/doc/man%3A%20.%20pt_BR&In-Reply-To=%3C200803181732.m2IHWB1b016276%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000164.html">
+   <LINK REL="Next"  HREF="000166.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r492 - in trunk/gpt/doc/man: . pt_BR</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r492%20-%20in%20trunk/gpt/doc/man%3A%20.%20pt_BR&In-Reply-To=%3C200803181732.m2IHWB1b016276%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r492 - in trunk/gpt/doc/man: . pt_BR">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Tue Mar 18 18:32:11 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000164.html">[gpt-commit] r491 - trunk/gpt
+</A></li>
+        <LI>Next message: <A HREF="000166.html">[gpt-commit] r493 - in trunk/gpt: . src src/modules	src/modules/interpreter src/modules/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#165">[ date ]</a>
+              <a href="thread.html#165">[ thread ]</a>
+              <a href="subject.html#165">[ subject ]</a>
+              <a href="author.html#165">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2008-03-18 18:32:09 +0100 (Tue, 18 Mar 2008)
+New Revision: 492
+
+Added:
+   trunk/gpt/doc/man/gpt.1
+   trunk/gpt/doc/man/pt_BR/
+   trunk/gpt/doc/man/pt_BR/Makefile.am
+   trunk/gpt/doc/man/pt_BR/gpt.1
+Removed:
+   trunk/gpt/doc/man/gpt.1
+   trunk/gpt/doc/man/gpt.en.1
+Modified:
+   trunk/gpt/doc/man/Makefile.am
+Log:
+-Organizando mans
+
+Modified: trunk/gpt/doc/man/Makefile.am
+===================================================================
+--- trunk/gpt/doc/man/Makefile.am	2008-03-18 17:29:25 UTC (rev 491)
++++ trunk/gpt/doc/man/Makefile.am	2008-03-18 17:32:09 UTC (rev 492)
+@@ -1,5 +1,3 @@
+-# INCLUDES = 
+-# METASOURCES = AUTO
++SUBDIRS = pt_BR
+ 
+-man_MANS = gpt.1
+-EXTRA_DIST = $(man_MANS)
+\ No newline at end of file
++dist_man_MANS = gpt.1
+
+Deleted: trunk/gpt/doc/man/gpt.1
+===================================================================
+--- trunk/gpt/doc/man/gpt.1	2008-03-18 17:29:25 UTC (rev 491)
++++ trunk/gpt/doc/man/gpt.1	2008-03-18 17:32:09 UTC (rev 492)
+@@ -1,105 +0,0 @@
+-.\&quot; Copyright 2003-2005, Thiago Silva
+-.\&quot; All rights reserved.
+-.\&quot;
+-.\&quot; Redistribution and use in source and binary forms, with or without
+-.\&quot; modification, are permitted provided that the following conditions
+-.\&quot; are met:
+-.\&quot; 1. Redistributions of source code must retain the above copyright
+-.\&quot;    notice, this list of conditions and the following disclaimer.
+-.\&quot; 2. Redistributions in binary form must reproduce the above copyright
+-.\&quot;    notice, this list of conditions and the following disclaimer in the
+-.\&quot;    documentation and/or other materials provided with the distribution.
+-.\&quot; 3. Neither the name of Julianne F. Haugh nor the names of its contributors
+-.\&quot;    may be used to endorse or promote products derived from this software
+-.\&quot;    without specific prior written permission.
+-.\&quot;
+-.\&quot; THIS SOFTWARE IS PROVIDED BY THIAGO SILVA AND CONTRIBUTORS 
+-.\&quot; ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+-.\&quot; THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-.\&quot; ARE DISCLAIMED.  IN NO EVENT SHALL JULIE HAUGH OR CONTRIBUTORS BE LIABLE
+-.\&quot; FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-.\&quot; DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+-.\&quot; OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+-.\&quot; HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+-.\&quot; LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+-.\&quot; OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+-.\&quot; SUCH DAMAGE.
+-.\&quot;
+-.\&quot;
+-.TH GPT 1
+-.SH NOME
+-gpt \- compilador, interpretador e tradutor da linguagem G-Portugol
+-
+-.SH SINOPSE
+-  gpt 
+-[ 
+-.BR \-vhid
+-] [
+-.BI \-ots  
+-arq_saida 
+-] arquivo1 arquivo2 ...
+-
+-.SH DESCRI&#199;&#195;O
+-.I gpt
+-&#233; um compilador simples para a linguagem G-portugol. Al&#233;m de criar execut&#225;veis,
+-pode interpretar algoritmos e traduz&#237;-los para a linguagem C. Um algoritmo pode 
+-ser formado por v&#225;rios arquivos, cada um podendo conter v&#225;rias fun&#231;&#245;es, por 
+-exemplo. Os arquivos s&#227;o passados na linha de comando, sendo que o primeiro 
+-arquivo deve ser aquele que cont&#233;m o bloco principal e a declara&#231;&#227;o do algoritmo. 
+-&#201; poss&#237;vel, tamb&#233;m, ter a lista de arquivos adicionadas automaticamente 
+-utilizando a vari&#225;vel de ambiente GPT_INCLUDE, que deve conter o caminho de 
+-cada arquivo separado por &quot;:&quot;. 
+-.SH OPTIONS
+-.TP
+-.BI \-v
+-Exibe informa&#231;&#245;es de vers&#227;o e termina execu&#231;&#227;o.
+-.br
+-.ns
+-.TP
+-.BI \-h
+-Exibe sum&#225;rio de op&#231;&#245;es termina execu&#231;&#227;o.
+-.br
+-.ns
+-.TP
+-.TP
+-.BI \-i
+-Executa o algoritmo em modo 
+-.I interpreta&#231;&#227;o.
+-.br
+-.ns
+-.TP
+-.BI \-d
+-Mostra dicas no relat&#243;rio de erros.
+-.br
+-.ns
+-.TP
+-.BI \-o &quot; arq_sa&#237;da&quot; 
+-Compila o algoritmo e salva o arquivo execut&#225;vel com o nome
+-.I arq_sa&#237;da.
+-.br
+-.ns
+-.TP
+-.BI \-t &quot; arq_sa&#237;da&quot;
+-Traduz o algoritmo para a linguagem C e salva o arquivo com o c&#243;digo resultante
+-como
+-.I arq_sa&#237;da.
+-.br
+-.ns
+-.TP
+-.BI \-s &quot; arq_sa&#237;da&quot;
+-Compila o algoritmo mas n&#227;o cria c&#243;digo execut&#225;vel. Salva o arquivo com c&#243;digo em assembly como
+-.I arq_sa&#237;da.
+-.br
+-.ns
+-.SH VEJA TAMB&#201;M
+-.BR nasm (1)
+-
+-.SH INFORMA&#199;&#213;ES ADICIONAIS
+-
+-Para maiores informa&#231;&#245;es, visite o website em: 
+-.br
+-.BI <A HREF="http://gpt.berlios.de">http://gpt.berlios.de</A>
+-
+-.SH AUTOR
+-Thiago Silva &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>&gt;
+-
+
+Copied: trunk/gpt/doc/man/gpt.1 (from rev 490, trunk/gpt/doc/man/gpt.en.1)
+
+Deleted: trunk/gpt/doc/man/gpt.en.1
+===================================================================
+--- trunk/gpt/doc/man/gpt.en.1	2008-03-18 17:29:25 UTC (rev 491)
++++ trunk/gpt/doc/man/gpt.en.1	2008-03-18 17:32:09 UTC (rev 492)
+@@ -1,101 +0,0 @@
+-.\&quot; Copyright 2003-2005, Thiago Silva
+-.\&quot; All rights reserved.
+-.\&quot;
+-.\&quot; Redistribution and use in source and binary forms, with or without
+-.\&quot; modification, are permitted provided that the following conditions
+-.\&quot; are met:
+-.\&quot; 1. Redistributions of source code must retain the above copyright
+-.\&quot;    notice, this list of conditions and the following disclaimer.
+-.\&quot; 2. Redistributions in binary form must reproduce the above copyright
+-.\&quot;    notice, this list of conditions and the following disclaimer in the
+-.\&quot;    documentation and/or other materials provided with the distribution.
+-.\&quot; 3. Neither the name of Julianne F. Haugh nor the names of its contributors
+-.\&quot;    may be used to endorse or promote products derived from this software
+-.\&quot;    without specific prior written permission.
+-.\&quot;
+-.\&quot; THIS SOFTWARE IS PROVIDED BY THIAGO SILVA AND CONTRIBUTORS
+-.\&quot; ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+-.\&quot; THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+-.\&quot; ARE DISCLAIMED.  IN NO EVENT SHALL JULIE HAUGH OR CONTRIBUTORS BE LIABLE
+-.\&quot; FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+-.\&quot; DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+-.\&quot; OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+-.\&quot; HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+-.\&quot; LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+-.\&quot; OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+-.\&quot; SUCH DAMAGE.
+-.\&quot;
+-.\&quot;
+-.TH GPT 1
+-.SH NOME
+-gpt \- compiler, interpreter and translator for the G-Portugol programming language
+-
+-.SH SINOPSE
+-  gpt
+-[
+-.BR \-vhid
+-] [
+-.BI \-ots
+-output_file
+-] file1 file2 ...
+-
+-.SH DESCRIPTION
+-.I gpt
+-is a simple compiler for the G-Porutol Language. It is possible to have
+-a list of files to be included in the compilation setting the GPT_INCLUDE
+-environment variable, wich should have a list of file paths separated with &quot;:&quot;.
+-.SH OPTIONS
+-.TP
+-.BI \-v
+-Shows version information and exits.
+-.br
+-.ns
+-.TP
+-.BI \-h
+-Shows a summary of options and exits.
+-.br
+-.ns
+-.TP
+-.TP
+-.BI \-i
+-Execute
+-.Iinterpreting
+-the source code.
+-.br
+-.ns
+-.TP
+-.BI \-d
+-Shows tips in the error report.
+-.br
+-.ns
+-.TP
+-.BI \-o &quot; output_file&quot;
+-Compile the source code and save the resulting binary with the name
+-.I output_file.
+-.br
+-.ns
+-.TP
+-.BI \-t &quot; output_file&quot;
+-Translates the source code to the C programming language and saves the
+-resulting file as
+-.I output_file.
+-.br
+-.ns
+-.TP
+-.BI \-s &quot; output_file&quot;
+-Compiles the source code to assembly source. Saves the resulting code as
+-.I output_file.
+-.br
+-.ns
+-.SH SEE ALSO
+-.BR nasm (1)
+-
+-.SH ADDITIONAL INFORMATION
+-
+-For further information, visit the website:
+-.br
+-.BI <A HREF="http://gpt.berlios.de">http://gpt.berlios.de</A>
+-
+-.SH AUTHOR
+-Thiago Silva &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>&gt;
+-
+
+Added: trunk/gpt/doc/man/pt_BR/Makefile.am
+===================================================================
+--- trunk/gpt/doc/man/pt_BR/Makefile.am	2008-03-18 17:29:25 UTC (rev 491)
++++ trunk/gpt/doc/man/pt_BR/Makefile.am	2008-03-18 17:32:09 UTC (rev 492)
+@@ -0,0 +1,3 @@
++mandir = @mandir@/pt_BR
++
++dist_man_MANS = gpt.1
+
+Copied: trunk/gpt/doc/man/pt_BR/gpt.1 (from rev 489, trunk/gpt/doc/man/gpt.1)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000164.html">[gpt-commit] r491 - trunk/gpt
+</A></li>
+	<LI>Next message: <A HREF="000166.html">[gpt-commit] r493 - in trunk/gpt: . src src/modules	src/modules/interpreter src/modules/parser
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#165">[ date ]</a>
+              <a href="thread.html#165">[ thread ]</a>
+              <a href="subject.html#165">[ subject ]</a>
+              <a href="author.html#165">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

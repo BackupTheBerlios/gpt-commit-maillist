@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r543 - trunk/gpt/test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2010-June/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r543%20-%20trunk/gpt/test&In-Reply-To=%3C201006160406.o5G46N4B010325%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r543 - trunk/gpt/test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r543%20-%20trunk/gpt/test&In-Reply-To=%3C201006160406.o5G46N4B010325%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r543 - trunk/gpt/test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Jun 16 06:06:23 CEST 2010</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#216">[ date ]</a>
+              <a href="thread.html#216">[ thread ]</a>
+              <a href="subject.html#216">[ subject ]</a>
+              <a href="author.html#216">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: adorilson
+Date: 2010-06-16 06:06:12 +0200 (Wed, 16 Jun 2010)
+New Revision: 543
+
+Modified:
+   trunk/gpt/test/tester.gpt
+Log:
+DEVNULL:
+- Adicao de testes referentes a ponto flutuante
+
+
+Modified: trunk/gpt/test/tester.gpt
+===================================================================
+--- trunk/gpt/test/tester.gpt	2010-05-28 15:09:56 UTC (rev 542)
++++ trunk/gpt/test/tester.gpt	2010-06-16 04:06:12 UTC (rev 543)
+@@ -174,6 +174,39 @@
+     imprima(&quot;testar_expr_aritm: 5.0 / 2 &lt;&gt; 2.5&quot;);
+   fim-se
+ 
++  se 6.6 + 5.3 &lt;&gt; 11.9 ent&#227;o
++    imprima(&quot;testar_expr_aritm: 6.6 + 5.3 &lt;&gt; 11.9&quot;);
++  fim-se  
++
++  se (6.6 + 5.3)/2 &lt;&gt; 5.95 ent&#227;o
++    imprima(&quot;testar_expr_aritm: (6.6 + 5.3)/2 &lt;&gt; 5.95&quot;);
++  fim-se
++
++  se 0.7 + 2 &lt;&gt; 2.7 ent&#227;o
++    imprima(&quot;testar_expr_aritm: 0.7 + 2 &lt;&gt; 2.7&quot;);
++  fim-se
++
++  se (0.7 + 2)/2 &lt;&gt; 1.35 ent&#227;o
++    imprima(&quot;testar_expr_aritm: (0.7 + 2)/2 &lt;&gt; 1.35&quot;);
++  fim-se
++
++  se 0.6 + 0.3 &lt;&gt; 0.90 ent&#227;o
++   imprima(&quot;testar_expr_aritm: 0.6 + 0.3 &lt;&gt; 0.9&quot;);
++  fim-se
++
++  se (0.6 + 0.3)/2 &lt;&gt; 0.45 ent&#227;o
++    imprima(&quot;testar_expr_aritm: (0.6 + 0.3)/2 &lt;&gt; 0.45&quot;);
++  fim-se
++
++  se 0.6 + 0.8 &lt;&gt; 1.40 ent&#227;o
++    imprima(&quot;testar_expr_aritm: 0.6 + 0.8 &lt;&gt; 1.4&quot;);
++  fim-se
++
++  se (0.6 + 0.8)/2 &lt;&gt; 0.70 ent&#227;o
++    imprima(&quot;testar_expr_aritm: (0.6 + 0.8)/2 &lt;&gt; 0.7&quot;);
++  fim-se
++
++
+   se 1 + 5.0 / 2 &lt;&gt; 3.5 ent&#227;o
+     imprima(&quot;testar_expr_aritm: 1 + 5.0 / 2 &lt;&gt; 3.5&quot;);
+   fim-se
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#216">[ date ]</a>
+              <a href="thread.html#216">[ thread ]</a>
+              <a href="subject.html#216">[ subject ]</a>
+              <a href="author.html#216">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

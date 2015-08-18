@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r454 - in trunk/gpt2/gptc/src: gptasm_target semantic
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r454%20-%20in%20trunk/gpt2/gptc/src%3A%20gptasm_target%20semantic&In-Reply-To=%3C200712192007.lBJK7uJ1020121%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000127.html">
+   <LINK REL="Next"  HREF="000129.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r454 - in trunk/gpt2/gptc/src: gptasm_target semantic</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r454%20-%20in%20trunk/gpt2/gptc/src%3A%20gptasm_target%20semantic&In-Reply-To=%3C200712192007.lBJK7uJ1020121%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r454 - in trunk/gpt2/gptc/src: gptasm_target semantic">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 21:07:56 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000127.html">[gpt-commit] r453 - in trunk/gpt2: common/src gptvm/src
+</A></li>
+        <LI>Next message: <A HREF="000129.html">[gpt-commit] r455 - in trunk/gpt2: common/src gptasm/test	gptvm/test gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-19 21:07:56 +0100 (Wed, 19 Dec 2007)
+New Revision: 454
+
+Modified:
+   trunk/gpt2/gptc/src/gptasm_target/gptasm.g
+   trunk/gpt2/gptc/src/semantic/semantic.g
+Log:
+DEVNULL:
+* Retirado erros de compilacao gerados so no gcc 4
+
+
+Modified: trunk/gpt2/gptc/src/gptasm_target/gptasm.g
+===================================================================
+--- trunk/gpt2/gptc/src/gptasm_target/gptasm.g	2007-12-19 19:00:42 UTC (rev 453)
++++ trunk/gpt2/gptc/src/gptasm_target/gptasm.g	2007-12-19 20:07:56 UTC (rev 454)
+@@ -40,7 +40,7 @@
+ 
+ {
+ public:
+-  GptAsmWalker::GptAsmWalker(SymbolTable* symtable,
++  GptAsmWalker(SymbolTable* symtable,
+                              const std::string&amp; filepath)
+ 	 : BaseGptAsmWalker(symtable, filepath) {}
+ }
+
+Modified: trunk/gpt2/gptc/src/semantic/semantic.g
+===================================================================
+--- trunk/gpt2/gptc/src/semantic/semantic.g	2007-12-19 19:00:42 UTC (rev 453)
++++ trunk/gpt2/gptc/src/semantic/semantic.g	2007-12-19 20:07:56 UTC (rev 454)
+@@ -39,7 +39,7 @@
+ 
+ {
+ public:
+-  SemanticWalker::SemanticWalker(SymbolTable* symtable,
++  SemanticWalker(SymbolTable* symtable,
+                                  const std::string&amp; filepath)
+ 	 : BaseSemanticWalker(symtable, filepath),
+     _analisingInitializationList(false) { }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000127.html">[gpt-commit] r453 - in trunk/gpt2: common/src gptvm/src
+</A></li>
+	<LI>Next message: <A HREF="000129.html">[gpt-commit] r455 - in trunk/gpt2: common/src gptasm/test	gptvm/test gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

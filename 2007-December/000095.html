@@ -1,0 +1,300 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r421 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r421%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051831.lB5IVh6r009692%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000094.html">
+   <LINK REL="Next"  HREF="000096.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r421 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r421%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712051831.lB5IVh6r009692%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r421 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec  5 19:31:43 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000094.html">[gpt-commit] r420 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000096.html">[gpt-commit] r422 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#95">[ date ]</a>
+              <a href="thread.html#95">[ thread ]</a>
+              <a href="subject.html#95">[ subject ]</a>
+              <a href="author.html#95">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-05 19:31:42 +0100 (Wed, 05 Dec 2007)
+New Revision: 421
+
+Added:
+   trunk/gpt2/gptc/src/main.cpp
+Removed:
+   trunk/gpt2/gptc/src/teste.cpp
+Modified:
+   trunk/gpt2/gptc/src/Makefile.am
+Log:
+nomsg
+
+Modified: trunk/gpt2/gptc/src/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/src/Makefile.am	2007-12-05 11:37:03 UTC (rev 420)
++++ trunk/gpt2/gptc/src/Makefile.am	2007-12-05 18:31:42 UTC (rev 421)
+@@ -30,7 +30,7 @@
+                SymbolTable.cpp \
+                SymbolTableExceptions.hpp \
+                SymbolTableExceptions.cpp \
+-               teste.cpp \
++               main.cpp \
+                Types.hpp \
+                Types.cpp \
+                UnicodeCharBuffer.hpp \
+
+Copied: trunk/gpt2/gptc/src/main.cpp (from rev 420, trunk/gpt2/gptc/src/teste.cpp)
+===================================================================
+--- trunk/gpt2/gptc/src/teste.cpp	2007-12-05 11:37:03 UTC (rev 420)
++++ trunk/gpt2/gptc/src/main.cpp	2007-12-05 18:31:42 UTC (rev 421)
+@@ -0,0 +1,100 @@
++#include &lt;stdio.h&gt;
++#include &lt;fstream&gt;
++
++#include &lt;antlr/TokenBuffer.hpp&gt;
++#include &lt;antlr/CommonAST.hpp&gt;
++
++#include &quot;PortugolLexer.hpp&quot;
++#include &quot;PortugolParser.hpp&quot;
++#include &quot;SemanticWalker.hpp&quot;
++#include &quot;PortugolTokenTypes.hpp&quot;
++#include &quot;SymbolTable.hpp&quot;
++
++#include &quot;TokenNames.hpp&quot;
++
++void dump_tokens(char* fname) {
++
++  std::ifstream fi(fname);
++  PortugolLexer lexer(fi, true);
++  antlr::TokenBuffer *buffer = new antlr::TokenBuffer(lexer);
++
++  while (true) {
++    std::cout &lt;&lt; lexer.getLine() &lt;&lt; &quot;: [&quot; &lt;&lt; buffer-&gt;LA(1) &lt;&lt; &quot;] &quot;
++              &lt;&lt; g_tokenNames[buffer-&gt;LA(1)] &lt;&lt; &quot; (&quot; &lt;&lt; lexer.getText() &lt;&lt; &quot;)&quot;;
++    buffer-&gt;consume();
++    getchar();
++
++    if (buffer-&gt;LA(1) == PortugolTokenTypes::EOF_) {
++      break;
++    }
++  }
++}
++
++RefPortugolAST dump_tree(char* fname, bool should_dump) {
++
++  std::ifstream fi(fname);
++  if (!fi) {
++    std::cerr &lt;&lt; &quot;nao foi possivel abrir o arquivo &quot; &lt;&lt; fname &lt;&lt; std::endl;
++    exit(1);
++  }
++
++  PortugolLexer lexer(fi, true);
++  PortugolParser parser(lexer);
++
++  antlr::ASTFactory ast_factory(PortugolAST::TYPE_NAME,
++                                &amp;PortugolAST::factory);
++
++  parser.initializeASTFactory(ast_factory);
++  parser.setASTFactory(&amp;ast_factory);
++
++  parser.programa();
++
++  antlr::RefAST ast = parser.getAST();
++  RefPortugolAST cast = RefPortugolAST(ast);
++
++  if (!cast) {
++    std::cerr &lt;&lt; &quot;no parse tree!&quot; &lt;&lt; std::endl;
++  }
++
++  if (should_dump) {
++    std::cerr &lt;&lt; &quot;parser.g AST:\n&quot;;
++    std::cerr &lt;&lt; cast-&gt;toStringList() &lt;&lt; std::endl &lt;&lt; std::endl;
++  }
++  return cast;
++}
++
++void semantic(char* fname) {
++  RefPortugolAST ast;
++
++  ast = dump_tree(fname, true);
++
++  SymbolTable* symtable = new SymbolTable(fname);
++
++  SemanticWalker semantic(symtable, fname);
++  semantic.programa(ast);
++
++  symtable-&gt;dump();
++
++  std::cerr &lt;&lt; &quot;semantic.g AST:\n&quot;;
++  std::cerr &lt;&lt; ast-&gt;toStringList() &lt;&lt; std::endl &lt;&lt; std::endl;
++}
++
++int main(int argc, char** argv) {
++
++  if (argc &lt; 3) {
++    std::cerr &lt;&lt; &quot;./test [lps] &lt;file.gpt&gt;&quot; &lt;&lt; std::endl;
++    return 0;
++  }
++
++  switch(*argv[1]) {
++    case 'l':
++      dump_tokens(argv[2]);
++      break;
++    case 'p':
++      dump_tree(argv[2], true);
++      break;
++    case 's':
++    default:
++      semantic(argv[2]);
++  }
++}
+
+Deleted: trunk/gpt2/gptc/src/teste.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/teste.cpp	2007-12-05 11:37:03 UTC (rev 420)
++++ trunk/gpt2/gptc/src/teste.cpp	2007-12-05 18:31:42 UTC (rev 421)
+@@ -1,100 +0,0 @@
+-#include &lt;stdio.h&gt;
+-#include &lt;fstream&gt;
+-
+-#include &lt;antlr/TokenBuffer.hpp&gt;
+-#include &lt;antlr/CommonAST.hpp&gt;
+-
+-#include &quot;PortugolLexer.hpp&quot;
+-#include &quot;PortugolParser.hpp&quot;
+-#include &quot;SemanticWalker.hpp&quot;
+-#include &quot;PortugolTokenTypes.hpp&quot;
+-#include &quot;SymbolTable.hpp&quot;
+-
+-#include &quot;TokenNames.hpp&quot;
+-
+-void dump_tokens(char* fname) {
+-
+-  std::ifstream fi(fname);
+-  PortugolLexer lexer(fi, true);
+-  antlr::TokenBuffer *buffer = new antlr::TokenBuffer(lexer);
+-
+-  while (true) {
+-    std::cout &lt;&lt; lexer.getLine() &lt;&lt; &quot;: [&quot; &lt;&lt; buffer-&gt;LA(1) &lt;&lt; &quot;] &quot;
+-              &lt;&lt; g_tokenNames[buffer-&gt;LA(1)] &lt;&lt; &quot; (&quot; &lt;&lt; lexer.getText() &lt;&lt; &quot;)&quot;;
+-    buffer-&gt;consume();
+-    getchar();
+-
+-    if (buffer-&gt;LA(1) == PortugolTokenTypes::EOF_) {
+-      break;
+-    }
+-  }
+-}
+-
+-RefPortugolAST dump_tree(char* fname, bool should_dump) {
+-
+-  std::ifstream fi(fname);
+-  if (!fi) {
+-    std::cerr &lt;&lt; &quot;nao foi possivel abrir o arquivo &quot; &lt;&lt; fname &lt;&lt; std::endl;
+-    exit(1);
+-  }
+-
+-  PortugolLexer lexer(fi, true);
+-  PortugolParser parser(lexer);
+-
+-  antlr::ASTFactory ast_factory(PortugolAST::TYPE_NAME,
+-                                &amp;PortugolAST::factory);
+-
+-  parser.initializeASTFactory(ast_factory);
+-  parser.setASTFactory(&amp;ast_factory);
+-
+-  parser.programa();
+-
+-  antlr::RefAST ast = parser.getAST();
+-  RefPortugolAST cast = RefPortugolAST(ast);
+-
+-  if (!cast) {
+-    std::cerr &lt;&lt; &quot;no parse tree!&quot; &lt;&lt; std::endl;
+-  }
+-
+-  if (should_dump) {
+-    std::cerr &lt;&lt; &quot;parser.g AST:\n&quot;;
+-    std::cerr &lt;&lt; cast-&gt;toStringList() &lt;&lt; std::endl &lt;&lt; std::endl;
+-  }
+-  return cast;
+-}
+-
+-void semantic(char* fname) {
+-  RefPortugolAST ast;
+-
+-  ast = dump_tree(fname, true);
+-
+-  SymbolTable* symtable = new SymbolTable(fname);
+-
+-  SemanticWalker semantic(symtable);
+-  semantic.programa(ast);
+-
+-  symtable-&gt;dump();
+-
+-  std::cerr &lt;&lt; &quot;semantic.g AST:\n&quot;;
+-  std::cerr &lt;&lt; ast-&gt;toStringList() &lt;&lt; std::endl &lt;&lt; std::endl;
+-}
+-
+-int main(int argc, char** argv) {
+-
+-  if (argc &lt; 3) {
+-    std::cerr &lt;&lt; &quot;./test [lps] &lt;file.gpt&gt;&quot; &lt;&lt; std::endl;
+-    return 0;
+-  }
+-
+-  switch(*argv[1]) {
+-    case 'l':
+-      dump_tokens(argv[2]);
+-      break;
+-    case 'p':
+-      dump_tree(argv[2], true);
+-      break;
+-    case 's':
+-    default:
+-      semantic(argv[2]);
+-  }
+-}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000094.html">[gpt-commit] r420 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000096.html">[gpt-commit] r422 - trunk/gpt2/gptc/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#95">[ date ]</a>
+              <a href="thread.html#95">[ thread ]</a>
+              <a href="subject.html#95">[ subject ]</a>
+              <a href="author.html#95">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

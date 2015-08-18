@@ -1,0 +1,940 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r401 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r401%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200711291223.lATCN4gm021563%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000074.html">
+   <LINK REL="Next"  HREF="000076.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r401 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r401%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200711291223.lATCN4gm021563%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r401 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Thu Nov 29 13:23:04 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000074.html">[gpt-commit] r400 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test	gptvm/test/gerados_pelo_gptasm
+</A></li>
+        <LI>Next message: <A HREF="000076.html">[gpt-commit] r402 - in trunk/gpt2: common/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#75">[ date ]</a>
+              <a href="thread.html#75">[ thread ]</a>
+              <a href="subject.html#75">[ subject ]</a>
+              <a href="author.html#75">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-11-29 13:23:01 +0100 (Thu, 29 Nov 2007)
+New Revision: 401
+
+Modified:
+   trunk/gpt2/common/src/Common.hpp
+   trunk/gpt2/gptasm/src/CGenBytecode.cpp
+   trunk/gpt2/gptasm/src/lexer.g
+   trunk/gpt2/gptasm/src/parser.g
+   trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm
+   trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm
+   trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm
+   trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm
+   trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm
+   trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm
+   trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_2.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm
+   trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_2.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_5.gasm
+   trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/expressoes_matematicas_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+Log:
+DEVNULL:
+* Mais alguns mnemonicos/opcodes renomeados
+
+
+Modified: trunk/gpt2/common/src/Common.hpp
+===================================================================
+--- trunk/gpt2/common/src/Common.hpp	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/common/src/Common.hpp	2007-11-29 12:23:01 UTC (rev 401)
+@@ -106,15 +106,13 @@
+    OP_PUSHSV      = 80,
+    OP_PUSHRV      = 81,
+    OP_PUSHMV      = 84,
+-   OP_PUSHSREG    = 85,
+-   OP_POPSREG     = 86,
+-   OP_INCSP4      = 87,
+-   OP_INCSP8      = 88,
+-   OP_DECSP4      = 89,
+-   OP_DECSP8      = 90,
++   OP_INCSP_4     = 87,
++   OP_INCSP_8     = 88,
++   OP_DECSP_4     = 89,
++   OP_DECSP_8     = 90,
+    OP_PCALL       = 91,
+    OP_RET         = 92,
+-   OP_LIBCALL     = 93,
++   OP_LCALL       = 93,
+    OP_SALLOC      = 94,
+    OP_SFREE       = 95,
+    OP_SSETC       = 96,
+@@ -139,14 +137,14 @@
+    OP_POPRV       = 115,
+    OP_POPSV       = 116,
+    OP_POPMV       = 117,
+-   OP_PUSH0       = 118,
+-   OP_PUSH1       = 119,
+-   OP_PUSH2       = 120,
+-   OP_PUSH3       = 121,
+-   OP_PUSH4       = 122,
+-   OP_PUSH5       = 123,
+-   OP_EXIT0       = 124,
+-   OP_EXIT1       = 125,
++   OP_PUSH_0      = 118,
++   OP_PUSH_1      = 119,
++   OP_PUSH_2      = 120,
++   OP_PUSH_3      = 121,
++   OP_PUSH_4      = 122,
++   OP_PUSH_5      = 123,
++   OP_EXIT_0      = 124,
++   OP_EXIT_1      = 125,
+    OPCODE_NUMBER  = 125
+ };
+ 
+
+Modified: trunk/gpt2/gptasm/src/CGenBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/src/CGenBytecode.cpp	2007-11-29 12:23:01 UTC (rev 401)
+@@ -84,18 +84,17 @@
+    _opcodes[ &quot;jmp&quot;         ] = OP_JMP;
+    _opcodes[ &quot;if&quot;          ] = OP_IF;
+    _opcodes[ &quot;ifnot&quot;       ] = OP_IFNOT;
+-//   _opcodes[ &quot;push&quot;        ] = OP_PUSH;
+-   _opcodes[ &quot;popiv&quot;         ] = OP_POPIV;
+-   _opcodes[ &quot;poprv&quot;         ] = OP_POPRV;
+-   _opcodes[ &quot;popmv&quot;         ] = OP_POPMV;
++   _opcodes[ &quot;popiv&quot;       ] = OP_POPIV;
++   _opcodes[ &quot;poprv&quot;       ] = OP_POPRV;
++   _opcodes[ &quot;popmv&quot;       ] = OP_POPMV;
+    _opcodes[ &quot;incsp&quot;       ] = OP_INCSP;
+    _opcodes[ &quot;decsp&quot;       ] = OP_DECSP;
+-   _opcodes[ &quot;push0&quot;       ] = OP_PUSH0;
+-   _opcodes[ &quot;push1&quot;       ] = OP_PUSH1;
+-   _opcodes[ &quot;push2&quot;       ] = OP_PUSH2;
+-   _opcodes[ &quot;push3&quot;       ] = OP_PUSH3;
+-   _opcodes[ &quot;push4&quot;       ] = OP_PUSH4;
+-   _opcodes[ &quot;push5&quot;       ] = OP_PUSH5;
++   _opcodes[ &quot;push_0&quot;      ] = OP_PUSH_0;
++   _opcodes[ &quot;push_1&quot;      ] = OP_PUSH_1;
++   _opcodes[ &quot;push_2&quot;      ] = OP_PUSH_2;
++   _opcodes[ &quot;push_3&quot;      ] = OP_PUSH_3;
++   _opcodes[ &quot;push_4&quot;      ] = OP_PUSH_4;
++   _opcodes[ &quot;push_5&quot;      ] = OP_PUSH_5;
+    _opcodes[ &quot;pushiv&quot;      ] = OP_PUSHIV;
+    _opcodes[ &quot;pushsv&quot;      ] = OP_PUSHSV;
+    _opcodes[ &quot;pushrv&quot;      ] = OP_PUSHRV;
+@@ -106,15 +105,13 @@
+    _opcodes[ &quot;pushct&quot;      ] = OP_PUSHCT;
+    _opcodes[ &quot;pushbt&quot;      ] = OP_PUSHBT;
+    _opcodes[ &quot;pushmt&quot;      ] = OP_PUSHMT;
+-   _opcodes[ &quot;pushsreg&quot;    ] = OP_PUSHSREG;
+-   _opcodes[ &quot;popsreg&quot;     ] = OP_POPSREG;
+-   _opcodes[ &quot;incsp4&quot;      ] = OP_INCSP4;
+-   _opcodes[ &quot;incsp8&quot;      ] = OP_INCSP8;
+-   _opcodes[ &quot;decsp4&quot;      ] = OP_DECSP4;
+-   _opcodes[ &quot;decsp8&quot;      ] = OP_DECSP8;
++   _opcodes[ &quot;incsp_4&quot;     ] = OP_INCSP_4;
++   _opcodes[ &quot;incsp_8&quot;     ] = OP_INCSP_8;
++   _opcodes[ &quot;decsp_4&quot;     ] = OP_DECSP_4;
++   _opcodes[ &quot;decsp_8&quot;     ] = OP_DECSP_8;
+    _opcodes[ &quot;pcall&quot;       ] = OP_PCALL;
+    _opcodes[ &quot;ret&quot;         ] = OP_RET;
+-   _opcodes[ &quot;libcall&quot;     ] = OP_LIBCALL;
++   _opcodes[ &quot;lcall&quot;       ] = OP_LCALL;
+    _opcodes[ &quot;salloc&quot;      ] = OP_SALLOC;
+    _opcodes[ &quot;sfree&quot;       ] = OP_SFREE;
+    _opcodes[ &quot;ssetc&quot;       ] = OP_SSETC;
+@@ -130,8 +127,8 @@
+    _opcodes[ &quot;mgetsize1&quot;   ] = OP_MGETSIZE1;
+    _opcodes[ &quot;mgetsize2&quot;   ] = OP_MGETSIZE2;
+    _opcodes[ &quot;nop&quot;         ] = OP_NOP;
+-   _opcodes[ &quot;exit0&quot;       ] = OP_EXIT0;
+-   _opcodes[ &quot;exit1&quot;       ] = OP_EXIT1;
++   _opcodes[ &quot;exit_0&quot;      ] = OP_EXIT_0;
++   _opcodes[ &quot;exit_1&quot;      ] = OP_EXIT_1;
+    _opcodes[ &quot;hlt&quot;         ] = OP_HLT;
+    _opcodes[ &quot;exit&quot;        ] = OP_EXIT;
+ }
+
+Modified: trunk/gpt2/gptasm/src/lexer.g
+===================================================================
+--- trunk/gpt2/gptasm/src/lexer.g	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/src/lexer.g	2007-11-29 12:23:01 UTC (rev 401)
+@@ -117,12 +117,12 @@
+    T_KW_POPMV=&quot;popmv&quot;;
+    T_KW_INCSP=&quot;incsp&quot;;
+    T_KW_DECSP=&quot;decsp&quot;;
+-   T_KW_PUSH0=&quot;push0&quot;;
+-   T_KW_PUSH1=&quot;push1&quot;;
+-   T_KW_PUSH2=&quot;push2&quot;;
+-   T_KW_PUSH3=&quot;push3&quot;;
+-   T_KW_PUSH4=&quot;push4&quot;;
+-   T_KW_PUSH5=&quot;push5&quot;;
++   T_KW_PUSH_0=&quot;push_0&quot;;
++   T_KW_PUSH_1=&quot;push_1&quot;;
++   T_KW_PUSH_2=&quot;push_2&quot;;
++   T_KW_PUSH_3=&quot;push_3&quot;;
++   T_KW_PUSH_4=&quot;push_4&quot;;
++   T_KW_PUSH_5=&quot;push_5&quot;;
+    T_KW_PUSHIV=&quot;pushiv&quot;;
+    T_KW_PUSHSV=&quot;pushsv&quot;;
+    T_KW_PUSHRV=&quot;pushrv&quot;;
+@@ -133,14 +133,12 @@
+    T_KW_PUSHCT=&quot;pushct&quot;;
+    T_KW_PUSHBT=&quot;pushbt&quot;;
+    T_KW_PUSHMT=&quot;pushmt&quot;;
+-//   T_KW_PUSHSREG=&quot;pushsreg&quot;;
+-//   T_KW_POPSREG=&quot;popsreg&quot;;
+-   T_KW_INCSP4=&quot;incsp4&quot;;
+-   T_KW_INCSP8=&quot;incsp8&quot;;
+-   T_KW_DECSP4=&quot;decsp4&quot;;
+-   T_KW_DECSP8=&quot;decsp8&quot;;
++   T_KW_INCSP_4=&quot;incsp_4&quot;;
++   T_KW_INCSP_8=&quot;incsp_8&quot;;
++   T_KW_DECSP_4=&quot;decsp_4&quot;;
++   T_KW_DECSP_8=&quot;decsp_8&quot;;
+    T_KW_PCALL=&quot;pcall&quot;;
+-   T_KW_LIBCALL=&quot;libcall&quot;;
++   T_KW_LCALL=&quot;lcall&quot;;
+    T_KW_RET=&quot;ret&quot;;
+    T_KW_SALLOC=&quot;salloc&quot;;
+    T_KW_SFREE=&quot;sfree&quot;;
+@@ -157,8 +155,8 @@
+    T_KW_MGETSIZE1=&quot;mgetsize1&quot;;
+    T_KW_MGETSIZE2=&quot;mgetsize2&quot;;
+    T_KW_NOP=&quot;nop&quot;;
+-   T_KW_EXIT0=&quot;exit0&quot;;
+-   T_KW_EXIT1=&quot;exit1&quot;;
++   T_KW_EXIT_0=&quot;exit_0&quot;;
++   T_KW_EXIT_1=&quot;exit_1&quot;;
+    T_KW_HLT=&quot;hlt&quot;;
+    T_KW_EXIT=&quot;exit&quot;;
+    T_KW_TRUE=&quot;true&quot;;
+
+Modified: trunk/gpt2/gptasm/src/parser.g
+===================================================================
+--- trunk/gpt2/gptasm/src/parser.g	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/src/parser.g	2007-11-29 12:23:01 UTC (rev 401)
+@@ -251,17 +251,15 @@
+       {bytecode.addOpcode(getLastTokenText());}
+       T_INT_VALUE
+       { bytecode.addAddress(getLastTokenText(), CSymbol::CONST, CSymbol::INT); }
+-   |  (&quot;push0&quot;|&quot;push1&quot;|&quot;push2&quot;|&quot;push3&quot;|&quot;push4&quot;|&quot;push5&quot;)
++   |  (&quot;push_0&quot;|&quot;push_1&quot;|&quot;push_2&quot;|&quot;push_3&quot;|&quot;push_4&quot;|&quot;push_5&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+-//   |  (&quot;pushsreg&quot;|&quot;popsreg&quot;)
+-//      {bytecode.addOpcode(getLastTokenText());}
+-   |  (&quot;incsp4&quot;|&quot;incsp8&quot;|&quot;decsp4&quot;|&quot;decsp8&quot;)
++   |  (&quot;incsp_4&quot;|&quot;incsp_8&quot;|&quot;decsp_4&quot;|&quot;decsp_8&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+    |  &quot;pcall&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+       T_ID
+       { bytecode.unsolvedLabel(getLastTokenText());}
+-   |  &quot;libcall&quot;
++   |  &quot;lcall&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+       T_ID
+       { bytecode.addAddress(getLastTokenText(),CSymbol::CONST, CSymbol::STRING); }
+@@ -331,7 +329,7 @@
+ //-----------
+   mn_execucao
+ //-----------
+-   :   (&quot;nop&quot;|&quot;hlt&quot;|&quot;exit0&quot;|&quot;exit1&quot;)
++   :   (&quot;nop&quot;|&quot;hlt&quot;|&quot;exit_0&quot;|&quot;exit_1&quot;)
+       {bytecode.addOpcode(getLastTokenText());}
+    |   &quot;exit&quot;
+       {bytecode.addOpcode(getLastTokenText());}
+
+Modified: trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/enderecamento_1.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -17,8 +17,8 @@
+     pushit
+     pushsv &quot;c.x=&quot;
+     pushst
+-    pushiv 2
+-    libcall imprima
++    push_2
++    lcall imprima
+ 
+     // imprima( &quot;c.y=&quot;, c.y );
+     igetv t1, c:4 // t1 := *(c + 4)
+@@ -26,10 +26,10 @@
+     pushit
+     pushsv &quot;c.y=&quot;
+     pushst
+-    pushiv 2
+-    libcall imprima
++    push_2
++    lcall imprima
+ 
+-    exit 0
++    exit_0
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/estruturas_condicionais_1.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -26,10 +26,10 @@
+     // imprima( x );
+     pushiv x
+     pushit
+-    push1
+-    libcall imprima
++    push_1
++    lcall imprima
+ 
+-    exit0
++    exit_0
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/estruturas_repeticao_1.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -14,8 +14,8 @@
+     // imprima( x );
+     pushiv x
+     pushit
+-    push1
+-    libcall imprima
++    push_1
++    lcall imprima
+ 
+     // fim-para
+     iinc x, 1
+@@ -23,7 +23,7 @@
+ 
+     proximo:
+ 
+-    exit0
++    exit_0
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/expressoes_matematicas_1.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -12,9 +12,9 @@
+     pushsv &quot;2+5*3=&quot;
+     pushst
+     pushiv 2
+-    libcall imprima
++    lcall imprima
+ 
+-    exit 0
++    exit_0
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/funcoes_definidas_usuario_1.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -3,7 +3,7 @@
+ proc main
+     var t1 int
+     // imprima( &quot;A soma &#233;: &quot;, soma( 2, 7 ) );
+-    pushiv 0 // resultado da fun&#231;&#227;o
++    push_0 // resultado da fun&#231;&#227;o
+     pushiv 2 // empilha 2
+     pushiv 7 // empilha 7
+     pcall soma
+@@ -12,10 +12,10 @@
+     pushit
+     pushsv &quot;A soma &#233;: &quot;
+     pushst
+-    pushiv 2
+-    libcall imprima
++    push_2
++    lcall imprima
+ 
+-    exit 0
++    exit_0
+ endproc
+ 
+ proc soma
+@@ -25,7 +25,7 @@
+ 
+     isum __result, x, y
+ 
+-    decsp 8 // tamanho dos parametros + variaveis locais - retorno da funcao
++    decsp_8 // tamanho dos parametros + variaveis locais - retorno da funcao
+     ret
+ endproc
+ 
+
+Modified: trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_1.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -4,7 +4,7 @@
+     pushsv &quot;Ol&#225; mundo !!!&quot;
+     pushst
+     pushiv 1
+-    libcall imprima
++    lcall imprima
+ 
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_2.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/invocando_subrotinas_linguagem_2.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -6,21 +6,21 @@
+     // imprima( &quot;Digite um n&#250;mero: &quot; );
+     pushsv &quot;Digite um n&#250;mero: &quot;
+     pushst
+-    pushiv 1
+-    libcall imprima
++    push_1
++    lcall imprima
+     // x := leia( );
+     pushit
+-    libcall leia
++    lcall leia
+     popiv x
+     // imprima( &quot;O n&#250;mero digitado foi &quot;, x );
+     pushiv x
+     pushit
+     pushsv &quot;O n&#250;mero digitado foi &quot;
+     pushst
+-    pushiv 2
+-    libcall imprima
++    push_2
++    lcall imprima
+ 
+-    exit 0
++    exit_0
+ endproc
+ 
+ endprogram
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_1.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -10,7 +10,7 @@
+     pushiv 20
+     pcall soma
+ 
+-    exit 0
++    exit_0
+ endproc
+ 
+ proc soma
+@@ -21,14 +21,14 @@
+ 
+     pushsv &quot;A soma &#233;: &quot;
+     pushst
+-    pushiv 1
+-    libcall imprima
++    push_1
++    lcall imprima
+ 
+     isum t1, x, y
+     pushiv t1
+     pushit
+-    pushiv 1
+-    libcall imprima
++    push_1
++    lcall imprima
+ 
+     decsp 12
+     ret	
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_2.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -12,10 +12,10 @@
+     // imprima( s );
+     pushiv s
+     pushit
+-    pushiv 1
+-    libcall imprima
++    push_1
++    lcall imprima
+ 	
+-    exit 0
++    exit_0
+ endproc
+ 
+ proc soma
+
+Modified: trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/procedimentos_definidos_usuario_3.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -6,7 +6,7 @@
+    pushsv &quot;Finalizando...&quot;
+    pushst
+    pushiv 1
+-   libcall imprima
++   lcall imprima
+ 
+    exit 0
+ endproc
+@@ -19,7 +19,7 @@
+    pushiv temp
+    pushit
+    pushiv 1
+-   libcall imprima
++   lcall imprima
+ 
+    decsp 4
+    ret
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_1.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -21,7 +21,7 @@
+     pushsv &quot;x*y+4=&quot;
+     pushst
+     pushiv 2
+-    libcall imprima
++    lcall imprima
+ 	
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_2.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_2.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_2.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -13,12 +13,12 @@
+     pushiv v
+     pushit
+     pushiv 1
+-    libcall imprima
++    lcall imprima
+ 	
+     pushiv 10
+     pushit
+     pushiv 1
+-    libcall imprima
++    lcall imprima
+ 	
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_3.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -13,12 +13,12 @@
+     pushrv v
+     pushrt
+     pushrv 1
+-    libcall imprima
++    lcall imprima
+ 
+     pushrv 10.0
+     pushrt
+     pushrv 1
+-    libcall imprima
++    lcall imprima
+ 
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -15,12 +15,12 @@
+     pushsv v
+     pushst
+     pushiv 1
+-    libcall imprima
++    lcall imprima
+ 	
+     pushsv &quot;10&quot;
+     pushst
+     pushiv 1
+-    libcall imprima
++    lcall imprima
+ 	
+     sfree v
+ 
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_5.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_5.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_5.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -13,12 +13,12 @@
+     pushiv v
+     pushct
+     pushiv 1
+-    libcall imprima
++    lcall imprima
+ 
+     pushiv 'a'
+     pushct
+     pushiv 1
+-    libcall imprima
++    lcall imprima
+ 
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_6.gasm	2007-11-29 12:23:01 UTC (rev 401)
+@@ -10,17 +10,17 @@
+     pushiv true
+     pushbt
+     pushiv 1
+-    libcall imprima
++    lcall imprima
+ 
+     pushiv false
+     pushbt
+     pushiv 1
+-    libcall imprima
++    lcall imprima
+ 
+     pushiv v
+     pushbt
+     pushiv 1
+-    libcall imprima
++    lcall imprima
+ 
+     exit 0
+ endproc
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-29 12:23:01 UTC (rev 401)
+@@ -39,13 +39,11 @@
+    }
+ 
+    _opcodePointer[OP_NOP        ] = &amp;CRunBytecode::nopOpcode;
+-//   _opcodePointer[OP_PUSHSREG   ] = &amp;CRunBytecode::pushsregOpcode;
+-//   _opcodePointer[OP_POPSREG    ] = &amp;CRunBytecode::popsregOpcode;
+    _opcodePointer[OP_PCALL      ] = &amp;CRunBytecode::pcallOpcode;
+-   _opcodePointer[OP_LIBCALL    ] = &amp;CRunBytecode::libcallOpcode;
++   _opcodePointer[OP_LCALL      ] = &amp;CRunBytecode::lcallOpcode;
+    _opcodePointer[OP_EXIT       ] = &amp;CRunBytecode::exitOpcode;
+-   _opcodePointer[OP_EXIT0      ] = &amp;CRunBytecode::exit0Opcode;
+-   _opcodePointer[OP_EXIT1      ] = &amp;CRunBytecode::exit1Opcode;
++   _opcodePointer[OP_EXIT_0     ] = &amp;CRunBytecode::exit_0Opcode;
++   _opcodePointer[OP_EXIT_1     ] = &amp;CRunBytecode::exit_1Opcode;
+ 
+    _opcodePointer[OP_HLT        ] = &amp;CRunBytecode::hltOpcode;
+ 
+@@ -127,12 +125,12 @@
+    _opcodePointer[OP_POPMV      ] = &amp;CRunBytecode::popmvOpcode;
+    _opcodePointer[OP_INCSP      ] = &amp;CRunBytecode::incspOpcode;
+    _opcodePointer[OP_DECSP      ] = &amp;CRunBytecode::decspOpcode;
+-   _opcodePointer[OP_PUSH0      ] = &amp;CRunBytecode::push0Opcode;
+-   _opcodePointer[OP_PUSH1      ] = &amp;CRunBytecode::push1Opcode;
+-   _opcodePointer[OP_PUSH2      ] = &amp;CRunBytecode::push2Opcode;
+-   _opcodePointer[OP_PUSH3      ] = &amp;CRunBytecode::push3Opcode;
+-   _opcodePointer[OP_PUSH4      ] = &amp;CRunBytecode::push4Opcode;
+-   _opcodePointer[OP_PUSH5      ] = &amp;CRunBytecode::push5Opcode;
++   _opcodePointer[OP_PUSH_0     ] = &amp;CRunBytecode::push_0Opcode;
++   _opcodePointer[OP_PUSH_1     ] = &amp;CRunBytecode::push_1Opcode;
++   _opcodePointer[OP_PUSH_2     ] = &amp;CRunBytecode::push_2Opcode;
++   _opcodePointer[OP_PUSH_3     ] = &amp;CRunBytecode::push_3Opcode;
++   _opcodePointer[OP_PUSH_4     ] = &amp;CRunBytecode::push_4Opcode;
++   _opcodePointer[OP_PUSH_5     ] = &amp;CRunBytecode::push_5Opcode;
+    _opcodePointer[OP_PUSHSV     ] = &amp;CRunBytecode::pushsvOpcode;
+    _opcodePointer[OP_PUSHIV     ] = &amp;CRunBytecode::pushivOpcode;
+    _opcodePointer[OP_PUSHRV     ] = &amp;CRunBytecode::pushrvOpcode;
+@@ -145,10 +143,10 @@
+    _opcodePointer[OP_PUSHBT     ] = &amp;CRunBytecode::pushbtOpcode;
+    _opcodePointer[OP_PUSHMT     ] = &amp;CRunBytecode::pushmtOpcode;
+ 
+-   _opcodePointer[OP_INCSP4     ] = &amp;CRunBytecode::incsp4Opcode;
+-   _opcodePointer[OP_INCSP8     ] = &amp;CRunBytecode::incsp8Opcode;
+-   _opcodePointer[OP_DECSP4     ] = &amp;CRunBytecode::decsp4Opcode;
+-   _opcodePointer[OP_DECSP8     ] = &amp;CRunBytecode::decsp8Opcode;
++   _opcodePointer[OP_INCSP_4     ] = &amp;CRunBytecode::incsp_4Opcode;
++   _opcodePointer[OP_INCSP_8     ] = &amp;CRunBytecode::incsp_8Opcode;
++   _opcodePointer[OP_DECSP_4     ] = &amp;CRunBytecode::decsp_4Opcode;
++   _opcodePointer[OP_DECSP_8     ] = &amp;CRunBytecode::decsp_8Opcode;
+ 
+    _opcodePointer[OP_RET        ] = &amp;CRunBytecode::retOpcode;
+    _opcodePointer[OP_SALLOC     ] = &amp;CRunBytecode::sallocOpcode;
+@@ -334,7 +332,7 @@
+ }
+ 
+ 
+-void CRunBytecode::libcallOpcode()
++void CRunBytecode::lcallOpcode()
+ {
+    trace (&quot;libcall opcode&quot;);
+ 
+@@ -360,7 +358,7 @@
+ }
+ 
+ 
+-void CRunBytecode::exit0Opcode()
++void CRunBytecode::exit_0Opcode()
+ {
+    trace (&quot;exit0 opcode&quot;);
+ 
+@@ -370,7 +368,7 @@
+ }
+ 
+ 
+-void CRunBytecode::exit1Opcode()
++void CRunBytecode::exit_1Opcode()
+ {
+    trace (&quot;exit1 opcode&quot;);
+ 
+@@ -947,49 +945,49 @@
+ }
+ 
+ 
+-void CRunBytecode::push0Opcode()
++void CRunBytecode::push_0Opcode()
+ {
+-   trace (&quot;push0 opcode&quot;);
++   trace (&quot;pus_h0 opcode&quot;);
+ 
+    _dataStack.pushInt(0);
+ }
+ 
+ 
+-void CRunBytecode::push1Opcode()
++void CRunBytecode::push_1Opcode()
+ {
+-   trace (&quot;push1 opcode&quot;);
++   trace (&quot;push_1 opcode&quot;);
+ 
+    _dataStack.pushInt(1);
+ }
+ 
+ 
+-void CRunBytecode::push2Opcode()
++void CRunBytecode::push_2Opcode()
+ {
+-   trace (&quot;push2 opcode&quot;);
++   trace (&quot;push_2 opcode&quot;);
+ 
+    _dataStack.pushInt(2);
+ }
+ 
+ 
+-void CRunBytecode::push3Opcode()
++void CRunBytecode::push_3Opcode()
+ {
+-   trace (&quot;push3 opcode&quot;);
++   trace (&quot;push_3 opcode&quot;);
+ 
+    _dataStack.pushInt(3);
+ }
+ 
+ 
+-void CRunBytecode::push4Opcode()
++void CRunBytecode::push_4Opcode()
+ {
+-   trace (&quot;push4 opcode&quot;);
++   trace (&quot;push_4 opcode&quot;);
+ 
+    _dataStack.pushInt(4);
+ }
+ 
+ 
+-void CRunBytecode::push5Opcode()
++void CRunBytecode::push_5Opcode()
+ {
+-   trace (&quot;push5 opcode&quot;);
++   trace (&quot;push_5 opcode&quot;);
+ 
+    _dataStack.pushInt(5);
+ }
+@@ -1067,31 +1065,31 @@
+ }
+ 
+ 
+-void CRunBytecode::incsp4Opcode()
++void CRunBytecode::incsp_4Opcode()
+ {
+-   trace (&quot;incsp4 opcode&quot;);
++   trace (&quot;incsp_4 opcode&quot;);
+ 
+    _dataStack.pushInt(0);
+ }
+ 
+-void CRunBytecode::incsp8Opcode()
++void CRunBytecode::incsp_8Opcode()
+ {
+-   trace (&quot;incsp8 opcode&quot;);
++   trace (&quot;incsp_8 opcode&quot;);
+ 
+    _dataStack.pushInt(0);
+    _dataStack.pushInt(0);
+ }
+ 
+-void CRunBytecode::decsp4Opcode()
++void CRunBytecode::decsp_4Opcode()
+ {
+-   trace (&quot;decsp4 opcode&quot;);
++   trace (&quot;decsp_4 opcode&quot;);
+ 
+    _dataStack.popInt();
+ }
+ 
+-void CRunBytecode::decsp8Opcode()
++void CRunBytecode::decsp_8Opcode()
+ {
+-   trace (&quot;decsp8 opcode&quot;);
++   trace (&quot;decsp_8 opcode&quot;);
+ 
+    _dataStack.popInt();
+    _dataStack.popInt();
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-29 11:53:00 UTC (rev 400)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-29 12:23:01 UTC (rev 401)
+@@ -39,15 +39,11 @@
+    // opcodes
+    void invalidOpcode(const std::string &amp;opcode=&quot;&quot;);
+    void nopOpcode();
+-//   void pushsregOpcode();
+-//   void popsregOpcode();
+-//   void push1Opcode();
+    void pcallOpcode();
+-   void libcallOpcode();
+-//   void exit0Opcode();
++   void lcallOpcode();
+    void exitOpcode();
+-   void exit0Opcode();
+-   void exit1Opcode();
++   void exit_0Opcode();
++   void exit_1Opcode();
+    void hltOpcode();
+ 
+    void isumOpcode();
+@@ -128,12 +124,12 @@
+    void popmvOpcode();
+    void incspOpcode();
+    void decspOpcode();
+-   void push0Opcode();
+-   void push1Opcode();
+-   void push2Opcode();
+-   void push3Opcode();
+-   void push4Opcode();
+-   void push5Opcode();
++   void push_0Opcode();
++   void push_1Opcode();
++   void push_2Opcode();
++   void push_3Opcode();
++   void push_4Opcode();
++   void push_5Opcode();
+    void pushsvOpcode();
+    void pushivOpcode();
+    void pushrvOpcode();
+@@ -146,10 +142,10 @@
+    void pushbtOpcode();
+    void pushmtOpcode();
+ 
+-   void incsp4Opcode();
+-   void incsp8Opcode();
+-   void decsp4Opcode();
+-   void decsp8Opcode();
++   void incsp_4Opcode();
++   void incsp_8Opcode();
++   void decsp_4Opcode();
++   void decsp_8Opcode();
+ 
+    void retOpcode();
+    void sallocOpcode();
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/estruturas_repeticao_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/expressoes_matematicas_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/funcoes_definidas_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/invocando_subrotinas_linguagem_2.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_1.gvm
+===================================================================
+(Binary files differ)
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/procedimentos_definidos_usuario_2.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000074.html">[gpt-commit] r400 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test	gptvm/test/gerados_pelo_gptasm
+</A></li>
+	<LI>Next message: <A HREF="000076.html">[gpt-commit] r402 - in trunk/gpt2: common/src gptasm/test/wikki	gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#75">[ date ]</a>
+              <a href="thread.html#75">[ thread ]</a>
+              <a href="subject.html#75">[ subject ]</a>
+              <a href="author.html#75">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

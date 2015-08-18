@@ -1,0 +1,435 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r533 - in trunk/gpt: . doc/manual test
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2009-June/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r533%20-%20in%20trunk/gpt%3A%20.%20doc/manual%20test&In-Reply-To=%3C200906100447.n5A4losd030224%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000207.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r533 - in trunk/gpt: . doc/manual test</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r533%20-%20in%20trunk/gpt%3A%20.%20doc/manual%20test&In-Reply-To=%3C200906100447.n5A4losd030224%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r533 - in trunk/gpt: . doc/manual test">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Jun 10 06:47:50 CEST 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000207.html">[gpt-commit] r534 - trunk/gpt/test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#206">[ date ]</a>
+              <a href="thread.html#206">[ thread ]</a>
+              <a href="subject.html#206">[ subject ]</a>
+              <a href="author.html#206">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: adorilson
+Date: 2009-06-10 06:47:20 +0200 (Wed, 10 Jun 2009)
+New Revision: 533
+
+Modified:
+   trunk/gpt/ChangeLog
+   trunk/gpt/HACKING
+   trunk/gpt/NEWS
+   trunk/gpt/README.pt_BR
+   trunk/gpt/configure.ac
+   trunk/gpt/doc/manual/manual.tex
+   trunk/gpt/test/tester.gpt
+Log:
+
+
+Modified: trunk/gpt/ChangeLog
+===================================================================
+--- trunk/gpt/ChangeLog	2009-05-29 03:13:43 UTC (rev 532)
++++ trunk/gpt/ChangeLog	2009-06-10 04:47:20 UTC (rev 533)
+@@ -1,3 +1,144 @@
++2009-05-29
++
++	* /trunk/gpt/src/modules/interpreter/InterpreterEval.hpp:
++	* /trunk/gpt/src/GPT.hpp:
++	* /trunk/gpt/src/modules/c_translator/pt2c.g:
++	* /trunk/gpt/src/modules/interpreter/interpreter.g:
++	* /trunk/gpt/src/main.cpp:
++	* /trunk/gpt/src/modules/interpreter/InterpreterEval.cpp:
++	* /trunk/gpt/src/modules/x86/x86.g:
++	* /trunk/gpt/test/tester.gpt:
++	* /trunk/gpt/src/GPT.cpp:
++
++	- Adicionado suporte a retorne no bloco principal, no modulo
++	interpretador.
++
++2009-03-30
++
++	* /trunk/gpt/src/modules/x86/X86.cpp:
++	* /trunk/gpt/src/modules/x86/x86.g:
++	* /trunk/gpt/src/modules/x86/X86.hpp:
++
++	-Passando o valor de exit() pelo registrador ecx
++
++	* /trunk/gpt/src/modules/parser/SemanticEval.cpp:
++
++	-Adequacao de mensagem de erro
++
++2009-03-22
++
++	* /trunk/gpt/HACKING:
++	* /trunk/gpt/src:
++	* /trunk/gpt/src/modules/c_translator/pt2c.g:
++	* /trunk/gpt/src/modules/parser/SemanticEval.cpp:
++	* /trunk/gpt/src/modules/x86/X86.cpp:
++	* /trunk/gpt/src/modules/x86/x86.g:
++	* /trunk/gpt/test/tester.gpt:
++	* /trunk/gpt/src/modules/x86/X86.hpp:
++	* /trunk/gpt/src/GPT.cpp:
++
++	- Adicionado suporte a retorne no bloco principal. Sendo que,
++	atualmente, somente na traducao para C++ o valor de retorno
++	do
++	-algoritmo &#195;&#169; passado para o S.O.
++	Fix:
++	- Resolvido bug na traducao para C++: o g++ nao encontrava a
++	funcao str_strlen().
++	-REGULAR:
++	- Pequena correcao no HACKING.
++
++2009-02-22
++
++	* /trunk/gpt/src/modules/x86/X86.cpp:
++
++	-substituindo um hack por outro em toReal
++
++	* /trunk/gpt/test/tester.gpt:
++
++	-codificacao parece que tava zoada
++
++	* /trunk/gpt/src/modules/x86/x86.g:
++
++	Fix:
++	-label de enquanto faltando o ':' ao final
++
++	* /trunk/gpt/src/modules/c_translator/pt2c.g:
++
++	Fix:
++	-str_comp dando segfault quando argumentos sao nulos
++	-matriz de literais nao estava sendo inicializada
++	corretamente
++
++	* /trunk/gpt/src/modules/parser/lexer.g:
++
++	-correcao de typo em comentario
++
++2009-02-21
++
++	* /trunk/gpt/src/modules/x86/X86.cpp:
++	* /trunk/gpt/src/modules/x86/asm_lib.h:
++
++	- Correcao do bug #83 (ver mantis) para a versao compilada
++	(impressao de tipo literal)
++
++	* /trunk/gpt/src/modules/interpreter/InterpreterEval.cpp:
++
++	- Correcao do bug #83 (mantis) para o interpretador
++	(impressao de tipo literal)
++
++2009-02-19
++
++	* /trunk/gpt/src/modules/interpreter/InterpreterEval.cpp:
++	* /trunk/gpt/src/modules/x86/asm_lib.h:
++	* /trunk/gpt/src/GPT.cpp:
++
++	Fix:
++	-data do copyright
++	-Bug na impressao de valores logicos
++
++2009-02-16
++
++	* /trunk/gpt/doc/manual/manual.tex:
++
++	-Correcoes no portugues
++
++2009-01-13
++
++	* /trunk/gpt/configure.ac:
++	* /trunk/gpt/src/modules/parser/UnicodeCharBuffer.hpp:
++
++	-fixing compilation issues with GCC 4.4
++	-fixed building on debian with pccts installed
++
++2008-12-11
++
++	* /trunk/gpt/src/modules/parser/UnicodeCharScanner.hpp:
++
++	-resolvendo compilacao com gcc 4.4
++
++2008-10-21
++
++	* /trunk/gpt/debian/dirs:
++	* /trunk/gpt/debian/compat:
++	* /trunk/gpt/packages/deb:
++	* /trunk/gpt/debian/watch:
++	* /trunk/gpt/debian/changelog:
++	* /trunk/gpt/debian/copyright:
++	* /trunk/gpt/debian/docs:
++	* /trunk/gpt/debian/libgportugol-dev.install:
++	* /trunk/gpt/debian/rules:
++	* /trunk/gpt/debian/libgportugol0.install:
++	* /trunk/gpt/debian/gpt.install:
++	* /trunk/gpt/debian:
++	* /trunk/gpt/debian/control:
++
++	- Adicao dos arquivos necessarios para criacao de pacotes
++	debian
++
++	* /trunk/gpt/lib/Makefile.am:
++
++	-base.gpt nao estava sendo incluido no pacote tar.gz
++
+ 2008-06-24
+ 
+ 	* /trunk/gpt/src/Makefile.am:
+
+Modified: trunk/gpt/HACKING
+===================================================================
+--- trunk/gpt/HACKING	2009-05-29 03:13:43 UTC (rev 532)
++++ trunk/gpt/HACKING	2009-06-10 04:47:20 UTC (rev 533)
+@@ -178,3 +178,65 @@
+   
+ 
+   TODO: explicar a infraestrutura de testes (quando houver uma)
++
++Documentando
++=============
++
++  Os arquivos de documenta&#195;&#167;&#195;&#163;o ficam no diret&#195;&#179;rio doc.
++
++  O manual est&#195;&#161; em doc/manual e &#195;&#169; escrito em Latex, portanto ser&#195;&#161; necess&#195;&#161;rio a instala&#195;&#167;&#195;&#163;o dos seguintes pacotes:
++  - latex-make
++  - texlive-latex-base
++  - latex2html
++  
++  Os arquivos do manual ficam na pasta doc/manual. E o arquivo principal &#195;&#169; o manual.tex.
++  Ap&#195;&#179;s fazer as modifica&#195;&#167;&#195;&#181;es, para gerar o pdf, basta executar o comando
++  $ latex manual.tex
++  
++  Para gerar o manual em html, use o comando
++  $ latex2html manual.tex
++
++Distribuindo
++=============
++
++  Para a distribu&#195;&#167;&#195;&#163;o do GPT pode-se seguir os seguinte passos:
++  
++  o Atualizar documenta&#195;&#167;&#195;&#163;o (ver se&#195;&#167;&#195;&#163;o Documentando)
++  
++  o Checar se todos os arquivos novos/modificados est&#195;&#163;o no reposit&#195;&#179;rio
++    $ svn status 
++  
++  o Testar o vers&#195;&#163;o do SVN em outros ambientes
++  
++  o Mudar a vers&#195;&#163;o no arquivo configure.ac
++    Atualizar os paramentros das fun&#195;&#167;&#195;&#181;es AC_INIT e AM_INIT_AUTOMAKE com a nova vers&#195;&#163;o do gpt
++    Ap&#195;&#179;s isso executar os comandos, para que a mudan&#195;&#167;a reflita nos arquivos gerados automaticamente:
++    $ autoconf &amp;&amp; automake
++    
++  o Atualizar NEWS
++    O arquivo NEWS dever&#195;&#161; ser atualizado manualmente seguindo o padr&#195;&#163;o utilizado.
++    
++  o Atualizar ChangeLog
++    Para gerar o ChangeLog ser&#195;&#161; necess&#195;&#161;rio a instala&#195;&#167;&#195;&#163;o do pacote:
++    - php-cli
++  
++    Executar o comando
++    $ php stuff/svn2cl.php &gt; ChangeLog
++  
++  o Commit e tag
++    Ap&#195;&#179;s essas atualiza&#195;&#167;&#195;&#181;es, dever&#195;&#161; ser feito um commit sem coment&#195;&#161;rios e tagear a vers&#195;&#163;o no SVN. 
++    $ svn commit
++    $ svn copy <A HREF="svn://svn.berlios.de/gpt/trunk/gpt">svn://svn.berlios.de/gpt/trunk/gpt</A> \
++           <A HREF="svn://svn.berlios.de/gpt/tags/gpt-1.1">svn://svn.berlios.de/gpt/tags/gpt-1.1</A> \
++      -m &quot;Release 1.1&quot;
++
++  o Criar pacotes
++    - tar.gz
++      $ make distclean; mkdir build; cd build; ../configure &amp;&amp; make &amp;&amp; make distcheck
++    
++    
++    - debian
++
++  o Fazer o upload dos arquivos
++  
++  o Atualizar o site e publicar as novidades
+
+Modified: trunk/gpt/NEWS
+===================================================================
+--- trunk/gpt/NEWS	2009-05-29 03:13:43 UTC (rev 532)
++++ trunk/gpt/NEWS	2009-06-10 04:47:20 UTC (rev 533)
+@@ -1,6 +1,11 @@
+ Sum&#195;&#161;rio de mudan&#195;&#167;as
+ -------------------
+ 
++10 de junho de 2009 * gpt 1.1
++  
++  * O bloco principal agora tem suporte para instru&#195;&#167;&#195;&#163;o &quot;retorne&quot;
++  * Corre&#195;&#167;&#195;&#163;o de bugs relacionados a impress&#195;&#163;o de valores nulos 
++
+ 11 de Dezembro de 2008 * gpt 1.0.2a
+ 
+   * Corre&#195;&#167;&#195;&#163;o de bugs relacionados &#195;&#160; compila&#195;&#167;&#195;&#163;o com gcc 4.4
+
+Modified: trunk/gpt/README.pt_BR
+===================================================================
+--- trunk/gpt/README.pt_BR	2009-05-29 03:13:43 UTC (rev 532)
++++ trunk/gpt/README.pt_BR	2009-06-10 04:47:20 UTC (rev 533)
+@@ -1,4 +1,4 @@
+-G-Portugol - vers&#195;&#163;o: 1.0.1
++G-Portugol - vers&#195;&#163;o: 1.1
+ ========================
+ 
+ o Sobre a linguagem
+@@ -39,7 +39,7 @@
+ 
+   Website: <A HREF="http://gpt.berlios.de">http://gpt.berlios.de</A>
+ 
+-  Lista de discussao: <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-usuarios">https://lists.berlios.de/mailman/listinfo/gpt-usuarios</A>
++  Lista de discuss&#195;&#163;o: <A HREF="https://lists.berlios.de/mailman/listinfo/gpt-usuarios">https://lists.berlios.de/mailman/listinfo/gpt-usuarios</A>
+ 
+   Autor: Thiago Silva &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>&gt;
+ 
+
+Modified: trunk/gpt/configure.ac
+===================================================================
+--- trunk/gpt/configure.ac	2009-05-29 03:13:43 UTC (rev 532)
++++ trunk/gpt/configure.ac	2009-06-10 04:47:20 UTC (rev 533)
+@@ -4,8 +4,8 @@
+ 
+ AC_PREREQ(2.60)
+ 
+-AC_INIT(gpt, 1.0.4)
+-AM_INIT_AUTOMAKE(gpt, 1.0.4)
++AC_INIT(gpt, 1.1)
++AM_INIT_AUTOMAKE(gpt, 1.1)
+ AC_CONFIG_HEADER([config.h])
+ AC_LANG(C++)
+ AC_PROG_CXX
+
+Modified: trunk/gpt/doc/manual/manual.tex
+===================================================================
+--- trunk/gpt/doc/manual/manual.tex	2009-05-29 03:13:43 UTC (rev 532)
++++ trunk/gpt/doc/manual/manual.tex	2009-06-10 04:47:20 UTC (rev 533)
+@@ -131,7 +131,7 @@
+ \def\version#1{\def\@version{#1}}
+ 
+ \title{G-Portugol}
+-\version{v1.0.1}
++\version{v1.1}
+ \author{Thiago Silva}
+ \email{\texttt{<A HREF="https://lists.berlios.de/mailman/listinfo/gpt-commit">tsilva at sourcecraft.info</A>}}
+ 
+@@ -426,7 +426,7 @@
+   podem ter acentos ou caracteres especiais como \$, \#, etc. A defini&#231;&#227;o
+   de um identificador em   G-Portugol &#233; equivalente ao das linguagens populares:
+   uma letra (a-z ou A-Z) seguido de qualquer n&#250;mero de letras ou n&#250;meros.
+-  Finalmente, underlines (_) s&#227;o permitidos. Cedilhas, portanto, tamb&#233;m n&#227;o
++  Finalmente, underlines (\_) s&#227;o permitidos. Cedilhas, portanto, tamb&#233;m n&#227;o
+   formam identificadores v&#225;lidos. 
+ 
+  \item 
+@@ -1036,6 +1036,24 @@
+ recurso pode ser vantajoso no ensino, promovendo a clareza de c&#243;digo,
+ portanto, sua implementa&#231;&#227;o pode ser discutida para vers&#245;es futuras.
+ 
++Embora a sintaxe seja bem diferente, o bloco principal tem uma fun&#231;&#227;o sem&#226;ntica semelhante &#224;
++fun&#231;&#227;o \textit{main} do C. Possuindo a possibilidade de retornar um valor inteiro atrav&#233;s do 
++comando ''retorne''. 
++
++\begin{program}
++  \begin{verbatim}
++algoritmo bloco_principal;
++
++in&#237;cio
++  imprima(&quot;Retornando valor do bloco principal&quot;);
++  retorne 42;
++  imprima(&quot;Essa linha n&#227;o ser&#225; impressa&quot;);
++fim
++  \end{verbatim}
++  
++  \caption{Bloco principal com comando retorne.}
++\end{program}
++
+   \subsubsection{Estruturas de Controle}
+ 
+ Estruturas de controle s&#227;o formadas por um cabe&#231;alho seguido por
+@@ -1365,7 +1383,6 @@
+    -t &lt;arquivo&gt;  salva o c&#243;digo em linguagem C como &lt;arquivo&gt;
+    -s &lt;arquivo&gt;  salva o c&#243;digo em linguagem assembly como &lt;arquivo&gt;
+    -i            interpreta
+-
+    -d            exibe dicas no relat&#243;rio de erros
+ 
+    Maiores informa&#231;&#245;es no manual.
+
+Modified: trunk/gpt/test/tester.gpt
+===================================================================
+--- trunk/gpt/test/tester.gpt	2009-05-29 03:13:43 UTC (rev 532)
++++ trunk/gpt/test/tester.gpt	2009-06-10 04:47:20 UTC (rev 533)
+@@ -10,6 +10,7 @@
+   c : caractere;
+   str : literal;  
+   mat: matriz[2] de inteiros;
++  avi&#195;&#167;ao: inteiro;
+ fim-vari&#195;&#161;veis
+ 
+ in&#195;&#173;cio
+@@ -23,7 +24,7 @@
+   testar_para();
+ 
+ 
+-  testar_funcoes();
++  testar_fun&#195;&#167;&#195;&#181;es();
+ 
+ //overflow de inteiros, caracteres logicos e reais
+   //testar_overflow();
+@@ -459,7 +460,7 @@
+ 
+ 
+ 
+-fun&#195;&#167;&#195;&#163;o testar_funcoes()
++fun&#195;&#167;&#195;&#163;o testar_fun&#195;&#167;&#195;&#181;es()
+   lit : literal;
+   mm  : matriz[2] de inteiros;
+   i : inteiro;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000207.html">[gpt-commit] r534 - trunk/gpt/test
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#206">[ date ]</a>
+              <a href="thread.html#206">[ thread ]</a>
+              <a href="subject.html#206">[ subject ]</a>
+              <a href="author.html#206">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

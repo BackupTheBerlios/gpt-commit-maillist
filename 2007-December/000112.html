@@ -1,0 +1,1553 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r438 - trunk/gpt2/gptc/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r438%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712190053.lBJ0rrFi021177%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000111.html">
+   <LINK REL="Next"  HREF="000113.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r438 - trunk/gpt2/gptc/src</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r438%20-%20trunk/gpt2/gptc/src&In-Reply-To=%3C200712190053.lBJ0rrFi021177%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r438 - trunk/gpt2/gptc/src">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Wed Dec 19 01:53:53 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000111.html">[gpt-commit] r437 - trunk/gpt2/gptc/src
+</A></li>
+        <LI>Next message: <A HREF="000113.html">[gpt-commit] r439 - trunk/gpt2/gptc/test/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#112">[ date ]</a>
+              <a href="thread.html#112">[ thread ]</a>
+              <a href="subject.html#112">[ subject ]</a>
+              <a href="author.html#112">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2007-12-19 01:53:51 +0100 (Wed, 19 Dec 2007)
+New Revision: 438
+
+Added:
+   trunk/gpt2/gptc/src/GptAsmExpression.cpp
+Modified:
+   trunk/gpt2/gptc/src/Arguments.cpp
+   trunk/gpt2/gptc/src/AsmProgram.cpp
+   trunk/gpt2/gptc/src/BaseGptAsmWalker.cpp
+   trunk/gpt2/gptc/src/BaseGptAsmWalker.hpp
+   trunk/gpt2/gptc/src/GptAsmExpression.hpp
+   trunk/gpt2/gptc/src/Makefile.am
+   trunk/gpt2/gptc/src/Subroutine.cpp
+   trunk/gpt2/gptc/src/Subroutine.hpp
+   trunk/gpt2/gptc/src/Symbol.cpp
+   trunk/gpt2/gptc/src/Types.cpp
+   trunk/gpt2/gptc/src/Types.hpp
+   trunk/gpt2/gptc/src/gptasm.g
+   trunk/gpt2/gptc/src/main.cpp
+Log:
+-Gerando expressoes e atribuicao (lvalues primitivos, apenas)
+
+Modified: trunk/gpt2/gptc/src/Arguments.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Arguments.cpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/Arguments.cpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -27,6 +27,6 @@
+ 
+ 	}
+ 	if (varArgs) {
+-		_subroutine-&gt;emitMn( &quot;push&quot;, itoa( size( ) ) );
++		_subroutine-&gt;emit( &quot;push&quot;, itoa( size( ) ) );
+ 	}
+ }
+
+Modified: trunk/gpt2/gptc/src/AsmProgram.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/AsmProgram.cpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/AsmProgram.cpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -10,13 +10,14 @@
+ 
+ void AsmProgram::init()
+ {
+-	_asmPrg.writeln(&quot;// Programa &quot; + _options-&gt;filename + &quot;.gasm gerado a partir de &quot; + _options-&gt;filename + &quot;.gpt&quot;);
+-	_asmPrg.writeln(&quot;program &quot; + _options-&gt;filename);
++	_asmPrg.writeln(&quot;// Programa gerado a partir de &quot; + _options-&gt;filename);
++	_asmPrg.writeln(&quot;program&quot;);
+ 	_asmPrg.writeln();
+ }
+ 
+ void AsmProgram::finish()
+ {
++  _asmPrg.writeln();
+ 	_asmPrg.writeln(&quot;end-program&quot;);
+ }
+ 
+
+Modified: trunk/gpt2/gptc/src/BaseGptAsmWalker.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseGptAsmWalker.cpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/BaseGptAsmWalker.cpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -4,6 +4,7 @@
+ #include &quot;Symbol.hpp&quot;
+ #include &quot;AsmProgram.hpp&quot;
+ #include &quot;Types.hpp&quot;
++#include &quot;GptAsmExpression.hpp&quot;
+ 
+ BaseGptAsmWalker::BaseGptAsmWalker(SymbolTable* symtable,
+                                    const std::string&amp; filepath)
+@@ -12,9 +13,9 @@
+   _symtable-&gt;setGlobalScope();
+ 
+   _options.filename = _filepath;
+-  //options.sourcefile = filename + &quot;.gpt&quot;;
+-  //options.destfile   = filename + &quot;.gasm&quot;;
+   _asmPrg = new AsmProgram(&amp;_options);
++
++  _subroutine = _asmPrg-&gt;initSubroutine(&quot;main&quot;);
+ }
+ 
+ 
+@@ -23,53 +24,338 @@
+   _asmPrg = NULL;
+ }
+ 
+-void BaseGptAsmWalker::declareProgramVars(const std::list&lt;string&gt;&amp; ids) {
+-  for (std::list&lt;string&gt;::const_iterator it = ids.begin(); it != ids.end(); ++it) {
+-    _asmPrg-&gt;emitVarDefinition(
+-      *it, _symtable-&gt;getSymbol(*it).type()-&gt;asmName());
++void BaseGptAsmWalker::declareProgramVars(const std::list&lt;std::string&gt;&amp; ids) {
++  for (std::list&lt;std::string&gt;::const_iterator it = ids.begin(); it != ids.end(); ++it) {
++    Symbol symbol = _symtable-&gt;getSymbol(*it);
++    _asmPrg-&gt;emitVarDefinition(symbol.identifier(), symbol.type()-&gt;asmName(true));
++
++    if (symbol.type()-&gt;isMatrix()) {
++      addMatrixInitialization(symbol);
++    }
+   }
+ }
+ 
+-void BaseGptAsmWalker::declareSubroutineVars(const std::list&lt;string&gt;&amp; ids) {
+-  for (std::list&lt;string&gt;::const_iterator it = ids.begin(); it != ids.end(); ++it) {
++void BaseGptAsmWalker::addMatrixInitialization(const Symbol&amp; symbol) {
++  std::list&lt;int&gt; dims = symbol.type()-&gt;dimensions();
++
++  std::stringstream code;
++
++  if (dims.size() == 1) {
++    code &lt;&lt; &quot;m1alloc &quot; &lt;&lt; symbol.identifier()
++            &lt;&lt; &quot;, &quot; &lt;&lt; symbol.type()-&gt;ofType()-&gt;byteSize()
++            &lt;&lt; &quot;, &quot; &lt;&lt; dims.front();
++  } else if(dims.size() == 2) {
++    code &lt;&lt; &quot;m2alloc &quot; &lt;&lt; symbol.identifier()
++            &lt;&lt; &quot;, &quot; &lt;&lt; symbol.type()-&gt;ofType()-&gt;byteSize()
++            &lt;&lt; &quot;, &quot; &lt;&lt; dims.front()
++            &lt;&lt; &quot;, &quot; &lt;&lt; *(dims.rbegin());
++  }
++  _subroutine-&gt;emitAsmCode(code.str());
++}
++
++
++void BaseGptAsmWalker::declareSubroutineVars(const std::list&lt;std::string&gt;&amp; ids) {
++  for (std::list&lt;std::string&gt;::const_iterator it = ids.begin(); it != ids.end(); ++it) {
+     _subroutine-&gt;emitVarDefinition(
+-      *it, _symtable-&gt;getSymbol(*it).type()-&gt;asmName());
+-  }  
++      *it, _symtable-&gt;getSymbol(*it).type());
++  }
+ }
+ 
+ void BaseGptAsmWalker::declareParameter(const string&amp; lexeme) {
+   _subroutine-&gt;emitParDefinition(
+-    lexeme, _symtable-&gt;getSymbol(lexeme).type()-&gt;asmName());
++    lexeme, _symtable-&gt;getSymbol(lexeme).type());
+ }
+ 
+ int BaseGptAsmWalker::getSymbolType(const string&amp; lexeme) {
+   return _symtable-&gt;getSymbol(lexeme).type()-&gt;primitiveType();
+ }
+ 
+-std::string BaseGptAsmWalker::expandOffset(const std::string&amp;, const std::list&lt;std::string&gt;&amp;) {
++// std::string BaseGptAsmWalker::expandOffset(const std::string&amp;, const std::list&lt;std::string&gt;&amp;) {
++  //??TODO
++// }
++
++
++void BaseGptAsmWalker::emitAttribution(const Symbol&amp; lv, const std::string&amp; tmp) {
++  switch (lv.type()-&gt;primitiveType()) {
++    case PortugolTokenTypes::T_REAL:
++      _subroutine-&gt;emit(&quot;rset&quot;, lv.identifier(), tmp);
++      break;
++    case PortugolTokenTypes::T_LITERAL:
++      _subroutine-&gt;emit(&quot;sset&quot;, lv.identifier(), tmp);
++      break;
++    case PortugolTokenTypes::T_INTEIRO:
++    case PortugolTokenTypes::T_LOGICO:
++    case PortugolTokenTypes::T_CARACTERE:
++      _subroutine-&gt;emit(&quot;iset&quot;, lv.identifier(), tmp);
++      break;
++    default:
++      throw;
++  }
+ }
+ 
+-void BaseGptAsmWalker::expr_MAIS(GptAsmExpression&amp;, const GptAsmExpression&amp;, const GptAsmExpression&amp;) {
++
++
++
++
++GptAsmExpression* BaseGptAsmWalker::expr_OU(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  return new GptAsmExpression(optype, optype, &quot;lor&quot;, left, right);
+ }
+ 
++GptAsmExpression* BaseGptAsmWalker::expr_E(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  return new GptAsmExpression(optype, optype, &quot;land&quot;, left, right);
++}
+ 
++GptAsmExpression* BaseGptAsmWalker::expr_BIT_OU(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  return new GptAsmExpression(optype, optype, &quot;bor&quot;, left, right);
++}
+ 
++GptAsmExpression* BaseGptAsmWalker::expr_BIT_XOU(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  return new GptAsmExpression(optype, optype, &quot;bxor&quot;, left, right);
++}
+ 
++GptAsmExpression* BaseGptAsmWalker::expr_BIT_E(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  return new GptAsmExpression(optype, optype, &quot;band&quot;, left, right);
++}
+ 
++GptAsmExpression* BaseGptAsmWalker::expr_IGUAL(Type *optype,
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  
++  //lh e rh tem o mesmo tipo
++  switch (left-&gt;restype()-&gt;primitiveType()) {
++    case PortugolTokenTypes::T_REAL:
++      return new GptAsmExpression(optype, left-&gt;restype(), &quot;req&quot;, left, right);
++      break;
++    case PortugolTokenTypes::T_LITERAL:
++      return new GptAsmExpression(optype, left-&gt;restype(), &quot;seq&quot;, left, right);
++      break;
++    default: //inteiro, l&#243;gico, caractere
++      return new GptAsmExpression(optype, left-&gt;restype(), &quot;ieq&quot;, left, right);
++      break;
++  }
++}
+ 
+-//      string getAsmProgram( ) const
+-//      {
+-//         return asmPrg-&gt;getAsm( );
+-//      }
++GptAsmExpression* BaseGptAsmWalker::expr_DIFERENTE(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  //lh e rh tem o mesmo tipo
++  switch (left-&gt;restype()-&gt;primitiveType()) {
++    case PortugolTokenTypes::T_REAL:
++      return new GptAsmExpression(optype, left-&gt;restype(), &quot;rne&quot;, left, right);
++      break;
++    case PortugolTokenTypes::T_LITERAL:
++      return new GptAsmExpression(optype, left-&gt;restype(), &quot;sne&quot;, left, right);
++      break;
++    default: //inteiro, l&#243;gico, caractere
++      return new GptAsmExpression(optype, left-&gt;restype(), &quot;ine&quot;, left, right);
++      break;
++  }
++}
+ 
+-// void BaseGptAsmWalker::declareGlobals(const IDList&amp; ids) {
+-//   for (IDList::const_iterator it = ids.begin(); it != ids.end(); ++it) {
+-//     _globalarea &lt;&lt; &quot;var &quot; &lt;&lt; (*it) &lt;&lt; &quot; &quot; &lt;&lt; getAsmType(*it) &lt;&lt; std::endl;
+-//   }
+-// }
+-// 
+-// std::string BaseGptAsmWalker::getAsmType(const std::string&amp; id) {
+-//   return _symtable-&gt;getSymbol(
+-//       id, _symtable-&gt;currentScope()).type()-&gt;asmName();
+-// }
++GptAsmExpression* BaseGptAsmWalker::expr_MAIOR(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
+ 
++  Type *promType;
++  if ((promType = left-&gt;restype()-&gt;intOrReal(right-&gt;restype())) == NULL) {
++    promType = left-&gt;restype()-&gt;caracOrLit(right-&gt;restype());
++  }
++
++  switch (promType-&gt;primitiveType()) {
++    case PortugolTokenTypes::T_REAL:
++      return new GptAsmExpression(optype, promType, &quot;rgt&quot;, left, right);
++      break;
++    case PortugolTokenTypes::T_LITERAL:
++      return new GptAsmExpression(optype, promType, &quot;sgt&quot;, left, right);
++      break;
++    default: //inteiro, l&#243;gico, caractere
++      return new GptAsmExpression(optype, promType, &quot;igt&quot;, left, right);
++      break;
++  }
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_MENOR(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++
++  Type *promType;
++  if ((promType = left-&gt;restype()-&gt;intOrReal(right-&gt;restype())) == NULL) {
++    promType = left-&gt;restype()-&gt;caracOrLit(right-&gt;restype());
++  }
++
++  switch (promType-&gt;primitiveType()) {
++    case PortugolTokenTypes::T_REAL:
++      return new GptAsmExpression(optype, promType, &quot;rlt&quot;, left, right);
++      break;
++    case PortugolTokenTypes::T_LITERAL:
++      return new GptAsmExpression(optype, promType, &quot;slt&quot;, left, right);
++      break;
++    default: //inteiro, l&#243;gico, caractere
++      return new GptAsmExpression(optype, promType, &quot;ilt&quot;, left, right);
++      break;
++  }
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_MAIOR_EQ(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++
++  Type *promType;
++  if ((promType = left-&gt;restype()-&gt;intOrReal(right-&gt;restype())) == NULL) {
++    promType = left-&gt;restype()-&gt;caracOrLit(right-&gt;restype());
++  }
++
++  switch (promType-&gt;primitiveType()) {
++    case PortugolTokenTypes::T_REAL:
++      return new GptAsmExpression(optype, promType, &quot;rge&quot;, left, right);
++      break;
++    case PortugolTokenTypes::T_LITERAL:
++      return new GptAsmExpression(optype, promType, &quot;sge&quot;, left, right);
++      break;
++    default: //inteiro, l&#243;gico, caractere
++      return new GptAsmExpression(optype, promType, &quot;ige&quot;, left, right);
++      break;
++  }
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_MENOR_EQ(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  Type *promType;
++  if ((promType = left-&gt;restype()-&gt;intOrReal(right-&gt;restype())) == NULL) {
++    promType = left-&gt;restype()-&gt;caracOrLit(right-&gt;restype());
++  }
++
++  switch (promType-&gt;primitiveType()) {
++    case PortugolTokenTypes::T_REAL:
++      return new GptAsmExpression(optype, promType, &quot;rle&quot;, left, right);
++      break;
++    case PortugolTokenTypes::T_LITERAL:
++      return new GptAsmExpression(optype, promType, &quot;sle&quot;, left, right);
++      break;
++    default: //inteiro, l&#243;gico, caractere
++      return new GptAsmExpression(optype, promType, &quot;ile&quot;, left, right);
++      break;
++  }
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_BIT_SHIFT_LEFT(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  return new GptAsmExpression(optype, left-&gt;restype(), &quot;bshl&quot;, left, right);
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_BIT_SHIFT_RIGHT(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  return new GptAsmExpression(optype, left-&gt;restype(), &quot;bshr&quot;, left, right);
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_MAIS(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++
++  Type *promType;
++  if ((promType = left-&gt;restype()-&gt;intOrReal(right-&gt;restype())) == NULL) {
++    promType = left-&gt;restype()-&gt;caracOrLit(right-&gt;restype());
++  }
++
++  switch (optype-&gt;primitiveType()) {
++    case PortugolTokenTypes::T_INTEIRO:
++      return new GptAsmExpression(optype, promType, &quot;isum&quot;, left, right);
++      break;
++    case PortugolTokenTypes::T_REAL:
++      return new GptAsmExpression(optype, promType, &quot;rsum&quot;, left, right);
++      break;
++    case PortugolTokenTypes::T_LITERAL:
++      return new GptAsmExpression(optype, promType, &quot;ssum&quot;, left, right);
++      break;
++  }
++  throw;
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_MENOS(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++
++  Type *promType = left-&gt;restype()-&gt;intOrReal(right-&gt;restype());
++
++  if (optype-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
++    return new GptAsmExpression(optype, promType, &quot;isub&quot;, left, right);
++  } else if (optype-&gt;equals(PortugolTokenTypes::T_REAL)) {
++    return new GptAsmExpression(optype, promType, &quot;rsub&quot;, left, right);
++  }
++  throw;
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_DIV(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++
++  Type *promType = left-&gt;restype()-&gt;intOrReal(right-&gt;restype());
++
++  if (optype-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
++    return new GptAsmExpression(optype, promType, &quot;idiv&quot;, left, right);
++  } else if (optype-&gt;equals(PortugolTokenTypes::T_REAL)) {
++    return new GptAsmExpression(optype, promType, &quot;rdiv&quot;, left, right);
++  }
++  throw;
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_MULTIP(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++
++  Type *promType = left-&gt;restype()-&gt;intOrReal(right-&gt;restype());
++
++  if (optype-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
++    return new GptAsmExpression(optype, promType, &quot;imul&quot;, left, right);
++  } else if (optype-&gt;equals(PortugolTokenTypes::T_REAL)) {
++    return new GptAsmExpression(optype, promType, &quot;rmul&quot;, left, right);
++  }
++  throw;
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_MOD(Type *optype, 
++                                            GptAsmExpression* left, 
++                                            GptAsmExpression* right) {
++  return new GptAsmExpression(optype, left-&gt;restype(), &quot;imod&quot;, left, right);
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_UN_NEGATIVO(Type *optype, 
++                                            GptAsmExpression* term) {
++
++  if (optype-&gt;equals(PortugolTokenTypes::T_INTEIRO)) {
++    return new GptAsmExpression(optype, term-&gt;restype(), &quot;inet&quot;, term);
++  } else if (optype-&gt;equals(PortugolTokenTypes::T_REAL)) {
++    return new GptAsmExpression(optype, term-&gt;restype(), &quot;rneg&quot;, term);
++  }
++  throw;
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_UN_POSITIVO(Type*,GptAsmExpression* term) {
++  return term;
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_UN_NAO(Type* optype,GptAsmExpression* term) {
++  return new GptAsmExpression(optype, term-&gt;restype(), &quot;not&quot;, term);
++}
++
++GptAsmExpression* BaseGptAsmWalker::expr_BIT_NAO(Type* optype,GptAsmExpression* term) {
++  return new GptAsmExpression(optype, term-&gt;restype(), &quot;bnot&quot;, term);
++}
++
++std::string BaseGptAsmWalker::getCode() {
++  return _asmPrg-&gt;getAsm();
++}
++
+
+Modified: trunk/gpt2/gptc/src/BaseGptAsmWalker.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/BaseGptAsmWalker.hpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/BaseGptAsmWalker.hpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -6,16 +6,20 @@
+ #include &lt;list&gt;
+ 
+ #include &quot;Options.hpp&quot;
+-#include &quot;AsmProgram.hpp&quot;
+ 
+ class SymbolTable;
++class Symbol;
+ class AsmProgram;
+ class Subroutine;
+ class GptAsmExpression;
++class Type;
+ 
+ class BaseGptAsmWalker : public antlr::TreeParser {
+ public:
+   BaseGptAsmWalker(SymbolTable*, const std::string&amp;);
++
++  std::string getCode();
++
+ protected:
+   void finishParser();
+   void declareProgramVars(const std::list&lt;std::string&gt;&amp;);
+@@ -23,9 +27,35 @@
+   void declareParameter(const string&amp;);
+   int getSymbolType(const string&amp;);
+ 
+-  std::string expandOffset(const std::string&amp;, const std::list&lt;std::string&gt;&amp;);
+-  void expr_MAIS(GptAsmExpression&amp;, const GptAsmExpression&amp;, const GptAsmExpression&amp;);
++  void addMatrixInitialization(const Symbol&amp; symbol);
+ 
++//   std::string expandOffset(const std::string&amp;, const std::list&lt;std::string&gt;&amp;);
++
++  void emitAttribution(const Symbol&amp;, const std::string&amp;);
++
++  GptAsmExpression* expr_OU(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_E(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_BIT_OU(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_BIT_XOU(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_BIT_E(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_IGUAL(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_DIFERENTE(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_MAIOR(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_MENOR(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_MAIOR_EQ(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_MENOR_EQ(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_BIT_SHIFT_LEFT(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_BIT_SHIFT_RIGHT(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_MAIS(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_MENOS(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_DIV(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_MULTIP(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_MOD(Type*, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression* expr_UN_NEGATIVO(Type*,GptAsmExpression*);
++  GptAsmExpression* expr_UN_POSITIVO(Type*,GptAsmExpression*);
++  GptAsmExpression* expr_UN_NAO(Type*,GptAsmExpression*);
++  GptAsmExpression* expr_BIT_NAO(Type*,GptAsmExpression*);
++
+ //   void declareGlobals(const IDList&amp;);
+ //   void addPrologue(code);
+ //   void initStructMembers(const string&amp;, const IDList&amp;, code);
+
+Added: trunk/gpt2/gptc/src/GptAsmExpression.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/GptAsmExpression.cpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/GptAsmExpression.cpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -0,0 +1,128 @@
++#include &quot;GptAsmExpression.hpp&quot;
++#include &quot;PortugolTokenTypes.hpp&quot;
++#include &quot;Types.hpp&quot;
++#include &quot;Subroutine.hpp&quot;
++
++#include &lt;sstream&gt;
++#include &lt;map&gt;
++
++GptAsmExpression::GptAsmExpression(Type* restype,
++                                   const std::string&amp; value) 
++  : _restype(restype), _exprtype(0), _mm(&quot;&quot;), _value(value), _op1(0), _op2(0) {
++}
++
++GptAsmExpression::GptAsmExpression(Type* restype, Type *exprtype,
++                                   std::string mm, GptAsmExpression* op1)
++  : _restype(restype), _exprtype(exprtype),
++    _mm(mm), _value(&quot;&quot;), _op1(op1), _op2(0) {
++}
++
++GptAsmExpression::GptAsmExpression(Type* restype,
++                   Type *exprtype,
++                   std::string mm,
++                   GptAsmExpression* op1,
++                   GptAsmExpression* op2) 
++  : _restype(restype), _exprtype(exprtype),
++    _mm(mm), _value(&quot;&quot;), _op1(op1), _op2(op2) {
++}
++
++
++GptAsmExpression::~GptAsmExpression() {
++  delete _op1;
++  delete _op2;
++}
++
++void GptAsmExpression::expand(const std::string lvalue, Subroutine* sub) {
++  if (isAtom()) {
++    return;
++  }
++
++  if (!_op2) {
++    if (_op1-&gt;isAtom()) {
++      sub-&gt;emit(_mm, lvalue, _op1-&gt;value());
++    } else {
++      std::string t1 = sub-&gt;declareTmp(_op1-&gt;restype());
++      _op1-&gt;expand(t1, sub);
++      sub-&gt;emit(_mm, lvalue, t1);
++    }
++  } else {
++    if (_op1-&gt;isAtom() &amp;&amp; _op2-&gt;isAtom()) {
++      std::string cp1 = expandCast(lvalue, _op1-&gt;value(), _op1-&gt;restype(), sub);
++      std::string cp2 = expandCast(lvalue, _op2-&gt;value(), _op2-&gt;restype(), sub);
++      sub-&gt;emit(_mm, lvalue, cp1, cp2);
++
++    } else if (_op1-&gt;isAtom()) {
++      std::string t2 = sub-&gt;declareTmp(_op2-&gt;restype());
++
++      _op2-&gt;expand(t2, sub);
++
++      std::string cp1 = expandCast(lvalue, _op1-&gt;value(), _op1-&gt;restype(), sub);
++      std::string cp2 = expandCast(lvalue, t2, _op2-&gt;restype(), sub);
++
++      sub-&gt;emit(_mm, lvalue, cp1, cp2);
++
++    } else if (_op2-&gt;isAtom()) {
++      std::string t1 = sub-&gt;declareTmp(_op1-&gt;restype());
++  
++      _op1-&gt;expand(t1, sub);
++  
++      std::string cp1 = expandCast(lvalue, t1, _op1-&gt;restype(), sub);
++      std::string cp2 = expandCast(lvalue, _op2-&gt;value(), _op2-&gt;restype(), sub);
++  
++      sub-&gt;emit(_mm, lvalue, cp1, cp2);
++  
++    } else {
++  
++      std::string t1 = sub-&gt;declareTmp(_op1-&gt;restype());
++      std::string t2 = sub-&gt;declareTmp(_op2-&gt;restype());
++  
++      _op1-&gt;expand(t1, sub);
++      _op2-&gt;expand(t2, sub);
++  
++      std::string cp1 = expandCast(lvalue, t1, _op1-&gt;restype(), sub);
++      std::string cp2 = expandCast(lvalue, t2, _op2-&gt;restype(), sub);
++  
++      sub-&gt;emit(_mm, lvalue, cp1, cp2);
++    }
++  }
++}
++
++bool GptAsmExpression::isAtom() {
++  return _value.length() &gt; 0;
++}
++
++const std::string&amp; GptAsmExpression::value() { 
++  return _value;
++}
++
++Type* GptAsmExpression::GptAsmExpression::restype() {
++  return _restype;
++}
++
++Type* GptAsmExpression::GptAsmExpression::exprtype() {
++  return _exprtype;
++}
++
++std::string GptAsmExpression::expandCast(const std::string &amp;lvalue,
++                                         const std::string&amp; op,
++                                         Type *optype,
++                                         Subroutine *sub) {
++  if (!optype-&gt;equals(_exprtype)) {
++    sub-&gt;emit(opcodeCast(optype, _exprtype), lvalue, op);
++    return lvalue;
++  }
++  return op;
++}
++
++std::string GptAsmExpression::opcodeCast(Type* from, Type* to) {
++  if ((from-&gt;primitiveType() == PortugolTokenTypes::T_INTEIRO) &amp;&amp;
++      (to-&gt;primitiveType() == PortugolTokenTypes::T_REAL)) {
++    return &quot;i2r&quot;;
++  }
++
++  if ((from-&gt;primitiveType() == PortugolTokenTypes::T_CARACTERE) &amp;&amp;
++      (to-&gt;primitiveType() == PortugolTokenTypes::T_LITERAL)) {
++    return &quot;c2s&quot;;
++  }
++  throw;
++}
+
+Modified: trunk/gpt2/gptc/src/GptAsmExpression.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/GptAsmExpression.hpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/GptAsmExpression.hpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -1,107 +1,39 @@
+-#ifndef GPTASMEXPRESSION_HPP
+-#define GPTASMEXPRESSION_HPP
++#ifndef GPT_ASMEXPRESSION_HPP
++#define GPT_ASMEXPRESSION_HPP
+ 
+-#include &quot;PortugolTokenTypes.hpp&quot;
+-#include &quot;Types.hpp&quot;
+-
+-#include &lt;sstream&gt;
+ #include &lt;string&gt;
+ 
++
++class Type;
++class Subroutine;
++
+ class GptAsmExpression {
+ public:
++  GptAsmExpression(Type* restype, const std::string&amp; value);
+ 
+-  void set(Type* type,
+-           int mm,
+-           GptAsmExpression* op1,
+-           GptAsmExpression* op2) {
++  GptAsmExpression(Type* restype, Type *exprtype, std::string, GptAsmExpression*, GptAsmExpression*);
++  GptAsmExpression(Type* restype, Type *exprtype, std::string, GptAsmExpression*);
+ 
+-    _mm   = mm;
+-    _op1  = op1;
+-    _op2  = op2;
+-    _type = type;
+-  }
++  ~GptAsmExpression();
+ 
+-  void set(const std::string&amp; value, Type* type) {
+-    _value = value;
+-    _type = type;
+-  }
++  void expand(const std::string lvalue, Subroutine* sub);
+ 
++  bool isAtom();
+ 
+-  void expand(const std::string lvalue, /*const GptAsmSubprogram&amp; ctx*/ int ctx) {
+-    //TODO: check for type promotion
+-
+-    if (isAtom()) {
+-      return;
+-    }
+-
+-    std::stringstream code;
+-
+-    if (_op1-&gt;isAtom() &amp;&amp; _op2-&gt;isAtom()) {
+-      std::string cp1 = expandCast(lvalue, _op1-&gt;value(), _op1-&gt;type(), ctx);
+-      std::string cp2 = expandCast(lvalue, _op2-&gt;value(), _op2-&gt;type(), ctx);
+-//       ctx.emit(_mm, lvalue, cp1, cp2);
+-
+-    } else if (_op1-&gt;isAtom()) {
+-      std::string t2/* = ctx.declareTmp(_op2-&gt;type())*/;
+-
+-      _op2-&gt;expand(t2, ctx);
+-
+-      std::string cp1 = expandCast(lvalue, _op1-&gt;value(), _op1-&gt;type(), ctx);
+-      std::string cp2 = expandCast(lvalue, t2, _op2-&gt;type(), ctx);
+-
+-//       ctx.emit(_mm, lvalue, cp1, cp2);
+-
+-    } else if (_op2-&gt;isAtom()) {
+-      std::string t1/* = ctx.declareTmp(_op1-&gt;type())*/;
+-
+-      _op1-&gt;expand(t1, ctx);
+-
+-      std::string cp1 = expandCast(lvalue, t1, _op1-&gt;type(), ctx);
+-      std::string cp2 = expandCast(lvalue, _op2-&gt;value(), _op2-&gt;type(), ctx);
+-
+-//       ctx.emit(_mm, lvalue, cp1, cp2);
+-
+-    } else {
+-
+-      std::string t1/* = ctx.declareTmp(_op1-&gt;type())*/;
+-      std::string t2/* = ctx.declareTmp(_op2-&gt;type())*/;
+-
+-      _op1-&gt;expand(t1, ctx);
+-      _op2-&gt;expand(t2, ctx);
+-
+-      std::string cp1 = expandCast(lvalue, t1, _op1-&gt;type(), ctx);
+-      std::string cp2 = expandCast(lvalue, t2, _op2-&gt;type(), ctx);
+-
+-//       ctx.emit(_mm, lvalue, cp1, cp2);
+-    }
+-  }
+-
+-  bool isAtom() {
+-    return _value.length() &gt; 0;
+-  }
+-
+-  const std::string&amp; value() { return _value; }
+-  Type*              type()  { return _type; }
++  const std::string&amp; value();
++  Type*              exprtype();
++  Type*              restype();
+ private:
++  std::string expandCast(const std::string&amp;,
++                         const std::string&amp;,
++                         Type*, Subroutine*);
+ 
+-  std::string expandCast(const std::string &amp;lvalue,
+-                         const std::string&amp; opval,
+-                         Type *optype,
+-                         /*const GptAsmSubprogram&amp; */ int ctx) {
+-    if (optype-&gt;equals(PortugolTokenTypes::T_CORINGA)) {
+-      return opval;
+-    }
++  std::string opcodeCast(Type* from, Type* to);
+ 
+-    if (_type-&gt;equals(optype)) {
+-      return opval;
+-    } else {
+-//       ctx.emit(opcodeCast(optype, _type), lvalue, opval);
+-      return lvalue;
+-    }
+-  }
+ 
+-  Type              *_type;
+-  int               _mm;
++  Type              *_restype;
++  Type              *_exprtype;
++  std::string       _mm;
+   std::string       _value;
+   GptAsmExpression  *_op1;
+   GptAsmExpression  *_op2;
+
+Modified: trunk/gpt2/gptc/src/Makefile.am
+===================================================================
+--- trunk/gpt2/gptc/src/Makefile.am	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/Makefile.am	2007-12-19 00:53:51 UTC (rev 438)
+@@ -44,7 +44,7 @@
+ 											Types.cpp \
+ 											UnicodeCharBuffer.hpp \
+ 											UnicodeCharScanner.hpp \
+-											GptAsmExpression.hpp \
++											GptAsmExpression.hpp GptAsmExpression.cpp \
+ 											Arguments.hpp \
+ 											Arguments.cpp \
+ 											AsmProgram.hpp AsmProgram.cpp \
+
+Modified: trunk/gpt2/gptc/src/Subroutine.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Subroutine.cpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/Subroutine.cpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -4,12 +4,13 @@
+ using namespace std;
+ 
+ #include &quot;Tools.hpp&quot;
++#include &quot;Types.hpp&quot;
+ 
+-#include &quot;PortugolParserTokenTypes.hpp&quot;
++#include &quot;PortugolTokenTypes.hpp&quot;
+ 
+ 
+ Subroutine::Subroutine(Options *options, /*CGptAssemblyFile *file,*/ const string &amp;name)
+-	: _options(options), _name(name), _lastSourceLine(0)
++	: _options(options), _name(name), _tmpSuffix(1), _lastSourceLine(0)
+ {
+ 	if (_options-&gt;sentences) {
+ 		//_sourceInfo = new SourceInfo();
+@@ -29,6 +30,7 @@
+ 
+ void Subroutine::init()
+ {
++  _header.writeln();
+ 	_header.writeln(string(&quot;// Procedure &quot;) + _name);
+ 	_header.writeln(&quot;proc &quot; + _name);
+ 	_header.incTab();
+@@ -61,7 +63,7 @@
+ }
+ 
+ 
+-void Subroutine::emitMn(const string &amp;mn, const string &amp;op1, const string &amp;op2, const string &amp;op3)
++void Subroutine::emit(const string &amp;mn, const string &amp;op1, const string &amp;op2, const string &amp;op3)
+ {
+ 	_body.write(mn);
+ 	if (op1.empty()) {
+@@ -86,7 +88,7 @@
+ 
+ void Subroutine::emitMnWithPrefix(const string &amp;mn, const string &amp;var, const string &amp;op1, const string &amp;op2)
+ {
+-	emitMn(getMnWithPrefix(mn, var), var, op1, op2);
++	emit(getMnWithPrefix(mn, var), var, op1, op2);
+ }
+ 
+ 
+@@ -99,9 +101,7 @@
+ void Subroutine::emitAsmCode(const string &amp;code)
+ {
+ 	_body.writeln();
+-	_body.writeln(&quot;// asm-begin&quot;);
+ 	_body.writeln(code);
+-	_body.writeln(&quot;// asm-end&quot;);
+ 	_body.writeln();
+ }
+ 
+@@ -136,21 +136,33 @@
+ }
+ */
+ 
+-void Subroutine::emitVarDefinition(const string &amp;name, const string &amp;type)
++void Subroutine::emitVarDefinition(const string &amp;name, Type* type)
+ {
+-	_header.writeln(&quot;var &quot; + name + &quot; &quot; + type);
++	_header.writeln(&quot;var &quot; + name + &quot; &quot; + type-&gt;asmName());
++
++  if (type-&gt;isPrimitive() &amp;&amp; type-&gt;equals(PortugolTokenTypes::T_LITERAL)) {
++    _prologue.writeln(&quot;salloc &quot; + name);
++  }
+ }
+ 
+-
+-void Subroutine::emitParDefinition(const string &amp;name, const string &amp;type)
++void Subroutine::emitParDefinition(const string &amp;name, Type* type)
+ {
+-	_header.writeln(&quot;par &quot; + name + &quot; &quot; + type);
++	_header.writeln(&quot;par &quot; + name + &quot; &quot; + type-&gt;asmName());
+ }
+ 
++string Subroutine::declareTmp(Type* type) {
++  std::stringstream s;
++  s &lt;&lt; &quot;tmp&quot; &lt;&lt; _tmpSuffix++;
++ 
++  std::string name = s.str();
++  emitVarDefinition(name, type);
++  return name;
++}
+ 
+ string Subroutine::getCode() const
+ {
+-	return _header.getText() + _body.getText() + _footer.getText();
++	return _header.getText() + _prologue.getText() 
++         + _body.getText() + _footer.getText();
+ }
+ 
+ 
+
+Modified: trunk/gpt2/gptc/src/Subroutine.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Subroutine.hpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/Subroutine.hpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -13,6 +13,7 @@
+ 
+ using namespace std;
+ 
++class Type;
+ 
+ class Subroutine
+ {
+@@ -22,7 +23,7 @@
+ 	void init();
+ 	void finish();
+ 	void emitPUSHMn(const string &amp;symbol, const bool &amp;pushType = false);
+-	void emitMn(const string &amp;mn, const string &amp;op1 = &quot;&quot;, const string &amp;op2 = &quot;&quot;, const string &amp;op3 = &quot;&quot;);
++	void emit(const string &amp;mn, const string &amp;op1 = &quot;&quot;, const string &amp;op2 = &quot;&quot;, const string &amp;op3 = &quot;&quot;);
+ 	void emitMnWithPrefix(const string &amp;mn, const string &amp;var, const string &amp;op1 = &quot;&quot;, const string &amp;op2 = &quot;&quot;);
+ 
+ 	void emitLabel(const string &amp;label);
+@@ -36,16 +37,20 @@
+ 	{
+ 		return _name;
+ 	}
+-	void emitVarDefinition(const string &amp;name, const string &amp;type);
+-	void emitParDefinition(const string &amp;name, const string &amp;type);
++	void emitVarDefinition(const string &amp;name, Type* type);
++	void emitParDefinition(const string &amp;name, Type* type);
+ 	string getCode() const;
++
++  string declareTmp(Type* type);
+ private:
+ 	string getMnWithPrefix(const string &amp;mn, const string &amp;var);
+ 	Options *_options;
+ 	vector&lt;string&gt; _params;
+ 	int _lastSourceLine;
+ 	string _name;
++  int    _tmpSuffix;
+ 	TextFile _header;
++  TextFile _prologue;
+ 	TextFile _body;
+ 	TextFile _footer;
+ };
+
+Modified: trunk/gpt2/gptc/src/Symbol.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Symbol.cpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/Symbol.cpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -111,7 +111,7 @@
+ }
+ 
+ std::string Symbol::identifier() const {
+-  return _identifier;
++  return &quot;_&quot; + _identifier;
+ }
+ 
+ 
+
+Modified: trunk/gpt2/gptc/src/Types.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/Types.cpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/Types.cpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -2,96 +2,9 @@
+ #include &quot;TokenLabels.hpp&quot;
+ 
+ #include &lt;iostream&gt;
++#include &lt;sstream&gt;
+ 
+-// Type::StructField::StructField(const std::string&amp; n, Type* t)
+-//       : _name(n), _type(t) {
+-// }
+ 
+-// bool
+-// Type::StructField::isLValueFor(const Type::StructField&amp; other) const {
+-//   return _name == other._name &amp;&amp; _type-&gt;isLValueFor(other._type);
+-// }
+-
+-// bool
+-// Type::StructField::operator==(const Type::StructField&amp; other) const {
+-//   return _name == other._name &amp;&amp; _type-&gt;equals(other._type);
+-// }
+-//
+-// Type* Type::StructField::type() const {
+-//   return _type;
+-// }
+-//
+-// const std::string&amp; Type::StructField::name() const {
+-//   return _name;
+-// }
+-//
+-//
+-// bool
+-// Type::StructFieldList::isLValueFor(const Type::StructFieldList&amp; other) const {
+-//   if (size() != other.size()) {
+-//     return false;
+-//   }
+-//   const_iterator it, jt;
+-//   bool found;
+-//   for (it = begin(); it != end(); ++it) {
+-//     found = false;
+-//     for (jt = other.begin(); jt != other.end(); ++jt) {
+-//       if ((*it).isLValueFor(*jt)) {
+-//         found = true;
+-//       }
+-//     }
+-//     if (!found) {
+-//       return false;
+-//     }
+-//   }
+-//   return true;
+-// }
+-//
+-// bool
+-// Type::StructFieldList::operator==(const Type::StructFieldList&amp; other) const {
+-//   if (size() != other.size()) {
+-//     return false;
+-//   }
+-//   const_iterator it, jt;
+-//   bool found;
+-//   for (it = begin(); it != end(); ++it) {
+-//     found = false;
+-//     for (jt = other.begin(); jt != other.end(); ++jt) {
+-//       if ((*it) == (*jt)) {
+-//         found = true;
+-//       }
+-//     }
+-//     if (!found) {
+-//       return false;
+-//     }
+-//   }
+-//   return true;
+-// }
+-//
+-//
+-// Type::StructFieldList::const_iterator
+-// Type::StructFieldList::find(const std::string&amp; name) const {
+-//   const_iterator it;
+-//   for (it = begin(); it != end(); ++it) {
+-//     if ((*it).name() == name) {
+-//       return it;
+-//     }
+-//   }
+-//   return end();
+-// }
+-//
+-// std::string Type::StructFieldList::toString() const {
+-//   std::string ret = &quot;{&quot;;
+-//   std::string v = &quot;&quot;;
+-//   const_iterator it;
+-//   for (it = begin(); it != end(); ++it) {
+-//     ret += v + (*it).name() + &quot;:&quot; + (*it).type()-&gt;name();
+-//     v = &quot;, &quot;;
+-//   }
+-//   ret += &quot;}&quot;;
+-//   return ret;
+-// }
+-
+ //************* GENERAL *********************************/
+ 
+ void Type::setConst(bool c) {
+@@ -150,7 +63,9 @@
+   return _name;
+ }
+ 
+-std::string Type::asmName() const {
++std::string Type::asmName(bool complete) const {
++  std::stringstream stream;
++
+   switch (_typeId) {
+     case PRIMITIVE:
+       switch (_id) {
+@@ -171,7 +86,12 @@
+     case MATRIX:
+       return &quot;matrix&quot;;
+     case STRUCT:
+-      return &quot;data&quot;;
++      if (!complete) {
++        return &quot;data&quot;;
++      } else {
++        stream &lt;&lt; &quot;data[&quot; &lt;&lt; byteSize() &lt;&lt; &quot;]&quot;;
++        return stream.str();
++      }
+     default:
+       throw;
+   }
+@@ -181,6 +101,35 @@
+   return _identifier;
+ }
+ 
++int Type::byteSize() const {
++  int ret = 0;
++  switch (_typeId) {
++    case PRIMITIVE:
++      switch(primitiveType()) {
++        case T_INTEIRO:    
++        case T_CARACTERE:
++        case T_LITERAL:
++        case T_LOGICO:
++        case T_CORINGA:
++          return sizeof(int);
++        case T_REAL:
++          return sizeof(double);
++        default:
++          throw;
++      }
++    case MATRIX:
++      return sizeof(void*);
++    case STRUCT:      
++      for (SymbolList::const_iterator it = _fields.begin(); it != _fields.end(); ++it) {
++        ret += (*it).type()-&gt;byteSize();
++      }
++      return ret;
++    case SUBPROGRAM:
++    default:
++      throw;
++  }
++}
++
+ bool Type::equals(int id) const {
+   return isPrimitive() &amp;&amp; (_id == id);
+ }
+@@ -301,6 +250,7 @@
+   return NULL;
+ }
+ 
++
+ Type* Type::primitive_attrPromotion(Type* other) {
+   if (!other-&gt;isPrimitive()) {
+     return NULL;
+@@ -436,7 +386,7 @@
+     _name(name), _identifier(name), _anonymous(false), _fields(fields),
+     _unit(unit), _line(line) {
+ 
+-  _name = _identifier + &quot;:{&quot;;
++  _name = _name + &quot;:{&quot;;
+   std::string v = &quot;&quot;;
+   for (SymbolList::const_iterator it = fields.begin(); it != fields.end(); ++it) {
+     _name += v + (*it).lexeme() + &quot;:&quot; + (*it).type()-&gt;name();
+@@ -448,7 +398,8 @@
+ 
+ Type::Type(TypeBuilder* builder, const SymbolList&amp; fields)
+   : _typeId(STRUCT), _builder(builder), _isConst(false), _isRef(false),
+-    _name(&quot;&lt;an&#244;nimo&gt;&quot;), _anonymous(true), _fields(fields),
++    _name(&quot;&lt;an&#244;nimo&gt;&quot;), _identifier(&quot;_an&#244;nimo_&quot;), 
++    _anonymous(true), _fields(fields),
+     _unit(&quot;&lt;interno&gt;&quot;), _line(-1) {
+ 
+   _name += &quot;:{&quot;;
+
+Modified: trunk/gpt2/gptc/src/Types.hpp
+===================================================================
+--- trunk/gpt2/gptc/src/Types.hpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/Types.hpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -46,6 +46,7 @@
+   Type* intOrReal(Type* other);
+   Type* caracOrLit(Type* other);
+ 
++
+   //Matrix
+   Type(TypeBuilder*, Type* ofType, const std::list&lt;int&gt;&amp; dimensions);
+ 
+@@ -86,9 +87,11 @@
+   bool isSubprogram() const;
+ 
+   const std::string&amp; name() const;
+-  std::string asmName() const;
++  std::string asmName(bool = false) const;
+   const std::string&amp; identifier() const;
+ 
++  int byteSize() const;
++
+   bool equals(int id) const;
+   bool equals(Type* ofType, int dimensions) const;
+ 
+
+Modified: trunk/gpt2/gptc/src/gptasm.g
+===================================================================
+--- trunk/gpt2/gptc/src/gptasm.g	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/gptasm.g	2007-12-19 00:53:51 UTC (rev 438)
+@@ -22,6 +22,8 @@
+   #include &quot;BaseGptAsmWalker.hpp&quot;
+   #include &quot;PortugolAST.hpp&quot;
+   #include &quot;GptAsmExpression.hpp&quot;
++  #include &quot;AsmProgram.hpp&quot;
++  #include &quot;SymbolTable.hpp&quot;
+ }
+ 
+ options {
+@@ -51,10 +53,11 @@
+ 
+         (declaracoes)?
+ 
+-//         (corpo)?
+-
++        (corpo)?
++                                {_asmPrg-&gt;finishSubroutine(_subroutine);}
+         EOF
+      )
++                                {_asmPrg-&gt;finish();}
+   ;
+ 
+ importacao
+@@ -74,9 +77,9 @@
+   : #(T_VARIAVEL tipo ids=identificadores
+                                           {
+                                             if (isLocal) {
++                                              declareSubroutineVars(ids);
++                                            } else {
+                                               declareProgramVars(ids);
+-                                            } else {
+-                                              declareSubroutineVars(ids);
+                                             }
+                                           }
+ //       (
+@@ -92,9 +95,9 @@
+ 
+                                           {
+                                             if (isLocal) {
++                                              declareSubroutineVars(ids);
++                                            } else {
+                                               declareProgramVars(ids);
+-                                            } else {
+-                                              declareSubroutineVars(ids);
+                                             }
+                                           }
+   ;
+@@ -139,93 +142,110 @@
+ /************************** EXPRESSOES *************************/
+ 
+ 
+-expressao [const std::string&amp; lvalue]
++expressao returns [GptAsmExpression* ret]
+ 
+-                                      {GptAsmExpression ret;}
+   : #(T_EXPRESSAO ret=expr)
+-                                      {ret.expand(lvalue,1/*_subroutine*/);}
+   ;
+ 
+-expr returns [GptAsmExpression ret]
++expr returns [GptAsmExpression* ret]
+ 
+-                        {GptAsmExpression l, r;}
++                        {
++                          GptAsmExpression *l, *r;
++                          Type *optype = _t-&gt;getEvalType();
++                        }
+ 
+-//   : #(T_OU              l=expr r=expr) {expr_OU(ret, l, r);}
+-//   | #(T_E               l=expr r=expr) {expr_E(ret, l, r);}
+-//   | #(T_BIT_OU          l=expr r=expr) {expr_BIT_OU(ret, l, r);}
+-//   | #(T_BIT_OUX         l=expr r=expr) {expr_BIT_XOU(ret, l, r);}
+-//   | #(T_BIT_E           l=expr r=expr) {expr_BIT_E(ret, l, r);}
+-//   | #(T_IGUAL           l=expr r=expr) {expr_IGUAL(ret, l, r);}
+-//   | #(T_DIFERENTE       l=expr r=expr) {expr_DIFERENTE(ret, l, r);}
+-//   | #(T_MAIOR           l=expr r=expr) {expr_MAIOR(ret, l, r);}
+-//   | #(T_MENOR           l=expr r=expr) {expr_MENOR(ret, l, r);}
+-//   | #(T_MAIOR_EQ        l=expr r=expr) {expr_MAIOR_EQ(ret, l, r);}
+-//   | #(T_MENOR_EQ        l=expr r=expr) {expr_MENOR_EQ(ret, l, r);}
+-//   | #(T_BIT_SHIFT_LEFT  l=expr r=expr) {expr_BIT_SHIFT_LEFT(ret, l, r);}
+-//   | #(T_BIT_SHIFT_RIGHT l=expr r=expr) {expr_BIT_SHIFT_RIGHT(ret, l, r);}
+-  : #(T_MAIS            l=expr r=expr) {expr_MAIS(ret, l, r);}
+-//   | #(T_MENOS           l=expr r=expr) {expr_MENOS(ret, l, r);}
+-//   | #(T_DIV             l=expr r=expr) {expr_DIV(ret, l, r);}
+-//   | #(T_MULTIP          l=expr r=expr) {expr_MULTIP(ret, l, r);}
+-//   | #(T_MOD             l=expr r=expr) {expr_MOD(ret, l, r);}
+-//   | #(T_UN_NEGATIVO     l=elemento)  {expr_UN_NEGATIVO(ret,l);}
+-//   | #(T_UN_POSITIVO     l=elemento)  {expr_UN_POSITIVO(ret,l);}
+-//   | #(T_NAO             l=elemento)  {expr_UN_NAO(ret,l);}
+-//   | #(T_BIT_NAO         l=elemento)  {expr_BIT_NAO(ret,l);}
++  : #(T_OU              l=expr r=expr) {ret=expr_OU(optype, l, r);}
++  | #(T_E               l=expr r=expr) {ret=expr_E(optype, l, r);}
++  | #(T_BIT_OU          l=expr r=expr) {ret=expr_BIT_OU(optype, l, r);}
++  | #(T_BIT_OUX         l=expr r=expr) {ret=expr_BIT_XOU(optype, l, r);}
++  | #(T_BIT_E           l=expr r=expr) {ret=expr_BIT_E(optype, l, r);}
++  | #(T_IGUAL           l=expr r=expr) {ret=expr_IGUAL(optype, l, r);}
++  | #(T_DIFERENTE       l=expr r=expr) {ret=expr_DIFERENTE(optype, l, r);}
++  | #(T_MAIOR           l=expr r=expr) {ret=expr_MAIOR(optype, l, r);}
++  | #(T_MENOR           l=expr r=expr) {ret=expr_MENOR(optype, l, r);}
++  | #(T_MAIOR_EQ        l=expr r=expr) {ret=expr_MAIOR_EQ(optype, l, r);}
++  | #(T_MENOR_EQ        l=expr r=expr) {ret=expr_MENOR_EQ(optype, l, r);}
++  | #(T_BIT_SHIFT_LEFT  l=expr r=expr) {ret=expr_BIT_SHIFT_LEFT(optype, l, r);}
++  | #(T_BIT_SHIFT_RIGHT l=expr r=expr) {ret=expr_BIT_SHIFT_RIGHT(optype, l, r);}
++  | #(T_MAIS            l=expr r=expr) {ret=expr_MAIS(optype, l, r);}
++  | #(T_MENOS           l=expr r=expr) {ret=expr_MENOS(optype, l, r);}
++  | #(T_DIV             l=expr r=expr) {ret=expr_DIV(optype, l, r);}
++  | #(T_MULTIP          l=expr r=expr) {ret=expr_MULTIP(optype, l, r);}
++  | #(T_MOD             l=expr r=expr) {ret=expr_MOD(optype, l, r);}
++  | #(T_UN_NEGATIVO     l=elemento)  {ret=expr_UN_NEGATIVO(optype,l);}
++  | #(T_UN_POSITIVO     l=elemento)  {ret=expr_UN_POSITIVO(optype,l);}
++  | #(T_NAO             l=elemento)  {ret=expr_UN_NAO(optype,l);}
++  | #(T_BIT_NAO         l=elemento)  {ret=expr_BIT_NAO(optype,l);}
+   | ret=elemento
+   ;
+ 
+ 
+-elemento returns [GptAsmExpression ret]
+-                      {std::string r;}
++elemento returns [GptAsmExpression* ret]
++                      {
++                        Symbol lv;
++                      }
+   : ret=literal
+-  | r=lvalue
++  | lv=lvalue         {ret = new GptAsmExpression(lv.type(), lv.identifier());}
+ //   | ret=chamada_subrotina
+-  | expressao[r]
++  | #(T_EXPRESSAO ret=expr)
+   ;
+ 
+-literal returns [GptAsmExpression ret]
++literal returns [GptAsmExpression* ret]
+ 
+-  : l:T_TEXTO_LITERAL          {/*ret.set(l-&gt;getText());*/}
+-  | i:T_INTEIRO_LITERAL        {/*ret.set(i-&gt;getText());*/}
+-  | r:T_REAL_LITERAL           {/*ret.set(r-&gt;getText());*/}
+-  | c:T_CARACTERE_LITERAL      {/*ret.set(c-&gt;getText());*/}
+-  | v:T_VERDADEIRO             {/*ret.set(v-&gt;getText());*/}
+-  | f:T_FALSO                  {/*ret.set(f-&gt;getText());*/}
++                                    {
++                                      Type *type = _t-&gt;getEvalType();
++                                      std::string value;
++                                    }
++
++  : (   t:T_TEXTO_LITERAL           {value = '&quot;' + t-&gt;getText() + '&quot;';}
++      | i:T_INTEIRO_LITERAL         {value = i-&gt;getText();}
++      | r:T_REAL_LITERAL            {value = r-&gt;getText();}
++      | c:T_CARACTERE_LITERAL       {value = &quot;'&quot; + c-&gt;getText() + &quot;'&quot;;}
++      | v:T_VERDADEIRO              {value = &quot;true&quot;;}
++      | f:T_FALSO                   {value = &quot;false&quot;;}
++    )
++      {ret = new GptAsmExpression(type, value);}
+   ;
+ 
+ 
+-lvalue returns [std::string lv]
++lvalue returns [Symbol ret]
+ 
+-                                      {std::string offset;}
++  : #(lv:T_LVALUE 
++      id:T_IDENTIFICADOR  
+ 
+-  : #(id:T_IDENTIFICADOR              {lv = id-&gt;getText();}
+-      (offset=lvalue_indices[lv]      {lv += &quot;:&quot; + offset;})?
+-//       (lvalue_membro)?
++                     {ret = _symtable-&gt;getSymbol(id-&gt;getText());}
++
++//       (
++//_subroutine-&gt;declareTmp(lv-&gt;getEvalType());
++//         lvalue_indices[lv]
++//       )?
++
++//       (
++//         lvalue_membro
++//       )?
+     )
+-                
+   ;
+ 
+ 
+-lvalue_indices[const std::string id] returns [std::string ret]
++lvalue_indices[const std::string id]
+                                 {
+                                   std::list&lt;std::string&gt; dimensions;
+-                                  std:string tmp;
++                                  std::string tmp;
+                                 }
+   : #(T_SUBSCRITO
+         (
+                                 {/*tmp = _subroutine-&gt;newTmp();*/}
+-          expressao[tmp]
++          expressao
+                                 {dimensions.push_back(tmp);}
+         )+
+     )
+-                                {ret = expandOffset(id, dimensions);}
++//                                 {ret = expandOffset(id, dimensions);}
+   ;
+ 
+ 
+-// lvalue_membro
+-//   : #(T_MEMBRO lvalue)
+-//   ;
++lvalue_membro
++  : #(T_MEMBRO lvalue)
++  ;
+ 
+ 
+ 
+@@ -234,37 +254,48 @@
+ 
+ 
+ 
+-// corpo
+-//   :  corpo_subprograma      (corpo)?
+-//   |  bloco_codigo           (corpo_subprograma)*
+-//   ;
+-// 
+-// 
+-// bloco_codigo
+-//   : #(T_INICIO lista_enunciados)
+-//   ;
+-// 
+-// lista_enunciados
+-//   : (enunciado)*
+-//   ;
+-// 
+-// enunciado
+-//   : en_atribuicao
+-// /*  | en_retorne
+-//   | en_se
+-//   | en_enquanto
+-//   | en_repita
+-//   | en_para
+-//   | en_caso
+-//   | T_SAIR
+-//   | chamada_subrotina*/
+-//   ;
+-// 
+-// en_atribuicao
+-//                       {std::string lv;}
+-//   : #(T_ATRIBUICAO
+-//         lv=lvalue      //x / x:offset
+-//         expressao[lv]
+-//       )
+-//   ;
++corpo
++  :  bloco_codigo           /*(corpo_subprograma)**/
++//   |  corpo_subprograma      (corpo)?
++  ;
+ 
++bloco_codigo
++  : #(T_INICIO lista_enunciados)
++  ;
++
++lista_enunciados
++  : (enunciado)*
++  ;
++
++enunciado
++  : en_atribuicao
++/*  | en_retorne
++  | en_se
++  | en_enquanto
++  | en_repita
++  | en_para
++  | en_caso
++  | T_SAIR
++  | chamada_subrotina*/
++  ;
++
++en_atribuicao
++                      {
++                        Symbol lv;
++                        GptAsmExpression *expr;
++                      }
++  : #(T_ATRIBUICAO
++        lv=lvalue
++
++        expr=expressao
++                      {                        
++                        if (expr-&gt;isAtom()) {
++                          emitAttribution(lv, expr-&gt;value());
++                        } else {
++                          expr-&gt;expand(lv.identifier(), _subroutine);
++                        }
++                        delete expr;
++                      }
++      )
++  ;
++
+
+Modified: trunk/gpt2/gptc/src/main.cpp
+===================================================================
+--- trunk/gpt2/gptc/src/main.cpp	2007-12-19 00:53:24 UTC (rev 437)
++++ trunk/gpt2/gptc/src/main.cpp	2007-12-19 00:53:51 UTC (rev 438)
+@@ -90,14 +90,22 @@
+   SemanticWalker semantic(symtable, fname);
+   semantic.programa(ast);
+ 
++  std::cerr &lt;&lt; &quot;semantic.g AST:\n&quot;;
++  std::cerr &lt;&lt; ast-&gt;toStringList() &lt;&lt; std::endl &lt;&lt; std::endl;
++
+   GptAsmWalker code(symtable, fname);
+   code.programa(ast);
++
++  
++  std::cerr &lt;&lt; &quot;\n\n===\n\n&quot; &lt;&lt; code.getCode() &lt;&lt; std::endl &lt;&lt; std::endl;
++
+ }
+ 
+ int main(int argc, char** argv) {
+ 
+   if (argc == 2) {
+     all(argv[1]);
++    return 0;
+   }
+ 
+   if (argc &lt; 3) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000111.html">[gpt-commit] r437 - trunk/gpt2/gptc/src
+</A></li>
+	<LI>Next message: <A HREF="000113.html">[gpt-commit] r439 - trunk/gpt2/gptc/test/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#112">[ date ]</a>
+              <a href="thread.html#112">[ thread ]</a>
+              <a href="subject.html#112">[ subject ]</a>
+              <a href="author.html#112">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

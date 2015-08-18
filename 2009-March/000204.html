@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r531 - trunk/gpt/src/modules/x86
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r531%20-%20trunk/gpt/src/modules/x86&In-Reply-To=%3C200903300336.n2U3aZXG008853%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000203.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r531 - trunk/gpt/src/modules/x86</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r531%20-%20trunk/gpt/src/modules/x86&In-Reply-To=%3C200903300336.n2U3aZXG008853%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r531 - trunk/gpt/src/modules/x86">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon Mar 30 05:36:35 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000203.html">[gpt-commit] r530 - trunk/gpt/src/modules/parser
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#204">[ date ]</a>
+              <a href="thread.html#204">[ thread ]</a>
+              <a href="subject.html#204">[ subject ]</a>
+              <a href="author.html#204">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: thiago_silva
+Date: 2009-03-30 05:36:34 +0200 (Mon, 30 Mar 2009)
+New Revision: 531
+
+Modified:
+   trunk/gpt/src/modules/x86/X86.cpp
+   trunk/gpt/src/modules/x86/X86.hpp
+   trunk/gpt/src/modules/x86/x86.g
+Log:
+-Passando o valor de exit() pelo registrador ecx
+
+Modified: trunk/gpt/src/modules/x86/X86.cpp
+===================================================================
+--- trunk/gpt/src/modules/x86/X86.cpp	2009-03-30 03:35:02 UTC (rev 530)
++++ trunk/gpt/src/modules/x86/X86.cpp	2009-03-30 03:36:34 UTC (rev 531)
+@@ -220,13 +220,10 @@
+   return _currentScope;
+ }
+ 
+-void X86::writeExit(int value) {
+-  char svalue[5];
+-  sprintf(svalue, &quot;%d&quot;, value);
+-  
+-  string exit = &quot;exit &quot;;
+-  exit += svalue;
+-  writeTEXT(exit);
++void X86::writeExit() {
++  stringstream s;
++  s &lt;&lt; &quot;exit ecx&quot;;
++  writeTEXT(s.str());
+ }
+ 
+ void X86::declarePrimitive(int decl_type, const string&amp; name, int type) {
+
+Modified: trunk/gpt/src/modules/x86/X86.hpp
+===================================================================
+--- trunk/gpt/src/modules/x86/X86.hpp	2009-03-30 03:35:02 UTC (rev 530)
++++ trunk/gpt/src/modules/x86/X86.hpp	2009-03-30 03:36:34 UTC (rev 531)
+@@ -98,7 +98,7 @@
+   string translateFuncImprima(const string&amp; id, int type);
+   string createLabel(bool local, string tmpl);
+ 
+-  void writeExit(int value=0);
++  void writeExit();
+ 
+   void writeAttribution(int e1, int e2, pair&lt;pair&lt;int, bool&gt;, string&gt;&amp;);
+   void writeOuExpr();
+
+Modified: trunk/gpt/src/modules/x86/x86.g
+===================================================================
+--- trunk/gpt/src/modules/x86/x86.g	2009-03-30 03:35:02 UTC (rev 530)
++++ trunk/gpt/src/modules/x86/x86.g	2009-03-30 03:36:34 UTC (rev 531)
+@@ -149,7 +149,10 @@
+ 
+ principal
+   : stm_block
+-    {x86.writeExit();}
++    {
++            x86.writeTEXT(&quot;mov ecx, 0&quot;);
++            x86.writeExit();
++    }
+   ;
+ 
+ stm_block
+@@ -343,9 +346,9 @@
+   : #(T_KW_RETORNE (TI_NULL|etype=expr[expecting_type]))
+     {
+       if (isGlobalEscope){
+-      // arrumar um jeito de passar o valor do retorne aqui.
+-      	x86.writeExit();  // o writeExit() j&#225; est&#225; preparado pra receber um parametro inteiro, que &#233; opcional	
+-      }else{
++        x86.writeTEXT(&quot;pop ecx&quot;);
++        x86.writeExit();
++      } else {
+       	if(expecting_type != TIPO_NULO) {
+         	x86.writeTEXT(&quot;pop eax&quot;);
+       	}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000203.html">[gpt-commit] r530 - trunk/gpt/src/modules/parser
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#204">[ date ]</a>
+              <a href="thread.html#204">[ thread ]</a>
+              <a href="subject.html#204">[ subject ]</a>
+              <a href="author.html#204">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>

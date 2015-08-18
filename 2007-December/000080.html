@@ -1,0 +1,1416 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [gpt-commit] r406 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/gpt-commit/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r406%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712031553.lB3FrcSf023707%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000081.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[gpt-commit] r406 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm</H1>
+    <B>gpt-commit-noreply at mail.berlios.de</B> 
+    <A HREF="mailto:gpt-commit%40lists.berlios.de?Subject=Re%3A%20%5Bgpt-commit%5D%20r406%20-%20in%20trunk/gpt2%3A%20common/src%20gptasm/src%0A%09gptasm/test/wikki%20gptvm/src%20gptvm/test/gerados_pelo_gptasm&In-Reply-To=%3C200712031553.lB3FrcSf023707%40sheep.berlios.de%3E"
+       TITLE="[gpt-commit] r406 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm">gpt-commit-noreply at mail.berlios.de
+       </A><BR>
+    <I>Mon Dec  3 16:53:38 CET 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000081.html">[gpt-commit] r407 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#80">[ date ]</a>
+              <a href="thread.html#80">[ thread ]</a>
+              <a href="subject.html#80">[ subject ]</a>
+              <a href="author.html#80">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: alexgarzao
+Date: 2007-12-03 16:53:35 +0100 (Mon, 03 Dec 2007)
+New Revision: 406
+
+Added:
+   trunk/gpt2/gptasm/test/wikki/variaveis_4_1.gasm
+Modified:
+   trunk/gpt2/common/src/CBinString.cpp
+   trunk/gpt2/common/src/CBinString.hpp
+   trunk/gpt2/common/src/Common.hpp
+   trunk/gpt2/common/src/Tools.cpp
+   trunk/gpt2/common/src/Tools.hpp
+   trunk/gpt2/gptasm/src/main.cpp
+   trunk/gpt2/gptvm/src/CBytecode.cpp
+   trunk/gpt2/gptvm/src/CDataStack.cpp
+   trunk/gpt2/gptvm/src/CDataStack.hpp
+   trunk/gpt2/gptvm/src/CRunBytecode.cpp
+   trunk/gpt2/gptvm/src/CRunBytecode.hpp
+   trunk/gpt2/gptvm/src/main.cpp
+   trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+Log:
+DEVNULL:
+* Melhorias e correcoes no suporte a strings (literais) na VM
+* Correcoes no suporte ao tipo real
+* Na GptVM, as areas de dados globais e locais foram unificadas
+
+
+Modified: trunk/gpt2/common/src/CBinString.cpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.cpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/common/src/CBinString.cpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -79,6 +79,12 @@
+    value = getByte(pos);
+ }
+ 
++void CBinString::setByte(const int &amp;pos, const char &amp;value)
++{
++   (*this)[pos] = value;
++}
++
++
+ int CBinString::getInt(int pos)
+ {
+    int result = *((int*)(data()+pos));
+@@ -162,6 +168,23 @@
+ }
+ 
+ 
++void CBinString::pushByte(const char &amp;value)
++{
++   writeByte(value);
++}
++
++
++char CBinString::popByte()
++{
++   int pos = size()-sizeof(char);
++   char result = *((char*)(data()+pos));
++
++   erase(pos,sizeof(char));
++
++   return result;
++}
++
++
+ void CBinString::pushReal(const double &amp;value)
+ {
+    writeReal(value);
+
+Modified: trunk/gpt2/common/src/CBinString.hpp
+===================================================================
+--- trunk/gpt2/common/src/CBinString.hpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/common/src/CBinString.hpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -18,6 +18,7 @@
+    void readReal(double &amp;value);
+    char getByte(const int &amp;pos);
+    void getByte(const int &amp;pos, char &amp;value);
++   void setByte(const int &amp;pos, const char &amp;value);
+    int getInt(int pos);
+    double getReal(int pos);
+    void readString(std::string &amp;value);
+@@ -41,6 +42,8 @@
+    bool removeIfEqual(const std::string &amp;value);
+    std::string getCString(const int &amp;address);
+    std::string::find;
++   void pushByte(const char &amp;value);
++   char popByte();
+ private:
+    void writeData(const void *value, const size_t &amp;size);
+ };
+
+Modified: trunk/gpt2/common/src/Common.hpp
+===================================================================
+--- trunk/gpt2/common/src/Common.hpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/common/src/Common.hpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -19,10 +19,10 @@
+ const int UNSET_NEG_BIT   = 0xDFFFFFFF; // 11011111 (binario)
+ 
+ #define IS_LOCAL_ADDRESS(address) \
+-   (address) &amp; SET_LOCAL_BIT
++   ( (address) &amp; SET_LOCAL_BIT )
+ 
+ #define IS_NEG_ADDRESS(address) \
+-   (address) &amp; SET_NEG_BIT
++   ( (address) &amp; SET_NEG_BIT )
+ 
+ enum opcode {
+    OP_NOP         = 0,
+
+Modified: trunk/gpt2/common/src/Tools.cpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.cpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/common/src/Tools.cpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -177,48 +177,7 @@
+     return str;
+ }
+ 
+-/* CRAP!  --felipek
+-string&amp; getStringWithTab(string _data, string _tab) {
+-	cout &lt;&lt; &quot;begin getStringWithTab&quot; &lt;&lt; endl;
+-	cout &lt;&lt; &quot;tab=\&quot;&quot; &lt;&lt; _tab &lt;&lt; &quot;\&quot;&quot; &lt;&lt; endl;
+-	cout &lt;&lt; &quot;begin datae&quot; &lt;&lt; endl;
+-	cout &lt;&lt; _data &lt;&lt; endl;
+-	cout &lt;&lt; &quot;end datae&quot; &lt;&lt; endl;
+-	int pos = -1;
+- 
+-	// test too another new line sequences
+-	while( ( pos = _data.find( &quot;\n&quot;, pos + 1 ) ) != -1 ) {
+-		_data.insert( pos + 1, _tab );
+-	}
+- 
+-	cout &lt;&lt; &quot;begin datas&quot; &lt;&lt; endl;
+-	cout &lt;&lt; _data &lt;&lt; endl;
+-	cout &lt;&lt; &quot;end datas&quot; &lt;&lt; endl;
+-	return( _data );
+-}
+-*/
+ 
+-bool streamtoken(istringstream&amp; stream, string&amp; key, string&amp; val) {
+-     /* FIXME: leak, --felipek */
+-     char buffer[8192];
+-     unsigned int delim;
+-     string entry;
+-//     bool ret;
+-
+-     /* FIXME: ret type, -- felipek */
+-     stream.getline(buffer, 8192 - 1);
+-     entry = string(buffer);
+-     delim = entry.find(' ', 0);
+-
+-     if (delim != entry.npos) {
+-         key = entry.substr(0, delim);
+-         val = entry.substr(delim + 1);
+-     }
+-
+-     return !stream.eof();
+-}
+-
+-
+ /*const string typeToText(const int &amp;type)
+ {
+    if (type == PortugolParserTokenTypes::T_INT_LIT) {
+@@ -297,21 +256,7 @@
+    return 0;
+ }
+ 
+-//struct SBits {
+-//   int signal : 1;
+-//   int localbit : 1;
+-//   int others : 30;
+-//}
+ 
+-//int setLocalBit(const int &amp;value, const bool &amp;state)
+-//{
+-//   SBits result;
+-//   memcpy(result, value, sizeof(int));
+-//  result.localbit = state;
+-//
+-//   return (int) result;
+-//}
+-
+ int realAddress(int address)
+ {
+    if (IS_LOCAL_ADDRESS(address)) {
+@@ -343,3 +288,29 @@
+    return result;
+ }
+ 
++/*
++int sumAddress(int address, int value)
++{
++   bool localAddress = false;
++   bool negAddress = false;
++
++   if (IS_LOCAL_ADDRESS(address)) {
++      address = address &amp; UNSET_LOCAL_BIT;
++      localAddress = true;
++   }
++   if (IS_NEG_ADDRESS(address)) {
++      address = address &amp; UNSET_NEG_BIT;
++      address *= -1;
++      negAddress = true;
++   }
++   address += value;
++   if (localAddress) {
++      address |= SET_LOCAL_BIT;
++   }
++   if (negAddress) {
++      address |= SET_NEG_BIT;
++   }
++   return address;
++}
++*/
++
+
+Modified: trunk/gpt2/common/src/Tools.hpp
+===================================================================
+--- trunk/gpt2/common/src/Tools.hpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/common/src/Tools.hpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -38,5 +38,6 @@
+ int getTypeSize(const int &amp;type);
+ int realAddress(int address);
+ std::string realAddressString(int address);
++//int sumAddress(int address, int value);
+ 
+ #endif
+
+Modified: trunk/gpt2/gptasm/src/main.cpp
+===================================================================
+--- trunk/gpt2/gptasm/src/main.cpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/gptasm/src/main.cpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -16,7 +16,7 @@
+    int i;
+    COptions options;
+ 
+-   cout &lt;&lt; &quot;GptAsm, release 0.1.0 (development release)&quot; &lt;&lt; endl;
++   cout &lt;&lt; &quot;GptAsm - GEPETO - Release 0.1.0 (development release)&quot; &lt;&lt; endl;
+ 
+    while ((i = getopt(argc, argv, &quot;h&quot;)) != -1) {
+       switch (i) {
+
+Added: trunk/gpt2/gptasm/test/wikki/variaveis_4_1.gasm
+===================================================================
+--- trunk/gpt2/gptasm/test/wikki/variaveis_4_1.gasm	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/gptasm/test/wikki/variaveis_4_1.gasm	2007-12-03 15:53:35 UTC (rev 406)
+@@ -0,0 +1,55 @@
++program exemplo
++
++proc main
++    var v string
++
++    salloc v
++
++    sset v, &quot;0&quot;
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
++    sset v, v
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
++    ssum v, &quot;12&quot;, &quot;34&quot;
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
++    ssum v, v, v
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
++    ssum v, v, &quot;10&quot;
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++
++    ssum v, &quot;10&quot;, v
++    pushsv v
++    pushst
++    pushiv 1
++    lcall imprima
++	
++    pushsv &quot;10&quot;
++    pushst
++    pushiv 1
++    lcall imprima
++	
++    sfree v
++
++    exit 0
++endproc
++
++endprogram
++
+
+Modified: trunk/gpt2/gptvm/src/CBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CBytecode.cpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/gptvm/src/CBytecode.cpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -15,7 +15,7 @@
+ 
+ char CBytecode::fetchByte()
+ {
+-   if (_IP &gt;= size()) {
++   if ((size_t)_IP &gt;= size()) {
+       std::cout &lt;&lt; &quot;Erro limite em fetchByte()&quot; &lt;&lt; std::endl;
+       abort();
+    }
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.cpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/gptvm/src/CDataStack.cpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -3,6 +3,7 @@
+ #include &quot;Common.hpp&quot;
+ 
+ #include &quot;Tools.hpp&quot;
++#include &quot;CSymbol.hpp&quot;
+ 
+ 
+ 
+@@ -22,29 +23,53 @@
+ 
+ void CDataStack::setInt(const int &amp;address, const int &amp;value)
+ {
+-//   std::cout &lt;&lt; &quot;setInt &quot;;
+    if (IS_LOCAL_ADDRESS(address)) {
+-//      std::cout &lt;&lt; &quot;local address sem bit ligado: &quot; &lt;&lt; ((unsigned int)address &amp; UNSET_BIT_LOCAL) &lt;&lt; std::endl;
+       CBinString::setInt(_BS + realAddress(address), value);
+    } else {
+-      std::cout &lt;&lt; &quot;ERRO !!! Invocando setInt com global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++      CBinString::setInt(realAddress(address), value);
+    }
++//   CBinString::setInt(_BS * IS_LOCAL_ADDRESS(address) + realAddress(address), value);
+ }
+ 
+ 
++
+ int CDataStack::getInt(const int &amp;address)
+ {
+-//   std::cout &lt;&lt; &quot;getInt &quot;;
+    if (IS_LOCAL_ADDRESS(address)) {
+-//      std::cout &lt;&lt; &quot;local address sem bit ligado: &quot; &lt;&lt; ((unsigned int)address &amp; UNSET_BIT_LOCAL) &lt;&lt; std::endl;
+       return CBinString::getInt(_BS + realAddress(address));
+    } else {
+-      std::cout &lt;&lt; &quot;ERRO !!! Invocando getInt com global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-      return -1;
++      return CBinString::getInt(realAddress(address));
+    }
++//   return CBinString::getInt(_BS * IS_LOCAL_ADDRESS(address) + realAddress(address));
+ }
+ 
+ 
++//void CDataStack::setInt(const int &amp;address, const int &amp;value)
++//{
++////   std::cout &lt;&lt; &quot;setInt &quot;;
++//   if (IS_LOCAL_ADDRESS(address)) {
++////      std::cout &lt;&lt; &quot;local address sem bit ligado: &quot; &lt;&lt; ((unsigned int)address &amp; UNSET_BIT_LOCAL) &lt;&lt; std::endl;
++//      CBinString::setInt(_BS + realAddress(address), value);
++//   } else {
++//      std::cout &lt;&lt; &quot;ERRO !!! Invocando setInt com global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++//   }
++//}
++
++
++
++//int CDataStack::getInt(const int &amp;address)
++//{
++////   std::cout &lt;&lt; &quot;getInt &quot;;
++//   if (IS_LOCAL_ADDRESS(address)) {
++////      std::cout &lt;&lt; &quot;local address sem bit ligado: &quot; &lt;&lt; ((unsigned int)address &amp; UNSET_BIT_LOCAL) &lt;&lt; std::endl;
++//      return CBinString::getInt(_BS + realAddress(address));
++//   } else {
++//      std::cout &lt;&lt; &quot;ERRO !!! Invocando getInt com global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++//      return -1;
++//   }
++//}
++
++
+ void CDataStack::pushInt(const int &amp;value)
+ {
+    CBinString::pushInt(value);
+@@ -60,12 +85,27 @@
+ }
+ 
+ 
++void CDataStack::pushByte(const char &amp;value)
++{
++   CBinString::pushByte(value);
++   _SP+=sizeof(char);
++}
++
++
++char CDataStack::popByte()
++{
++   char result = CBinString::popByte();
++   _SP-=sizeof(char);
++   return result;
++}
++
++
+ void CDataStack::setReal(const int &amp;address, const double &amp;value)
+ {
+    if (IS_LOCAL_ADDRESS(address)) {
+       CBinString::setReal(_BS + realAddress(address), value);
+    } else {
+-      std::cout &lt;&lt; &quot;ERRO !!! Invocando setReal com global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
++      CBinString::setReal(realAddress(address), value);
+    }
+ }
+ 
+@@ -75,8 +115,7 @@
+    if (IS_LOCAL_ADDRESS(address)) {
+       return CBinString::getReal(_BS + realAddress(address));
+    } else {
+-      std::cout &lt;&lt; &quot;ERRO !!! Invocando getReal com global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-      return -1;
++      return CBinString::getReal(realAddress(address));
+    }
+ }
+ 
+@@ -96,6 +135,45 @@
+ }
+ 
+ 
++void CDataStack::setString(int address, const std::string &amp;value)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      address = _BS + realAddress(address);
++   } else {
++      address = realAddress(address);
++   }
++
++   char type = getByte(address);
++   address++;
++
++   if (type == CSymbol::CONST) {
++      CBinString::setCString(address, value);
++   } else {
++      *((std::string*)(CBinString::getInt(address))) = value;
++   }
++}
++
++
++std::string CDataStack::getString(int address)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      address = _BS + realAddress(address);
++   } else {
++      address = realAddress(address);
++   }
++
++   char type = CBinString::getByte(address);
++   address++;
++
++   if (type == CSymbol::CONST) {
++      return CBinString::getCString(address);
++//      return CBinString::getCString(CBinString::getInt(address)+1);
++   } else {
++      return *((std::string*)CBinString::getInt(address));
++   }
++}
++
++
+ void CDataStack::pushBytes(const int &amp;number)
+ {
+    CBinString::pushBytes(number);
+@@ -133,3 +211,28 @@
+    return _SP;
+ }
+ 
++void CDataStack::readString(std::string &amp;value)
++{
++   CBinString::readString(value);
++   setBS(size());
++}
++
++
++void CDataStack::setByte(const int &amp;address, const char &amp;value)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      CBinString::setByte(_BS + realAddress(address), value);
++   } else {
++      CBinString::setByte(realAddress(address), value);
++   }
++}
++
++
++char CDataStack::getByte(const int &amp;address)
++{
++   if (IS_LOCAL_ADDRESS(address)) {
++      return CBinString::getByte(_BS + realAddress(address));
++   } else {
++      return CBinString::getByte(realAddress(address));
++   }
++}
+
+Modified: trunk/gpt2/gptvm/src/CDataStack.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CDataStack.hpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/gptvm/src/CDataStack.hpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -24,6 +24,13 @@
+    void setSP(const int &amp;value);
+    int getBS() const;
+    int getSP() const;
++   void readString(std::string &amp;value);
++   std::string getString(int address);
++   void setString(int address, const std::string &amp;value);
++   void setByte(const int &amp;address, const char &amp;value);
++   char getByte(const int &amp;address);
++   void pushByte(const char &amp;value);
++   char popByte();
+ private:
+    int _BS;
+    int _SP; // TODO: SP eh equivalente a size() ???
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/gptvm/src/CRunBytecode.cpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -3,7 +3,12 @@
+ #include &lt;sstream&gt;
+ #include &lt;iostream&gt;
+ 
++#include &quot;Tools.hpp&quot;
+ 
++
++// TODO: ao somar dados em address os limites deveriam ser testados
++// TODO: Armazenar todas as strings em memoria com o tamanho na frente ???
++
+ CRunBytecode::CRunBytecode()
+    : _returnCode(0)
+ {
+@@ -25,7 +30,9 @@
+    _header.readFromBinary(bin) &amp;&amp;
+          _symbolTable.readFromBinary(bin);
+ 
+-   bin.readString(_globalData);
++   _dataStack.assign(bin.readString());
++   _dataStack.setBS(_dataStack.size());
++   _dataStack.setSP(_dataStack.size());
+ 
+    _code.assign(bin.readString());
+ 
+@@ -216,8 +223,8 @@
+       int boolValue;
+       switch (type) {
+          case CSymbol::STRING:
+-            address += sizeof(int);
+-            std::cout &lt;&lt; getStringData(_dataStack.getInt(address|SET_LOCAL_BIT|SET_NEG_BIT));
++            address += sizeof(char) + sizeof(int);
++            std::cout &lt;&lt; _dataStack.getString(address|SET_LOCAL_BIT|SET_NEG_BIT);
+             break;
+          case CSymbol::INT:
+             address += sizeof(int);
+@@ -252,43 +259,6 @@
+ }
+ 
+ 
+-//void CRunBytecode::procImprima()
+-//{
+-//   int argNumber = _dataStack.popInt();
+-//
+-//   for (int arg=0; arg &lt; argNumber; arg++) {
+-//      int type = _dataStack.popInt();
+-//      int boolValue;
+-//      switch (type) {
+-//         case CSymbol::STRING:
+-//            std::cout &lt;&lt; getStringData(_dataStack.popInt());
+-//            break;
+-//         case CSymbol::INT:
+-//            std::cout &lt;&lt; _dataStack.popInt();
+-//            break;
+-//         case CSymbol::CHAR:
+-////            std::cout &lt;&lt; (char)_dataStack.popInt();
+-//            std::cout &lt;&lt; &quot;char [&quot; &lt;&lt; (int)_dataStack.popInt() &lt;&lt; &quot;]&quot;;
+-//            break;
+-//         case CSymbol::BOOL:
+-//            boolValue = _dataStack.popInt();
+-//            if (boolValue == 0) {
+-//               std::cout &lt;&lt; &quot;false&quot;;
+-//            } else {
+-//               std::cout &lt;&lt; &quot;true&quot;;
+-//            }
+-//            break;
+-//         case CSymbol::REAL:
+-//         case CSymbol::MATRIX:
+-//         default:
+-//            std::cout &lt;&lt; &quot;Tipo ainda nao suportado !!!&quot; &lt;&lt; std::endl;
+-//            abort();
+-//      }
+-//   }
+-//   std::cout &lt;&lt; std::endl;
+-//}
+-
+-
+ void CRunBytecode::procLeia()
+ {
+    int type = _dataStack.popInt();
+@@ -326,102 +296,6 @@
+ }
+ 
+ 
+-void CRunBytecode::setIntData(const int &amp;address, const int &amp;value)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      _dataStack.setInt(address, value);
+-   } else {
+-//      std::cout &lt;&lt; &quot;setIntData global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-      _globalData.setInt(address, value);
+-   }
+-}
+-
+-
+-int CRunBytecode::getIntData(const int &amp;address)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      return _dataStack.getInt(address);
+-   } else {
+-//      std::cout &lt;&lt; &quot;global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-      return _globalData.getInt(address);
+-   }
+-}
+-
+-
+-void CRunBytecode::setRealData(const int &amp;address, const double &amp;value)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      _dataStack.setReal(address, value);
+-   } else {
+-      _globalData.setReal(address, value);
+-   }
+-}
+-
+-
+-double CRunBytecode::getRealData(const int &amp;address)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      return _dataStack.getReal(address);
+-   } else {
+-      return _globalData.getReal(address);
+-   }
+-}
+-
+-
+-void CRunBytecode::setStringData(const int &amp;address, const std::string &amp;value)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      char type = _dataStack.getByte(address);
+-
+-      if (type == CSymbol::CONST) {
+-         _dataStack.setCString(address+1, value);
+-      } else {
+-         *((std::string*)_dataStack.getInt(address+1)) = value;
+-      }
+-   } else {
+-      char type = _globalData.getByte(address);
+-
+-      if (type == CSymbol::CONST) {
+-         _globalData.setCString(address+1, value);
+-      } else {
+-         *((std::string*)_globalData.getInt(address+1)) = value;
+-      }
+-   }
+-}
+-
+-
+-std::string CRunBytecode::getStringData(const int &amp;address)
+-{
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      char type = _dataStack.getByte(address);
+-
+-      if (type == CSymbol::CONST) {
+-         return _dataStack.getCString(address+1);
+-      } else {
+-         return *((std::string*)_dataStack.getInt(address+1));
+-      }
+-   } else {
+-      char type = _globalData.getByte(address);
+-
+-      if (type == CSymbol::CONST) {
+-         return _globalData.getCString(address+1);
+-      } else {
+-         return *((std::string*)_globalData.getInt(address+1));
+-      }
+-   }
+-}
+-
+-//std::string CRunBytecode::getStringData(const int &amp;address)
+-//{
+-//   if (IS_LOCAL_ADDRESS(address)) {
+-//      return _dataStack.getCString(address);
+-//   } else {
+-////      std::cout &lt;&lt; &quot;global address: &quot; &lt;&lt; address &lt;&lt; std::endl;
+-//      return _globalData.getCString(address);
+-//   }
+-//}
+-
+-
+ /////////////
+ // opcodes //
+ /////////////
+@@ -464,15 +338,15 @@
+ 
+    int address = _code.fetchInt();
+ 
+-   if (_globalData[address] != CSymbol::CONST) {
++   if (_dataStack[address] != CSymbol::CONST) {
+       error( &quot;Endereco para lcall deve conter uma string constante !!!&quot; );
+    }
+ 
+    address++;
+ 
+-   if (_globalData.getCString(address) == &quot;imprima&quot;) {
++   if (_dataStack.getCString(address) == &quot;imprima&quot;) {
+       procImprima();
+-   } else if (_globalData.getCString(address) == &quot;leia&quot;) {
++   } else if (_dataStack.getCString(address) == &quot;leia&quot;) {
+       procLeia();
+    } else {
+       error(&quot;lcall invocando subrotina desconhecida !!!&quot;);
+@@ -487,7 +361,7 @@
+ {
+    trace (&quot;exit opcode&quot;);
+ 
+-   _returnCode = getIntData(_code.fetchInt());
++   _returnCode = _dataStack.getInt(_code.fetchInt());
+    _stop       = true;
+ }
+ 
+@@ -525,7 +399,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) + getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) + _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::ssumOpcode()
+@@ -536,7 +410,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setStringData(varAddress, getStringData(val1Address) + getStringData(val2Address));
++   _dataStack.setString(varAddress, _dataStack.getString(val1Address) + _dataStack.getString(val2Address));
+ }
+ 
+ void CRunBytecode::rsumOpcode()
+@@ -547,7 +421,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(val1Address) + getRealData(val2Address));
++   _dataStack.setReal(varAddress, _dataStack.getReal(val1Address) + _dataStack.getReal(val2Address));
+ }
+ 
+ void CRunBytecode::isubOpcode()
+@@ -558,7 +432,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) - getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) - _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::ssubOpcode()
+@@ -574,7 +448,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(val1Address) - getRealData(val2Address));
++   _dataStack.setReal(varAddress, _dataStack.getReal(val1Address) - _dataStack.getReal(val2Address));
+ }
+ 
+ void CRunBytecode::imulOpcode()
+@@ -585,7 +459,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) * getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) * _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::rmulOpcode()
+@@ -596,7 +470,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(val1Address) * getRealData(val2Address));
++   _dataStack.setReal(varAddress, _dataStack.getReal(val1Address) * _dataStack.getReal(val2Address));
+ }
+ 
+ void CRunBytecode::idivOpcode()
+@@ -607,7 +481,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) / getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) / _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::rdivOpcode()
+@@ -618,7 +492,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(val1Address) / getRealData(val2Address));
++   _dataStack.setReal(varAddress, _dataStack.getReal(val1Address) / _dataStack.getReal(val2Address));
+ }
+ 
+ void CRunBytecode::imodOpcode()
+@@ -629,7 +503,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) % getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) % _dataStack.getInt(val2Address));
+ }
+ 
+ 
+@@ -641,7 +515,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) &gt;= getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) &gt;= _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::sgeOpcode()
+@@ -652,7 +526,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getStringData(val1Address) &gt;= getStringData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getString(val1Address) &gt;= _dataStack.getString(val2Address));
+ }
+ 
+ void CRunBytecode::rgeOpcode()
+@@ -663,7 +537,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getRealData(val1Address) &gt;= getRealData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getReal(val1Address) &gt;= _dataStack.getReal(val2Address));
+ }
+ 
+ void CRunBytecode::ileOpcode()
+@@ -674,7 +548,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) &lt;= getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) &lt;= _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::sleOpcode()
+@@ -685,7 +559,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getStringData(val1Address) &lt;= getStringData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getString(val1Address) &lt;= _dataStack.getString(val2Address));
+ }
+ 
+ void CRunBytecode::rleOpcode()
+@@ -696,7 +570,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getRealData(val1Address) &lt;= getRealData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getReal(val1Address) &lt;= _dataStack.getReal(val2Address));
+ }
+ 
+ void CRunBytecode::ineOpcode()
+@@ -707,7 +581,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) != getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) != _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::sneOpcode()
+@@ -718,7 +592,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getStringData(val1Address) != getStringData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getString(val1Address) != _dataStack.getString(val2Address));
+ }
+ 
+ void CRunBytecode::rneOpcode()
+@@ -729,7 +603,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getRealData(val1Address) != getRealData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getReal(val1Address) != _dataStack.getReal(val2Address));
+ }
+ 
+ void CRunBytecode::igtOpcode()
+@@ -740,7 +614,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) &gt; getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) &gt; _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::sgtOpcode()
+@@ -751,7 +625,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getStringData(val1Address) &gt; getStringData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getString(val1Address) &gt; _dataStack.getString(val2Address));
+ }
+ 
+ void CRunBytecode::rgtOpcode()
+@@ -762,7 +636,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getRealData(val1Address) &gt; getRealData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getReal(val1Address) &gt; _dataStack.getReal(val2Address));
+ }
+ 
+ void CRunBytecode::iltOpcode()
+@@ -773,7 +647,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) &lt; getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) &lt; _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::sltOpcode()
+@@ -784,7 +658,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getStringData(val1Address) &lt; getStringData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getString(val1Address) &lt; _dataStack.getString(val2Address));
+ }
+ 
+ void CRunBytecode::rltOpcode()
+@@ -795,7 +669,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getRealData(val1Address) &lt; getRealData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getReal(val1Address) &lt; _dataStack.getReal(val2Address));
+ }
+ 
+ void CRunBytecode::ieqOpcode()
+@@ -806,7 +680,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) == getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) == _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::seqOpcode()
+@@ -817,7 +691,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getStringData(val1Address) == getStringData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getString(val1Address) == _dataStack.getString(val2Address));
+ }
+ 
+ void CRunBytecode::reqOpcode()
+@@ -828,7 +702,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getRealData(val1Address) == getRealData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getReal(val1Address) == _dataStack.getReal(val2Address));
+ }
+ 
+ void CRunBytecode::orOpcode()
+@@ -839,7 +713,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) || getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) || _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::andOpcode()
+@@ -850,7 +724,7 @@
+    int val1Address = _code.fetchInt();
+    int val2Address = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(val1Address) &amp;&amp; getIntData(val2Address));
++   _dataStack.setInt(varAddress, _dataStack.getInt(val1Address) &amp;&amp; _dataStack.getInt(val2Address));
+ }
+ 
+ void CRunBytecode::xorOpcode()
+@@ -880,7 +754,7 @@
+    int varAddress = _code.fetchInt();
+    int valAddress = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(varAddress) + getIntData(valAddress));
++   _dataStack.setInt(varAddress, _dataStack.getInt(varAddress) + _dataStack.getInt(valAddress));
+ }
+ 
+ void CRunBytecode::idecOpcode()
+@@ -890,7 +764,7 @@
+    int varAddress = _code.fetchInt();
+    int valAddress = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(varAddress) - getIntData(valAddress));
++   _dataStack.setInt(varAddress, _dataStack.getInt(varAddress) - _dataStack.getInt(valAddress));
+ }
+ 
+ void CRunBytecode::i2cOpcode()
+@@ -920,7 +794,7 @@
+    int var1Address = _code.fetchInt();
+    int var2Address = _code.fetchInt();
+ 
+-   setRealData(var1Address, (double)getIntData(var2Address));
++   _dataStack.setReal(var1Address, (double)_dataStack.getInt(var2Address));
+ }
+ 
+ void CRunBytecode::c2rOpcode()
+@@ -995,7 +869,7 @@
+    int var1Address = _code.fetchInt();
+    int var2Address = _code.fetchInt();
+ 
+-   setIntData(var1Address, (int)getRealData(var2Address));
++   _dataStack.setInt(var1Address, (int)_dataStack.getReal(var2Address));
+ }
+ 
+ void CRunBytecode::s2iOpcode()
+@@ -1015,7 +889,7 @@
+    int varAddress = _code.fetchInt();
+    int valAddress = _code.fetchInt();
+ 
+-   setIntData(varAddress, getIntData(valAddress));
++   _dataStack.setInt(varAddress, _dataStack.getInt(valAddress));
+ }
+ 
+ 
+@@ -1026,7 +900,7 @@
+    int varAddress = _code.fetchInt();
+    int valAddress = _code.fetchInt();
+ 
+-   setStringData(varAddress, getStringData(valAddress));
++   _dataStack.setString(varAddress, _dataStack.getString(valAddress));
+ }
+ 
+ void CRunBytecode::rsetOpcode()
+@@ -1036,7 +910,7 @@
+    int varAddress = _code.fetchInt();
+    int valAddress = _code.fetchInt();
+ 
+-   setRealData(varAddress, getRealData(valAddress));
++   _dataStack.setReal(varAddress, _dataStack.getReal(valAddress));
+ }
+ 
+ void CRunBytecode::getaOpcode()
+@@ -1090,7 +964,7 @@
+    int varAddress = _code.fetchInt();
+    int labelAddress = _code.fetchInt();
+ 
+-   if (getIntData(varAddress)) {
++   if (_dataStack.getInt(varAddress)) {
+       _code.setIP(labelAddress);
+    }
+ }
+@@ -1102,7 +976,7 @@
+    int varAddress = _code.fetchInt();
+    int labelAddress = _code.fetchInt();
+ 
+-   if (!getIntData(varAddress)) {
++   if (!_dataStack.getInt(varAddress)) {
+       _code.setIP(labelAddress);
+    }
+ }
+@@ -1118,7 +992,7 @@
+ 
+    int address = _code.fetchInt();
+ 
+-   setIntData(address, _dataStack.popInt());
++   _dataStack.setInt(address, _dataStack.popInt());
+ }
+ 
+ void CRunBytecode::poprvOpcode()
+@@ -1127,7 +1001,7 @@
+ 
+    int address = _code.fetchInt();
+ 
+-   setRealData(address, _dataStack.popReal());
++   _dataStack.setReal(address, _dataStack.popReal());
+ }
+ 
+ void CRunBytecode::popmvOpcode()
+@@ -1140,7 +1014,7 @@
+    trace (&quot;incsp opcode&quot;);
+ 
+    int valAddress = _code.fetchInt();
+-   int size = getIntData(valAddress);
++   int size = _dataStack.getInt(valAddress);
+ 
+    _dataStack.pushBytes(size);
+ }
+@@ -1149,7 +1023,7 @@
+ {
+    trace (&quot;decsp opcode&quot;);
+ 
+-   int size = getIntData(_code.fetchInt());
++   int size = _dataStack.getInt(_code.fetchInt());
+ 
+    _dataStack.popBytes(size);
+ }
+@@ -1203,23 +1077,57 @@
+ }
+ 
+ 
++
+ void CRunBytecode::pushsvOpcode()
+ {
+    trace (&quot;pushsv opcode&quot;);
+ 
+    int address = _code.fetchInt();
+ 
+-   _dataStack.pushInt(address);
++   _dataStack.pushByte(CSymbol::VAR);
++
++   std::string *value = new std::string(); // TODO: quando eh desalocado ??? 
++   _dataStack.pushInt((int)value);
++
++   *value = _dataStack.getString(address);
+ }
+ 
+ 
++//void CRunBytecode::pushsvOpcode()
++//{
++//   // TODO: pushsv nao deveria empilhar uma copia do tipo e endereco da variavel ???
++//   // e como empilhar uma constante global string, uma variavel local e uma variavel global ???
++//   // Acho que sempre que empilhado, tudo deveria virar variavel. Ou seja, para empilhar uma
++//   // constante, deveria ser criado uma variavel string com uma copia da constante.
++//   // Se for empilhar uma variavel entao criar uma string e copiar o valor da outra variavel
++//
++//   trace (&quot;pushsv opcode&quot;);
++//
++//   int address = _code.fetchInt();
++//
++////   _dataStack.pushByte(_dataStack.getByte(address));
++//
++//   // Quando uma variavel local eh empilhada o endereco empilhado nao pode ser
++//   // o relativo, mas sim o absoluto (global). Caso contrario qdo a outra funcao
++//   // tentar acessar o endereco ela vai usar o seu BS e nao o BS de quando o 
++//   // endereco foi empilhado
++//
++//   if (IS_LOCAL_ADDRESS(address)) {
++//      _dataStack.pushInt(_dataStack.getBS()+realAddress(address));
++//   } else {
++//      _dataStack.pushInt(address);
++//   }
++//}
++
++
+ void CRunBytecode::pushivOpcode()
+ {
+    trace (&quot;pushiv opcode&quot;);
+ 
+    int address = _code.fetchInt();
+ 
+-   _dataStack.pushInt(getIntData(address));
++   // Empilha o conteudo para que o formato dos dados globais e locais sejam o mesmo
++   _dataStack.pushInt(_dataStack.getInt(address));
+ }
+ 
+ void CRunBytecode::pushrvOpcode()
+@@ -1228,7 +1136,7 @@
+ 
+    int address = _code.fetchInt();
+ 
+-   _dataStack.pushReal(getRealData(address));
++   _dataStack.pushReal(_dataStack.getReal(address));
+ }
+ 
+ void CRunBytecode::pushmvOpcode()
+@@ -1314,61 +1222,25 @@
+    _code.setIP(_executionStack.top());
+    _executionStack.pop();
+ 
+-//   _dataStack.setSP(_executionStack.top());
+-//   _executionStack.pop();
+-
+    _dataStack.setBS(_executionStack.top());
+    _executionStack.pop();
+-
+-//   // Ajusta o tamanho correto de _dataStack
+-//   _dataStack.resize(_dataStack.getSP());
+ }
+ 
+-// TODO: ao inves de termos global e local, quem sabe as globais nao poderiam estar no inicio do que hj sao as locais ?
+-// Isso simplificaria e muito a implementacao...
+-
+ void CRunBytecode::sallocOpcode()
+ {
+    trace (&quot;salloc opcode&quot;);
+ 
+    int address = _code.fetchInt();
+ 
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      char type = _dataStack.getByte(address);
++   _dataStack.setByte(address, CSymbol::VAR);
++   char type = _dataStack.getByte(address);
+ 
+-      if (type != CSymbol::VAR) {
+-         error( &quot;salloc apenas com variaveis !!!&quot; );
+-      }
+-
+-//      std::string *vvv = new std::string();
+-      std::string *value = new std::string();
+-      _dataStack.setInt(address+1, (int)value);
+-
+-
+-//      (std::string*)(_dataStack.data()+address+1) = &quot;aaa&quot;;
+-//      (std::string*)(_dataStack.data()+address+1) = new std::string;
+-//      value =  (std::string*)_dataStack.data()+address+1;
+-//      *value = &quot;aaa&quot;;
+-//      *value = new std::string;
+-//
+-//
+-//      std::string *v = new std::string;
+-
+-//      int x = 1;
+-//      (std::string*)x = v;
+-//      *(std::string*)(_dataStack.getInt(address+1)) = v;
+-//      *((std::string*)_dataStack.getInt(address+1)) = new std::string(&quot;&quot;);
+-   } else {
+-      char type = _globalData.getByte(address);
+-
+-      if (type != CSymbol::VAR) {
+-         error( &quot;salloc apenas com variaveis !!!&quot; );
+-      }
+-
+-      std::string *value = new std::string();
+-      _globalData.setInt(address+1, (int)value);
+-      //*((std::string*)_globalData.getInt(address+1)) = new std::string(&quot;&quot;);
++   if (type != CSymbol::VAR) {
++      error( &quot;salloc apenas com variaveis !!!&quot; );
+    }
++
++   std::string *value = new std::string();
++   _dataStack.setInt(address+1, (int)value);
+ }
+ 
+ void CRunBytecode::sfreeOpcode()
+@@ -1377,27 +1249,15 @@
+ 
+    int address = _code.fetchInt();
+ 
+-   if (IS_LOCAL_ADDRESS(address)) {
+-      char type = _dataStack.getByte(address);
++   char type = _dataStack.getByte(address);
+ 
+-      if (type != CSymbol::VAR) {
+-         error( &quot;sfree apenas com variaveis !!!&quot; );
+-      }
+-
+-      std::string *value = (std::string*)_dataStack.getInt(address+1);
+-      delete value;
+-      _dataStack.setInt(address+1, 0);
+-   } else {
+-      char type = _globalData.getByte(address);
+-
+-      if (type != CSymbol::VAR) {
+-         error( &quot;sfree apenas com variaveis !!!&quot; );
+-      }
+-
+-      std::string *value = (std::string*)_globalData.getInt(address+1);
+-      delete value;
+-      _globalData.setInt(address+1, 0);
++   if (type != CSymbol::VAR) {
++      error( &quot;sfree apenas com variaveis !!!&quot; );
+    }
++
++   std::string *value = (std::string*)_dataStack.getInt(address+1);
++   delete value;
++   _dataStack.setInt(address+1, 0);
+ }
+ 
+ void CRunBytecode::ssetcOpcode()
+
+Modified: trunk/gpt2/gptvm/src/CRunBytecode.hpp
+===================================================================
+--- trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/gptvm/src/CRunBytecode.hpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -32,8 +32,8 @@
+    void step();
+    void procImprima();
+    void procLeia();
+-   void setIntData(const int &amp;address, const int &amp;value);
+-   int  getIntData(const int &amp;address);
++//   void setIntData(const int &amp;address, const int &amp;value);
++//   int  getIntData(const int &amp;address);
+    void setRealData(const int &amp;address, const double &amp;value);
+    double getRealData(const int &amp;address);
+    void setStringData(const int &amp;address, const std::string &amp;value);
+@@ -165,15 +165,15 @@
+    void mgetSize2Opcode();
+ 
+ 
+-   CHeader       _header;
+-   CSymbolTable  _symbolTable;
+-   CBinString    _globalData;
+-   CBytecode     _code;
+-   OpcodePointer _opcodePointer[OPCODE_NUMBER];
+-   bool          _stop;
+-   int           _returnCode;
+-   CDataStack    _dataStack;
+-   std::stack&lt;int&gt;   _executionStack;
++   CHeader         _header;
++   CSymbolTable    _symbolTable;
++//   CBinString      _globalData;
++   CBytecode       _code;
++   OpcodePointer   _opcodePointer[OPCODE_NUMBER];
++   bool            _stop;
++   int             _returnCode;
++   CDataStack      _dataStack;
++   std::stack&lt;int&gt; _executionStack;
+ };
+ 
+ #endif
+
+Modified: trunk/gpt2/gptvm/src/main.cpp
+===================================================================
+--- trunk/gpt2/gptvm/src/main.cpp	2007-11-30 18:58:48 UTC (rev 405)
++++ trunk/gpt2/gptvm/src/main.cpp	2007-12-03 15:53:35 UTC (rev 406)
+@@ -15,7 +15,7 @@
+    int i;
+    COptions options;
+ 
+-   cout &lt;&lt; &quot;GptVM, release 0.1.0 (development release)&quot; &lt;&lt; endl;
++   cout &lt;&lt; &quot;GptVM - GEPETO - Release 0.1.0 (development release)&quot; &lt;&lt; endl;
+ 
+    while ((i = getopt(argc, argv, &quot;h&quot;)) != -1) {
+       switch (i) {
+
+Modified: trunk/gpt2/gptvm/test/gerados_pelo_gptasm/variaveis_4.gvm
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000081.html">[gpt-commit] r407 - in trunk/gpt2: common/src gptasm/src	gptasm/test/wikki gptvm/src gptvm/test/gerados_pelo_gptasm
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#80">[ date ]</a>
+              <a href="thread.html#80">[ thread ]</a>
+              <a href="subject.html#80">[ subject ]</a>
+              <a href="author.html#80">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/gpt-commit">More information about the gpt-commit
+mailing list</a><br>
+</body></html>
